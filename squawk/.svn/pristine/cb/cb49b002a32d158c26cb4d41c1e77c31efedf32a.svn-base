@@ -1,2 +1,0 @@
-Target.debugger.j2me=true
-Target.debugger.dependsOn=cldc

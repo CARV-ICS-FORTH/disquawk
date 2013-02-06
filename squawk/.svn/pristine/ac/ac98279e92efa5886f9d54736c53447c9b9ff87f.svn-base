@@ -1,2 +1,0 @@
-Target.HelloWorldMain.j2me=true
-Target.HelloWorldMain.dependsOn=cldc imp
