@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -57,7 +57,7 @@ public class RomCommand extends Command {
      * Determines if the C compilation step should be executed or not.
      */
     private boolean compilationEnabled = true;
-    
+
     /**
      * Used to indicate that run does not need to compile, since the rom command was used with a -parent: argument.
      */
@@ -308,7 +308,7 @@ public class RomCommand extends Command {
                     if (out != null) try {out.close();} catch (IOException e) {}
                 }
             }
-            
+
             isBootstrapSuite = false;
         }
 
@@ -433,7 +433,7 @@ public class RomCommand extends Command {
         if (noNeedToCompile) {
             return;
         }
-        
+
         JDK jdk = env.getJDK();
         String options;
         if (compilationEnabled) {
@@ -515,18 +515,18 @@ public class RomCommand extends Command {
                     objectFiles.add(ccompiler.compile(includeDirs, source, VM_BLD_DIR, true));
                 }
             }
-            
-            
-          
-            if (ccompiler.options.nativeVerification) {    	   
+
+
+
+            if (ccompiler.options.nativeVerification) {
             	env.log(env.brief, "[compiling native verification sources in " + UTIL_SRC_DIR + " ...]");
                 List<File> sources = new FileSet(UTIL_SRC_DIR, new FileSet.SuffixSelector(".c")).list();
                 for (File source : sources) {
                     objectFiles.add(ccompiler.compile(includeDirs, source, VM_BLD_DIR, false));
                 }
             }
-        	
-            
+
+
 
             env.log(env.brief, "[compiling '" + VM_SRC_FILE + "' ...]");
             objectFiles.add(ccompiler.compile(includeDirs, VM_SRC_FILE, VM_BLD_DIR, false));
@@ -547,7 +547,7 @@ public class RomCommand extends Command {
             env.runCommand("squawk.jar", Build.NO_ARGS);
         }
     }
-    
+
     public String[] runRomizer(String... args) {
         bootstrapSuiteName = "squawk";
         // Only run the romizer if there are arguments passed to this command

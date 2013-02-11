@@ -33,7 +33,7 @@
 #elif defined(__ppc__) || defined(__ppc)
 #    define PROCESSOR_ARCHITECTURE_X86 0
 #    define ARM_FPA 0
-#elif defined(__sparc__) || defined(__sparc) 
+#elif defined(__sparc__) || defined(__sparc)
 #    define PROCESSOR_ARCHITECTURE_X86 0
 #    define ARM_FPA 0
 #elif defined(__arm__)
@@ -45,6 +45,9 @@
 #        define ARM_FPA 1
 #    endif /*__VFP_FP__*/
 #    endif
+#elif defined(__MICROBLAZE__)
+#    define PROCESSOR_ARCHITECTURE_X86 0
+#    define ARM_FPA 0
 #else
 #    warning "unsupported processor"
 #endif

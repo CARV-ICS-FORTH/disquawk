@@ -1,21 +1,21 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -65,7 +65,7 @@ import net.sourceforge.retroweaver.event.WeaveListener;
  *
  */
 public class Build {
-// TODO Go through and clean up the references to directories so that they are consistent 
+// TODO Go through and clean up the references to directories so that they are consistent
 
     /*---------------------------------------------------------------------------*\
      *                               Runtime options                             *
@@ -224,13 +224,13 @@ public class Build {
      * The most recent date that the file(s) from which the properties are loaded was modified.
      */
     private long propertiesLastModified;
-    
+
     private String specfifiedBuildDotOverrideFileName;
-    
+
     protected boolean isInitialized;
-    
+
     protected boolean isJava5SyntaxSupported;
-    
+
     /**
      * Gets the name of the build.override file specified by the -override: or -override arg. Or null if no
      * -override: arg was specified.
@@ -246,11 +246,11 @@ public class Build {
     public void addPossibleModuleDir(File dir) {
         possibleModuleDirs.add(dir);
     }
-    
+
     public List<File> getPossibleModuleDirs() {
         return possibleModuleDirs;
     }
-    
+
     /**
      * The interface to run a Java source compiler.
      */
@@ -732,7 +732,7 @@ public class Build {
             dependencies = baseDirFile.getName() + " " + dependencies;
         }
         command.dependsOn(dependencies);
-        
+
         addCommand(command);
         return command;
     }
@@ -795,7 +795,7 @@ public class Build {
 //                }
 //            }
 //        }
-        
+
         Target command = new Target(extraBuffer.toString(), j2me, baseDir, srcDirs, true, this, new File(baseDir).getName().toLowerCase());
         if (dependencies != null) {
             command.dependsOn(dependencies);
@@ -863,23 +863,23 @@ public class Build {
         if (extraSuitePath != null && extraSuitePath.length() != 0) {
             suitePathBuffer.append(File.pathSeparatorChar).append(toPlatformPath(extraSuitePath, true));
         }
-        
+
         String fullSuitePath = suitePathBuffer.toString();
         LinkTarget suiteCmd = new LinkTarget(baseDir, parent, this, basicName, fullSuitePath);
-        
+
         suiteCmd.dependsOn(compileCmdStr); // suite command depends on compile command
         if (dependencies != null) {
             suiteCmd.dependsOn(dependencies);
         }
         addCommand(suiteCmd);
-        
+
         // add run command:
         Command runCmd = addSquawkCommand(runCmdStr, null, "-suitepath:" + fullSuitePath + " -suite:" + basicName, "", "", "run application in " + basicName);
         runCmd.dependsOn(suiteCmdStr);// run command depends on suite command
 
         return suiteCmd;
     }
-    
+
     /**
      * Creates and installs a JavaCommand.
      *
@@ -903,7 +903,7 @@ public class Build {
      * @param extraVMArgs String
      * @param mainClassName String
      * @param args String
-     * @param description 
+     * @param description
      * @return the created and installed command
      */
     public Command addSquawkCommand(String name, String classPath, String extraVMArgs, String mainClassName, String args, final String description) {
@@ -987,9 +987,9 @@ public class Build {
     		processBuilderDotPropertiesFile(dotProperties);
     	}
     }
-    
+
     private HashSet<File> loadedPropertyFiles = new HashSet<File>();
-    
+
     /**
      * Installs commands from a properties file or directory.
      * If dotPropertiesFile is a directory, try to load dotPropertiesFile + "/builder.properties".
@@ -1006,7 +1006,7 @@ public class Build {
             log(verbose, "property file already loaded: " + dotPropertiesFile);
             return;
         }
-        
+
     	log(verbose, "Reading commands from: " + dotPropertiesFile.getPath());
         loadedPropertyFiles.add(dotPropertiesFile);
     	Properties savedproperties = new Properties();
@@ -1121,7 +1121,7 @@ public class Build {
 			processBuilderDotPropertiesFile(currentType, currentName, dotPropertiesFile, propertyIndex, attributes);
     	}
     }
-    
+
     /**
      * Convert a space-separated class path into a platform-specific classpath
      * @param path string of class path elements that may be space separated
@@ -1174,11 +1174,11 @@ public class Build {
         }
         return result;
     }
-    
+
     /**
      * Copy files from sourceRootPath, contained in subPaths, to destinationRootPath.  If any of the files being copy already exist
      * in siblingRootPath, then ignore it.
-     * 
+     *
      * @param sourceRootPath
      * @param destinationRootPath
      * @param siblingRootPath
@@ -1188,11 +1188,11 @@ public class Build {
     public void copy(String sourceRootPath, String destinationRootPath, String siblingRootPath, String... subPaths) {
         copy(sourceRootPath, destinationRootPath, siblingRootPath, false, subPaths);
     }
-    
+
     /**
      * Copy files from sourceRootPath, contained in subPaths, to destinationRootPath.  If any of the files being copy already exist
      * in siblingRootPath, then ignore it.
-     * 
+     *
      * @param sourceRootPath
      * @param destinationRootPath
      * @param siblingRootPath
@@ -1241,17 +1241,17 @@ public class Build {
             }
         }
     }
-    
+
     /**
      * Dynamically make a "user" commmand (either user-suite or user-run)
-     * @param staticCmd 
+     * @param staticCmd
      * @param args
      * @return extra arguemnts to run with...
      */
     class UserCommand extends Command {
 
         final String description;
-        
+
         UserCommand(Build env, String name, String description) {
             super(env, name);
             this.description = description;
@@ -1353,7 +1353,7 @@ public class Build {
         addGen("Mnemonics",          "translator/src");
         addGen("Verifier",           "translator/src");
         addGen("SwitchDotC",         "vmcore/src");
-        
+
         // Add the "clean" command
         addCommand(new Command(this, "clean") {
             public String getDescription() {
@@ -1403,7 +1403,7 @@ public class Build {
             public String getDescription() {
                 return "copies the source code from the phoneME source tree into ours in order to be able to compile cldc and imp";
             }
-                        
+
             public void run(String[] args) {
                 if (args.length != 0) {
                     throw new CommandException(this, "too many arguemnts");
@@ -1416,7 +1416,7 @@ public class Build {
             	copy(phoneMeSourceRoot + "midp/src/core/javautil/reference/classes", "cldc/phoneme", "cldc/src", "java/lang");
             	copy(phoneMeSourceRoot + "midp/src/core/javautil/classes", "imp/phoneme", "imp/src", "java/util");
             	copy(phoneMeSourceRoot + "midp/src/core/javautil/reference/classes", "imp/phoneme", "imp/src", "java/util");
-            	
+
             	copy(phoneMeSourceRoot + "midp/src/protocol/http/classes", "imp/phoneme", "imp/src", "javax/microedition/io");
             	cp(new File(phoneMeSourceRoot + "midp/src/ams/ams_api/reference/classes", "javax/microedition/midlet/MIDletStateChangeException.java"), new File("imp/phoneme", "javax/microedition/midlet/MIDletStateChangeException.java"), false);
             	cp(new File(phoneMeSourceRoot + "midp/src/ams/ams_api/reference/classes", "javax/microedition/midlet/package.html"),                    new File("imp/phoneme", "javax/microedition/midlet/package.html"), false);
@@ -1435,7 +1435,7 @@ public class Build {
             public String getDescription() {
                 return "copies the source code from the javacard3 source tree into ours in order to be able to compile it to run on Squawk";
             }
-            
+
             public void run(String[] args) {
                 File sdkSource = new File("../api/sdk-src");
                 delete(sdkSource);
@@ -1504,7 +1504,7 @@ public class Build {
 
         // Add the "jam" command
         addCommand(new JamCommand(this));
-        
+
         // Add the "squawk" command
         addJavaCommand("squawk", "hosted-support/classes:cldc/classes", false, "-Djava.library.path=.", "com.sun.squawk.vm.Main", "hosted-support").
             setDescription("use Java based launcher to start Squawk VM");
@@ -1575,13 +1575,13 @@ public class Build {
         // Add "runvm2c" target
         addJavaCommand("runvm2c", "vm2c/classes:cldc/classes", false, "-Xbootclasspath/p:vm2c/lib/openjdk-javac-6-b12.jar", "com.sun.squawk.vm2c.Main", "vm2c").
         	setDescription("runs the VM Java source file to C converter");
-        
+
         // Add the "user-compile" command
         addCommand(new Command(this, "user-compile") {
             public String getDescription() {
                 return "compile a user-project";
             }
-            
+
             public void usage(String errMsg) {
                 PrintStream out = System.err;
 
@@ -1594,7 +1594,7 @@ public class Build {
                 out.println("    -cp:<classpath>        classes to compile against");
                 out.println("    -parent:<parentdir>    module that this module depends on");
             }
-                        
+
             public void run(String[] args) {
                 int argi = 0;
                 String cp = "";
@@ -1611,7 +1611,7 @@ public class Build {
                 }
                 String userBaseDir = args[argi];
                 log(brief, "[compiling user project at " + userBaseDir + "...]");
-                
+
                 String dependencies =  "cldc imp";
                 if (parent != null) {
                     dependencies = dependencies + " " + parent;
@@ -1622,7 +1622,7 @@ public class Build {
                 compileTarget.run(NO_ARGS);
             }
         });
-        
+
         // Add the "preprocess" command
         addCommand(new Command(this, "preprocess") {
             public String getDescription() {
@@ -1638,7 +1638,7 @@ public class Build {
                 System.err.println("   creating a \"preprocessed\"  directory in \"base-dir\".");
                 System.err.println("   Only preprocess a file if src is newer than processed version.");
             }
-                        
+
             public void run(String[] args) {
                 if (args.length < 1) {
                     throw new CommandException(this, "base directory not specified");
@@ -1656,16 +1656,16 @@ public class Build {
                 preprocess(baseDir, sources, true, false);
             }
         });
-        
+
         // Add the "JNAGen" command
         addCommand(new JNAGenCommand(this));
-                
+
         // Add the "user-suite" command
         addCommand(new UserCommand(this, "user-suite", "link a user-project"));
-        
+
         // Add the "user-run" command
         addCommand(new UserCommand(this, "user-run", "run a user-project"));
-        
+
         // Add the "user-clean" command
         addCommand(new Command(this, "user-clean") {
             public String getDescription() {
@@ -1679,7 +1679,7 @@ public class Build {
                 System.err.println("Usage: user-clean module ");
                 System.err.println("where module is directory containing a \"src\" directory");
             }
-                        
+
             public void run(String[] args) {
                 if (args.length < 1) {
                     throw new CommandException(this, "module not specified");
@@ -1688,17 +1688,17 @@ public class Build {
                 }
                 String userBaseDir = args[0];
                 log(brief, "[cleaning user project at " + userBaseDir + ']');
-                
+
                 Target compileTarget = addTarget(true, userBaseDir, "");
                 compileTarget.clean();
                 Command cmd = addLinkTarget(userBaseDir, null, userBaseDir, null);
                 cmd.clean();
             }
         });
-        
+
         // Add the "uei" command
         addCommand(new UEICommand(this));
-               
+
     }
 
     /**
@@ -1752,7 +1752,7 @@ public class Build {
     /**
      * Runs a command. The dependencies of the command are run first if {@link #checkDependencies} is <code>true</code>.
      * The command will not be run if <code>hasBeenRun(command) == true</code>.
-     * 
+     *
      * Handles the -h -help command for all commands
      *
      * @param command  the command to run
@@ -1763,7 +1763,7 @@ public class Build {
             command.usage(null);
             return;
         }
-        
+
         if (checkDependencies) {
             for (String dependencyName: command.getDependencyNames()) {
                 Command dependency = getCommandForced(dependencyName);
@@ -2109,7 +2109,7 @@ public class Build {
 	                    return true;
 	                }
 	            }.run(dir);
-	
+
 	            if(deleteDir) {
 	                Build.delete(dir);
 	            }
@@ -2118,7 +2118,7 @@ public class Build {
 	        }
 	    }
 	}
-    
+
     /**
      * Remove all entries in dir that are listed in the SVN ignore properties of that dir.
      *
@@ -2161,7 +2161,7 @@ public class Build {
     public static void cp(File from, File to, boolean append) {
         cp(from, to, append, false);
     }
-    
+
     /**
      * Copies a file. The parent directory of <code>to</code> is created if it doesn't exist.
      *
@@ -2278,7 +2278,7 @@ public class Build {
             isJava5SyntaxSupported = getBooleanProperty("JAVA5SYNTAX");
         }
     }
-    
+
     /**
      * Prints some information describing the builder's configuration.
      */
@@ -2528,6 +2528,8 @@ public class Build {
             ccompiler = new MscCompiler(this, platform);
         } else if (name.equals("gcc")) {
             ccompiler = new GccCompiler(this, platform);
+        } else if (name.equals("mb-gcc")) {
+            ccompiler = new MBGccCompiler(this, platform);
         } else if (name.equals("gcc-macox")) {
             ccompiler = new GccMacOSXCompiler(this, platform);
         } else if (name.equals("cc")) {
@@ -2604,7 +2606,7 @@ public class Build {
     /**
      * Test to see if the given platform property is set.
      * Set the value of all of the derived platform properties.
-     * 
+     *
      * @param platformOption
      */
     private void tryPlatformType(CCompiler.Options cOptions, String platformOption) {
@@ -2803,8 +2805,8 @@ public class Build {
             cOptions.kernel |= getBooleanProperty("KERNEL_SQUAWK");
             updateProperty("KERNEL_SQUAWK", cOptions.kernel ? "true" : "false");
         }
-        
-        
+
+
           // Synchronize NATIVE_VERIFICATION property with '-nativeVerification'
         if (cOptions.nativeVerification != getBooleanProperty("NATIVE_VERIFICATION")) {
             cOptions.nativeVerification |= getBooleanProperty("NATIVE_VERIFICATION");
@@ -2877,7 +2879,7 @@ public class Build {
                 log(true, "[Forcing PLATFORM_TYPE to DELEGATING on Windows]");
             }
         }
-        
+
         tryPlatformType(cOptions, Options.BARE_METAL);
         tryPlatformType(cOptions, Options.DELEGATING);
         tryPlatformType(cOptions, Options.NATIVE);
@@ -2904,7 +2906,7 @@ public class Build {
             System.arraycopy(args, argc, cmdAndArgs, 0, cmdAndArgs.length);
 
             Command cmd = getCommand(args[argc]);
-            checkDependencies = (cmd instanceof Target || 
+            checkDependencies = (cmd instanceof Target ||
                                  cmd instanceof LinkTarget||
                                  cmd instanceof JNAGenCommand);
             if (depsFlag != null) {
@@ -3156,7 +3158,7 @@ public class Build {
 
         javaCompiler.arg("-g").args(javacOptions);
         javaCompiler.compile(compileClassPath, classesDir, srcDirs, j2me);
-        
+
         if (doJava5 && j2me) {
             classesDir = retroweave(baseDir, classesDir);
         }
@@ -3171,7 +3173,7 @@ public class Build {
             preverify(preverifyClassPath, baseDir);
         }
     }
-    
+
     /**
      * Retroweave a given set of Java class files.
      *
@@ -3199,7 +3201,7 @@ public class Build {
         });
         return retroweavedDir;
     }
-    
+
     /**
      * Preprocess a given set of Java source files.
      *
@@ -3267,12 +3269,12 @@ public class Build {
 
         return preprocessedDir;
     }
-    
+
     private String stripSuffix(String filename) {
         int index = filename.lastIndexOf('.');
         return filename.substring(0, index);
     }
-        
+
     /**
      * Run the CLDC preverifier over a set of classes in the "classes" directory
      * and write the resulting classes to the "j2meclasses" directory.
@@ -3457,7 +3459,7 @@ public class Build {
              javaOptions + " " +
              mainClassName + " " + join(appArgs));
     }
-    
+
 	/*---------------------------------------------------------------------------*\
      *                          System command execution                         *
     \*---------------------------------------------------------------------------*/
@@ -3514,15 +3516,15 @@ public class Build {
 
     /**
      * Return true if Java5 syntax should be supported.
-     * 
+     *
      * @return
      */
     public boolean isJava5SyntaxSupported() {
         return isJava5SyntaxSupported;
     }
-    
+
     public boolean isWantingPpcCompilerOnMac() {
         return isWantingPpcCompilerOnMac;
     }
-    
+
 }
