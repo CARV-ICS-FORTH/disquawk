@@ -1493,6 +1493,9 @@ public class Build {
         // Add the "rom" command
         addCommand(new RomCommand(this)).dependsOn("SwitchDotC");
 
+        // Add the "buildFormicVM" command
+        addCommand(new BuildFormicVMCommand(this));
+
         // Add the "spp" command
         addCommand(new SppFilePreprocessCommand(this));
 
