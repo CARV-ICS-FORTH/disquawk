@@ -81,6 +81,7 @@ ALG_SECURE_RANDOM	ssl/src/com/sun/spot/security/implementation/SecureRandom.java
 ALHOUR	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint8_t  ALHOUR;$/;"	m	struct:__anon39
 ALIVE	cldc/src/com/sun/squawk/Isolate.java	/^    private final static int ALIVE = 1;$/;"	f	class:Isolate	file:
 ALIVE	cldc/src/com/sun/squawk/VMThread.java	/^    private final static byte NEW = 0, ALIVE = 1, DEAD = 2;$/;"	f	class:VMThread	file:
+ALLCONFS	vmcore/nbproject/Makefile-impl.mk	/^ALLCONFS=Default $/;"	m
 ALLOW_INLINED	cldc/src/com/sun/squawk/pragma/PragmaException.java	/^    public static final int ALLOW_INLINED = 0x0010; $/;"	f	class:PragmaException
 ALLOW_LOOSE_ACCESS_CONTROL	translator/src/com/sun/squawk/translator/ci/ConstantPool.java	/^    private final static boolean ALLOW_LOOSE_ACCESS_CONTROL = false;$/;"	f	class:ConstantPool	file:
 ALL_CLASSES_STATS	mapper/src/com/sun/squawk/ObjectMemoryMapper.java	/^    private OwnerStats ALL_CLASSES_STATS;$/;"	f	class:ObjectMemoryMapper	file:
@@ -127,17 +128,13 @@ ARCFOUR_128_SHA	ssl/src/com/sun/midp/ssl/Handshake.java	/^    static final short
 ARCFOUR_40_MD5	ssl/src/com/sun/midp/ssl/Handshake.java	/^    static final short ARCFOUR_40_MD5  = (short) 0x0003;$/;"	f	class:Handshake
 ARGS	d.bat	/^set ARGS=%1$/;"	v
 ARGS	d.bat	/^set ARGS=%ARGS% %1$/;"	v
-ARM_FPA	vmcore/src/vm/platform.h	32;"	d
-ARM_FPA	vmcore/src/vm/platform.h	35;"	d
-ARM_FPA	vmcore/src/vm/platform.h	38;"	d
-ARM_FPA	vmcore/src/vm/platform.h	43;"	d
-ARM_FPA	vmcore/src/vm/platform.h	45;"	d
-ARM_FPA	vmcore/src/vm/platform.h	50;"	d
 ARRAY	cldc/src/com/sun/squawk/Modifier.java	/^    public static final int ARRAY               = 0x00200000;$/;"	f	class:Modifier
 ARRAYLENGTH	builder/src/com/sun/squawk/builder/bytecodespec/Instructions.java	/^    static class ARRAYLENGTH extends AbstractInstruction {$/;"	c	class:Instructions
 ARRAYLENGTH	cldc/src/com/sun/squawk/vm/OPC.java	/^        ARRAYLENGTH            = 232,$/;"	f	class:OPC
+AS	vmcore/nbproject/Makefile-Default.mk	/^AS=as$/;"	m
 AS	vmcore/src/rts/cortex-m3/src/MbedTest/Makefile	/^AS = arm-none-eabi-as$/;"	m
 ASCII_START	ssl/src/com/sun/midp/ssl/PrettyPrint.java	/^    private static int ASCII_START = OFFSET_SIZE + SEPARATOR1_SIZE +$/;"	f	class:PrettyPrint	file:
+ASFLAGS	vmcore/nbproject/Makefile-Default.mk	/^ASFLAGS=$/;"	m
 ASFLAGS	vmcore/src/rts/cortex-m3/src/MbedTest/Makefile	/^ASFLAGS = $(LISTING) -mcpu=cortex-m3$/;"	m
 ASIN	cldc/src/com/sun/squawk/vm/MathOpcodes.java	/^    ASIN                   = 4,$/;"	f	interface:MathOpcodes
 ASN_CONSTRUCTED	cldc/src/com/sun/squawk/security/verifier/SignatureVerifier.java	/^    private static final byte ASN_CONSTRUCTED = 0x20;$/;"	f	class:SignatureVerifier	file:
@@ -150,9 +147,6 @@ ASSERTIONS_ENABLED	cldc/src/com/sun/squawk/Klass.java	/^    public static final 
 ASSERTS_ENABLED	cldc/src/com/sun/squawk/util/Assert.java	/^    public static final boolean ASSERTS_ENABLED = Klass.ASSERTIONS_ENABLED;$/;"	f	class:Assert
 ASSERT_ALWAYS_IS_FATAL	cldc/src/com/sun/squawk/util/Assert.java	/^    public static final boolean ASSERT_ALWAYS_IS_FATAL = true;$/;"	f	class:Assert
 ASSERT_ENABLED	ssl/src/com/sun/midp/log/Logging.java	/^    public static final boolean ASSERT_ENABLED = true;$/;"	f	class:Logging
-ASSUME	vmcore/src/vm/platform.h	179;"	d
-ASSUME	vmcore/src/vm/platform.h	180;"	d
-ASSUME	vmcore/src/vm/platform.h	182;"	d
 ASSUME_SIMPLE_SLICE_TABLE	cldc/src/com/sun/squawk/Lisp2Collector.java	/^    private final static boolean ASSUME_SIMPLE_SLICE_TABLE = \/*VAL*\/false\/*ASSUME_SIMPLE_SLICE_TABLE*\/;$/;"	f	class:Lisp2Collector	file:
 ASTERISKS	builder/src/com/sun/squawk/builder/Macroizer.java	/^    private static final char[] ASTERISKS = { '*', '*', '*', '*' };$/;"	f	class:MacroDefinition	file:
 ASTORE	builder/src/com/sun/squawk/builder/bytecodespec/Instructions.java	/^    public abstract static class ASTORE extends AbstractInstruction {$/;"	c	class:Instructions
@@ -356,6 +350,9 @@ BUFFER	imp/src/com/sun/squawk/flash/NorFlashSectorState.java	/^    public static
 BUFFERSIZE	cldc/src/com/sun/cldc/i18n/j2me/ISO8859_1_Writer.java	/^    final private static int BUFFERSIZE = 32;$/;"	f	class:ISO8859_1_Writer	file:
 BUFFERSIZE	cldc/src/com/sun/squawk/vm/MessageBuffer.java	/^    public final static int BUFFERSIZE = 128 - HEADERSIZE;$/;"	f	interface:MessageBuffer
 BUFFER_SIZE	cldc/src/com/sun/squawk/security/verifier/SignatureVerifier.java	/^    public static final int BUFFER_SIZE = 1024;$/;"	f	class:SignatureVerifier
+BUILD_SUBPROJECTS	vmcore/nbproject/Makefile-impl.mk	/^BUILD_SUBPROJECTS=${BUILD_SUBPROJECTS_${SUBPROJECTS}}$/;"	m
+BUILD_SUBPROJECTS_	vmcore/nbproject/Makefile-impl.mk	/^BUILD_SUBPROJECTS_=.build-subprojects$/;"	m
+BUILD_SUBPROJECTS_NO	vmcore/nbproject/Makefile-impl.mk	/^BUILD_SUBPROJECTS_NO=$/;"	m
 BYTE	cldc/src/com/sun/squawk/Klass.java	/^    public static final Klass BYTE;$/;"	f	class:Klass
 BYTE	cldc/src/com/sun/squawk/compiler/Type.java	/^    public static final Type BYTE    = new Type(0, 1, Code_B, INT, "BYTE"),   \/\/ 8 bit signed integer$/;"	f	class:Type
 BYTE	cldc/src/com/sun/squawk/compiler/Types.java	/^    public static final Type BYTE    = Type.BYTE,       \/\/ 8 bit signed integer$/;"	f	interface:Types
@@ -528,6 +525,10 @@ CAN_Message	vmcore/src/rts/cortex-m3/src/MbedTest/include/can_helper.h	/^typedef
 CATCH	builder/src/com/sun/squawk/builder/bytecodespec/Instructions.java	/^    static class CATCH extends AbstractInstruction {$/;"	c	class:Instructions
 CATCH	cldc/src/com/sun/squawk/vm/OPC.java	/^        CATCH                  = 83,$/;"	f	class:OPC
 CATCH	translator/src/com/sun/squawk/translator/ci/CodeParser.java	/^        public static final int CATCH = 2;$/;"	f	class:CodeParser.PseudoOpcode
+CC	vmcore/nbproject/Makefile-Default.mk	/^CC=gcc$/;"	m
+CCADMIN	vmcore/nbproject/Makefile-Default.mk	/^CCADMIN=CCadmin$/;"	m
+CCC	vmcore/nbproject/Makefile-Default.mk	/^CCC=g++$/;"	m
+CCFLAGS	vmcore/nbproject/Makefile-Default.mk	/^CCFLAGS=$/;"	m
 CCLKCFG	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t CCLKCFG;$/;"	m	struct:__anon1
 CCLKCFG_Val	vmcore/src/rts/cortex-m3/src/MbedTest/system_LPC17xx.c	290;"	d	file:
 CCR	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t CCR;$/;"	m	struct:__anon20
@@ -550,6 +551,7 @@ CERT_REVKD	ssl/src/com/sun/midp/ssl/Record.java	/^    static final byte CERT_REV
 CERT_SIGN_KEY_USAGE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    public static final int CERT_SIGN_KEY_USAGE = 0x00000020;$/;"	f	class:X509Certificate
 CERT_UNKWN	ssl/src/com/sun/midp/ssl/Record.java	/^    static final byte CERT_UNKWN  = 46;$/;"	f	class:Record
 CERT_VRFY	ssl/src/com/sun/midp/ssl/Handshake.java	/^    private static final byte CERT_VRFY = 15;$/;"	f	class:Handshake	file:
+CFLAGS	vmcore/nbproject/Makefile-Default.mk	/^CFLAGS=$/;"	m
 CFSR	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^  __IO uint32_t CFSR;                         \/*!< Offset: 0x28  Configurable Fault Status Register                    *\/$/;"	m	struct:__anon57
 CFString2CString	vmcore/src/rts/gcc-macosx/os_main.c	/^char* CFString2CString(CFStringRef macStr) {$/;"	f
 CHAM_FULLHEIGHT	ssl/src/com/sun/midp/configurator/Constants.java	/^    public final static int CHAM_FULLHEIGHT = 198;$/;"	f	class:Constants
@@ -629,6 +631,9 @@ CLASS_PUTSTATIC_O	cldc/src/com/sun/squawk/vm/OPC.java	/^        CLASS_PUTSTATIC_
 CLASS_PUTSTATIC_O_WIDE	cldc/src/com/sun/squawk/vm/OPC.java	/^        CLASS_PUTSTATIC_O_WIDE = 308,$/;"	f	class:OPC
 CLASS_UNLOAD	cldc/src/com/sun/squawk/Debugger.java	/^        public final static int CLASS_UNLOAD = 9;$/;"	f	class:Debugger.Event
 CLDC_PROFILE	builder/src/com/sun/squawk/builder/commands/JamCommand.java	/^    protected static final String CLDC_PROFILE = "cldc";$/;"	f	class:JamCommand
+CLEAN_SUBPROJECTS	vmcore/nbproject/Makefile-impl.mk	/^CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}$/;"	m
+CLEAN_SUBPROJECTS_	vmcore/nbproject/Makefile-impl.mk	/^CLEAN_SUBPROJECTS_=.clean-subprojects$/;"	m
+CLEAN_SUBPROJECTS_NO	vmcore/nbproject/Makefile-impl.mk	/^CLEAN_SUBPROJECTS_NO=$/;"	m
 CLIENT	ssl/src/com/sun/midp/ssl/Record.java	/^    static final byte CLIENT    = 1;  $/;"	f	class:Record
 CLIENT_AUTH_EXT_KEY_USAGE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    public static final int CLIENT_AUTH_EXT_KEY_USAGE = 0x00000004;$/;"	f	class:X509Certificate
 CLKOUTCFG	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t CLKOUTCFG;              \/* Clock Output Configuration         *\/$/;"	m	struct:__anon1
@@ -649,6 +654,9 @@ CMPOS0	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t CMPOS0;
 CMPOS1	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t CMPOS1;$/;"	m	struct:__anon44
 CMPOS2	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t CMPOS2;$/;"	m	struct:__anon44
 CMR	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __O  uint32_t CMR;$/;"	m	struct:__anon48
+CND_CONF	vmcore/nbproject/Makefile-Default.mk	/^CND_CONF=Default$/;"	m
+CND_DISTDIR	vmcore/nbproject/Makefile-Default.mk	/^CND_DISTDIR=dist$/;"	m
+CND_PLATFORM	vmcore/nbproject/Makefile-Default.mk	/^CND_PLATFORM=GNU-MacOSX$/;"	m
 CODE_SIGN_EXT_KEY_USAGE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    public static final int CODE_SIGN_EXT_KEY_USAGE = 0x00000008;$/;"	f	class:X509Certificate
 COLORS	mapper/src/com/sun/squawk/ht2html/Main.java	/^    private static final String[] COLORS = { "blue", "green", "lime", "maroon", "navy", "olive", "purple", "red", "fuchsia" };$/;"	f	class:Segment	file:
 COMMAND_MODE	tests/Simple/src/tests/SlowCode.java	/^            COMMAND_MODE = 1,$/;"	f	class:SlowCode	file:
@@ -661,6 +669,7 @@ COMPUTE_CRC16_FOR_MEMORY_REGION	cldc/src/com/sun/squawk/vm/ChannelConstants.java
 COM_SUN_SQUAWK_ADDRESS	vm2c/src/com/sun/squawk/vm2c/Converter.java	/^    private Name COM_SUN_SQUAWK_ADDRESS;$/;"	f	class:Converter	file:
 COM_SUN_SQUAWK_OFFSET	vm2c/src/com/sun/squawk/vm2c/Converter.java	/^    private Name COM_SUN_SQUAWK_OFFSET;$/;"	f	class:Converter	file:
 COM_SUN_SQUAWK_UWORD	vm2c/src/com/sun/squawk/vm2c/Converter.java	/^    private Name COM_SUN_SQUAWK_UWORD;$/;"	f	class:Converter	file:
+CONF	vmcore/nbproject/Makefile-impl.mk	/^CONF=${DEFAULTCONF}$/;"	m
 CONFIGURATION_CDC10	uei/launcher-hosted-support/src/com/sun/squawk/uei/DeviceDescriptor.java	/^    public static final String CONFIGURATION_CDC10 = "CDC-1.0";$/;"	f	class:DeviceDescriptor
 CONFIGURATION_CDC11	uei/launcher-hosted-support/src/com/sun/squawk/uei/DeviceDescriptor.java	/^    public static final String CONFIGURATION_CDC11 = "CDC-1.1";$/;"	f	class:DeviceDescriptor
 CONFIGURATION_CLDC10	uei/launcher-hosted-support/src/com/sun/squawk/uei/DeviceDescriptor.java	/^    public static final String CONFIGURATION_CLDC10 = "CLDC-1.0";$/;"	f	class:DeviceDescriptor
@@ -729,6 +738,7 @@ COS	cldc/src/com/sun/squawk/vm/MathOpcodes.java	/^    COS                    = 2
 COUNT	tests/Simple/src/tests/TestIsolateLifecycleLocal.java	/^    final static int COUNT = 3;$/;"	f	class:TestIsolateLifecycleLocal
 COUNT	tests/Simple/src/tests/TestUnsafe.java	/^    final static int COUNT = 1000000;$/;"	f	class:TestUnsafe
 COUNT	tests/TimeIt/src/tests/HelloWorld.java	/^    public final static int COUNT = 100;$/;"	f	class:HelloWorld
+CP	vmcore/nbproject/Makefile-Default.mk	/^CP=cp$/;"	m
 CPSR	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t CPSR;$/;"	m	struct:__anon35
 CPUID	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^  __I  uint32_t CPUID;                        \/*!< Offset: 0x00  CPU ID Base Register                                  *\/$/;"	m	struct:__anon57
 CR0	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __I  uint32_t CR0;$/;"	m	struct:__anon20
@@ -760,6 +770,8 @@ CURRENT_MINOR_VERSION	cldc/src/com/sun/squawk/ObjectMemorySerializer.java	/^    
 CURRENT_TRUST_MANAGER_VERSION	ssl/src/com/sun/spot/peripheral/TrustManager.java	/^    public static final byte CURRENT_TRUST_MANAGER_VERSION = 3;$/;"	f	class:TrustManager
 CURRENT_VERSION	ssl/src/com/sun/midp/pki/KeySerializer.java	/^    private static final byte CURRENT_VERSION = 1;$/;"	f	class:KeySerializer	file:
 CURRENT_VERSION	ssl/src/com/sun/midp/pki/SpotCertStore.java	/^    private static final byte CURRENT_VERSION = 1;$/;"	f	class:SpotCertStore	file:
+CXX	vmcore/nbproject/Makefile-Default.mk	/^CXX=g++$/;"	m
+CXXFLAGS	vmcore/nbproject/Makefile-Default.mk	/^CXXFLAGS=$/;"	m
 CYCLE1_OFFSET	vmcore/src/rts/gcc-eb40a/eb40a-io.c	34;"	d	file:
 CYCLE2_OFFSET	vmcore/src/rts/gcc-eb40a/eb40a-io.c	35;"	d	file:
 C_DYNAMIC	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public static final int C_DYNAMIC     = 1;  \/\/ Standard call with all the data on the runtime stack.$/;"	f	interface:BaseCompiler
@@ -1188,6 +1200,7 @@ DEEP_SLEEP	cldc/src/com/sun/squawk/vm/ChannelConstants.java	/^    public static 
 DEEP_SLEEP_TIME_MILLIS_HIGH	cldc/src/com/sun/squawk/vm/ChannelConstants.java	/^    public static final int DEEP_SLEEP_TIME_MILLIS_HIGH         = SLEEP_OPCODES + 3;$/;"	f	class:ChannelConstants
 DEEP_SLEEP_TIME_MILLIS_LOW	cldc/src/com/sun/squawk/vm/ChannelConstants.java	/^    public static final int DEEP_SLEEP_TIME_MILLIS_LOW          = SLEEP_OPCODES + 4;$/;"	f	class:ChannelConstants
 DEFAULT	cldc/src/com/sun/cldc/jna/Native.java	/^    public final static String DEFAULT = "RTLD";$/;"	f	class:Native
+DEFAULTCONF	vmcore/nbproject/Makefile-impl.mk	/^DEFAULTCONF=Default$/;"	m
 DEFAULT_ANNOTATIONS	vm2c/src/com/sun/squawk/vm2c/AnnotationParser.java	/^    public static final Map<String, Annotation> DEFAULT_ANNOTATIONS;$/;"	f	class:AnnotationParser
 DEFAULT_APPCLASSPATH	debugger/src/com/sun/squawk/debugger/sda/SDA.java	/^    private static final String DEFAULT_APPCLASSPATH = "file:\/\/.";$/;"	f	class:SDA	file:
 DEFAULT_CLASSPATH	mapper/src/com/sun/squawk/VM.java	/^    public static final String DEFAULT_CLASSPATH;$/;"	f	class:VM
@@ -1601,7 +1614,6 @@ EMULTIHOP	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        E
 EMULTIHOP	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EMULTIHOP = 95;$/;"	f	class:LibCImpl
 ENABLE_AVR_CLOCK_SYNCHRONISATION	cldc/src/com/sun/squawk/vm/ChannelConstants.java	/^    public static final int ENABLE_AVR_CLOCK_SYNCHRONISATION    = MISC_OPCODES + 12;$/;"	f	class:ChannelConstants
 ENABLE_DYNAMIC_CLASSLOADING	cldc/src/com/sun/squawk/Klass.java	/^    public final static boolean ENABLE_DYNAMIC_CLASSLOADING = \/*VAL*\/false\/*ENABLE_DYNAMIC_CLASSLOADING*\/;$/;"	f	class:Klass
-ENABLE_FLOATS	vmcore/src/vm/platform.h	148;"	d
 ENABLE_MULTI_ISOLATE	cldc/src/com/sun/squawk/Isolate.java	/^    public final static boolean ENABLE_MULTI_ISOLATE = \/*VAL*\/false\/*ENABLE_MULTI_ISOLATE*\/;$/;"	f	class:Isolate
 ENABLE_SPECIFIC_TYPE_TABLES	cldc/src/com/sun/squawk/MethodHeader.java	/^    public static final boolean ENABLE_SPECIFIC_TYPE_TABLES = Klass.ASSERTIONS_ENABLED;$/;"	f	class:MethodHeader
 ENABLE_VERBOSE	debugger/src/com/sun/squawk/debugger/PacketInputStream.java	/^    private final static boolean ENABLE_VERBOSE = false;$/;"	f	class:PacketInputStream	file:
@@ -2058,6 +2070,7 @@ F2L	cldc/src/com/sun/squawk/vm/OPC.java	/^        F2L                    = 399,$
 FALSE	cldc/src/java/lang/Boolean.java	/^    public static final Boolean FALSE = new Boolean(false);$/;"	f	class:Boolean
 FALSE	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Boolean.java	/^    public static final Boolean FALSE = new Boolean(false);$/;"	f	class:Boolean
 FALSE	vmcore/src/rts/cc/os.c	26;"	d	file:
+FALSE	vmcore/src/rts/formic/os.c	36;"	d	file:
 FALSE	vmcore/src/rts/gcc-9200/os.c	26;"	d	file:
 FALSE	vmcore/src/rts/gcc-eb40a/os.c	36;"	d	file:
 FALSE	vmcore/src/rts/gcc-macosx/os.c	26;"	d	file:
@@ -2070,6 +2083,7 @@ FATAL_MONITOR_ERRORS	cldc/src/com/sun/squawk/VMThread.java	/^    private final s
 FAT_IDENTIFIER_V3	vmcore/src/rts/gcc-9200/mmu_fat.h	36;"	d
 FAT_RECORD_HEADER_SIZE	vmcore/src/rts/gcc-9200/mmu_fat.c	43;"	d	file:
 FAT_SECTOR	vmcore/src/rts/gcc-9200/mmu_fat.h	31;"	d
+FC	vmcore/nbproject/Makefile-Default.mk	/^FC=$/;"	m
 FCANIC0	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t FCANIC0;$/;"	m	struct:__anon46
 FCANIC1	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t FCANIC1;$/;"	m	struct:__anon46
 FCANIE	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t FCANIE;$/;"	m	struct:__anon46
@@ -2133,6 +2147,7 @@ FFA	cldc/src/com/sun/squawk/security/ecc/FFA.java	/^    public FFA(int bitLength
 FFA	cldc/src/com/sun/squawk/security/ecc/FFA.java	/^public final class FFA {$/;"	c
 FFA	ssl/src/com/sun/spot/security/implementation/ecc/FFA.java	/^    public FFA(int bitLength) {$/;"	m	class:FFA
 FFA	ssl/src/com/sun/spot/security/implementation/ecc/FFA.java	/^public final class FFA {$/;"	c
+FFLAGS	vmcore/nbproject/Makefile-Default.mk	/^FFLAGS=$/;"	m
 FFmulX	ssl/src/com/sun/spotx/crypto/implementation/Alg1.java	/^    private int FFmulX(int x) {$/;"	m	class:Alg1	file:
 FIELD	cldc/src/java/lang/annotation/ElementType.java	/^  FIELD,$/;"	e	enum:ElementType	file:
 FIELD	translator/src/com/sun/squawk/translator/ci/ConstantPool.java	/^        public static final ValidNameFormat FIELD  = new ValidNameFormat("field");$/;"	f	class:ConstantPool.ValidNameFormat
@@ -2263,8 +2278,6 @@ FORCE_INLINED	cldc/src/com/sun/squawk/pragma/PragmaException.java	/^    public s
 FORCE_INLINED_A	cldc/src/com/sun/squawk/pragma/PragmaException.java	/^    public static final int FORCE_INLINED_A = 0x0040;$/;"	f	class:PragmaException
 FORCE_LARGE_FORMAT	cldc/src/com/sun/squawk/MethodHeader.java	/^    public static final boolean FORCE_LARGE_FORMAT = \/*VAL*\/false\/*DEBUG_CODE_ENABLED*\/;$/;"	f	class:MethodHeader
 FORCE_RESCHEDULE_FOR_NATIVE_EVENT	vmcore/src/vm/io_native.h	145;"	d
-FORCE_USED	vmcore/src/vm/platform.h	102;"	d
-FORCE_USED	vmcore/src/vm/platform.h	97;"	d
 FORMAT_BINARY	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^        static final int FORMAT_BINARY = 3;$/;"	f	class:TraceViewer.ValuesPanel
 FORMAT_HEX	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^        static final int FORMAT_HEX = 2;$/;"	f	class:TraceViewer.ValuesPanel
 FORMAT_SIGNED	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^        static final int FORMAT_SIGNED = 1;$/;"	f	class:TraceViewer.ValuesPanel
@@ -2383,6 +2396,9 @@ ForceInlinedPragma	cldc/src/com/sun/squawk/pragma/ForceInlinedPragma.java	/^    
 ForceInlinedPragma	cldc/src/com/sun/squawk/pragma/ForceInlinedPragma.java	/^public class ForceInlinedPragma extends AllowInlinedPragma {$/;"	c
 Forced0	vmcore/src/rts/cortex-m3/src/MbedTest/include/Serial.h	/^        , Forced0$/;"	e	enum:mbed::Serial::Parity
 Forced1	vmcore/src/rts/cortex-m3/src/MbedTest/include/Serial.h	/^        , Forced1    $/;"	e	enum:mbed::Serial::Parity
+FormicCompiler	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public FormicCompiler(Build env, Platform platform) {$/;"	m	class:FormicCompiler
+FormicCompiler	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public FormicCompiler(String name, Build env, Platform platform) {$/;"	m	class:FormicCompiler
+FormicCompiler	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^public class FormicCompiler extends CCompiler {$/;"	c
 ForwardTarget	translator/src/com/sun/squawk/translator/ir/verifier/Frame.java	/^        ForwardTarget(int dst, int src) {$/;"	m	class:TargetList.ForwardTarget
 ForwardTarget	translator/src/com/sun/squawk/translator/ir/verifier/Frame.java	/^    private class ForwardTarget extends Target {$/;"	c	class:TargetList
 ForwardedComposite	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDAListener.java	/^            ForwardedComposite(int suspendPolicy, List events) {$/;"	m	class:SDAListener.Event.ForwardedComposite
@@ -2527,6 +2543,7 @@ GPREG1	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t GPREG1;
 GPREG2	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t GPREG2;$/;"	m	struct:__anon39
 GPREG3	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t GPREG3;$/;"	m	struct:__anon39
 GPREG4	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t GPREG4;$/;"	m	struct:__anon39
+GREP	vmcore/nbproject/Makefile-Default.mk	/^GREP=grep$/;"	m
 GREY	vm2c/src/com/sun/squawk/vm2c/CallGraphVisitor.java	/^    private static final Object GREY = new Object();$/;"	f	class:CallGraphVisitor	file:
 GSR	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t GSR;$/;"	m	struct:__anon48
 GT	translator/src/com/sun/squawk/translator/ir/verifier/VerifierBase.java	/^    protected final static int EQ = 0, NE = 1, GT = 2, LT = 3, GE = 4, LE = 5;$/;"	f	class:VerifierBase
@@ -2964,12 +2981,6 @@ INITSTATE_FAILED	cldc/src/com/sun/squawk/Klass.java	/^    private final static i
 INITSTATE_INITIALIZED	cldc/src/com/sun/squawk/Klass.java	/^    private final static int INITSTATE_INITIALIZED = 2;$/;"	f	class:Klass	file:
 INITSTATE_INITIALIZING	cldc/src/com/sun/squawk/Klass.java	/^    private final static int INITSTATE_INITIALIZING = 1;$/;"	f	class:Klass	file:
 INITSTATE_NOTINITIALIZED	cldc/src/com/sun/squawk/Klass.java	/^    private final static int INITSTATE_NOTINITIALIZED = 0;$/;"	f	class:Klass	file:
-INLINE	vmcore/src/vm/platform.h	130;"	d
-INLINE	vmcore/src/vm/platform.h	90;"	d
-INLINE	vmcore/src/vm/platform.h	92;"	d
-INLINE_JAVA_FP	vmcore/src/vm/platform.h	156;"	d
-INLINE_JAVA_FP	vmcore/src/vm/platform.h	160;"	d
-INLINE_JAVA_FP	vmcore/src/vm/platform.h	162;"	d
 INSERT_PADDING	imp/src/com/sun/squawk/rms/RecordStoreEntry.java	/^    protected static final int INSERT_PADDING = 10;$/;"	f	class:RecordStoreEntry
 INSTANCE	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/Ioctl.java	/^    Ioctl INSTANCE = (Ioctl)$/;"	f	interface:Ioctl
 INSTANCE	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^    LibC INSTANCE = (LibC)$/;"	f	interface:LibC
@@ -3176,6 +3187,7 @@ IOC_VOID	cldc/src/com/sun/squawk/platform/posix/macosx/natives/IoctlImpl.java	/^
 IOC_VOID	cldc/src/com/sun/squawk/platform/posix/solaris/natives/IoctlImpl.java	/^    public final static int IOC_VOID = 0x20000000;$/;"	f	class:IoctlImpl
 IOC_VOID	cldc/src/com/sun/squawk/platform/windows/natives/Ioctl.java	/^    public final static int IOC_VOID = IoctlImpl.IOC_VOID;$/;"	f	interface:Ioctl
 IOC_VOID	cldc/src/com/sun/squawk/platform/windows/natives/IoctlImpl.java	/^    public final static int IOC_VOID = 0x20000000;$/;"	f	class:IoctlImpl
+IODOTC	vmcore/src/rts/formic/os.c	33;"	d	file:
 IODOTC	vmcore/src/rts/gcc-9200/os.c	47;"	d	file:
 IODOTC	vmcore/src/rts/gcc-eb40a/os.c	33;"	d	file:
 IOException	phoneme/cldc/src/javaapi/cldc1.1/java/io/IOException.java	/^    public IOException() {$/;"	m	class:IOException
@@ -3546,8 +3558,6 @@ JFP_lib_scalbn	vmcore/src/vm/fp/s_scalbn.c	/^double JFP_lib_scalbn (double x, in
 JFP_lib_sin	vmcore/src/vm/fp/s_sin.c	/^double JFP_lib_sin(double x) {$/;"	f
 JFP_lib_sqrt	vmcore/src/vm/fp/w_sqrt.c	/^double JFP_lib_sqrt(double x) {$/;"	f
 JFP_lib_tan	vmcore/src/vm/fp/s_tan.c	/^double JFP_lib_tan(double x) {$/;"	f
-JLONG_CONSTANT	vmcore/src/vm/platform.h	87;"	d
-JLONG_CONSTANT	vmcore/src/vm/platform.h	99;"	d
 JMock2Test	imp/test-desktop/src/com/sun/squawk/JMock2Test.java	/^public class JMock2Test extends MockObjectTestCase {$/;"	c
 JNAGen	builder/src/com/sun/cldc/jna/JNAGen.java	/^    public JNAGen(Build env, File baseDir, File dstDir, String classpath) {$/;"	m	class:JNAGen
 JNAGen	builder/src/com/sun/cldc/jna/JNAGen.java	/^public class JNAGen extends Command {$/;"	c
@@ -3720,6 +3730,7 @@ LC_STORAGE	ssl/src/com/sun/midp/log/LogChannels.java	/^    public final static i
 LC_TOOL	ssl/src/com/sun/midp/log/LogChannels.java	/^    public final static int LC_TOOL = 9000;$/;"	f	class:LogChannels
 LD	vmcore/src/rts/cortex-m3/src/MbedTest/Makefile	/^LD = arm-none-eabi-ld$/;"	m
 LDFLAGS	vmcore/src/rts/cortex-m3/src/MbedTest/Makefile	/^LDFLAGS = -v -LE:\\CodeSourcery\\SourceryG++Lite\\arm-none-eabi\\lib\\thumb2  -lc -lm -lgcc -mcpu=cortex-m3 -mthumb -O$(OPTIMIZATION) -nostartfiles -Wl,-Map=$(PROJECT).map -T$(LSCRIPT) $/;"	m
+LDLIBSOPTIONS	vmcore/nbproject/Makefile-Default.mk	/^LDLIBSOPTIONS=$/;"	m
 LE	translator/src/com/sun/squawk/translator/ir/verifier/VerifierBase.java	/^    protected final static int EQ = 0, NE = 1, GT = 2, LT = 3, GE = 4, LE = 5;$/;"	f	class:VerifierBase
 LEAP_NUM_DAYS	cldc/src/com/sun/cldc/util/j2me/CalendarImpl.java	/^    private static final int LEAP_NUM_DAYS[]$/;"	f	class:CalendarImpl	file:
 LEAP_NUM_DAYS	imp/src/com/sun/midp/util/DateParser.java	/^    private static final int LEAP_NUM_DAYS[] = {  0,  31,  60,  91, 121, 152,$/;"	f	class:DateParser	file:
@@ -4201,9 +4212,6 @@ MBED_TIMEOUT_H	vmcore/src/rts/cortex-m3/src/MbedTest/include/Timeout.h	7;"	d
 MBED_TIMEREVENT_H	vmcore/src/rts/cortex-m3/src/MbedTest/include/TimerEvent.h	7;"	d
 MBED_TIMER_H	vmcore/src/rts/cortex-m3/src/MbedTest/include/Timer.h	7;"	d
 MBED_WAIT_API_H	vmcore/src/rts/cortex-m3/src/MbedTest/include/wait_api.h	29;"	d
-MBGccCompiler	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public MBGccCompiler(Build env, Platform platform) {$/;"	m	class:MBGccCompiler
-MBGccCompiler	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public MBGccCompiler(String name, Build env, Platform platform) {$/;"	m	class:MBGccCompiler
-MBGccCompiler	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^public class MBGccCompiler extends CCompiler {$/;"	c
 MCCAPCON	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __I  uint32_t MCCAPCON;$/;"	m	struct:__anon43
 MCCAPCON_CLR	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __O  uint32_t MCCAPCON_CLR;$/;"	m	struct:__anon43
 MCCAPCON_SET	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __O  uint32_t MCCAPCON_SET;$/;"	m	struct:__anon43
@@ -4340,6 +4348,7 @@ MIS	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t MIS;$/;"	m
 MISC_OPCODES	cldc/src/com/sun/squawk/vm/ChannelConstants.java	/^    public static final int MISC_OPCODES                        = SLEEP_OPCODES + 10;$/;"	f	class:ChannelConstants
 MISSING_PATH_LENGTH_CONSTRAINT	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    public static final int MISSING_PATH_LENGTH_CONSTRAINT = -1;$/;"	f	class:X509Certificate
 MISSING_SIGNATURE	ssl/src/javax/microedition/pki/CertificateException.java	/^    public static final byte MISSING_SIGNATURE = 5;$/;"	f	class:CertificateException
+MKDIR	vmcore/nbproject/Makefile-Default.mk	/^MKDIR=mkdir$/;"	m
 ML_COMMENT	builder/src/com/sun/cldc/jna/SourceProcessor.java	/^        public final static int ML_COMMENT  = 2; \/\/ \/* a "\/*" *\/ comment$/;"	f	class:SourceProcessor.CommentSkippingReader
 MMCTRL	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t MMCTRL;$/;"	m	struct:__anon36
 MMFAR	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^  __IO uint32_t MMFAR;                        \/*!< Offset: 0x34  Mem Manage Address Register                           *\/$/;"	m	struct:__anon57
@@ -4627,10 +4636,8 @@ NIST192PrimeField	ssl/src/com/sun/spot/security/implementation/ecc/NIST192PrimeF
 NIST192PrimeField	ssl/src/com/sun/spot/security/implementation/ecc/NIST192PrimeField.java	/^public final class NIST192PrimeField extends PrimeField {$/;"	c
 NIST256PrimeField	ssl/src/com/sun/spot/security/implementation/ecc/NIST256PrimeField.java	/^    public NIST256PrimeField(FFA ffa) {$/;"	m	class:NIST256PrimeField
 NIST256PrimeField	ssl/src/com/sun/spot/security/implementation/ecc/NIST256PrimeField.java	/^public final class NIST256PrimeField extends PrimeField {$/;"	c
+NM	vmcore/nbproject/Makefile-Default.mk	/^NM=nm$/;"	m
 NMI_Handler	vmcore/src/rts/cortex-m3/src/MbedTest/startup_LPC17xx.s	/^NMI_Handler:$/;"	l
-NOINLINE	vmcore/src/vm/platform.h	134;"	d
-NOINLINE	vmcore/src/vm/platform.h	138;"	d
-NOINLINE	vmcore/src/vm/platform.h	141;"	d
 NOMSG	vmcore/src/rts/msc/os.c	36;"	d	file:
 NONE	cldc/src/com/sun/squawk/ServiceOperation.java	/^    public final static int NONE = 0;$/;"	f	class:ServiceOperation
 NONE	debugger/src/com/sun/squawk/debugger/Log.java	/^    public static final int NONE = 0;$/;"	f	class:Log
@@ -4639,9 +4646,6 @@ NONE	translator/src/com/sun/squawk/translator/ir/InstructionEmitter.java	/^    p
 NON_BLOCKING_INPUT	hosted-support/src/com/sun/squawk/vm/GenericConnectionChannel.java	/^    private static boolean NON_BLOCKING_INPUT = true;$/;"	f	class:GenericConnectionChannel	file:
 NON_FLOAT_BYTECODE_COUNT	cldc/src/com/sun/squawk/vm/OPC.java	/^        public static final int NON_FLOAT_BYTECODE_COUNT = 350;$/;"	f	class:OPC.Properties
 NON_REPUDIATION_KEY_USAGE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    public static final int NON_REPUDIATION_KEY_USAGE = 0x00000002;$/;"	f	class:X509Certificate
-NORETURN	vmcore/src/vm/platform.h	135;"	d
-NORETURN	vmcore/src/vm/platform.h	139;"	d
-NORETURN	vmcore/src/vm/platform.h	142;"	d
 NORMALHEIGHT	ssl/src/com/sun/midp/configurator/Constants.java	/^    public final static int NORMALHEIGHT = 179;$/;"	f	class:Constants
 NORMALWIDTH	ssl/src/com/sun/midp/configurator/Constants.java	/^    public final static int NORMALWIDTH = 180;$/;"	f	class:Constants
 NORM_PRIORITY	cldc/src/com/sun/squawk/VMThread.java	/^    public final static int NORM_PRIORITY = 5;$/;"	f	class:VMThread
@@ -4849,6 +4853,8 @@ OBJECT	cldc/src/com/sun/squawk/Klass.java	/^    public static final Klass OBJECT
 OBJECT	cldc/src/com/sun/squawk/vm/CID.java	/^        OBJECT               = 1,$/;"	f	interface:CID
 OBJECT	cldc/src/com/sun/squawk/vm/OPC.java	/^        OBJECT                 = 91,$/;"	f	class:OPC
 OBJECT	translator/src/com/sun/squawk/translator/ir/verifier/VerifierBase.java	/^                                 OBJECT    = Klass.OBJECT,$/;"	f	class:VerifierBase
+OBJECTDIR	vmcore/nbproject/Makefile-Default.mk	/^OBJECTDIR=build\/${CND_CONF}\/${CND_PLATFORM}$/;"	m
+OBJECTFILES	vmcore/nbproject/Makefile-Default.mk	/^OBJECTFILES=$/;"	m
 OBJECTS	vmcore/src/rts/cortex-m3/src/MbedTest/Makefile	/^OBJECTS=startup_LPC17xx.o core_cm3.o system_LPC17xx.o os_main.o $/;"	m
 OBJECT_0	cldc/src/com/sun/squawk/vm/OPC.java	/^        OBJECT_0               = 16,$/;"	f	class:OPC
 OBJECT_1	cldc/src/com/sun/squawk/vm/OPC.java	/^        OBJECT_1               = 17,$/;"	f	class:OPC
@@ -4933,7 +4939,6 @@ O_APPEND	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^            
 O_APPEND	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^            O_APPEND	= LibCImpl.O_APPEND,		\/* set append mode *\/$/;"	f	interface:LibC
 O_APPEND	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int O_APPEND = 8;$/;"	f	class:LibCImpl
 O_APPEND	vmcore/src/rts/cortex-m3/src/MbedTest/include/FileSystemLike.h	15;"	d
-O_BINARY	vmcore/src/vm/platform.h	107;"	d
 O_CREAT	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^            O_CREAT		= IMPORT,		\/* create if nonexistant *\/$/;"	f	interface:LibC
 O_CREAT	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^            O_CREAT		= INSTANCE.initConstInt(89),		\/* create if nonexistant *\/$/;"	f	interface:LibC
 O_CREAT	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^            O_CREAT		= LibCImpl.O_CREAT,		\/* create if nonexistant *\/$/;"	f	interface:LibC
@@ -5297,18 +5302,8 @@ PKCS1Seq	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private static fina
 PLATFORM_OPCODE	cldc/src/com/sun/squawk/vm/ChannelConstants.java	/^    public static final int PLATFORM_OPCODE                             = LAST_GUI_OPCODE + 1;$/;"	f	class:ChannelConstants
 PLATFORM_OPCODES	cldc/src/com/sun/squawk/vm/ChannelConstants.java	/^        PLATFORM_OPCODES                        = LAST_GENERIC_CONNECTION_OPCODE + 1,$/;"	f	class:ChannelConstants
 PLATFORM_PACKAGE	cldc/src/com/sun/cldc/jna/Platform.java	/^    public final static String PLATFORM_PACKAGE = "com.sun.cldc.jna.platform";$/;"	f	class:Platform
-PLATFORM_TYPE_BARE_METAL	vmcore/src/vm/platform.h	201;"	d
-PLATFORM_TYPE_BARE_METAL	vmcore/src/vm/platform.h	215;"	d
-PLATFORM_TYPE_BARE_METAL	vmcore/src/vm/platform.h	222;"	d
-PLATFORM_TYPE_DELEGATING	vmcore/src/vm/platform.h	208;"	d
-PLATFORM_TYPE_DELEGATING	vmcore/src/vm/platform.h	213;"	d
-PLATFORM_TYPE_DELEGATING	vmcore/src/vm/platform.h	221;"	d
-PLATFORM_TYPE_NATIVE	vmcore/src/vm/platform.h	199;"	d
-PLATFORM_TYPE_NATIVE	vmcore/src/vm/platform.h	206;"	d
-PLATFORM_TYPE_NATIVE	vmcore/src/vm/platform.h	220;"	d
-PLATFORM_TYPE_SOCKET	vmcore/src/vm/platform.h	200;"	d
-PLATFORM_TYPE_SOCKET	vmcore/src/vm/platform.h	207;"	d
-PLATFORM_TYPE_SOCKET	vmcore/src/vm/platform.h	214;"	d
+PLATFORM_UNALIGNED_LOADS	vmcore/src/rts/formic/os.c	29;"	d	file:
+PLATFORM_UNALIGNED_LOADS	vmcore/src/rts/formic/os.c	30;"	d	file:
 PLATFORM_UNALIGNED_LOADS	vmcore/src/rts/gcc-9200/os.c	40;"	d	file:
 PLATFORM_UNALIGNED_LOADS	vmcore/src/rts/gcc-9200/os.c	41;"	d	file:
 PLATFORM_UNALIGNED_LOADS	vmcore/src/rts/gcc-eb40a/os.c	29;"	d	file:
@@ -5368,11 +5363,6 @@ PRINTSTR_TYPE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private static
 PRINT_STATS	translator/src/com/sun/squawk/translator/Arg.java	/^    public final static int PRINT_STATS = 4;$/;"	f	class:Arg
 PRIVATE	builder/src/com/sun/squawk/builder/commands/MakeAPI.java	/^    static final int PRIVATE          = Modifier.PRIVATE;$/;"	f	class:MakeAPI
 PRIVATE	cldc/src/com/sun/squawk/Modifier.java	/^    public static final int PRIVATE         = 0x00000002;$/;"	f	class:Modifier
-PROCESSOR_ARCHITECTURE_X86	vmcore/src/vm/platform.h	31;"	d
-PROCESSOR_ARCHITECTURE_X86	vmcore/src/vm/platform.h	34;"	d
-PROCESSOR_ARCHITECTURE_X86	vmcore/src/vm/platform.h	37;"	d
-PROCESSOR_ARCHITECTURE_X86	vmcore/src/vm/platform.h	40;"	d
-PROCESSOR_ARCHITECTURE_X86	vmcore/src/vm/platform.h	49;"	d
 PROFILE_ARG	builder/src/com/sun/squawk/builder/commands/JamCommand.java	/^    private static final String PROFILE_ARG = "-profile:";$/;"	f	class:JamCommand	file:
 PROFILE_IMP10	uei/launcher-hosted-support/src/com/sun/squawk/uei/DeviceDescriptor.java	/^    public static final String PROFILE_IMP10 = "IMP-1.0";$/;"	f	class:DeviceDescriptor
 PROFILE_IMPNG	uei/launcher-hosted-support/src/com/sun/squawk/uei/DeviceDescriptor.java	/^    public static final String PROFILE_IMPNG = "IMP-NG";$/;"	f	class:DeviceDescriptor
@@ -5382,6 +5372,7 @@ PROFILE_PROP	phoneme/midp/src/ams/ams_api/reference/classes/com/sun/midp/midlet/
 PROGRAM_CODE_1	vmcore/src/rts/gcc-eb40a/eb40a-io.c	36;"	d	file:
 PROGRAM_CODE_2	vmcore/src/rts/gcc-eb40a/eb40a-io.c	37;"	d	file:
 PROJECT	vmcore/src/rts/cortex-m3/src/MbedTest/Makefile	/^PROJECT=mbed_test$/;"	m
+PROJECTNAME	vmcore/nbproject/Makefile-impl.mk	/^PROJECTNAME=vmcore$/;"	m
 PROPERTIES_FILE	builder/src/com/sun/squawk/builder/commands/DocumentorCommand.java	/^    private static final String PROPERTIES_FILE = "documentor.properties";$/;"	f	class:DocumentorCommand	file:
 PROPERTIES_MANIFEST_RESOURCE_NAME	cldc/src/com/sun/squawk/Suite.java	/^    public static final String PROPERTIES_MANIFEST_RESOURCE_NAME = "META-INF\/MANIFEST.MF";$/;"	f	class:Suite
 PROPERTIES_STATS	mapper/src/com/sun/squawk/ObjectMemoryMapper.java	/^    private OwnerStats PROPERTIES_STATS;$/;"	f	class:ObjectMemoryMapper	file:
@@ -5679,6 +5670,7 @@ QuickSort	imp/src/javax/microedition/rms/RecordEnumerationImpl.java	/^    privat
 QuickSort	phoneme/midp/src/rms/rms_api/reference/classes/javax/microedition/rms/RecordEnumerationImpl.java	/^    private void QuickSort(int a[], int lowIndex, int highIndex, $/;"	m	class:RecordEnumerationImpl	file:
 QuitException	debugger/src/com/sun/squawk/debugger/JDWPListener.java	/^        QuitException(String closedBy) {$/;"	m	class:JDWPListener.QuitException
 QuitException	debugger/src/com/sun/squawk/debugger/JDWPListener.java	/^    public static class QuitException extends RuntimeException {$/;"	c	class:JDWPListener
+RANLIB	vmcore/nbproject/Makefile-Default.mk	/^RANLIB=ranlib$/;"	m
 RASR	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^  __IO uint32_t RASR;                         \/*!< Offset: 0x10  MPU Region Attribute and Size Register         *\/$/;"	m	struct:__anon62
 RASR_A1	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^  __IO uint32_t RASR_A1;                      \/*!< Offset: 0x18  MPU Alias 1 Region Attribute and Size Register *\/$/;"	m	struct:__anon62
 RASR_A2	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^  __IO uint32_t RASR_A2;                      \/*!< Offset: 0x20  MPU Alias 2 Region Attribute and Size Register *\/$/;"	m	struct:__anon62
@@ -6259,6 +6251,7 @@ SEPTEMBER	phoneme/cldc/src/javaapi/cldc1.1/java/util/Calendar.java	/^    public 
 SEQUENCE_TYPE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private static final byte SEQUENCE_TYPE   = 0x30;$/;"	f	class:X509Certificate	file:
 SERVER	ssl/src/com/sun/midp/ssl/Record.java	/^    static final byte SERVER    = 0; $/;"	f	class:Record
 SERVER_AUTH_EXT_KEY_USAGE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    public static final int SERVER_AUTH_EXT_KEY_USAGE = 0x00000002;$/;"	f	class:X509Certificate
+SERVICE_CHUNK_SIZE	vmcore/src/rts/formic/os.c	32;"	d	file:
 SERVICE_CHUNK_SIZE	vmcore/src/rts/gcc-9200/os.c	46;"	d	file:
 SERVICE_CHUNK_SIZE	vmcore/src/rts/gcc-eb40a/os.c	32;"	d	file:
 SERVICE_THREAD_ID	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^    private static final String SERVICE_THREAD_ID = "0";$/;"	f	class:TraceViewer	file:
@@ -6419,9 +6412,7 @@ SQRT	cldc/src/com/sun/squawk/vm/MathOpcodes.java	/^    SQRT                   = 
 SQUAWKARRAY	cldc/src/com/sun/squawk/Modifier.java	/^    public static final int SQUAWKARRAY         = 0x00400000;$/;"	f	class:Modifier
 SQUAWKPRIMITIVE	cldc/src/com/sun/squawk/Modifier.java	/^    public static final int SQUAWKPRIMITIVE     = 0x00800000;$/;"	f	class:Modifier
 SQUAWK_64	cldc/src/com/sun/squawk/Klass.java	/^    public static final boolean SQUAWK_64 = \/*VAL*\/false\/*SQUAWK_64*\/;$/;"	f	class:Klass
-SQUAWK_64	vmcore/src/vm/platform.h	186;"	d
-SQUAWK_64	vmcore/src/vm/platform.h	187;"	d
-SQUAWK_64	vmcore/src/vm/platform.h	189;"	d
+SQUAWK_STARTUP_ARGS_MAX	vmcore/src/rts/formic/os.c	26;"	d	file:
 SQUAWK_STARTUP_ARGS_MAX	vmcore/src/rts/gcc-9200/os.c	37;"	d	file:
 SQUAWK_STARTUP_ARGS_MAX	vmcore/src/rts/gcc-eb40a/os.c	26;"	d	file:
 SQUAWK_VERSION	vmcore/src/rts/vxworks/os_main.c	37;"	d	file:
@@ -6534,12 +6525,14 @@ STRING_ARRAY	cldc/src/com/sun/squawk/vm/CID.java	/^        STRING_ARRAY         
 STRING_OF_BYTES	cldc/src/com/sun/squawk/Klass.java	/^    public static final Klass STRING_OF_BYTES;$/;"	f	class:Klass
 STRING_OF_BYTES	cldc/src/com/sun/squawk/vm/CID.java	/^        STRING_OF_BYTES      = 26,  \/* Small strings.                       *\/$/;"	f	interface:CID
 STRUCTURE_SIZE_INDEX	cldc/src/com/sun/cldc/jna/DynamicStructure.java	/^    public final static int STRUCTURE_SIZE_INDEX = 0;$/;"	f	class:DynamicStructure
+SUBPROJECTS	vmcore/nbproject/Makefile-impl.mk	/^SUBPROJECTS=${SUB_${SUB}}$/;"	m
 SUB_D	cldc/src/com/sun/squawk/vm/OPC.java	/^        SUB_D                  = 391,$/;"	f	class:OPC
 SUB_F	cldc/src/com/sun/squawk/vm/OPC.java	/^        SUB_F                  = 385,$/;"	f	class:OPC
 SUB_I	builder/src/com/sun/squawk/builder/bytecodespec/Instructions.java	/^    static class SUB_I extends TwoOperandArithmetic {$/;"	c	class:Instructions
 SUB_I	cldc/src/com/sun/squawk/vm/OPC.java	/^        SUB_I                  = 197,$/;"	f	class:OPC
 SUB_L	builder/src/com/sun/squawk/builder/bytecodespec/Instructions.java	/^    static class SUB_L extends TwoOperandArithmetic {$/;"	c	class:Instructions
 SUB_L	cldc/src/com/sun/squawk/vm/OPC.java	/^        SUB_L                  = 212,$/;"	f	class:OPC
+SUB_no	vmcore/nbproject/Makefile-impl.mk	/^SUB_no=NO$/;"	m
 SUITE	phoneme/midp/src/rms/rms_api/reference/i3test/com/sun/midp/rms/TestFileRscLimit.java	/^    static final int SUITE = MIDletSuite.INTERNAL_SUITE_ID;$/;"	f	class:TestFileRscLimit
 SUITE_FILE_EXTENSION	builder/src/com/sun/squawk/builder/commands/MakeAPI.java	/^    public static final String SUITE_FILE_EXTENSION = ".suite";$/;"	f	class:MakeAPI
 SUITE_FILE_EXTENSION_API	builder/src/com/sun/squawk/builder/commands/MakeAPI.java	/^    public static final String SUITE_FILE_EXTENSION_API = ".api";$/;"	f	class:MakeAPI
@@ -7185,6 +7178,7 @@ TREAT_ARRAY_CLASS_BASED_ON_ELEMENT_CLASS	romizer/src/com/sun/squawk/VM.java	/^  
 TRUE	cldc/src/java/lang/Boolean.java	/^    public static final Boolean TRUE = new Boolean(true);$/;"	f	class:Boolean
 TRUE	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Boolean.java	/^    public static final Boolean TRUE = new Boolean(true);$/;"	f	class:Boolean
 TRUE	vmcore/src/rts/cc/os.c	25;"	d	file:
+TRUE	vmcore/src/rts/formic/os.c	35;"	d	file:
 TRUE	vmcore/src/rts/gcc-9200/os.c	25;"	d	file:
 TRUE	vmcore/src/rts/gcc-eb40a/os.c	35;"	d	file:
 TRUE	vmcore/src/rts/gcc-macosx/os.c	25;"	d	file:
@@ -7870,7 +7864,6 @@ WIDE_SHORT	builder/src/com/sun/squawk/builder/bytecodespec/Instructions.java	/^ 
 WIDE_SHORT	cldc/src/com/sun/squawk/vm/OPC.java	/^        WIDE_SHORT             = 75,$/;"	f	class:OPC
 WIDTH	hosted-support/src/com/sun/squawk/vm/GUIOutputChannel.java	/^    final static int HEIGHT=60, WIDTH=100;$/;"	f	class:HibernateDialog
 WIN32_LEAN_AND_MEAN	vmcore/src/rts/msc/os.c	35;"	d	file:
-WIN32_LEAN_AND_MEAN	vmcore/src/vm/platform.h	88;"	d
 WINDRIVER_GNU_PATH	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    final static String WINDRIVER_GNU_PATH = "WIND_GNU_PATH";$/;"	f	class:GccVxWorksPPCCompiler
 WINDRIVER_SDK_BASE	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    final static String WINDRIVER_SDK_BASE = "WIND_BASE";$/;"	f	class:GccVxWorksPPCCompiler
 WORD	cldc/src/com/sun/squawk/compiler/Type.java	/^    public static final Type WORD    = INT  \/*s64*\/,$/;"	f	class:Type
@@ -7963,6 +7956,7 @@ _LcConvMethodsRec	phoneme/midp/src/i18n/i18n_port/include/conv.h	/^typedef struc
 _LcMethodsRec	phoneme/midp/src/i18n/i18n_main/reference/native/localeMethod.c	/^typedef struct _LcMethodsRec {$/;"	s	file:
 _MSC_VER	cldc-native-declarations/src/com/sun/cldc/jna/JNAPlatform.java	/^    boolean _MSC_VER = DEFINED;$/;"	f	interface:JNAPlatform
 _OS_MATH_H	vmcore/src/rts/cc/os_math.h	30;"	d
+_OS_MATH_H	vmcore/src/rts/formic/os_math.h	31;"	d
 _OS_MATH_H	vmcore/src/rts/gcc-9200/os_math.h	31;"	d
 _OS_MATH_H	vmcore/src/rts/gcc-eb40a/os_math.h	31;"	d
 _OS_MATH_H	vmcore/src/rts/gcc-macosx/os_math.h	31;"	d
@@ -8311,7 +8305,6 @@ abs	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static dou
 abs	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static float abs(float a) {$/;"	m	class:Math
 abs	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static int abs(int a) {$/;"	m	class:Math
 abs	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static long abs(long a) {$/;"	m	class:Math
-abs	vmcore/src/vm/platform.h	234;"	d
 absorbTempEntry	imp/src/com/sun/squawk/rms/IRecordStoreEntry.java	/^    public void absorbTempEntry(IRecordStoreEntry tempEntry);$/;"	m	interface:IRecordStoreEntry
 absorbTempEntry	imp/src/com/sun/squawk/rms/RecordStoreEntry.java	/^    public void absorbTempEntry(IRecordStoreEntry tempEntry) {$/;"	m	class:RecordStoreEntry
 abstractMethodError	cldc/src/com/sun/squawk/VM.java	/^    static void abstractMethodError() throws InterpreterInvokedPragma {$/;"	m	class:VM
@@ -8557,8 +8550,8 @@ allocatePrim	cldc/src/com/sun/squawk/GC.java	/^    private static Object allocat
 allocatePrimHosted	cldc/src/com/sun/squawk/GC.java	/^    private static Object allocatePrimHosted(int size, Object klass, int arrayLength) throws HostedPragma {$/;"	m	class:GC	file:
 allocateUniqueID	debugger/src/com/sun/squawk/debugger/Packet.java	/^    static synchronized int allocateUniqueID() {$/;"	m	class:Packet
 allocationEnabled	cldc/src/com/sun/squawk/GC.java	/^    private static boolean allocationEnabled;$/;"	f	class:GC	file:
+allowGCSections	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    boolean allowGCSections;$/;"	f	class:FormicCompiler
 allowGCSections	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    boolean allowGCSections;$/;"	f	class:GccCompiler
-allowGCSections	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    boolean allowGCSections;$/;"	f	class:MBGccCompiler
 allowUnalignedLoads	builder/src/com/sun/squawk/builder/platform/MacOSX_X86.java	/^    public boolean allowUnalignedLoads() {$/;"	m	class:MacOSX_X86
 allowUnalignedLoads	builder/src/com/sun/squawk/builder/platform/Platform.java	/^    public boolean allowUnalignedLoads() {$/;"	m	class:Platform
 allowUnalignedLoads	builder/src/com/sun/squawk/builder/platform/SunOS_Sparc.java	/^    public boolean allowUnalignedLoads() {$/;"	m	class:SunOS_Sparc
@@ -8669,7 +8662,9 @@ args	ssl/src/org/sunspotworld/demo/StartApplication.java	/^	private String[] arg
 argv	cldc/src/com/sun/squawk/VM.java	/^    private static Address argv;$/;"	f	class:VM	file:
 argv	vmcore/src/rts/gcc-macosx/os_main.c	/^        char **argv;$/;"	m	struct:mainParametersStruct	file:
 arithmeticException	cldc/src/com/sun/squawk/VM.java	/^    static void arithmeticException() throws InterpreterInvokedPragma {$/;"	m	class:VM
+armTrapHandler	vmcore/src/rts/formic/os.c	/^void armTrapHandler (int addr, int code) {$/;"	f
 armTrapHandler	vmcore/src/rts/gcc-eb40a/os.c	/^void armTrapHandler (int addr, int code) {$/;"	f
+arm_main	vmcore/src/rts/formic/os.c	/^int arm_main(int bootAddr, int appAddr, int param, int cmdLineParamsAddr) {$/;"	f
 arm_main	vmcore/src/rts/gcc-9200/os.c	/^void arm_main(int cmdLineParamsAddr, unsigned int outstandingAvrStatus) {$/;"	f
 arm_main	vmcore/src/rts/gcc-eb40a/os.c	/^int arm_main(int bootAddr, int appAddr, int param, int cmdLineParamsAddr) {$/;"	f
 array	translator/src/com/sun/squawk/translator/ir/instr/ArrayLength.java	/^    private StackProducer array;$/;"	f	class:ArrayLength	file:
@@ -8880,7 +8875,6 @@ bom	phoneme/midp/src/i18n/i18n_main/reference/classes/com/sun/cldc/i18n/j2me/UTF
 bomDetect	phoneme/midp/src/i18n/i18n_main/reference/classes/com/sun/cdc/i18n/j2me/UTF_16_Reader.java	/^    protected boolean bomDetect(int firstByte, int secondByte) {$/;"	m	class:UTF_16_Reader
 bomDetect	phoneme/midp/src/i18n/i18n_main/reference/classes/com/sun/cldc/i18n/j2me/UTF_16_Reader.java	/^    protected boolean bomDetect(int firstByte, int secondByte) {$/;"	m	class:UTF_16_Reader
 boolValue	translator/src/com/sun/squawk/translator/Arg.java	/^    private boolean boolValue;$/;"	f	class:Arg	file:
-boolean	vmcore/src/vm/platform.h	69;"	d
 booleanObj	debugger/src/tests/TestApp.java	/^    static Boolean booleanObj = new Boolean(true);$/;"	f	class:TestApp
 booleanValue	cldc/src/java/lang/Boolean.java	/^    public boolean booleanValue() {$/;"	m	class:Boolean
 booleanValue	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Boolean.java	/^    public boolean booleanValue() {$/;"	m	class:Boolean
@@ -8943,7 +8937,6 @@ builder	builder/src/com/sun/squawk/builder/commands/JamCommand.java	/^    protec
 builder	builder/src/com/sun/squawk/builder/commands/UEICommand.java	/^    protected void builder(String... args) {$/;"	m	class:UEICommand
 builderArgs	builder/src/com/sun/squawk/builder/Build.java	/^    private List<String> builderArgs = new ArrayList<String>();$/;"	f	class:Build	file:
 bundleId	javatest-device/src/com/sun/tck/cldc/javatest/agent/CldcAgent.java	/^    private String bundleId = null;$/;"	f	class:CldcAgent	file:
-byte	vmcore/src/vm/platform.h	71;"	d
 byteLen	phoneme/midp/src/i18n/i18n_port/include/conv.h	/^    int (*byteLen)(const unsigned char*, int);$/;"	m	struct:_LcConvMethodsRec
 byteLength	cldc/src/com/sun/squawk/security/ecc/FFA.java	/^    private int byteLength;$/;"	f	class:FFA	file:
 byteLength	ssl/src/com/sun/spot/security/implementation/ecc/FFA.java	/^    private int byteLength;$/;"	f	class:FFA	file:
@@ -8969,6 +8962,7 @@ byteValue	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Byte.java	/^    public byte
 byteValue	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Double.java	/^    public byte byteValue() {$/;"	m	class:Double
 byteValue	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Float.java	/^    public byte byteValue() {$/;"	m	class:Float
 byteValue	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Integer.java	/^    public byte byteValue() {$/;"	m	class:Integer
+bytecodeExecutionLedMask	vmcore/src/rts/formic/os.c	/^int bytecodeExecutionLedMask = 0;$/;"	v
 bytecodeExecutionLedMask	vmcore/src/rts/gcc-eb40a/os.c	/^int bytecodeExecutionLedMask = 0;$/;"	v
 bytecodes	mapper/src/com/sun/squawk/ObjectMemoryMapper.java	/^    private int bytecodes = 0;$/;"	f	class:ObjectMemoryMapper	file:
 bytes	cldc/src/com/sun/squawk/peripheral/SimulatedNorFlashSector.java	/^    protected byte[] bytes;$/;"	f	class:SimulatedNorFlashSector
@@ -9957,12 +9951,12 @@ com.sun.squawk.builder.bytecodespec	builder/src/com/sun/squawk/builder/bytecodes
 com.sun.squawk.builder.bytecodespec	builder/src/com/sun/squawk/builder/bytecodespec/sbdocgen.java	/^package com.sun.squawk.builder.bytecodespec;$/;"	p
 com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/CCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
 com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/CcCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
+com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
 com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
 com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/GccLinuxPPCCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
 com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
 com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXX86Compiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
 com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
-com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
 com.sun.squawk.builder.ccompiler	builder/src/com/sun/squawk/builder/ccompiler/MscCompiler.java	/^package com.sun.squawk.builder.ccompiler;$/;"	p
 com.sun.squawk.builder.commands	builder/src/com/sun/squawk/builder/commands/DocumentorCommand.java	/^package com.sun.squawk.builder.commands;$/;"	p
 com.sun.squawk.builder.commands	builder/src/com/sun/squawk/builder/commands/ExportCommand.java	/^package com.sun.squawk.builder.commands;$/;"	p
@@ -10749,9 +10743,9 @@ compilationEnabled	builder/src/com/sun/squawk/builder/commands/RomCommand.java	/
 compile	builder/src/com/sun/squawk/builder/JavaCompiler.java	/^    public void compile(String classPath, File outputDir, File[] srcDirs, boolean j2me) {$/;"	m	class:JavaCompiler
 compile	builder/src/com/sun/squawk/builder/ccompiler/CCompiler.java	/^    public abstract File compile(File[] includeDirs, File source, File dir, boolean disableOpts);$/;"	m	class:CCompiler
 compile	builder/src/com/sun/squawk/builder/ccompiler/CcCompiler.java	/^    public File compile(File[] includeDirs, File source, File dir, boolean disableOpts) {$/;"	m	class:CcCompiler
+compile	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public File compile(File[] includeDirs, File source, File dir, boolean disableOpts) {$/;"	m	class:FormicCompiler
 compile	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    public File compile(File[] includeDirs, File source, File dir, boolean disableOpts) {$/;"	m	class:GccCompiler
 compile	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    public File compile(File[] includeDirs, File source, File dir, boolean disableOpts) {$/;"	m	class:GccVxWorksPPCCompiler
-compile	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public File compile(File[] includeDirs, File source, File dir, boolean disableOpts) {$/;"	m	class:MBGccCompiler
 compile	builder/src/com/sun/squawk/builder/ccompiler/MscCompiler.java	/^    public File compile(File[] includeDirs, File source, File dir, boolean disableOpts) {$/;"	m	class:MscCompiler
 compile	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public Compiler compile();$/;"	m	interface:BaseCompiler
 complain	ssl/src/com/sun/midp/ssl/Handshake.java	/^    private void complain(IOException e) throws IOException {$/;"	m	class:Handshake	file:
@@ -11035,6 +11029,7 @@ count	ssl/src/com/sun/spot/security/implementation/MD5.java	/^    private long c
 count	ssl/src/com/sun/spot/security/implementation/SHA.java	/^    private long count;$/;"	f	class:SHA	file:
 count	translator/src/com/sun/squawk/translator/ir/IRTransformer.java	/^    void count(IR ir) {$/;"	m	class:IRUseCounter
 count	translator/src/com/sun/squawk/translator/ir/InstructionEmitter.java	/^    private int count;$/;"	f	class:InstructionEmitter	file:
+count	vmcore/src/rts/formic/os.c	/^int count = 0;$/;"	v
 count	vmcore/src/rts/gcc-eb40a/os.c	/^int count = 0;$/;"	v
 countArrayDimensions	translator/src/com/sun/squawk/translator/Translator.java	/^    public static int countArrayDimensions(String name) {$/;"	m	class:Translator
 countBits	cldc/src/java/lang/FloatingDecimal.java	/^    countBits( long v ){$/;"	m	class:FloatingDecimal	file:
@@ -11325,8 +11320,8 @@ defaultExpectedLineLength	cldc/src/com/sun/squawk/io/BufferedReader.java	/^    p
 defaultMEPath	cldc/src/com/sun/cldc/i18n/Helper.java	/^    private static final String defaultMEPath = "com.sun.cldc.i18n.j2me";$/;"	f	class:Helper	file:
 defaultMEPath	phoneme/cldc/src/javaapi/cldc1.1/com/sun/cldc/i18n/Helper.java	/^    private static String defaultMEPath;$/;"	f	class:Helper	file:
 defaultRTLD	vmcore/src/rts/msc/os.c	/^static HMODULE defaultRTLD = 0;$/;"	v	file:
+defaultSizeofPointer	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    protected int defaultSizeofPointer = -1;$/;"	f	class:FormicCompiler
 defaultSizeofPointer	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    protected int defaultSizeofPointer = -1;$/;"	f	class:GccCompiler
-defaultSizeofPointer	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    protected int defaultSizeofPointer = -1;$/;"	f	class:MBGccCompiler
 defaultTarget	translator/src/com/sun/squawk/translator/ir/instr/Switch.java	/^    private final Target defaultTarget;$/;"	f	class:Switch	file:
 defaultUsage	builder/src/com/sun/squawk/builder/Command.java	/^    public void defaultUsage(String simpleArgs, String errMsg) {$/;"	m	class:Command
 defaultValue	translator/src/com/sun/squawk/translator/Arg.java	/^    private String defaultValue;$/;"	f	class:Arg	file:
@@ -12457,7 +12452,6 @@ failed	tests/ThreadTest-DE/src/tests/MiniTestHelper.java	/^    synchronized stat
 failures	tests/ThreadTest-DE/src/tests/MiniTestHelper.java	/^    private static int failures = 0;$/;"	f	class:MiniTestHelper	file:
 fall	vmcore/src/rts/cortex-m3/src/MbedTest/include/InterruptIn.h	/^    void fall(T* tptr, void (T::*mptr)(void)) {$/;"	f	class:mbed::InterruptIn
 fallthrough	translator/src/com/sun/squawk/translator/ir/verifier/Frame.java	/^    public void fallthrough() {$/;"	m	class:Frame
-false	vmcore/src/vm/platform.h	68;"	d
 fastTime	cldc/src/java/util/Date.java	/^    private long     fastTime;$/;"	f	class:Date	file:
 fastTime	phoneme/cldc/src/javaapi/cldc1.1/java/util/Date.java	/^    private long     fastTime;$/;"	f	class:Date	file:
 fatalTarget	translator/src/com/sun/squawk/translator/ir/Target.java	/^    private boolean fatalTarget;$/;"	f	class:Target	file:
@@ -12529,8 +12523,6 @@ filePath	cldc/src/com/sun/squawk/util/StructuredFileInputStream.java	/^    priva
 filePath	mapper/src/com/sun/squawk/traces/Symbols.java	/^        private String filePath;$/;"	f	class:Symbols.Method	file:
 filePathelements	cldc/src/com/sun/squawk/ObjectMemoryLoader.java	/^    static String filePathelements;$/;"	f	class:ObjectMemoryLoader
 fileRoot	cldc/src/com/sun/squawk/io/j2me/file/Protocol.java	/^    private static final String fileRoot = "";$/;"	f	class:Protocol	file:
-fileSeparatorChar	vmcore/src/vm/platform.h	101;"	d
-fileSeparatorChar	vmcore/src/vm/platform.h	96;"	d
 fileSize	cldc/src/com/sun/squawk/io/j2me/file/Protocol.java	/^    public long fileSize() throws IOException {$/;"	m	class:Protocol
 fileSize	cldc/src/com/sun/squawk/microedition/io/FileConnection.java	/^    public long fileSize() throws IOException;$/;"	m	interface:FileConnection
 fileSize	cldc/src/com/sun/squawk/platform/GCFFile.java	/^    public long fileSize() throws IOException;$/;"	m	interface:GCFFile
@@ -12655,6 +12647,7 @@ flags	ssl/src/com/sun/midp/pki/CertInfo.java	/^    private int flags;$/;"	f	clas
 flagsString	ssl/src/com/sun/midp/pki/CertInfo.java	/^    private String flagsString;$/;"	f	class:CertInfo	file:
 flashSector	imp/src/com/sun/squawk/flash/NorFlashSectorState.java	/^    protected INorFlashSector flashSector;$/;"	f	class:NorFlashSectorState
 flashTrustManager	ssl/src/com/sun/spot/peripheral/TrustManager.java	/^    public void flashTrustManager() {$/;"	m	class:TrustManager
+flash_addr_of_bootstrap	vmcore/src/rts/formic/os.c	/^int flash_addr_of_bootstrap;$/;"	v
 flash_addr_of_bootstrap	vmcore/src/rts/gcc-eb40a/os.c	/^int flash_addr_of_bootstrap;$/;"	v
 flatTimes	cldc/src/com/sun/squawk/util/ComputationTimer.java	/^    private static final SquawkHashtable flatTimes = new SquawkHashtable();$/;"	f	class:ComputationTimer	file:
 flen	vmcore/src/rts/cortex-m3/src/MbedTest/include/FileHandle.h	/^    virtual off_t flen() {$/;"	f	class:mbed::FileHandle
@@ -12756,6 +12749,7 @@ fos	cldc/src/com/sun/squawk/io/j2me/file/Protocol.java	/^    OutputStream fos;$/
 fos	hosted-support/src/com/sun/squawk/io/j2se/file/Protocol.java	/^    OutputStream fos;$/;"	f	class:Protocol
 fp	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private byte[] fp = null;  $/;"	f	class:X509Certificate	file:
 fp	vmcore/src/vm/globals.h	182;"	d
+fprintf	vmcore/src/rts/formic/os.c	46;"	d	file:
 fprintf	vmcore/src/rts/gcc-9200/os.c	56;"	d	file:
 fprintf	vmcore/src/rts/gcc-eb40a/os.c	46;"	d	file:
 fractHOB	cldc/src/java/lang/FloatingDecimal.java	/^    static final long	fractHOB = ( 1L<<expShift ); \/\/ assumed High-Order bit$/;"	f	class:FloatingDecimal
@@ -12935,8 +12929,8 @@ get	phoneme/midp/src/protocol/http/reference/classes/com/sun/midp/io/j2me/http/S
 get	ssl/src/com/sun/midp/ssl/Handshake.java	/^        static synchronized Session get(String h, int p) {$/;"	m	class:Session
 get	ssl/src/com/sun/midp/ssl/Handshake.java	/^        static synchronized Session get(byte[] sid) {$/;"	m	class:Session
 get	translator/src/com/sun/squawk/translator/Arg.java	/^    public static Arg get(int index) {$/;"	m	class:Arg
+get64BitOption	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public String get64BitOption() {$/;"	m	class:FormicCompiler
 get64BitOption	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    public String get64BitOption() {$/;"	m	class:GccCompiler
-get64BitOption	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public String get64BitOption() {$/;"	m	class:MBGccCompiler
 getA	cldc/src/com/sun/squawk/security/ecc/ECCurveFp.java	/^	public int[] getA() {$/;"	m	class:ECCurveFp
 getA	ssl/src/com/sun/spot/security/implementation/ecc/ECCurve.java	/^    public int[] getA() {$/;"	m	class:ECCurve
 getAPIThread	cldc/src/com/sun/squawk/VMThread.java	/^    public Thread getAPIThread() {$/;"	m	class:VMThread
@@ -12985,12 +12979,12 @@ getArchOptions	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXCompiler.ja
 getArchOptions	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXX86Compiler.java	/^    public String getArchOptions() {$/;"	m	class:GccMacOSXX86Compiler
 getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/CCompiler.java	/^    public abstract String getArchitecture();$/;"	m	class:CCompiler
 getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/CcCompiler.java	/^    public String getArchitecture() {$/;"	m	class:CcCompiler
+getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public String getArchitecture() {$/;"	m	class:FormicCompiler
 getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    public String getArchitecture() {$/;"	m	class:GccCompiler
 getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/GccLinuxPPCCompiler.java	/^    public String getArchitecture() {$/;"	m	class:GccLinuxPPCCompiler
 getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXCompiler.java	/^    public String getArchitecture() {$/;"	m	class:GccMacOSXCompiler
 getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXX86Compiler.java	/^    public String getArchitecture() {$/;"	m	class:GccMacOSXX86Compiler
 getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    public String getArchitecture() {$/;"	m	class:GccVxWorksPPCCompiler
-getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public String getArchitecture() {$/;"	m	class:MBGccCompiler
 getArchitecture	builder/src/com/sun/squawk/builder/ccompiler/MscCompiler.java	/^    public String getArchitecture() {$/;"	m	class:MscCompiler
 getArchitecture	builder/src/com/sun/squawk/builder/platform/Platform.java	/^    public final String getArchitecture() {$/;"	m	class:Platform
 getArgCount	debugger-proxy/src/com/sun/squawk/debugger/sdp/ProxyMethod.java	/^    public int getArgCount() {$/;"	m	class:ProxyMethod
@@ -13286,9 +13280,9 @@ getDefault	phoneme/cldc/src/javaapi/cldc1.1/java/util/TimeZone.java	/^    public
 getDefaultConstructorIndex	cldc/src/com/sun/squawk/Klass.java	/^    final int getDefaultConstructorIndex() {$/;"	m	class:Klass
 getDefaultConstructorModifiers	cldc/src/com/sun/squawk/Klass.java	/^    public final int getDefaultConstructorModifiers() {$/;"	m	class:Klass
 getDefaultInstance	cldc/src/com/sun/cldc/jna/NativeLibrary.java	/^    public static NativeLibrary getDefaultInstance() {$/;"	m	class:NativeLibrary
+getDefaultSizeofPointer	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    protected int getDefaultSizeofPointer() {$/;"	m	class:FormicCompiler
 getDefaultSizeofPointer	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    protected int getDefaultSizeofPointer() {$/;"	m	class:GccCompiler
 getDefaultSizeofPointer	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    protected int getDefaultSizeofPointer() {$/;"	m	class:GccVxWorksPPCCompiler
-getDefaultSizeofPointer	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    protected int getDefaultSizeofPointer() {$/;"	m	class:MBGccCompiler
 getDefaultTarget	translator/src/com/sun/squawk/translator/ir/instr/Switch.java	/^    public Target getDefaultTarget() {$/;"	m	class:Switch
 getDefaultTranslator	cldc/src/com/sun/squawk/Isolate.java	/^    public static TranslatorInterface getDefaultTranslator() throws AllowInlinedPragma {$/;"	m	class:Isolate
 getDefaultValue	builder/src/com/sun/squawk/builder/commands/MakeAPI.java	/^    static String getDefaultValue(Type type) {$/;"	m	class:MakeAPI
@@ -13843,10 +13837,10 @@ getLineNumberTable	cldc/src/com/sun/squawk/MethodMetadata.java	/^    public fina
 getLineNumberTable	debugger-proxy/src/com/sun/squawk/debugger/sdp/ProxyMethod.java	/^    public LineNumberTable getLineNumberTable() {$/;"	m	class:ProxyMethod
 getLineNumberTable	translator/src/com/sun/squawk/translator/ci/CodeParser.java	/^    public int[] getLineNumberTable(byte[] code) {$/;"	m	class:CodeParser
 getLinkSuffix	builder/src/com/sun/squawk/builder/ccompiler/CcCompiler.java	/^    public String getLinkSuffix() {$/;"	m	class:CcCompiler
+getLinkSuffix	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public String getLinkSuffix() {$/;"	m	class:FormicCompiler
 getLinkSuffix	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    public String getLinkSuffix() {$/;"	m	class:GccCompiler
 getLinkSuffix	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXCompiler.java	/^    public String getLinkSuffix() {$/;"	m	class:GccMacOSXCompiler
 getLinkSuffix	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    public String getLinkSuffix() {$/;"	m	class:GccVxWorksPPCCompiler
-getLinkSuffix	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public String getLinkSuffix() {$/;"	m	class:MBGccCompiler
 getListener	debugger/src/com/sun/squawk/debugger/sda/SDA.java	/^    SDPListener getListener() {$/;"	m	class:SDA
 getListingFor	hosted-support/src/com/sun/squawk/io/j2se/file/Protocol.java	/^    private InputStream getListingFor(String dirName) throws IOException {$/;"	m	class:Protocol	file:
 getListingFor	hosted-support/src/com/sun/squawk/io/j2se/zip/Protocol.java	/^    private InputStream getListingFor(String zipName, String fileName) throws IOException {$/;"	m	class:Protocol	file:
@@ -14619,10 +14613,10 @@ getServerCertificate	ssl/src/com/sun/midp/ssl/SSLStreamConnection.java	/^    pub
 getServerCertificate	ssl/src/com/sun/midp/ssl/SSLStreamConnection.java	/^    public X509Certificate getServerCertificate() {$/;"	m	class:SSLStreamConnection
 getServerCertificate	ssl/src/javax/microedition/io/SecurityInfo.java	/^    public Certificate getServerCertificate();$/;"	m	interface:SecurityInfo
 getServerMACSecret	ssl/src/com/sun/midp/ssl/Record.java	/^    byte[] getServerMACSecret() {$/;"	m	class:CipherSuiteData
+getSharedLibrarySwitch	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public String getSharedLibrarySwitch() {$/;"	m	class:FormicCompiler
 getSharedLibrarySwitch	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    public String getSharedLibrarySwitch() {$/;"	m	class:GccCompiler
 getSharedLibrarySwitch	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXCompiler.java	/^    public String getSharedLibrarySwitch() {$/;"	m	class:GccMacOSXCompiler
 getSharedLibrarySwitch	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    public String getSharedLibrarySwitch() {$/;"	m	class:GccVxWorksPPCCompiler
-getSharedLibrarySwitch	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public String getSharedLibrarySwitch() {$/;"	m	class:MBGccCompiler
 getShort	builder/src/com/sun/cldc/jna/Pointer.java	/^    public short getShort(long offset) {$/;"	m	class:Pointer
 getShort	cldc/src/com/sun/squawk/NativeUnsafe.java	/^    public static int getShort(Object base, int offset) throws NativePragma {$/;"	m	class:NativeUnsafe
 getShort	cldc/src/com/sun/squawk/ObjectMemoryEndianessSwapper.java	/^    private int getShort(Address base, int offset) {$/;"	m	class:ObjectMemoryEndianessSwapper	file:
@@ -15887,6 +15881,7 @@ initSign	ssl/src/com/sun/spot/security/implementation/RsaMd5Sig.java	/^    publi
 initSign	ssl/src/com/sun/spot/security/implementation/RsaShaSig.java	/^    public void initSign(PrivateKey theKey) throws InvalidKeyException {$/;"	m	class:RsaShaSig
 initState	imp/src/com/sun/squawk/flash/NorFlashSectorState.java	/^    protected void initState() {$/;"	m	class:NorFlashSectorState
 initStreamConnection	cldc/src/com/sun/squawk/io/ConnectionBaseAdapter.java	/^    public void initStreamConnection(int mode) throws IOException {$/;"	m	class:ConnectionBaseAdapter
+initTrapHandlers	vmcore/src/rts/formic/os.c	/^void initTrapHandlers() {$/;"	f
 initTrapHandlers	vmcore/src/rts/gcc-eb40a/os.c	/^void initTrapHandlers() {$/;"	f
 initTypeSubs	vm2c/src/com/sun/squawk/vm2c/Converter.java	/^    private Map<Name, Name> initTypeSubs(final Name.Table t) {$/;"	m	class:Converter	file:
 initVerify	ssl/src/com/sun/spot/security/Signature.java	/^    public abstract void initVerify(PublicKey publicKey)$/;"	m	class:Signature
@@ -16021,6 +16016,7 @@ instruction	translator/src/com/sun/squawk/translator/ir/Target.java	/^    privat
 instructionCount	vmcore/src/vm/globals.h	265;"	d
 instructionNeedParametersReversed	translator/src/com/sun/squawk/translator/ir/IRTransformer.java	/^    boolean instructionNeedParametersReversed(Instruction instruction) {$/;"	m	class:IRTransformer
 instructions	builder/src/com/sun/squawk/builder/gen/Instruction.java	/^    private static List<Instruction> instructions;$/;"	f	class:Instruction	file:
+int64_t	vmcore/src/rts/formic/os.c	/^typedef long long int64_t;$/;"	t	file:
 int64_t	vmcore/src/rts/gcc-9200/jni_md.h	/^typedef long long int64_t;$/;"	t
 int64_t	vmcore/src/rts/gcc-eb40a/os.c	/^typedef long long int64_t;$/;"	t	file:
 intArrayCmpToLen	ssl/src/com/sun/spot/security/implementation/ModuloExponentiation.java	/^    private static int intArrayCmpToLen(int[] arg1, int[] arg2, int len) {$/;"	m	class:ModuloExponentiation	file:
@@ -16915,6 +16911,7 @@ jint	vmcore/src/rts/gcc-eb40a/jni_md.h	/^typedef long jint;$/;"	t
 jint	vmcore/src/rts/vxworks/jni_md.h	/^typedef long jint;$/;"	t
 jj	ssl/src/com/sun/spotx/crypto/implementation/Alg2.java	/^    private int ii, jj;$/;"	f	class:Alg2	file:
 jlong	vmcore/src/rts/cc/os.c	37;"	d	file:
+jlong	vmcore/src/rts/formic/os.c	42;"	d	file:
 jlong	vmcore/src/rts/gcc-9200/jni_md.h	41;"	d
 jlong	vmcore/src/rts/gcc-eb40a/os.c	42;"	d	file:
 jlong	vmcore/src/rts/gcc/os.c	33;"	d	file:
@@ -17093,6 +17090,7 @@ leave	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public Compiler l
 leave	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public Compiler leave(MethodMap mmap);$/;"	m	interface:BaseCompiler
 leave	vm2c/src/com/sun/squawk/vm2c/CCodeBuffer.java	/^    public CCodeBuffer leave() {$/;"	m	class:CCodeBuffer
 leave	vm2c/src/com/sun/squawk/vm2c/LocalVarDeclScanner.java	/^    private void leave(List<? extends JCTree> stats) {$/;"	m	class:LocalVarDeclScanner	file:
+led_is_on	vmcore/src/rts/formic/os.c	/^int led_is_on = 0;$/;"	v
 led_is_on	vmcore/src/rts/gcc-eb40a/os.c	/^int led_is_on = 0;$/;"	v
 left	builder/src/com/sun/squawk/builder/util/FileSet.java	/^        private final Selector left;$/;"	f	class:FileSet.AndSelector	file:
 left	builder/src/com/sun/squawk/builder/util/FileSet.java	/^        private final Selector left;$/;"	f	class:FileSet.OrSelector	file:
@@ -17156,9 +17154,9 @@ lines	mapper/src/com/sun/squawk/ht2html/Main.java	/^    private final Vector lin
 lines	translator/src/com/sun/squawk/ClassSourcePrinter.java	/^    private Vector lines;$/;"	f	class:ClassSourcePrinter	file:
 link	builder/src/com/sun/squawk/builder/ccompiler/CCompiler.java	/^    public abstract File link(File[] objects, String out, boolean dll);$/;"	m	class:CCompiler
 link	builder/src/com/sun/squawk/builder/ccompiler/CcCompiler.java	/^    public File link(File[] objects, String out, boolean dll) {$/;"	m	class:CcCompiler
+link	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public File link(File[] objects, String out, boolean dll) {$/;"	m	class:FormicCompiler
 link	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    public File link(File[] objects, String out, boolean dll) {$/;"	m	class:GccCompiler
 link	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    public File link(File[] objects, String out, boolean dll) {$/;"	m	class:GccVxWorksPPCCompiler
-link	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public File link(File[] objects, String out, boolean dll) {$/;"	m	class:MBGccCompiler
 link	builder/src/com/sun/squawk/builder/ccompiler/MscCompiler.java	/^    public File link(File[] objects, String out, boolean dll) {$/;"	m	class:MscCompiler
 link	cldc/src/com/sun/squawk/compiler/Linker.java	/^    byte [] link(int targetAddress);$/;"	m	interface:Linker
 link	vmcore/src/rts/cortex-m3/src/MbedTest/os_main.c	/^int link(char *old, char *new) {$/;"	f
@@ -17745,7 +17743,6 @@ max	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static dou
 max	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static float max(float a, float b) {$/;"	m	class:Math
 max	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static int max(int a, int b) {$/;"	m	class:Math
 max	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static long max(long a, long b) {$/;"	m	class:Math
-max	vmcore/src/vm/platform.h	232;"	d
 maxByteLen	phoneme/midp/src/i18n/i18n_main/reference/classes/com/sun/cdc/i18n/j2me/Gen_Reader.java	/^    private int maxByteLen;$/;"	f	class:Gen_Reader	file:
 maxByteLen	phoneme/midp/src/i18n/i18n_main/reference/classes/com/sun/cdc/i18n/j2me/Gen_Writer.java	/^    private int maxByteLen;$/;"	f	class:Gen_Writer	file:
 maxByteLen	phoneme/midp/src/i18n/i18n_main/reference/classes/com/sun/cldc/i18n/j2me/Gen_Reader.java	/^    private int maxByteLen;$/;"	f	class:Gen_Reader	file:
@@ -17970,7 +17967,6 @@ min	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static dou
 min	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static float min(float a, float b) {$/;"	m	class:Math
 min	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static int min(int a, int b) {$/;"	m	class:Math
 min	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    public static long min(long a, long b) {$/;"	m	class:Math
-min	vmcore/src/vm/platform.h	233;"	d
 minCase	translator/src/com/sun/squawk/translator/ir/instr/LookupSwitch.java	/^    private int minCase;$/;"	f	class:LookupSwitch	file:
 minDecimalExponent	cldc/src/java/lang/FloatingDecimal.java	/^    static final int	minDecimalExponent = -324;$/;"	f	class:FloatingDecimal
 minDecimalExponent	phoneme/cldc/src/javaapi/cldc1.1/java/lang/FloatingDecimal.java	/^    static final int	minDecimalExponent = -324;$/;"	f	class:FloatingDecimal
@@ -18438,7 +18434,6 @@ ntohl	cldc/src/com/sun/squawk/platform/posix/Inet.java	/^    public static int n
 ntohl	cldc/src/com/sun/squawk/platform/windows/Inet.java	/^    public static int ntohl(int netint) {$/;"	m	class:Inet
 ntohs	cldc/src/com/sun/squawk/platform/posix/Inet.java	/^    public static short ntohs(short netshort) {$/;"	m	class:Inet
 ntohs	cldc/src/com/sun/squawk/platform/windows/Inet.java	/^    public static short ntohs(short netshort) {$/;"	m	class:Inet
-null	vmcore/src/vm/platform.h	70;"	d
 nullCheck	debugger/src/com/sun/squawk/debugger/sda/SDPListener.java	/^    private void nullCheck(Object obj) throws SDWPException {$/;"	m	class:SDPListener	file:
 nullPointerException	cldc/src/com/sun/squawk/VM.java	/^    static void nullPointerException() throws InterpreterInvokedPragma {$/;"	m	class:VM
 numBytesFreedTotal	cldc/src/com/sun/squawk/GarbageCollector.java	/^    private long numBytesFreedTotal;$/;"	f	class:GarbageCollector	file:
@@ -19077,12 +19072,12 @@ optionNo	builder/src/com/sun/squawk/builder/gen/NativeGen.java	/^    int optionN
 options	builder/src/com/sun/squawk/builder/ccompiler/CCompiler.java	/^    public Options options;$/;"	f	class:CCompiler
 options	builder/src/com/sun/squawk/builder/ccompiler/CCompiler.java	/^    public abstract String options(boolean disableOpts);$/;"	m	class:CCompiler
 options	builder/src/com/sun/squawk/builder/ccompiler/CcCompiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:CcCompiler
+options	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:FormicCompiler
 options	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:GccCompiler
 options	builder/src/com/sun/squawk/builder/ccompiler/GccLinuxPPCCompiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:GccLinuxPPCCompiler
 options	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXCompiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:GccMacOSXCompiler
 options	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXX86Compiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:GccMacOSXX86Compiler
 options	builder/src/com/sun/squawk/builder/ccompiler/GccVxWorksPPCCompiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:GccVxWorksPPCCompiler
-options	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:MBGccCompiler
 options	builder/src/com/sun/squawk/builder/ccompiler/MscCompiler.java	/^    public String options(boolean disableOpts) {$/;"	m	class:MscCompiler
 or	cldc/src/com/sun/squawk/Address.java	/^    public Address or(UWord word) throws NativePragma {$/;"	m	class:Address
 or	cldc/src/com/sun/squawk/UWord.java	/^    public UWord or(UWord word) throws NativePragma {$/;"	m	class:UWord
@@ -19208,6 +19203,7 @@ os_setupInterrupt	vmcore/src/rts/gcc/os_devices.c	/^void os_setupInterrupt(int s
 os_setupInterrupt	vmcore/src/rts/msc/os_devices.c	/^void os_setupInterrupt(int signum, Address handler) {$/;"	f
 os_setupInterrupt	vmcore/src/rts/vxworks/os_devices.c	/^void os_setupInterrupt(int signum, Address handler) {$/;"	f
 osbackbranch	vmcore/src/rts/cc/os.c	85;"	d	file:
+osbackbranch	vmcore/src/rts/formic/os.c	/^INLINE void osbackbranch() {$/;"	f
 osbackbranch	vmcore/src/rts/gcc-9200/os.c	/^INLINE void osbackbranch() {$/;"	f
 osbackbranch	vmcore/src/rts/gcc-eb40a/os.c	/^INLINE void osbackbranch() {$/;"	f
 osbackbranch	vmcore/src/rts/gcc-macosx/os.c	62;"	d	file:
@@ -19216,6 +19212,7 @@ osbackbranch	vmcore/src/rts/msc/os.c	277;"	d	file:
 osbackbranch	vmcore/src/rts/vxworks/os.c	535;"	d	file:
 osevents	cldc/src/com/sun/squawk/VMThread.java	/^    private static EventHashtable osevents;$/;"	f	class:VMThread	file:
 osfinish	vmcore/src/rts/cc/os.c	86;"	d	file:
+osfinish	vmcore/src/rts/formic/os.c	/^void osfinish() {$/;"	f
 osfinish	vmcore/src/rts/gcc-9200/os.c	/^void osfinish() {$/;"	f
 osfinish	vmcore/src/rts/gcc-eb40a/os.c	/^void osfinish() {$/;"	f
 osfinish	vmcore/src/rts/gcc-macosx/os.c	63;"	d	file:
@@ -19224,6 +19221,7 @@ osfinish	vmcore/src/rts/msc/os.c	278;"	d	file:
 osfinish	vmcore/src/rts/vxworks/os.c	536;"	d	file:
 osize	cldc/src/com/sun/squawk/compiler/Type.java	/^    private final int osize;$/;"	f	class:Type	file:
 osloop	vmcore/src/rts/cc/os.c	84;"	d	file:
+osloop	vmcore/src/rts/formic/os.c	/^INLINE void osloop() {$/;"	f
 osloop	vmcore/src/rts/gcc-9200/os.c	/^INLINE void osloop() {$/;"	f
 osloop	vmcore/src/rts/gcc-eb40a/os.c	/^INLINE void osloop() {$/;"	f
 osloop	vmcore/src/rts/gcc-macosx/os.c	61;"	d	file:
@@ -19541,8 +19539,6 @@ passed	tests/SmokeTest/src/tests/Test.java	/^    static void passed(String name)
 passed	tests/ThreadTest-DE/src/tests/MiniTestHelper.java	/^    static void passed(String name) {$/;"	m	class:MiniTestHelper
 passes	translator/src/com/sun/squawk/translator/ir/InstructionEmitter.java	/^    private static int passes;$/;"	f	class:InstructionEmitter	file:
 path	mapper/src/com/sun/squawk/ht2html/Main.java	/^    private final String path;$/;"	f	class:InputFile	file:
-pathSeparatorChar	vmcore/src/vm/platform.h	100;"	d
-pathSeparatorChar	vmcore/src/vm/platform.h	95;"	d
 pathToNativeSeparator	cldc/src/com/sun/squawk/platform/BaseGCFFile.java	/^    private StringBuffer pathToNativeSeparator(StringBuffer name, int off, int len) {$/;"	m	class:BaseGCFFile	file:
 pattern	builder/src/com/sun/squawk/builder/util/FileSet.java	/^        private final Pattern pattern;$/;"	f	class:FileSet.PatternSelector	file:
 pattern	debugger/src/com/sun/squawk/debugger/EventRequestModifier.java	/^        public final String pattern;$/;"	f	class:EventRequestModifier.ClassMatch
@@ -20286,6 +20282,7 @@ printVersion	uei/launcher-hosted-support/src/com/sun/squawk/uei/UeiOutputDisplay
 printWaitingThreads	cldc/src/com/sun/squawk/Monitor.java	/^    void printWaitingThreads(PrintStream out, Object o) {$/;"	m	class:Monitor
 printWordLine	mapper/src/com/sun/squawk/ObjectMemoryMapper.java	/^    private void printWordLine(Address addr, String text, boolean isOop) {$/;"	m	class:ObjectMemoryMapper	file:
 printer	translator/src/com/sun/squawk/MethodBodyTracer.java	/^    private ClassSourcePrinter printer;$/;"	f	class:MethodBodyTracer	file:
+printf	vmcore/src/rts/formic/os.c	45;"	d	file:
 printf	vmcore/src/rts/gcc-9200/os.c	55;"	d	file:
 printf	vmcore/src/rts/gcc-eb40a/os.c	45;"	d	file:
 println	builder/src/com/sun/squawk/builder/commands/MakeAPI.java	/^    void println(String s) {$/;"	m	class:SourceFile
@@ -22404,6 +22401,7 @@ splitBlock	phoneme/midp/src/rms/rms_api/reference/classes/com/sun/midp/rms/Recor
 spotCertificate	ssl/src/com/sun/spot/peripheral/TrustManager.java	/^    private X509Certificate spotCertificate;$/;"	f	class:TrustManager	file:
 spotCertificateBytes	ssl/src/com/sun/spot/peripheral/TrustManager.java	/^    private byte[] spotCertificateBytes;$/;"	f	class:TrustManager	file:
 spotPrivateKey	ssl/src/com/sun/spot/peripheral/TrustManager.java	/^    private ECPrivateKeyImpl spotPrivateKey;$/;"	f	class:TrustManager	file:
+sprintf	vmcore/src/rts/formic/os.c	47;"	d	file:
 sprintf	vmcore/src/rts/gcc-9200/os.c	57;"	d	file:
 sprintf	vmcore/src/rts/gcc-eb40a/os.c	47;"	d	file:
 sqr	cldc/src/com/sun/squawk/security/ecc/FFA.java	/^    public void sqr(int[] r, int[] a) {$/;"	m	class:FFA
@@ -22794,18 +22792,21 @@ sysFD_ISSET	vmcore/src/vm/io_native.c	/^int sysFD_ISSET(int i1, fd_set* set) {$/
 sysFD_SET	vmcore/src/vm/io_native.c	/^void sysFD_SET(int i1, fd_set* set) {$/;"	f
 sysFD_SIZE	vmcore/src/vm/io_native.c	/^int sysFD_SIZE; FORCE_USED$/;"	v
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/cc/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) { return NULL; }$/;"	f
+sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/formic/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) { return NULL; }$/;"	f
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/gcc-9200/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) { return NULL; }$/;"	f
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/gcc-eb40a/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) { return NULL; }$/;"	f
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/gcc-macosx/os_main.c	/^char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) {$/;"	f
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/gcc/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) { return NULL; }$/;"	f
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/msc/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) { return NULL; }$/;"	f
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/vxworks/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) {$/;"	f
+sysGetPageSize	vmcore/src/rts/formic/os.c	227;"	d	file:
 sysGetPageSize	vmcore/src/rts/gcc-9200/os.c	239;"	d	file:
 sysGetPageSize	vmcore/src/rts/gcc-eb40a/os.c	227;"	d	file:
 sysGetPageSize	vmcore/src/rts/msc/os.c	/^int sysGetPageSize(void) {$/;"	f
 sysGetPageSize	vmcore/src/rts/vxworks/os.c	/^int sysGetPageSize() {$/;"	f
 sysGetPageSize	vmcore/src/vm/os_posix.c	/^int sysGetPageSize(void) {$/;"	f
 sysPlatformName	vmcore/src/rts/cc/os.c	40;"	d	file:
+sysPlatformName	vmcore/src/rts/formic/os.c	267;"	d	file:
 sysPlatformName	vmcore/src/rts/gcc-9200/os.c	279;"	d	file:
 sysPlatformName	vmcore/src/rts/gcc-eb40a/os.c	267;"	d	file:
 sysPlatformName	vmcore/src/rts/gcc-macosx/os.c	34;"	d	file:
@@ -22814,26 +22815,31 @@ sysPlatformName	vmcore/src/rts/gcc/os.c	39;"	d	file:
 sysPlatformName	vmcore/src/rts/msc/os.c	46;"	d	file:
 sysPlatformName	vmcore/src/rts/vxworks/os.c	29;"	d	file:
 sysSIZEOFSTAT	vmcore/src/vm/io_native.c	/^int sysSIZEOFSTAT; FORCE_USED$/;"	v
+sysTimeMicros	vmcore/src/rts/formic/os.c	/^jlong sysTimeMicros() {$/;"	f
 sysTimeMicros	vmcore/src/rts/gcc-9200/os.c	/^jlong sysTimeMicros() {$/;"	f
 sysTimeMicros	vmcore/src/rts/gcc-eb40a/os.c	/^jlong sysTimeMicros() {$/;"	f
 sysTimeMicros	vmcore/src/rts/msc/os.c	/^jlong sysTimeMicros(void) {$/;"	f
 sysTimeMicros	vmcore/src/rts/vxworks/os.c	/^jlong sysTimeMicros() {$/;"	f
 sysTimeMicros	vmcore/src/vm/os_posix.c	/^jlong sysTimeMicros() {$/;"	f
+sysTimeMillis	vmcore/src/rts/formic/os.c	/^jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/rts/gcc-9200/os.c	/^volatile jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/rts/gcc-eb40a/os.c	/^jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/rts/msc/os.c	/^jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/rts/vxworks/os.c	/^jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/vm/os_posix.c	/^jlong sysTimeMillis(void) {$/;"	f
+sysToggleMemoryProtection	vmcore/src/rts/formic/os.c	/^INLINE sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}$/;"	f
 sysToggleMemoryProtection	vmcore/src/rts/gcc-9200/os.c	/^INLINE sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}$/;"	f
 sysToggleMemoryProtection	vmcore/src/rts/gcc-eb40a/os.c	/^INLINE sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}$/;"	f
 sysToggleMemoryProtection	vmcore/src/rts/msc/os.c	/^void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {$/;"	f
 sysToggleMemoryProtection	vmcore/src/rts/vxworks/os.c	/^void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {$/;"	f
 sysToggleMemoryProtection	vmcore/src/vm/os_posix.c	/^void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {$/;"	f
+sysValloc	vmcore/src/rts/formic/os.c	/^INLINE void* sysValloc(size_t size) {$/;"	f
 sysValloc	vmcore/src/rts/gcc-9200/os.c	/^INLINE void* sysValloc(size_t size) {$/;"	f
 sysValloc	vmcore/src/rts/gcc-eb40a/os.c	/^INLINE void* sysValloc(size_t size) {$/;"	f
 sysValloc	vmcore/src/rts/msc/os.c	/^INLINE void* sysValloc(size_t size) {$/;"	f
 sysValloc	vmcore/src/rts/vxworks/os.c	/^INLINE void* sysValloc(size_t size) {$/;"	f
 sysValloc	vmcore/src/vm/os_posix.c	/^INLINE void* sysValloc(size_t size) {$/;"	f
+sysVallocFree	vmcore/src/rts/formic/os.c	/^INLINE void sysVallocFree(void* ptr) {$/;"	f
 sysVallocFree	vmcore/src/rts/gcc-9200/os.c	/^INLINE void sysVallocFree(void* ptr) {$/;"	f
 sysVallocFree	vmcore/src/rts/gcc-eb40a/os.c	/^INLINE void sysVallocFree(void* ptr) {$/;"	f
 sysVallocFree	vmcore/src/rts/msc/os.c	/^INLINE void sysVallocFree(void* ptr) {$/;"	f
@@ -23725,7 +23731,6 @@ trimToSize	cldc/src/java/lang/StringBuilder.java	/^    public void trimToSize() 
 trimToSize	cldc/src/java/util/Vector.java	/^    public synchronized void trimToSize() {$/;"	m	class:Vector
 trouble	cldc/src/java/io/PrintStream.java	/^    private boolean trouble = false;$/;"	f	class:PrintStream	file:
 trouble	phoneme/cldc/src/javaapi/cldc1.1/java/io/PrintStream.java	/^    private boolean trouble = false;$/;"	f	class:PrintStream	file:
-true	vmcore/src/vm/platform.h	67;"	d
 trustManager	ssl/src/com/sun/midp/ssl/Handshake.java	/^    private TrustManager trustManager;$/;"	f	class:Handshake	file:
 trusted	phoneme/midp/src/ams/ams_api/reference/classes/javax/microedition/midlet/doc-files/Authorization.html	/^    <H2><A name="trusted">Trusted MIDlet Suite Security<\/A><\/H2>$/;"	a
 tryFcntl	cldc/src/com/sun/squawk/platform/posix/GCFSocketsImpl.java	/^    private boolean tryFcntl = true;$/;"	f	class:GCFSocketsImpl	file:
@@ -23787,6 +23792,7 @@ tzoffset	ssl/src/com/sun/squawk/io/j2me/https/httpsutil/DateParser.java	/^    pr
 u16	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^    __O  uint16_t   u16;                      \/*!< Offset:       ITM Stimulus Port 16-bit                  *\/$/;"	m	union:__anon59::__anon60
 u32	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^    __O  uint32_t   u32;                      \/*!< Offset:       ITM Stimulus Port 32-bit                  *\/$/;"	m	union:__anon59::__anon60
 u8	vmcore/src/rts/cortex-m3/src/MbedTest/core_cm3.h	/^    __O  uint8_t    u8;                       \/*!< Offset:       ITM Stimulus Port 8-bit                   *\/$/;"	m	union:__anon59::__anon60
+u_int64_t	vmcore/src/rts/formic/os.c	/^typedef unsigned long long u_int64_t;$/;"	t	file:
 u_int64_t	vmcore/src/rts/gcc-9200/jni_md.h	/^typedef unsigned long long u_int64_t;$/;"	t
 u_int64_t	vmcore/src/rts/gcc-eb40a/os.c	/^typedef unsigned long long u_int64_t;$/;"	t	file:
 u_threshold	cldc/src/com/sun/squawk/util/MathUtils.java	/^  private static final double u_threshold= -7.45133219101941108420e+02;  \/* 0xc0874910, 0xD52D3051 *\/$/;"	f	class:MathUtils	file:
@@ -23794,12 +23800,6 @@ ueiModuleDirectory	builder/src/com/sun/squawk/builder/commands/UEICommand.java	/
 ueiProtocol	uei/launcher-hosted-support/src/com/sun/squawk/io/j2se/uei/ArgumentOutputStream.java	/^    protected Protocol ueiProtocol;$/;"	f	class:ArgumentOutputStream
 ueiProtocol	uei/launcher-hosted-support/src/com/sun/squawk/io/j2se/uei/ReturnCodeInputStream.java	/^    protected Protocol ueiProtocol;$/;"	f	class:ReturnCodeInputStream
 uin	ssl/src/com/sun/midp/ssl/SSLStreamConnection.java	/^    private In uin = null;$/;"	f	class:SSLStreamConnection	file:
-ujlong	vmcore/src/vm/platform.h	114;"	d
-ujlong	vmcore/src/vm/platform.h	116;"	d
-ujlong	vmcore/src/vm/platform.h	118;"	d
-ujlong	vmcore/src/vm/platform.h	72;"	d
-ujlong	vmcore/src/vm/platform.h	85;"	d
-ujlong	vmcore/src/vm/platform.h	86;"	d
 ulp	cldc/src/java/lang/FloatingDecimal.java	/^    ulp( double dval, boolean subtracting ){$/;"	m	class:FloatingDecimal	file:
 ulp	phoneme/cldc/src/javaapi/cldc1.1/java/lang/FloatingDecimal.java	/^    ulp( double dval, boolean subtracting ){$/;"	m	class:FloatingDecimal	file:
 unRegisterReadOnlyObjectMemory	cldc/src/com/sun/squawk/GC.java	/^    static void unRegisterReadOnlyObjectMemory(ObjectMemory om) {$/;"	m	class:GC
@@ -23874,6 +23874,7 @@ updateFor	mapper/src/com/sun/squawk/mapper/Histogram.java	/^    public void upda
 updateFromJVMByteArray	vmcore/src/vm/io_delegating.c	/^static void updateFromJVMByteArray(Address array, Address jvmArray, int offset, int length) {$/;"	f	file:
 updateInternalStackChunkPointers	cldc/src/com/sun/squawk/Lisp2Collector.java	/^    private void updateInternalStackChunkPointers(Address chunk, Address destination) throws NotInlinedPragma {$/;"	m	class:Lisp2Collector	file:
 updateInternalStackChunkPointers	cldc/src/com/sun/squawk/Lisp2GenerationalCollector.java	/^    private void updateInternalStackChunkPointers(Address chunk, Address destination) throws NotInlinedPragma {$/;"	m	class:Lisp2GenerationalCollector	file:
+updateLEDStatus	vmcore/src/rts/formic/os.c	/^void updateLEDStatus() {$/;"	f
 updateLEDStatus	vmcore/src/rts/gcc-eb40a/os.c	/^void updateLEDStatus() {$/;"	f
 updateLeafSuite	cldc/src/com/sun/squawk/Isolate.java	/^    private void updateLeafSuite(boolean prepass) {$/;"	m	class:Isolate	file:
 updateMaxMin	cldc/src/com/sun/squawk/Lisp2GenerationalCollector.java	/^        void updateMaxMin(long t) {$/;"	m	class:Lisp2GenerationalCollector.Timer
@@ -23968,8 +23969,8 @@ useMicrosecondTimer	cldc/src/com/sun/squawk/GarbageCollector.java	/^    private 
 useOnce	builder/src/com/sun/squawk/builder/commands/Jam.java	/^        public boolean useOnce;$/;"	f	class:Jam.ApplicationDescriptor
 useOurAgent	builder/src/com/sun/squawk/builder/commands/Jam.java	/^    protected boolean useOurAgent = false;$/;"	f	class:Jam
 useOurAgent	builder/src/com/sun/squawk/builder/commands/JamCommand.java	/^    protected boolean useOurAgent = false;$/;"	f	class:JamCommand
+useSSE2Math	builder/src/com/sun/squawk/builder/ccompiler/FormicCompiler.java	/^    public boolean useSSE2Math() {$/;"	m	class:FormicCompiler
 useSSE2Math	builder/src/com/sun/squawk/builder/ccompiler/GccCompiler.java	/^    public boolean useSSE2Math() {$/;"	m	class:GccCompiler
-useSSE2Math	builder/src/com/sun/squawk/builder/ccompiler/MBGccCompiler.java	/^    public boolean useSSE2Math() {$/;"	m	class:MBGccCompiler
 usedMethods	translator/src/com/sun/squawk/translator/DeadMethodEliminator.java	/^    private Hashtable usedMethods = null;$/;"	f	class:DeadMethodEliminator	file:
 usedParms	builder/src/com/sun/squawk/builder/Macroizer.java	/^    List<String> usedParms;$/;"	f	class:MacroDefinition
 userGCAllowed	cldc/src/com/sun/squawk/VM.java	/^    public static boolean userGCAllowed() {$/;"	m	class:VM
@@ -24363,6 +24364,7 @@ wait	cldc/src/java/lang/Object.java	/^    public final void wait(long timeout, i
 wait	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Object.java	/^    public final native void wait(long timeout) throws InterruptedException;$/;"	m	class:Object
 wait	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Object.java	/^    public final void wait() throws InterruptedException {$/;"	m	class:Object
 wait	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Object.java	/^    public final void wait(long timeout, int nanos) throws InterruptedException {$/;"	m	class:Object
+wait	vmcore/src/rts/formic/os.c	/^void wait() {$/;"	f
 wait	vmcore/src/rts/gcc-eb40a/os.c	/^void wait() {$/;"	f
 waitFor	hosted-support/src/com/sun/squawk/vm/EventQueue.java	/^    static void waitFor(long time) {$/;"	m	class:EventQueue
 waitFor	tests/ThreadTest-DE/src/tests/ThreadTest.java	/^    static void waitFor(long msDelay) {$/;"	m	class:ThreadTest

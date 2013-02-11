@@ -34,17 +34,17 @@ import java.io.*;
 /**
  * The interface for the "gcc" compiler.
  */
-public class MBGccCompiler extends CCompiler {
+public class FormicCompiler extends CCompiler {
 
     boolean allowGCSections;
 
-    public MBGccCompiler(String name, Build env, Platform platform) {
+    public FormicCompiler(String name, Build env, Platform platform) {
         super(name, env, platform);
         allowGCSections = true;
     }
 
-    public MBGccCompiler(Build env, Platform platform) {
-        this("mb-gcc", env, platform);
+    public FormicCompiler(Build env, Platform platform) {
+        this("formic", env, platform);
     }
 
     /**
@@ -72,6 +72,7 @@ public class MBGccCompiler extends CCompiler {
 
         // Required for definition of RTLD_DEFAULT handle sent to dlsym
         buf.append("-D_GNU_SOURCE ");
+        buf.append("-DFLASH_MEMORY ");
 
         // Only enable debug switch if not optimizing
         if (!options.o1 &&

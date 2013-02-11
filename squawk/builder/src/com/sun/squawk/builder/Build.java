@@ -2528,8 +2528,8 @@ public class Build {
             ccompiler = new MscCompiler(this, platform);
         } else if (name.equals("gcc")) {
             ccompiler = new GccCompiler(this, platform);
-        } else if (name.equals("mb-gcc")) {
-            ccompiler = new MBGccCompiler(this, platform);
+        } else if (name.equals("formic")) {
+            ccompiler = new FormicCompiler(this, platform);
         } else if (name.equals("gcc-macox")) {
             ccompiler = new GccMacOSXCompiler(this, platform);
         } else if (name.equals("cc")) {
