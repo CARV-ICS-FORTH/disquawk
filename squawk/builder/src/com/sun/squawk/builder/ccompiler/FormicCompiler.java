@@ -30,17 +30,15 @@ package com.sun.squawk.builder.ccompiler;
 import com.sun.squawk.builder.*;
 import com.sun.squawk.builder.platform.*;
 import java.io.*;
+import java.util.Arrays;
 
 /**
  * The interface for the "gcc" compiler.
  */
 public class FormicCompiler extends CCompiler {
 
-    boolean allowGCSections;
-
     public FormicCompiler(String name, Build env, Platform platform) {
         super(name, env, platform);
-        allowGCSections = true;
     }
 
     public FormicCompiler(Build env, Platform platform) {
@@ -55,11 +53,7 @@ public class FormicCompiler extends CCompiler {
         if (!disableOpts) {
             if (options.o1)             { buf.append("-O1 ");               }
             if (options.o2)             { buf.append("-O2 ");               }
-            // if (options.o2)          { buf.append(" -Os  -finline-functions -finline-limit=55 --param max-inline-insns-single=55 -Winline  ");               }
-            // think about -frtl-abstract-sequences, not in gcc 4.0.1 though.
             if (options.o3)             { buf.append("-DMAXINLINE -O3 ");   }
-//          if (options.o3)             { buf.append("-DMAXINLINE -O3 -Winline ");   }
-            if (allowGCSections)        { buf.append("  -ffunction-sections -fdata-sections "); }
         }
         if (options.tracing)            { buf.append("-DTRACE ");           }
         if (options.profiling)          { buf.append("-DPROFILING ");       }
@@ -79,100 +73,12 @@ public class FormicCompiler extends CCompiler {
             !options.o2 &&
             !options.o3)                { buf.append("-g ");               }
 
-        buf.append("-DSQUAWK_64=" + options.is64).
-            append(' ').
-            append(get64BitOption()).append(' ');
+        buf.append("-DSQUAWK_64=" + options.is64 + " ");
 
         buf.append("-DPLATFORM_BIG_ENDIAN=" + platform.isBigEndian()).append(' ');
         buf.append("-DPLATFORM_UNALIGNED_LOADS=" + platform.allowUnalignedLoads()).append(' ');
 
         return buf.append(options.cflags).append(' ').toString();
-    }
-
-    protected int defaultSizeofPointer = -1;
-
-    /**
-     * Compiles a small C program to determine the default pointer size of this version of gcc.
-     *
-     * @return  the size (in bytes) of a pointer compiled by this version of gcc
-     */
-    protected int getDefaultSizeofPointer() {
-        if (defaultSizeofPointer == -1) {
-            try {
-                File cFile = File.createTempFile("sizeofpointer", ".c");
-                PrintStream out = new PrintStream(new FileOutputStream(cFile));
-                out.println("#include <stdlib.h>");
-                out.println("int main (int argc, char **argv) {");
-                out.println("    exit(sizeof(char *));");
-                out.println("}");
-                out.close();
-
-                String exePath = cFile.getPath();
-                File exe = new File(exePath.substring(0, exePath.length() - 2));
-
-                env.exec("mb-gcc -o " + exe.getPath() + " " + cFile.getPath());
-                cFile.delete();
-
-                try {
-                    env.exec(exe.getPath());
-                } catch (BuildException e) {
-                    exe.delete();
-                    return defaultSizeofPointer = e.exitValue;
-                }
-                throw new BuildException("mb-gcc pointer size test returned 0");
-            } catch (IOException ioe) {
-                throw new BuildException("could run pointer size mb-gcc test", ioe);
-            }
-        }
-        return defaultSizeofPointer;
-    }
-
-    /**
-     * Gets the compiler option for specifying the word size of the target architecture.
-     *
-     * @return word size compiler option
-     */
-    public String get64BitOption() {
-        return "";
-    }
-
-    /**
-     * Gets the linkage options that must come after the input object files.
-     *
-     * @return the linkage options that must come after the input object files
-     */
-    public String getLinkSuffix() {
-        String suffix = " " + get64BitOption();
-        if (options.isPlatformType(Options.DELEGATING)) {
-            String jvmLib = env.getPlatform().getJVMLibraryPath();
-            suffix = suffix + " -L" + jvmLib.replaceAll(File.pathSeparator, " -L") + " -ljvm";
-        } else if (options.isPlatformType(Options.SOCKET) || options.isPlatformType(Options.NATIVE)) {
-            if (platform.getName().toLowerCase().startsWith("linux")) {
-                suffix = suffix +  " -lnsl -lpthread";
-            } else {
-                suffix = suffix + " -lsocket" + " -lnsl";
-            }
-        }
-
-        if (options.kernel && options.hosted) {
-            /* Hosted by HotSpot and so need to interpose on signal handling. */
-            suffix = suffix + " -ljsig";
-        }
-
-        if (options.floatsSupported) {
-            return " -ldl -lm" + suffix;
-        } else {
-            return " -ldl" + suffix;
-        }
-    }
-
-    /**
-     * Gets the platform-dependant gcc switch used to produce a shared library.
-     *
-     * @return the platform-dependant gcc switch used to produce a shared library
-     */
-    public String getSharedLibrarySwitch() {
-        return "-shared";
     }
 
     /**
@@ -194,35 +100,33 @@ public class FormicCompiler extends CCompiler {
         String output;
         String exec;
 
-        if (dll) {
-            output = System.mapLibraryName(out);
-            exec = "-o " + output + " " + getSharedLibrarySwitch();
-        } else {
-            output = out + platform.getExecutableExtension();
-            exec = "-o " + output;
-            if (allowGCSections) {
-                exec = "-Wl,--gc-sections " + exec;
-            }
-        }
-        exec += " " + Build.join(objects) + " " + getLinkSuffix();
-        env.exec("mb-gcc " + exec);
-        return new File(output);
+        // objects[0] = linkerScript
+
+        output = out + platform.getExecutableExtension();
+        File linkerOutputFile = new File(output);
+
+        exec = "mb-ld -N -M -T " + objects[0] + " ";
+        // This is bad but it works
+        exec += Build.join(Arrays.copyOfRange(objects, 1, objects.length)) + " ";
+        exec += "--format elf32-microblazele --oformat elf32-microblazele ";
+        exec += "-Map " + (new File(linkerOutputFile.getParentFile(), "link.map "));
+        exec += "-o " + output + " ";
+        env.exec(exec);
+
+        return linkerOutputFile;
     }
 
     /**
      * {@inheritDoc}
      */
     public String getArchitecture() {
-        return "microblaze";
+        return "Formic";
     }
 
     /**
-     * Use more Java-friendly SSE2 FP instructions instead of x87.
-     * SSE2 defined for P4 and newer CPUs, including Atom.
-     * @return boolean
+     * {@inheritDoc}
      */
-    public boolean useSSE2Math() {
-        return false;
+    public boolean isCrossPlatform() {
+        return true;
     }
-
 }

@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -32,7 +32,7 @@ import com.sun.squawk.builder.*;
  * The interface to the GCC compiler on VxWorks/PPC
  */
 public class GccVxWorksPPCCompiler extends GccCompiler {
-    
+
     /** the name of the windows environment var that points to the wind river sdk*/
     final static String WINDRIVER_SDK_BASE = "WIND_BASE";
     final static String WINDRIVER_GNU_PATH = "WIND_GNU_PATH";
@@ -65,7 +65,7 @@ public class GccVxWorksPPCCompiler extends GccCompiler {
         StringBuffer sb = new StringBuffer(super.options(disableOpts));
         // -ansi disables '//' comments, which we use, so don't use -ansi
         sb.append(" -mcpu=603 -mstrict-align -mno-implicit-fp -mlongcall -DCPU=PPC603 -DTOOL_FAMILY=gnu -DTOOL=gnu -D_WRS_KERNEL -DVXWORKS ");
-                
+
         return sb.toString();
     }
 
@@ -89,7 +89,7 @@ public class GccVxWorksPPCCompiler extends GccCompiler {
      * IDE_LIBRARIES = $(WIND_BASE)/target/lib/WPILib.a
      *
      * DEBUGFLAGS_C-Compiler = -O2 -fstrength-reduce -fno-builtin
-     * 
+     *
      */
     @Override
     public File compile(File[] includeDirs, File source, File dir, boolean disableOpts) {
@@ -116,14 +116,14 @@ public class GccVxWorksPPCCompiler extends GccCompiler {
             new File(wind_base_path + "/target/h/WPILib")
         };
 
-        env.exec("ccppc -c " + 
-                 options(disableOpts) + " " + "-nostdinc " + 
+        env.exec("ccppc -c " +
+                 options(disableOpts) + " " + "-nostdinc " +
                  include(newIncludes, "-I") +
                  include(includeDirs, "-I") +
                  " -o \"" + object + "\" \"" + source + "\"");
         return object;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -133,7 +133,7 @@ public class GccVxWorksPPCCompiler extends GccCompiler {
         String exec;
 
         String ccName = "ccppc";
-        
+
         File[] newObjects = new File[objects.length];
 
         for(int f = 0; f < objects.length; f++) {
@@ -143,7 +143,7 @@ public class GccVxWorksPPCCompiler extends GccCompiler {
         output = out + platform.getExecutableExtension();
         //exec = "--gc-sections -o " + output + " " + Build.join(newObjects);
         exec = "-o " + output + " " + Build.join(newObjects);
-        
+
         // TODO: Generate the ctdt.o from the object and link it into the .out file.
         //       Without this, static variables will not be initialized.
         env.exec(ccName + " -nostdlib -r -Wl,-X " + exec);
@@ -167,7 +167,7 @@ public class GccVxWorksPPCCompiler extends GccCompiler {
 		//throw new RuntimeException("not used in this config.");
     }
 
-    
+
     @Override
     public boolean isCrossPlatform() {
         return true;
