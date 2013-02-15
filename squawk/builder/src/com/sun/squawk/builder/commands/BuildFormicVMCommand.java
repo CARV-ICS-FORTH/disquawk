@@ -1,11 +1,27 @@
 /*
  * Copyright 2005-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2012 Oracle. All Rights Reserved.
+ * Copyright 2013 FORTH-ICS. All Rights Reserved.
  *
- * This software is the proprietary information of Oracle.
- * Use is subject to license terms.
+ * This code is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2
+ * only, as published by the Free Software Foundation.
  *
- * This is a part of the Squawk JVM.
+ * This code is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License version 2 for more details (a copy is
+ * included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with this work; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA
+ *
+ * Please contact Foundation for Research and Technology - Hellas (FORTH)
+ * Institute of Computer Science (ICS), N. Plastira 100, Vassilika Vouton,
+ * GR-700 13 Heraklion, Crete, Greece or visit www.ics.forth.gr if you need
+ * additional information or have any questions.
  */
 package com.sun.squawk.builder.commands;
 
@@ -27,6 +43,8 @@ public class BuildFormicVMCommand extends FormicCommand {
   public static final File VM2C_SRC_FILE = new File(VM_SRC_DIR, "vm2c.c.spp");
   public static final File linkerOutputFile = new File(VM_BLD_DIR, "vmcore-flash.elf");
   public static final File objCopyOutputFile = new File(VM_BLD_DIR, "vm-formic.bin");
+
+  private ArrayList<String> vm2cRootClasses;
 
   public BuildFormicVMCommand(Build env) {
     super(env, "buildFormicVM");
@@ -58,18 +76,19 @@ public class BuildFormicVMCommand extends FormicCommand {
 
     env.log(env.info, "Building VM for Formic target");
 
-    File[] includeDirs;
+    String options = ccompiler.options(false).trim();
+    createBuildFlagsHeaderFile(options);
 
     File VM_SRC_RTS_PLAT_DIR =
       new File(VM_SRC_RTS_DIR, ccompiler.getRtsIncludeName());
 
-    includeDirs = new File[] {
+    File[] includeDirs = new File[] {
       VM_SRC_DIR,
         FP_SRC_DIR,
         VM_SRC_RTS_PLAT_DIR
     };
 
-    File MMU_SRC_FILE =  new File(VM_SRC_RTS_PLAT_DIR, "mmu_fat.c");
+    File IRQ_SRC_FILE =  new File(VM_SRC_RTS_PLAT_DIR, "irq.c");
 
     Build.mkdir(VM_BLD_DIR);
 
@@ -130,16 +149,16 @@ public class BuildFormicVMCommand extends FormicCommand {
     env.log(env.brief, "[compiling '" + VM_SRC_FILE + "' ...]");
     objectFiles.add(ccompiler.compile(includeDirs, VM_SRC_FILE, VM_BLD_DIR, false));
 
-    env.log(env.info, "[assembling '" + VM_SRC_RTS_PLAT_DIR + "/java-irq-hndl.s' ...]");
-    File assembled_f = new File(VM_SRC_RTS_PLAT_DIR, "java-irq-hndl.o");
-    String assemble;
-    assemble = "mb-as -mlittle-endian -o " + assembled_f + "  ";
-    assemble += new File(VM_SRC_RTS_PLAT_DIR, "java-irq-hndl.s");
-    env.exec(assemble);
-    objectFiles.add(assembled_f);
+    //env.log(env.info, "[assembling '" + VM_SRC_RTS_PLAT_DIR + "/java-irq-hndl.s' ...]");
+    //File assembled_f = new File(VM_SRC_RTS_PLAT_DIR, "java-irq-hndl.o");
+    //String assemble;
+    //assemble = "mb-as -mlittle-endian -o " + assembled_f + "  ";
+    //assemble += new File(VM_SRC_RTS_PLAT_DIR, "java-irq-hndl.s");
+    //env.exec(assemble);
+    //objectFiles.add(assembled_f);
 
-    env.log(env.brief, "[compiling '" + MMU_SRC_FILE + "' ...]");
-    objectFiles.add(ccompiler.compile(includeDirs, MMU_SRC_FILE, VM_BLD_DIR, false));
+    env.log(env.brief, "[compiling '" + IRQ_SRC_FILE + "' ...]");
+    objectFiles.add(ccompiler.compile(includeDirs, IRQ_SRC_FILE, VM_BLD_DIR, false));
 
     env.log(env.info, "[linking '" + linkerOutputFile + "'...]");
     File linkerScript = new File(VM_SRC_RTS_PLAT_DIR, "link.dat");
@@ -166,6 +185,97 @@ public class BuildFormicVMCommand extends FormicCommand {
     env.exec(dump);
 
     env.log(env.info, "Build complete");
+  }
+
+  /**
+   * Creates the "buildflags.h" file containing the string constant indicating what
+   * C compiler flags the VM was built with.
+   *
+   * @param buildFlags   the C compiler flags
+   */
+  private void createBuildFlagsHeaderFile(String buildFlags) {
+    File buildFlagsFile = new File(VM_SRC_DIR, "buildflags.h");
+    try {
+      FileOutputStream fos = new FileOutputStream(buildFlagsFile);
+      PrintStream out = new PrintStream(fos);
+      out.println("#define BUILD_FLAGS \"" + buildFlags + '"');
+      fos.close();
+    } catch (IOException e) {
+      throw new BuildException("could not create " + buildFlagsFile, e);
+    }
+  }
+
+  private void updateVM2CGeneratedFile() {
+    vm2cRootClasses = new ArrayList<String>();
+
+    // always translate these classes:
+    vm2cRootClasses.add("com.sun.squawk.VM");
+    vm2cRootClasses.add("com.sun.squawk.MethodHeader");
+
+    // may translate GC:
+    if (env.getBooleanProperty("GC2C")) {
+      vm2cRootClasses.add(env.getProperty("GC"));
+    }
+
+    FileSet.Selector isOutOfDate = new FileSet.AndSelector(Build.JAVA_SOURCE_SELECTOR, new FileSet.DependSelector(new FileSet.Mapper() {
+      public File map(File from) {
+        return VM2C_SRC_FILE;
+      }
+    }));
+
+    File srcDir = new File("cldc", "src");
+    if (!srcDir.exists()) {
+      env.log(env.info, "No " + srcDir + " so assuming no need to generate vm2c files, ie remote build and files are already generated");
+      return;
+    }
+    File preDir;
+    if (env.isJava5SyntaxSupported()) {
+      preDir = new File("cldc", "preprocessed");
+    } else {
+      Target cldcTarget = (Target) env.getCommandForced("cldc");
+      preDir = env.preprocess(new File("cldc"), cldcTarget.srcDirs, true, true);
+    }
+
+    // Rebuilds the generated file if any of the *.java files in cldc/src or cldc/preprocessed have
+    // a later modification date than the generated file.
+    if (!VM2C_SRC_FILE.exists() || !new FileSet(srcDir, isOutOfDate).list().isEmpty() || (preDir.exists() && !new FileSet(preDir, isOutOfDate).list().isEmpty())) {
+      // Verify that the vm2c commands were installed in my env, if not then throw an exception
+      // This is to handle case where vm2c did not install itself, but we still wanted to run the rom command to do just compilation
+      Command command = env.getCommand("runvm2c");
+      if (command == null) {
+        throw new BuildException("The module vm2c and runvm2c we're not installed, this is very likely due to these modules requiring the use of JDK 1.5 or higher");
+      }
+      // Ensure that the *existing* preprocessed files in cldc are in sync with the original sources
+      FileSet.Selector selector = new FileSet.AndSelector(Build.JAVA_SOURCE_SELECTOR, new FileSet.DependSelector(new FileSet.SourceDestDirMapper(srcDir, preDir)) {
+        public boolean isSelected(File file) {
+          File dependentFile = mapper.map(file);
+          return dependentFile.exists() && dependentFile.lastModified() < file.lastModified();
+
+        }
+      });
+      List<File> ood = new FileSet(srcDir, selector).list();
+      if (!ood.isEmpty()) {
+        throw new BuildException("need to re-build 'cldc' as the preprocessed version of the following files are out of date: " + ood);
+      }
+
+      List<String> args = new ArrayList<String>();
+      args.add("-o:" + VM2C_SRC_FILE);
+      args.add("-cp:");
+      args.add("-sp:." + File.pathSeparator + preDir.getPath());
+      for (String rootClass: vm2cRootClasses) {
+        env.log(env.verbose, "vm2c root class: " + rootClass);
+        args.add("-root:" + rootClass);
+      }
+      args.addAll(new FileSet(preDir, Build.JAVA_SOURCE_SELECTOR).listStrings());
+
+      File argsFile = new File("vm2c", "vm2c.input");
+      JavaCompiler.createArgsFile(args, argsFile);
+      VM2C_SRC_FILE.delete();
+      VM2C_SRC_FILE.getParentFile().mkdirs();
+      env.log(env.info, "[running 'vm2c @" + argsFile + "'...]");
+      env.runCommand("runvm2c", new String[] { "@" + argsFile.getPath() });
+      VM2C_SRC_FILE.setReadOnly();
+    }
   }
 
   /**

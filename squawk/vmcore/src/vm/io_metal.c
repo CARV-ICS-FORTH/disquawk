@@ -2,22 +2,22 @@
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011-2012 Oracle. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Oracle, 16 Network Circle, Menlo Park, CA 94025 or
  * visit www.oracle.com if you need additional information or have
  * any questions.
@@ -39,7 +39,9 @@ int outstandingDeepSleepEvent = 0;  // whether the sleep manager thread should b
 long long storedDeepSleepWakeupTarget; // The millis that the next deep sleep should end at
 long long minimumDeepSleepMillis = 0x7FFFFFFFFFFFFFFFLL; // minimum time we're prepared to deep sleep for: avoid deep sleeping initially.
 long long totalShallowSleepTime;    // total time the SPOT has been shallow sleeping
+#ifndef __MICROBLAZE__
 int shallow_sleep_clock_mode = SHALLOW_SLEEP_CLOCK_MODE_NORMAL;
+#endif
 
 static void setDeepSleepEventOutstanding(long long target) {
     storedDeepSleepWakeupTarget = target;
@@ -56,7 +58,7 @@ void osMilliSleep(long long millisecondsToWait) {
     if (target <= 0) {
         target = 0x7FFFFFFFFFFFFFFFLL; // overflow detected
     }
-    if ((millisecondsToWait < 0x7FFFFFFFFFFFFFFFLL) && deepSleepEnabled && 
+    if ((millisecondsToWait < 0x7FFFFFFFFFFFFFFFLL) && deepSleepEnabled &&
          !sleepManagerRunning && (millisecondsToWait >= minimumDeepSleepMillis)) {
         setDeepSleepEventOutstanding(target);
     } else {
@@ -91,7 +93,9 @@ extern void java_irq_hndl();
 extern void setup_java_interrupts();
 
 // Forward declarations
+#ifndef __MICROBLAZE__
 int getEvent(int, int);
+#endif
 static int check_irq(int irq_mask, int clear_flag);
 
 #ifdef OLD_IIC_MESSAGES
@@ -104,6 +108,7 @@ INLINE boolean checkForMessageEvent();
  *
  * @return the event number
  */
+#ifndef __MICROBLAZE__
 int storeIrqRequest (int irq_mask) {
     IrqRequest* newRequest = (IrqRequest*)malloc(sizeof(IrqRequest));
     if (newRequest == NULL) {
@@ -131,10 +136,11 @@ int storeIrqRequest (int irq_mask) {
         newRequest->eventNumber = current->eventNumber + 1;
         assume(newRequest->eventNumber >= 0);
     }
-    
+
     diagnosticWithValue("    - eventNumber", newRequest->eventNumber);
     return newRequest->eventNumber;
 }
+#endif
 
 /* ioPostEvent is a no-op for us */
 static void ioPostEvent(void) { }
@@ -143,9 +149,11 @@ static void ioPostEvent(void) { }
  * If there are outstanding irqRequests and one of them is for an interrupt that has
  * occurred return its eventNumber. Otherwise return 0
  */
+#ifndef __MICROBLAZE__
 int checkForEvents() {
     return getEvent(false, false);
 }
+#endif
 
 static void printOutstandingEvents() {
 	IrqRequest* current = irqRequests;
@@ -161,69 +169,70 @@ static void printOutstandingEvents() {
  * also remove the event from the queue. If no requests match the interrupt status
  * return 0.
  */
+#ifndef __MICROBLAZE__
 int getEvent(int removeEventFlag, int fiqOnly) {
     int res = 0;
     int device_type;
-    
+
     diagnosticWithValue("getEvent - removeEventFlag|fiqOnly:", (((removeEventFlag & 0xFFFF) << 16)) | (fiqOnly & 0xFFFF));
-    
+
     if (irqRequests != NULL) {
-    	IrqRequest* current = irqRequests;
+      IrqRequest* current = irqRequests;
         IrqRequest* previous = NULL;
         while (current != NULL) {
-        	if ((!fiqOnly || (current->irq_mask & SLEEP_MANAGER_ENABLED_IRQS) != 0) && check_irq(current->irq_mask, removeEventFlag)) {
-        		res = current->eventNumber;
-        		//unchain
-        		if (removeEventFlag) {
-        			if (previous == NULL) {
-        				irqRequests = current->next;
-        			} else {
-        				previous->next = current->next;
-        			}
-        			free(current);
-        		}
-        		break;
-        	} else {
-        		previous = current;
-        		current = current->next;
-        	}
+          if ((!fiqOnly || (current->irq_mask & SLEEP_MANAGER_ENABLED_IRQS) != 0) && check_irq(current->irq_mask, removeEventFlag)) {
+            res = current->eventNumber;
+            //unchain
+            if (removeEventFlag) {
+              if (previous == NULL) {
+                irqRequests = current->next;
+              } else {
+                previous->next = current->next;
+              }
+              free(current);
+            }
+            break;
+          } else {
+            previous = current;
+            current = current->next;
+          }
         }
     }
-    
+
     if (res == 0 && !fiqOnly) {
-    	// check for serial chars available
-    	for (device_type = DEVICE_FIRST; device_type<=DEVICE_LAST; device_type++) {
-	    	if (isSerialPortInUse(device_type) && sysAvailable(device_type)) {
-	    		res = device_type;
-	    		if (removeEventFlag) {
-	    			freeSerialPort(device_type);
-	    		}
-		    	break;
-	    	}
-    	}
+      // check for serial chars available
+      for (device_type = DEVICE_FIRST; device_type<=DEVICE_LAST; device_type++) {
+        if (isSerialPortInUse(device_type) && sysAvailable(device_type)) {
+          res = device_type;
+          if (removeEventFlag) {
+            freeSerialPort(device_type);
+          }
+          break;
+        }
+      }
     }
 
-   	if (res == 0) {
-    	if (outstandingDeepSleepEvent) {
-    		sleepManagerRunning = 1;
-    		res = WAIT_FOR_DEEP_SLEEP_EVENT_NUMBER;
-    	}
-   	}
-    
+     if (res == 0) {
+      if (outstandingDeepSleepEvent) {
+        sleepManagerRunning = 1;
+        res = WAIT_FOR_DEEP_SLEEP_EVENT_NUMBER;
+      }
+     }
+
 #ifdef ENABLE_ETHERNET_SUPPORT
     if (res == 0) {
-        if (ethernetEventAvailable(LWIP_EFLAG_NEW)) {            
+        if (ethernetEventAvailable(LWIP_EFLAG_NEW)) {
             res = WAIT_FOR_ETHERNET_EVENT_NUMBER;
         }
     }
 #endif
-    
-	if (removeEventFlag) {
-		// always clear the deep sleep event, as we will want to reconsider
-		// whether deep sleep is appropriate after any event.
-		outstandingDeepSleepEvent = 0;
-	}
-    
+
+  if (removeEventFlag) {
+    // always clear the deep sleep event, as we will want to reconsider
+    // whether deep sleep is appropriate after any event.
+    outstandingDeepSleepEvent = 0;
+  }
+
     if (res == 0) {
         diagnostic("    - no events. Waiting events:");
         // printOutstandingEvents();
@@ -232,6 +241,7 @@ int getEvent(int removeEventFlag, int fiqOnly) {
     }
     return res;
 }
+#endif
 
 /**
  * Check if an irq bit is set in the status, return 1 if yes
@@ -270,6 +280,7 @@ int retValue = 0;  // holds the value to be returned on the next "get result" ca
  * @param  receive
  * @return the operation result
  */
+#ifndef __MICROBLAZE__
 static void ioExecute(void) {
 //  int     context = com_sun_squawk_ServiceOperation_context;
     int     op      = com_sun_squawk_ServiceOperation_op;
@@ -347,7 +358,7 @@ static void ioExecute(void) {
             retValue = 0;
             break;
         }
-        
+
         case ChannelConstants_CONTEXT_GETERROR: {
             res = *((char*) retValue);
             if (res == 0)
@@ -356,13 +367,13 @@ static void ioExecute(void) {
                 retValue++;
             break;
         }
-        
+
         case ChannelConstants_OPENCONNECTION: {
             res = ChannelConstants_RESULT_EXCEPTION;
             retValue = (int) "javax.microedition.io.ConnectionNotFoundException";
             break;
         }
-        
+
         case ChannelConstants_IRQ_WAIT: {
             int irq_no = i1;
             if (check_irq(irq_no, 1)) {
@@ -417,13 +428,13 @@ static void ioExecute(void) {
             res = get_hardware_revision();
             break;
         }
- 
+
         case ChannelConstants_DEEP_SLEEP: {
             doDeepSleep(rebuildLongParam(i1, i2), i3);
             res = 0;
             break;
         }
-        
+
         case ChannelConstants_SHALLOW_SLEEP: {
             long long target = rebuildLongParam(i1, i2);
             if (target <= 0) target = 0x7FFFFFFFFFFFFFFFLL; // overflow detected
@@ -431,7 +442,7 @@ static void ioExecute(void) {
             res = 0;
             break;
         }
-        
+
         case ChannelConstants_WAIT_FOR_DEEP_SLEEP: {
             minimumDeepSleepMillis = rebuildLongParam(i1, i2);
             sleepManagerRunning = 0;
@@ -510,7 +521,7 @@ static void ioExecute(void) {
             res = (int) dma_buffer_address;
             break;
         }
-        
+
         default: {
             ioExecuteSys(); // do platform-specific
             res = com_sun_squawk_ServiceOperation_result; // result set by ioExecuteSys.
@@ -519,3 +530,4 @@ static void ioExecute(void) {
     }
     com_sun_squawk_ServiceOperation_result = res;
 }
+#endif

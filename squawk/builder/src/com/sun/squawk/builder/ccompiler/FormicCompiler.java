@@ -1,6 +1,6 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
+ * Copyright 2013 FORTH-ICS. All Rights Reserved.
  *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -17,12 +17,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
- * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
- * Park, CA 94025 or visit www.sun.com if you need additional
- * information or have any questions.
- */
-/*
- * Copyright 2013 ICS-FORTH All Rights Reserved.
+ * Please contact Foundation for Research and Technology - Hellas (FORTH)
+ * Institute of Computer Science (ICS), N. Plastira 100, Vassilika Vouton,
+ * GR-700 13 Heraklion, Crete, Greece or visit www.ics.forth.gr if you need
+ * additional information or have any questions.
  */
 
 package com.sun.squawk.builder.ccompiler;

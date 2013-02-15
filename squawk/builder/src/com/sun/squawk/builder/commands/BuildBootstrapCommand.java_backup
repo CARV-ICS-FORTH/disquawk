@@ -1,0 +1,176 @@
+/*
+ * Copyright 2005 Sun Microsystems, Inc. All Rights Reserved.
+ *
+ * This software is the proprietary information of Sun Microsystems, Inc.
+ * Use is subject to license terms.
+ *
+ * This is a part of the Squawk JVM.
+ */
+package com.sun.squawk.builder.commands;
+
+import java.io.*;
+
+import com.sun.squawk.builder.*;
+
+
+public class BuildBootstrapCommand extends SpotCommand {
+
+    public BuildBootstrapCommand(Build env) {
+        super(env, "buildBootstrap");
+    }
+
+    public String getDescription() {
+        return "builds the bootstrap suite";
+    }
+
+    public void build() {
+
+        // Install the tools
+        // env.runCommand("syntropyinstall", Build.NO_ARGS);
+
+        File squawkDir = SpotProperties.getSquawkFolder();
+        File outputTargetDir = SpotProperties.getOutputTargetExecutableFolder();
+        File outputHostDir = SpotProperties.getOutputHostExecutableFolder();
+        File outputLibraryDir = SpotProperties.getOutputLibraryFolder();
+
+        String squawkExecutable = "squawk" + env.getPlatform().getExecutableExtension();
+        File squawkExecutableFromFile = new File(squawkDir, squawkExecutable);
+        Build.delete(squawkExecutableFromFile);
+
+        // Ensure we build dependencies
+        env.checkDependencies = true;
+
+        env.runCommand("copyphoneme", Build.NO_ARGS);
+
+        // build the romizer & mapper
+        env.runCommand("romizer", Build.NO_ARGS);
+        env.runCommand("mapper", Build.NO_ARGS);
+
+        // Make sure j2me is there (romizer should build it though
+        env.runCommand("cldc", Build.NO_ARGS);
+        env.runCommand("debugger", Build.NO_ARGS);
+
+        env.runCommand("imp", Build.NO_ARGS);
+
+        // Build the debug proxy
+        env.runCommand("debugger-proxy", Build.NO_ARGS);
+
+        // Build the vm2c converter
+        env.runCommand("vm2c", Build.NO_ARGS);
+
+        String x = null;
+        if (platformName.startsWith("espot")) {
+        	x = SpotProperties.getESpotRomizeParameters() + " rom " + SpotProperties.getESpotRomCommandParameters();
+        } else if (platformName.equals("host")) {
+        	x = SpotProperties.getHostRomizeParameters() + " rom " + SpotProperties.getHostRomCommandParameters();
+        } else {
+        	throw new RuntimeException("Unknown platform " + platformName);
+        }
+
+        // TODO: Should not be using split(" "), what happens if DIR we are in has spaces, or DIR specified has spaces ?
+        System.out.println("[rom command] " + x);
+		env.mainProgrammatic((x).split(" "));
+        env.clearRunSet();
+
+        if (platformName.startsWith("espot")) {
+            // build API to get squawk_rt.jar
+            if (!env.isJava5SyntaxSupported()) {
+                env.mainProgrammatic(("makeapi -nodoc squawk.suite.api cldc/preprocessed:imp/preprocessed:debugger/preprocessed API/squawk").split(" "));
+            }
+            env.clearRunSet();
+            // convert squawk.suite to little endian for ARM bootstrap suite
+            env.mainProgrammatic(new String[] {"omfconv", "-little", new File(squawkDir, "squawk.suite").toString(), new File(squawkDir, "squawk.suite").toString()});
+            // TODO: Need to clean up the semantics of commands in env, as some commands should be able to run more than once, with diff parameters
+            env.clearRunSet();
+            env.mainProgrammatic(new String[] {"omfconv", "-little", "-boot:file://" + new File(squawkDir, "squawk.suite"), new File(squawkDir, "squawk.suite.metadata").toString(),  new File(squawkDir, "squawk.suite.metadata").toString()});
+
+            //publish to dev kit
+            env.log(env.info, "Copying target suite file to: " + outputTargetDir.getAbsolutePath());
+            Build.cp(new File(squawkDir, "squawk.suite"), new File(outputTargetDir, "squawk.suite"), false);
+            Build.cp(new File(squawkDir, "squawk.suite.metadata"), new File(outputTargetDir, "squawk.suite.metadata"), false);
+
+            env.log(env.info, "Copying jars to: " + outputLibraryDir.getAbsolutePath());
+            if (!env.isJava5SyntaxSupported()) {
+                Build.cp(new File(squawkDir, "API/squawk/squawk_rt.jar"), new File(outputLibraryDir, "squawk_device.jar"), false);
+            }
+	        Build.cp(new File(squawkDir, "squawk_classes.jar"), new File(outputLibraryDir, "squawk_device.jar"), false);
+	        if (env.isJava5SyntaxSupported()) {
+	            Build.cp(new File(squawkDir, "squawk_java5.jar"), new File(outputLibraryDir, "squawk_java5_device.jar"), false);
+	        }
+	        Build.cp(new File(squawkDir, "squawk_classes.jar"), new File(outputHostDir, "squawk_device_classes.jar"), false);
+        } else {
+	        // copy these to HOST SPECIFIC FOLDER
+	        env.log(env.info, "Copying host suites to: " + outputHostDir.getAbsolutePath());
+	        Build.cp(new File(squawkDir, "squawk.suite"), new File(outputHostDir, "squawk.suite"), false);
+	        Build.cp(new File(squawkDir, "squawk.sym"), new File(outputHostDir, "squawk.sym"), false);
+	        Build.cp(new File(squawkDir, "squawk.suite.metadata"), new File(outputHostDir, "squawk.suite.metadata"), false);
+
+	        env.log(env.info, "Copying host executables to: " + outputHostDir.getAbsolutePath());
+	        if (squawkExecutableFromFile.exists()) {
+	        	File squawkExecutableToFile = new File(outputHostDir, squawkExecutable);
+				Build.cp(squawkExecutableFromFile, squawkExecutableToFile, false);
+		        env.chmod(squawkExecutableToFile, "+x");
+	        } else {
+	            env.log(true, "#### Did not copy host executable - file not found");
+	        }
+	        env.log(env.info, "Copying jars to: " + outputLibraryDir.getAbsolutePath());
+	        Build.cp(new File(squawkDir, "squawk_classes.jar"), new File(outputHostDir, "squawk_host_classes.jar"), false);
+        }
+
+        // Copy all these for both platforms. Not sure whether there's a need to copy any of these for the host platform.
+        Build.cp(new File(squawkDir, "translator/classes.jar"), new File(outputHostDir, "translator_classes.jar"), false);
+        Build.cp(new File(squawkDir, "squawk.jar"), new File(outputHostDir, "squawk.jar"), false);
+        Build.cp(new File(squawkDir, "debugger/classes.jar"), new File(outputHostDir, "debugger_classes.jar"), false);
+        Build.cp(new File(squawkDir, "hosted-support/classes.jar"), new File(outputHostDir, "hosted-support_classes.jar"), false);
+        Build.cp(new File(squawkDir, "romizer/classes.jar"), new File(outputHostDir, "romizer_classes.jar"), false);
+        if (env.isJava5SyntaxSupported()) {
+            Build.cp(new File(squawkDir, "tools/retroweaver-all-squawk.jar"), new File(outputHostDir, "retroweaver-all-squawk.jar"), false);
+        }
+        Build.cp(new File(squawkDir, "imp/classes.jar"), new File(outputHostDir, "imp_classes.jar"), false);
+        Build.cp(new File(squawkDir, "mapper/classes.jar"), new File(outputHostDir, "mapper_classes.jar"), false);
+        Build.cp(new File(squawkDir, "debugger-proxy/classes.jar"), new File(outputHostDir, "debugger-proxy_classes.jar"), false);
+
+        File preverifierFile = new File(outputHostDir, "preverify" + env.getPlatform().getExecutableExtension());
+		Build.cp(env.getPlatform().preverifier(), preverifierFile, false);
+        env.chmod(preverifierFile, "+x");
+
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clean() {
+        File exampleAppsDir = SpotProperties.getOutputTargetExecutableFolder();
+        File hostDir = new File(exampleAppsDir, "host");
+
+        // remove the files we created
+        Build.delete(new File(exampleAppsDir, "squawk_rt.jar"));
+        Build.delete(new File(exampleAppsDir, "squawk.jar"));
+        Build.delete(new File(exampleAppsDir, "squawk_classes.jar"));
+        Build.delete(new File(exampleAppsDir, "translator_classes.jar"));
+        Build.delete(new File(exampleAppsDir, "debugger_classes.jar"));
+        Build.delete(new File(exampleAppsDir, "hosted-support_classes.jar"));
+        Build.delete(new File(exampleAppsDir, "romizer_classes.jar"));
+        Build.delete(new File(exampleAppsDir, "debugger-proxy_classes.jar"));
+
+        // remove host specific files
+        Build.delete(new File(hostDir, "squawk.suite"));
+        Build.delete(new File(hostDir, "squawk.suite.metadata"));
+        Build.delete(new File(hostDir, "squawk.sym"));
+        Build.delete(new File(hostDir, "translator.suite"));
+        Build.delete(new File(hostDir, "translator.suite.metadata"));
+        Build.delete(new File(hostDir, "translator.sym"));
+        Build.delete(new File(hostDir, "squawk" + env.getPlatform().getExecutableExtension()));
+        Build.delete(new File(hostDir, "preverify" + env.getPlatform().getExecutableExtension()));
+
+        // remove directories if empty
+        Build.delete(hostDir);
+
+        // this may not be empty. ignore if this fails.
+        try {
+            Build.delete(exampleAppsDir);
+        } catch (BuildException be) {}
+
+    }
+}
