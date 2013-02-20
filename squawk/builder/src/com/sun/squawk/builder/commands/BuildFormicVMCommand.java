@@ -79,16 +79,15 @@ public class BuildFormicVMCommand extends FormicCommand {
     String options = ccompiler.options(false).trim();
     createBuildFlagsHeaderFile(options);
 
-    File VM_SRC_RTS_PLAT_DIR =
-      new File(VM_SRC_RTS_DIR, ccompiler.getRtsIncludeName());
+    File MYRMICS_DIR =
+      new File(VM_SRC_RTS_DIR, ccompiler.getRtsIncludeName()+"myrmics/src");
 
     File[] includeDirs = new File[] {
       VM_SRC_DIR,
         FP_SRC_DIR,
-        VM_SRC_RTS_PLAT_DIR
+        new File(VM_SRC_RTS_DIR, ccompiler.getRtsIncludeName()),
+        new File(MYRMICS_DIR, "include")
     };
-
-    File IRQ_SRC_FILE =  new File(VM_SRC_RTS_PLAT_DIR, "irq.c");
 
     Build.mkdir(VM_BLD_DIR);
 
@@ -149,26 +148,32 @@ public class BuildFormicVMCommand extends FormicCommand {
     env.log(env.brief, "[compiling '" + VM_SRC_FILE + "' ...]");
     objectFiles.add(ccompiler.compile(includeDirs, VM_SRC_FILE, VM_BLD_DIR, false));
 
-    //env.log(env.info, "[assembling '" + VM_SRC_RTS_PLAT_DIR + "/java-irq-hndl.s' ...]");
-    //File assembled_f = new File(VM_SRC_RTS_PLAT_DIR, "java-irq-hndl.o");
-    //String assemble;
-    //assemble = "mb-as -mlittle-endian -o " + assembled_f + "  ";
-    //assemble += new File(VM_SRC_RTS_PLAT_DIR, "java-irq-hndl.s");
-    //env.exec(assemble);
-    //objectFiles.add(assembled_f);
+    File OBJ_JAVA      = new File(MYRMICS_DIR, "obj/java");
+    // TODO: Compile myrmics
+    // Add the myrmics' compiled files for linking
+    File OBJ_JAVA_ARCH = new File(MYRMICS_DIR, "arch");
+    File OBJ_JAVA_KT   = new File(MYRMICS_DIR, "kt");
+    File OBJ_JAVA_DBG  = new File(MYRMICS_DIR, "dbg");
+    File OBJ_JAVA_NOC  = new File(MYRMICS_DIR, "noc");
+    File OBJ_JAVA_MM   = new File(MYRMICS_DIR, "mm");
+    File OBJ_JAVA_PR   = new File(MYRMICS_DIR, "pr");
+    File OBJ_JAVA_SYS  = new File(MYRMICS_DIR, "sys");
+    FileSet.SuffixSelector sselector = new FileSet.SuffixSelector(".mb.o");
+    //objectFiles.add(new File(OBJ_JAVA, "java_main.mb.o"));
+    objectFiles.addAll(new FileSet(OBJ_JAVA      , sselector).list());
+    objectFiles.addAll(new FileSet(OBJ_JAVA_ARCH , sselector).list());
+    objectFiles.addAll(new FileSet(OBJ_JAVA_KT   , sselector).list());
+    objectFiles.addAll(new FileSet(OBJ_JAVA_DBG  , sselector).list());
+    objectFiles.addAll(new FileSet(OBJ_JAVA_NOC  , sselector).list());
+    objectFiles.addAll(new FileSet(OBJ_JAVA_MM   , sselector).list());
+    objectFiles.addAll(new FileSet(OBJ_JAVA_PR   , sselector).list());
+    objectFiles.addAll(new FileSet(OBJ_JAVA_SYS  , sselector).list());
 
-    env.log(env.brief, "[compiling '" + IRQ_SRC_FILE + "' ...]");
-    objectFiles.add(ccompiler.compile(includeDirs, IRQ_SRC_FILE, VM_BLD_DIR, false));
-
+    String linkerOutputFile = VM_BLD_DIR.toString() + "vmcore-flash.elf";
     env.log(env.info, "[linking '" + linkerOutputFile + "'...]");
-    File linkerScript = new File(VM_SRC_RTS_PLAT_DIR, "link.dat");
-    String link;
-    link = "mb-ld -N -M -T " + linkerScript + " ";
-    link += Build.join((File[])objectFiles.toArray(new File[objectFiles.size()])) + " ";
-    link += "--format elf32-microblazele --oformat elf32-microblazele ";
-    link += "-Map " + (new File(linkerOutputFile.getParentFile(), "link.map "));
-    link += "-o " + linkerOutputFile + " ";
-    env.exec(link, null, VM_BLD_DIR);
+    objectFiles.add(0, new File(MYRMICS_DIR, "linker.java.mb.ld"));
+    File[] objects = (File[])objectFiles.toArray(new File[objectFiles.size()]);
+    ccompiler.link(objects, linkerOutputFile, false);
 
     if (!env.verbose) {
       for (File file : generatedFiles) {

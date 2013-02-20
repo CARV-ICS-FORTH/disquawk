@@ -66,6 +66,21 @@ public class FormicCompiler extends CCompiler {
         buf.append("-D_GNU_SOURCE ");
         buf.append("-DFLASH_MEMORY ");
 
+        /* Formic FLAGS */
+        buf.append("-DARCH_MB ");
+        buf.append("-mcpu=v8.00.b ");
+        buf.append("-mno-xl-soft-mul ");
+        buf.append("-mno-xl-multiply-high ");
+        buf.append("-mxl-soft-div ");
+        buf.append("-mxl-barrel-shift ");
+        buf.append("-mxl-pattern-compare ");
+        buf.append("-mlittle-endian ");
+        buf.append("-mhard-float ");
+        buf.append("-fsingle-precision-constant ");
+        buf.append("-mxl-float-convert ");
+        buf.append("-mxl-float-sqrt ");
+        buf.append("-Wall ");
+
         // Only enable debug switch if not optimizing
         if (!options.o1 &&
             !options.o2 &&
@@ -103,6 +118,7 @@ public class FormicCompiler extends CCompiler {
         output = out + platform.getExecutableExtension();
         File linkerOutputFile = new File(output);
 
+        // objects[0] is the linker script
         exec = "mb-ld -N -M -T " + objects[0] + " ";
         // This is bad but it works
         exec += Build.join(Arrays.copyOfRange(objects, 1, objects.length)) + " ";

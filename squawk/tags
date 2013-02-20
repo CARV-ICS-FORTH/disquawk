@@ -6725,6 +6725,9 @@ STRING_ARRAY	cldc/src/com/sun/squawk/vm/CID.java	/^        STRING_ARRAY         
 STRING_OF_BYTES	cldc/src/com/sun/squawk/Klass.java	/^    public static final Klass STRING_OF_BYTES;$/;"	f	class:Klass
 STRING_OF_BYTES	cldc/src/com/sun/squawk/vm/CID.java	/^        STRING_OF_BYTES      = 26,  \/* Small strings.                       *\/$/;"	f	interface:CID
 STRUCTURE_SIZE_INDEX	cldc/src/com/sun/cldc/jna/DynamicStructure.java	/^    public final static int STRUCTURE_SIZE_INDEX = 0;$/;"	f	class:DynamicStructure
+STR_CPY	vmcore/src/rts/formic/myrmics/src/Makefile	/^STR_CPY = "[1m[ [31mCPY [0;1m][0m"$/;"	m
+STR_MNT	vmcore/src/rts/formic/myrmics/src/Makefile	/^STR_MNT = "[1m[ [36mMNT [0;1m][0m"$/;"	m
+STR_UMT	vmcore/src/rts/formic/myrmics/src/Makefile	/^STR_UMT = "[1m[ [36mUMT [0;1m][0m"$/;"	m
 SUBPROJECTS	vmcore/nbproject/Makefile-impl.mk	/^SUBPROJECTS=${SUB_${SUB}}$/;"	m
 SUB_D	cldc/src/com/sun/squawk/vm/OPC.java	/^        SUB_D                  = 391,$/;"	f	class:OPC
 SUB_F	cldc/src/com/sun/squawk/vm/OPC.java	/^        SUB_F                  = 385,$/;"	f	class:OPC
