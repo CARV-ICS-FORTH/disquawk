@@ -163,9 +163,7 @@ static void shaHashBlock(SHA_CTX *ctx) {
 
 void sha_for_memory_region(unsigned char* buffer_to_write_sha_hash_into,int address,int numberOfBytes)
 {
-	int err;
 	SHA_CTX sha;
-	int i;
 	unsigned char* inputBuf=(unsigned char*)address;
     shaInit(&sha);
     shaUpdate(&sha,

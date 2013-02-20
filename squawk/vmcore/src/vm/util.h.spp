@@ -326,7 +326,7 @@ INLINE jlong  negd(jlong l)                { return d2lb(- lb2d(l));       }
 
 INLINE int    i2f(int i)                   { return f2ib((float)i);                    }
 INLINE jlong  i2d(int i)                   { return d2lb((double)i);                   }
-INLINE int    l2f(jlong l)                 { return f2ib((float)l);                    }   
+INLINE int    l2f(jlong l)                 { return f2ib((float)l);                    }
 INLINE jlong  l2d(jlong l)                 { return d2lb((double)l);                   }
 INLINE int    f2i(int f)                   { return (int)float2l(ib2f(f));             }
 INLINE jlong  f2l(int f)                   { return (jlong)float2ll(ib2f(f));          }
@@ -352,7 +352,7 @@ INLINE int    d2f(jlong l)                 { return f2ib((float)lb2d(l));       
 
  int    i2f(int i)                   { return f2ib((float)i);                    }
  jlong  i2d(int i)                   { return d2lb((double)i);                   }
- int    l2f(jlong l)                 { return f2ib((float)l);                    }   
+ int    l2f(jlong l)                 { return f2ib((float)l);                    }
  jlong  l2d(jlong l)                 { return d2lb((double)l);                   }
  int    f2i(int f)                   { return (int)float2l(ib2f(f));             }
  jlong  f2l(int f)                   { return (jlong)float2ll(ib2f(f));          }
@@ -368,7 +368,7 @@ INLINE int    d2f(jlong l)                 { return f2ib((float)lb2d(l));       
 
 jlong math(int op, jlong rs1_l, jlong rs2_l) {
     double rs1 = lb2d(rs1_l);
-    double rs2 = lb2d(rs2_l);
+    double rs2 __attribute__((unused)) = lb2d(rs2_l);
     double res = 0.0;
     switch (op) {
         case MathOpcodes_SIN:            res = JFP_lib_sin(rs1);                       break;

@@ -663,8 +663,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
             assume((unsigned int) $index < (unsigned int)getArrayLength($oop));
         }
 #else
-/*DEF*/ void boundsAssume(Address $oop, int $index) {
-        }
+/*DEF*/ void boundsAssume(Address $oop, int $index) {}
 #endif /* ASSUME */
 
 
@@ -1008,7 +1007,9 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
          * @return the number of characters printed
          */
         int printJavaString(Address str, FILE* out) {
+#ifdef UNICODE
             int i;
+#endif
             int written = 0;
             if (str == null) {
                 written = fprintf(out, "null");
@@ -1049,7 +1050,9 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
          * @return the number of characters appended
          */
         int printJavaStringBuf(Address str, char *buf, int bufLength) {
+#ifdef UNICODE
             int i;
+#endif
             int written = 0;
             if (str == null) {
                 int min = 4;
@@ -1230,7 +1233,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
                 resetStackPointer();
                 ip = (ByteAddress)getMP() + ipOffset;
                 assumeInterp(inCode(ip));
-                
+
                 SDA_HANDLE_BREAKPOINT_CODE_FRAG;
             }
         }
@@ -3061,7 +3064,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
             int index   = popInt();
             Address oop = popAddress();
             boundsCheck(oop, index);
-            if ((value != 0) 
+            if ((value != 0)
                  && (com_sun_squawk_Klass_id(getClass(oop)) != CID_OBJECT_ARRAY)
                  && VM_arrayOopStoreCheck(oop, index, value)) {
                     call(com_sun_squawk_VM_arrayStoreException);
@@ -3148,7 +3151,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
             cls = getClassOrAssociation(obj);
             callNoReset(getVirtualMethod(cls, iparm));
         }
-        
+
         /**
          * findslot.
          *
@@ -3746,7 +3749,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     }
                     break;
                 }
-                
+
                 case Native_com_sun_squawk_NativeUnsafe_setShort:
                 case Native_com_sun_squawk_NativeUnsafe_setChar: {
                     int     val = popInt();
@@ -3844,7 +3847,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     setObjectAndUpdateWriteBarrier(base,  off, val);
                     break;
                 }
-                
+
                 case Native_com_sun_squawk_NativeUnsafe_setInt: {
                     int     val = popInt();
                     int     off = popInt();
@@ -3867,7 +3870,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     pushLong(getLong(base, off));
                     break;
                 }
-               
+
                 case Native_com_sun_squawk_NativeUnsafe_setLong: {
                     jlong   val = popLong();
                     int     off = popInt();
@@ -3898,7 +3901,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     setUnalignedShort(base, byte_off, val);
                     break;
                 }
-                
+
                 case Native_com_sun_squawk_NativeUnsafe_setUnalignedInt: {
                     int     val = popInt();
                     int     byte_off = popInt();
@@ -3914,7 +3917,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     setUnalignedLong(base, byte_off, val);
                     break;
                 }
-               
+
                 case Native_com_sun_squawk_NativeUnsafe_swap: {
                     int dataSize = popInt();
                     Address address = popAddress();
@@ -4122,7 +4125,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     break;
                 }
 /*end[PLATFORM_TYPE_BARE_METAL]*/
-                
+
                 case Native_com_sun_squawk_Address_add: {
                     int offset = popInt();
                     Address addr = popAddress();
@@ -4620,7 +4623,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 
                 case Native_com_sun_squawk_VM_removeVirtualMonitorObject: {
                     Address res = null;
-		    
+
                     if (pendingMonitorStackPointer > 0) {
                         res = pendingMonitors[--pendingMonitorStackPointer];
                         pendingMonitors[pendingMonitorStackPointer] = null;

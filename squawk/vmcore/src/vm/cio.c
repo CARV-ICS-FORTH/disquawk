@@ -78,6 +78,10 @@ INLINE void returnAddressResult(Address value) {
 #include "msg.c"
 #endif
 
+#ifdef NATIVE_VERIFICATION
+#include "util/sha.h"
+#endif
+
 /**
  * Execute a channel operation.
  */
@@ -121,7 +125,7 @@ void cioExecute(void) {
             break;
         }
 
-/* use this as a proxy for /*if[FLOATS], which can't be used because this file isn't an .spp file */
+/* use this as a proxy for if[FLOATS], which can't be used because this file isn't an .spp file */
 #ifdef F_POS_INFINITY
         case ChannelConstants_INTERNAL_PRINTDOUBLE: {
             fprintf(vmOut, format("%D"), lb2d(makeLong(i1, i2)));

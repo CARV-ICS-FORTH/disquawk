@@ -127,7 +127,7 @@ typedef enum {
             EVENT_REQUEST_STATUS_RUNNING,
             EVENT_REQUEST_STATUS_DONE,
             EVENT_REQUEST_STATUS_ERROR} EventRequestStatus;
-            
+
 struct eventRequest {
         struct eventRequest *next;
         int eventNumber;
@@ -151,7 +151,7 @@ typedef void* NativeTaskID;
 #define TASK_PRIORITY_HI 1
 
 /* function pointer used by NativeTask */
-typedef (*TaskHandler)(int arg1, int arg2, int arg3, int arg4, int arg5,
+typedef void*(*TaskHandler)(int arg1, int arg2, int arg3, int arg4, int arg5,
                        int arg6, int arg7, int arg8, int arg9, int arg10);
 
 /**

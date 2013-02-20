@@ -80,7 +80,7 @@ public class BuildFormicVMCommand extends FormicCommand {
     createBuildFlagsHeaderFile(options);
 
     File MYRMICS_DIR =
-      new File(VM_SRC_RTS_DIR, ccompiler.getRtsIncludeName()+"myrmics/src");
+      new File(VM_SRC_RTS_DIR, ccompiler.getRtsIncludeName()+"/myrmics/src");
 
     File[] includeDirs = new File[] {
       VM_SRC_DIR,

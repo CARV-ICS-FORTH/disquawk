@@ -26,6 +26,7 @@
 #define FALSE 0
 
 #define IODOTC "formic_io.c"
+#define sysPlatformName() "formic"
 #include "jni.h"
 
 /**
@@ -47,22 +48,65 @@ INLINE void sysVallocFree(void* ptr) {
     free(ptr);
 }
 
-#if 0
+INLINE int sysGetPageSize(void) {
+  return 0;
+}
+
+/**
+ * Return the current time in milliseconds.
+ */
+jlong sysTimeMillis(void) {
+  return 0;
+}
+#define getMilliseconds sysTimeMillis
+
+/**
+ * Return the current time in microseconds.
+ */
+jlong sysTimeMicros() {
+  return 0;
+}
+
+/**
+ * Sets a region of memory read-only or reverts it to read & write.
+ *
+ * @param start    the start of the memory region
+ * @param end      one byte past the end of the region
+ * @param readonly specifies if read-only protection is to be enabled or disabled
+ */
+INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}
+
+/**
+ * Cannot determine what the purpose of this function is. This function is not
+ * implemented for the eSPOT or the bSPOT.
+ */
+INLINE void osloop() {}
 
 /**
  * Execute an IO operation for a Squawk isolate.
  */
 static void ioExecute(void) {}
 
-/**
- * Return the current time in milliseconds.
- */
-volatile jlong sysTimeMillis(void) {}
+#define enableARMInterrupts enableInterrupts
+void enableInterrupts(void) {}
+#define disableARMInterrupts disableInterrupts
+void disableInterrupts(void) {}
 
 /**
- * Return the current time in microseconds.
+ * Called while Squawk exits. For the eSPOT and bSPOT this function disables
+ * interrupts and restarts Squawk.
  */
-jlong sysTimeMicros() {}
+void osfinish() {}
+
+/**
+ * Return the start address of the flash memory
+ */
+unsigned int get_flash_base(void) { return 0; }
+/**
+ * Return the size of the flash memory
+ */
+unsigned int get_flash_size(void) { return 0; }
+#if 0
 
 /**
  * Analogous to sysconf() in UNIX. The function allows Squawk to query the
@@ -83,17 +127,5 @@ long sysconf(int code) {}
  * Called by Squawk when a back branch occurs.
  */
 INLINE void osbackbranch() {}
-
-/**
- * Called while Squawk exits. For the eSPOT and bSPOT this function disables
- * interrupts and restarts Squawk.
- */
-void osfinish() {}
-
-/**
- * Cannot determine what the purpose of this function is. This function is not
- * implemented for the eSPOT or the bSPOT.
- */
-INLINE void osloop() {}
 
 #endif

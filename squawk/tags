@@ -814,6 +814,7 @@ CXXFLAGS	vmcore/nbproject/Makefile-Default.mk	/^CXXFLAGS=$/;"	m
 CYCLE1_OFFSET	vmcore/src/rts/gcc-eb40a/eb40a-io.c	34;"	d	file:
 CYCLE2_OFFSET	vmcore/src/rts/gcc-eb40a/eb40a-io.c	35;"	d	file:
 C_DYNAMIC	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public static final int C_DYNAMIC     = 1;  \/\/ Standard call with all the data on the runtime stack.$/;"	f	interface:BaseCompiler
+C_FP_CONVERSIONS_OK	vmcore/src/vm/util.h	292;"	d
 C_HEAP_MEMORY_RESERVE	vmcore/src/rts/cortex-m3/src/MbedTest/os_main.c	33;"	d	file:
 C_HEAP_MEMORY_RESERVE	vmcore/src/rts/gcc-9200/os.c	53;"	d	file:
 C_HELLO	ssl/src/com/sun/midp/ssl/Handshake.java	/^    private static final byte C_HELLO   = 1;$/;"	f	class:Handshake	file:
@@ -1192,6 +1193,7 @@ DATE	phoneme/cldc/src/javaapi/cldc1.1/java/util/Calendar.java	/^    public final
 DAY_OF_MONTH	phoneme/cldc/src/javaapi/cldc1.1/java/util/Calendar.java	/^    public final static int DAY_OF_MONTH = 5;$/;"	f	class:Calendar
 DAY_OF_WEEK	phoneme/cldc/src/javaapi/cldc1.1/java/util/Calendar.java	/^    public final static int DAY_OF_WEEK = 7;$/;"	f	class:Calendar
 DB_CMD_BUF_SIZE	vmcore/src/vm/debug.c	28;"	d	file:
+DB_MAX_BPS	vmcore/src/vm/util.h	47;"	d
 DB_MAX_BREAKPOINTS	vmcore/src/vm/debug.c	27;"	d	file:
 DCMPG	cldc/src/com/sun/squawk/vm/OPC.java	/^        DCMPG                  = 353,$/;"	f	class:OPC
 DCMPL	cldc/src/com/sun/squawk/vm/OPC.java	/^        DCMPL                  = 352,$/;"	f	class:OPC
@@ -1222,6 +1224,7 @@ DEBUG	imp/src/com/sun/squawk/flash/NorFlashSectorState.java	/^    public static 
 DEBUG	vmcore/src/rts/cortex-m3/src/MbedTest/Makefile	/^DEBUG = $/;"	m
 DEBUG_CODE_ENABLED	cldc/src/com/sun/squawk/Isolate.java	/^    private final static boolean DEBUG_CODE_ENABLED = \/*VAL*\/false\/*DEBUG_CODE_ENABLED*\/;$/;"	f	class:Isolate	file:
 DEBUG_CODE_ENABLED	cldc/src/com/sun/squawk/Klass.java	/^    public static final boolean DEBUG_CODE_ENABLED = \/*VAL*\/false\/*DEBUG_CODE_ENABLED*\/;$/;"	f	class:Klass
+DEBUG_CODE_ENABLED	vmcore/src/vm/util.h	154;"	d
 DEBUG_ENABLED	debugger/src/com/sun/squawk/debugger/Log.java	/^    public static final boolean DEBUG_ENABLED = \/*VAL*\/false\/*DEBUG_CODE_ENABLED*\/;$/;"	f	class:Log
 DEBUG_EVENTS_LEVEL	vmcore/src/vm/io_native.h	114;"	d
 DEBUG_MONITORS	vmcore/src/vm/io_native.h	115;"	d
@@ -1460,6 +1463,7 @@ EACCES	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.j
 EACCES	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EACCES = INSTANCE.initConstInt(12),		\/* Permission denied *\/$/;"	f	interface:LibC
 EACCES	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EACCES = LibCImpl.EACCES,		\/* Permission denied *\/$/;"	f	interface:LibC
 EACCES	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EACCES = 13;$/;"	f	class:LibCImpl
+EACCES	vmcore/src/rts/formic/myrmics/src/include/errno.h	40;"	d
 EADDRINUSE	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EADDRINUSE = IMPORT,		\/* Address already in use *\/$/;"	f	interface:LibC
 EADDRINUSE	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EADDRINUSE = INSTANCE.initConstInt(45),		\/* Address already in use *\/$/;"	f	interface:LibC
 EADDRINUSE	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EADDRINUSE = LibCImpl.EADDRINUSE,		\/* Address already in use *\/$/;"	f	interface:LibC
@@ -1480,10 +1484,12 @@ EALREADY	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC
 EALREADY	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EALREADY = INSTANCE.initConstInt(36),		\/* Operation already in progress *\/$/;"	f	interface:LibC
 EALREADY	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EALREADY = LibCImpl.EALREADY,		\/* Operation already in progress *\/$/;"	f	interface:LibC
 EALREADY	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EALREADY = 37;$/;"	f	class:LibCImpl
+EALREADY	vmcore/src/rts/formic/myrmics/src/include/errno.h	41;"	d
 EBADF	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EBADF = IMPORT,		\/* Bad file descriptor *\/$/;"	f	interface:LibC
 EBADF	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EBADF = INSTANCE.initConstInt(8),		\/* Bad file descriptor *\/$/;"	f	interface:LibC
 EBADF	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EBADF = LibCImpl.EBADF,		\/* Bad file descriptor *\/$/;"	f	interface:LibC
 EBADF	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EBADF = 9;$/;"	f	class:LibCImpl
+EBADF	vmcore/src/rts/formic/myrmics/src/include/errno.h	43;"	d
 EBADMSG	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EBADMSG = IMPORT,		\/* Bad message *\/$/;"	f	interface:LibC
 EBADMSG	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EBADMSG = INSTANCE.initConstInt(69),		\/* Bad message *\/$/;"	f	interface:LibC
 EBADMSG	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EBADMSG = LibCImpl.EBADMSG,		\/* Bad message *\/$/;"	f	interface:LibC
@@ -1552,6 +1558,7 @@ ECPublicKey	cldc/src/com/sun/squawk/security/ECPublicKey.java	/^    public ECPub
 ECPublicKey	cldc/src/com/sun/squawk/security/ECPublicKey.java	/^public final class ECPublicKey {$/;"	c
 ECPublicKeyImpl	ssl/src/com/sun/spot/security/implementation/ECPublicKeyImpl.java	/^    public ECPublicKeyImpl(int curveid) {$/;"	m	class:ECPublicKeyImpl
 ECPublicKeyImpl	ssl/src/com/sun/spot/security/implementation/ECPublicKeyImpl.java	/^public final class ECPublicKeyImpl extends ECKeyImpl implements PublicKey {$/;"	c
+ECRC	vmcore/src/rts/formic/myrmics/src/include/errno.h	29;"	d
 EC_PUBLIC_KEY	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private static final byte EC_PUBLIC_KEY = 0x10;$/;"	f	class:X509Certificate	file:
 ECpublicKeyOID	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private static final byte[] ECpublicKeyOID = {$/;"	f	class:X509Certificate	file:
 EDEADLK	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EDEADLK = IMPORT,		\/* Resource deadlock avoided *\/$/;"	f	interface:LibC
@@ -1574,6 +1581,7 @@ EEXIST	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.j
 EEXIST	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EEXIST = INSTANCE.initConstInt(15),		\/* File exists *\/$/;"	f	interface:LibC
 EEXIST	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EEXIST = LibCImpl.EEXIST,		\/* File exists *\/$/;"	f	interface:LibC
 EEXIST	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EEXIST = 17;$/;"	f	class:LibCImpl
+EEXIST	vmcore/src/rts/formic/myrmics/src/include/errno.h	36;"	d
 EFAULT	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EFAULT = IMPORT,		\/* Bad address *\/$/;"	f	interface:LibC
 EFAULT	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EFAULT = INSTANCE.initConstInt(13),		\/* Bad address *\/$/;"	f	interface:LibC
 EFAULT	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EFAULT = LibCImpl.EFAULT,		\/* Bad address *\/$/;"	f	interface:LibC
@@ -1612,10 +1620,12 @@ EINVAL	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.j
 EINVAL	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EINVAL = INSTANCE.initConstInt(20),		\/* Invalid argument *\/$/;"	f	interface:LibC
 EINVAL	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EINVAL = LibCImpl.EINVAL,		\/* Invalid argument *\/$/;"	f	interface:LibC
 EINVAL	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EINVAL = 22;$/;"	f	class:LibCImpl
+EINVAL	vmcore/src/rts/formic/myrmics/src/include/errno.h	31;"	d
 EIO	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EIO = IMPORT,		\/* Input\/output error *\/$/;"	f	interface:LibC
 EIO	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EIO = INSTANCE.initConstInt(4),		\/* Input\/output error *\/$/;"	f	interface:LibC
 EIO	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EIO = LibCImpl.EIO,		\/* Input\/output error *\/$/;"	f	interface:LibC
 EIO	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EIO = 5;$/;"	f	class:LibCImpl
+EIO	vmcore/src/rts/formic/myrmics/src/include/errno.h	28;"	d
 EISCONN	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EISCONN = IMPORT,		\/* Socket is already connected *\/$/;"	f	interface:LibC
 EISCONN	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EISCONN = INSTANCE.initConstInt(53),		\/* Socket is already connected *\/$/;"	f	interface:LibC
 EISCONN	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EISCONN = LibCImpl.EISCONN,		\/* Socket is already connected *\/$/;"	f	interface:LibC
@@ -1624,6 +1634,7 @@ EISDIR	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.j
 EISDIR	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EISDIR = INSTANCE.initConstInt(19),		\/* Is a directory *\/$/;"	f	interface:LibC
 EISDIR	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EISDIR = LibCImpl.EISDIR,		\/* Is a directory *\/$/;"	f	interface:LibC
 EISDIR	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EISDIR = 21;$/;"	f	class:LibCImpl
+EISDIR	vmcore/src/rts/formic/myrmics/src/include/errno.h	37;"	d
 ELOOP	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ELOOP = IMPORT,	\/* Too many levels of symbolic links *\/$/;"	f	interface:LibC
 ELOOP	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ELOOP = INSTANCE.initConstInt(57),	\/* Too many levels of symbolic links *\/$/;"	f	interface:LibC
 ELOOP	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ELOOP = LibCImpl.ELOOP,	\/* Too many levels of symbolic links *\/$/;"	f	interface:LibC
@@ -1632,6 +1643,7 @@ ELSE_DIRECTIVE	builder/src/com/sun/squawk/builder/Preprocessor.java	/^    privat
 EMAIL_ATTR_LABEL	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private static final char[] EMAIL_ATTR_LABEL = {$/;"	f	class:X509Certificate	file:
 EMAIL_ATTR_OID	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private static final byte[] EMAIL_ATTR_OID = {$/;"	f	class:X509Certificate	file:
 EMAIL_EXT_KEY_USAGE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    public static final int EMAIL_EXT_KEY_USAGE = 0x00000010;$/;"	f	class:X509Certificate
+EMAXINODES	vmcore/src/rts/formic/myrmics/src/include/errno.h	42;"	d
 EMFILE	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EMFILE = IMPORT,		\/* Too many open files *\/$/;"	f	interface:LibC
 EMFILE	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EMFILE = INSTANCE.initConstInt(22),		\/* Too many open files *\/$/;"	f	interface:LibC
 EMFILE	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EMFILE = LibCImpl.EMFILE,		\/* Too many open files *\/$/;"	f	interface:LibC
@@ -1663,6 +1675,7 @@ ENAMETOOLONG	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/
 ENAMETOOLONG	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENAMETOOLONG = INSTANCE.initConstInt(58),		\/* File name too long *\/$/;"	f	interface:LibC
 ENAMETOOLONG	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENAMETOOLONG = LibCImpl.ENAMETOOLONG,		\/* File name too long *\/$/;"	f	interface:LibC
 ENAMETOOLONG	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int ENAMETOOLONG = 63;$/;"	f	class:LibCImpl
+ENAMETOOLONG	vmcore/src/rts/formic/myrmics/src/include/errno.h	35;"	d
 ENCIPHER_ONLY_KEY_USAGE	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    public static final int ENCIPHER_ONLY_KEY_USAGE = 0x00000080;$/;"	f	class:X509Certificate
 ENCRYPT_MODE	ssl/src/com/sun/spotx/crypto/Cipher.java	/^    public static final int ENCRYPT_MODE      = 1;$/;"	f	class:Cipher
 ENDS_WITH	debugger/src/com/sun/squawk/debugger/EventRequestModifier.java	/^        public final static int ENDS_WITH   = 3;$/;"	f	class:EventRequestModifier.ClassMatch
@@ -1685,6 +1698,7 @@ ENFILE	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.j
 ENFILE	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENFILE = INSTANCE.initConstInt(21),		\/* Too many open files in system *\/$/;"	f	interface:LibC
 ENFILE	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENFILE = LibCImpl.ENFILE,		\/* Too many open files in system *\/$/;"	f	interface:LibC
 ENFILE	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int ENFILE = 23;$/;"	f	class:LibCImpl
+ENFILE	vmcore/src/rts/formic/myrmics/src/include/errno.h	38;"	d
 ENOBUFS	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOBUFS = IMPORT,		\/* No buffer space available *\/$/;"	f	interface:LibC
 ENOBUFS	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOBUFS = INSTANCE.initConstInt(52),		\/* No buffer space available *\/$/;"	f	interface:LibC
 ENOBUFS	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOBUFS = LibCImpl.ENOBUFS,		\/* No buffer space available *\/$/;"	f	interface:LibC
@@ -1701,6 +1715,7 @@ ENOENT	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.j
 ENOENT	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOENT = INSTANCE.initConstInt(1),		\/* No such file or directory *\/$/;"	f	interface:LibC
 ENOENT	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOENT = LibCImpl.ENOENT,		\/* No such file or directory *\/$/;"	f	interface:LibC
 ENOENT	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int ENOENT = 2;$/;"	f	class:LibCImpl
+ENOENT	vmcore/src/rts/formic/myrmics/src/include/errno.h	33;"	d
 ENOEXEC	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOEXEC = IMPORT,		\/* Exec format error *\/$/;"	f	interface:LibC
 ENOEXEC	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOEXEC = INSTANCE.initConstInt(7),		\/* Exec format error *\/$/;"	f	interface:LibC
 ENOEXEC	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOEXEC = LibCImpl.ENOEXEC,		\/* Exec format error *\/$/;"	f	interface:LibC
@@ -1717,6 +1732,7 @@ ENOMEM	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.j
 ENOMEM	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOMEM = INSTANCE.initConstInt(11),		\/* Cannot allocate memory *\/$/;"	f	interface:LibC
 ENOMEM	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOMEM = LibCImpl.ENOMEM,		\/* Cannot allocate memory *\/$/;"	f	interface:LibC
 ENOMEM	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int ENOMEM = 12;$/;"	f	class:LibCImpl
+ENOMEM	vmcore/src/rts/formic/myrmics/src/include/errno.h	30;"	d
 ENOMSG	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOMSG = IMPORT,		\/* No message of desired type *\/$/;"	f	interface:LibC
 ENOMSG	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOMSG = INSTANCE.initConstInt(67),		\/* No message of desired type *\/$/;"	f	interface:LibC
 ENOMSG	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOMSG = LibCImpl.ENOMSG,		\/* No message of desired type *\/$/;"	f	interface:LibC
@@ -1729,6 +1745,7 @@ ENOSPC	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.j
 ENOSPC	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOSPC = INSTANCE.initConstInt(26),		\/* No space left on device *\/$/;"	f	interface:LibC
 ENOSPC	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOSPC = LibCImpl.ENOSPC,		\/* No space left on device *\/$/;"	f	interface:LibC
 ENOSPC	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int ENOSPC = 28;$/;"	f	class:LibCImpl
+ENOSPC	vmcore/src/rts/formic/myrmics/src/include/errno.h	32;"	d
 ENOSR	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOSR = IMPORT,		\/* No STREAM resources *\/$/;"	f	interface:LibC
 ENOSR	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOSR = INSTANCE.initConstInt(73),		\/* No STREAM resources *\/$/;"	f	interface:LibC
 ENOSR	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOSR = LibCImpl.ENOSR,		\/* No STREAM resources *\/$/;"	f	interface:LibC
@@ -1749,10 +1766,12 @@ ENOTDIR	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.
 ENOTDIR	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOTDIR = INSTANCE.initConstInt(18),		\/* Not a directory *\/$/;"	f	interface:LibC
 ENOTDIR	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOTDIR = LibCImpl.ENOTDIR,		\/* Not a directory *\/$/;"	f	interface:LibC
 ENOTDIR	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int ENOTDIR = 20;$/;"	f	class:LibCImpl
+ENOTDIR	vmcore/src/rts/formic/myrmics/src/include/errno.h	39;"	d
 ENOTEMPTY	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOTEMPTY = IMPORT,		\/* Directory not empty *\/$/;"	f	interface:LibC
 ENOTEMPTY	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOTEMPTY = INSTANCE.initConstInt(60),		\/* Directory not empty *\/$/;"	f	interface:LibC
 ENOTEMPTY	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOTEMPTY = LibCImpl.ENOTEMPTY,		\/* Directory not empty *\/$/;"	f	interface:LibC
 ENOTEMPTY	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int ENOTEMPTY = 66;$/;"	f	class:LibCImpl
+ENOTEMPTY	vmcore/src/rts/formic/myrmics/src/include/errno.h	46;"	d
 ENOTSOCK	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOTSOCK = IMPORT,		\/* Socket operation on non-socket *\/$/;"	f	interface:LibC
 ENOTSOCK	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOTSOCK = INSTANCE.initConstInt(37),		\/* Socket operation on non-socket *\/$/;"	f	interface:LibC
 ENOTSOCK	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOTSOCK = LibCImpl.ENOTSOCK,		\/* Socket operation on non-socket *\/$/;"	f	interface:LibC
@@ -1761,6 +1780,7 @@ ENOTSUP	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.
 ENOTSUP	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOTSUP = INSTANCE.initConstInt(43),		\/* Operation not supported *\/$/;"	f	interface:LibC
 ENOTSUP	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOTSUP = LibCImpl.ENOTSUP,		\/* Operation not supported *\/$/;"	f	interface:LibC
 ENOTSUP	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int ENOTSUP = 45;$/;"	f	class:LibCImpl
+ENOTSUP	vmcore/src/rts/formic/myrmics/src/include/errno.h	45;"	d
 ENOTTY	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOTTY = IMPORT,		\/* Inappropriate ioctl for device *\/$/;"	f	interface:LibC
 ENOTTY	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        ENOTTY = INSTANCE.initConstInt(23),		\/* Inappropriate ioctl for device *\/$/;"	f	interface:LibC
 ENOTTY	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        ENOTTY = LibCImpl.ENOTTY,		\/* Inappropriate ioctl for device *\/$/;"	f	interface:LibC
@@ -1779,6 +1799,7 @@ EOVERFLOW	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/Lib
 EOVERFLOW	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EOVERFLOW = INSTANCE.initConstInt(64),		\/* Value too large to be stored in data type *\/$/;"	f	interface:LibC
 EOVERFLOW	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EOVERFLOW = LibCImpl.EOVERFLOW,		\/* Value too large to be stored in data type *\/$/;"	f	interface:LibC
 EOVERFLOW	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EOVERFLOW = 84;$/;"	f	class:LibCImpl
+EOVERFLOW	vmcore/src/rts/formic/myrmics/src/include/errno.h	34;"	d
 EPERM	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^                EPERM = IMPORT;$/;"	f	class:LibC.stat
 EPERM	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EPERM = IMPORT,		\/* Operation not permitted *\/$/;"	f	interface:LibC
 EPERM	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EPERM = INSTANCE.initConstInt(0), \/* Operation not permitted *\/$/;"	f	interface:LibC
@@ -1787,6 +1808,7 @@ EPERM	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^             
 EPERM	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EPERM = LibCImpl.EPERM,		\/* Operation not permitted *\/$/;"	f	interface:LibC
 EPERM	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^        public final static int EPERM = 1;$/;"	f	class:LibCImpl.statImpl
 EPERM	cldc/src/com/sun/squawk/platform/windows/natives/LibCImpl.java	/^    public final static int EPERM = 1;$/;"	f	class:LibCImpl
+EPERM	vmcore/src/rts/formic/myrmics/src/include/errno.h	44;"	d
 EPIPE	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EPIPE = IMPORT,		\/* Broken pipe *\/$/;"	f	interface:LibC
 EPIPE	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EPIPE = INSTANCE.initConstInt(30),		\/* Broken pipe *\/$/;"	f	interface:LibC
 EPIPE	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^        EPIPE = LibCImpl.EPIPE,		\/* Broken pipe *\/$/;"	f	interface:LibC
@@ -1884,10 +1906,10 @@ EVENT_MESSAGE_HI_BITS_MASK	vmcore/src/vm/msg.c	/^const UWord EVENT_MESSAGE_HI_BI
 EVENT_MESSAGE_HI_BITS_MASK	vmcore/src/vm/msg.c	/^const UWord EVENT_MESSAGE_HI_BITS_MASK = 0xFFFFFFFF80000000L;$/;"	v
 EVENT_REQUEST_KIND_NATIVE_TASK	vmcore/src/vm/io_native.h	119;"	d
 EVENT_REQUEST_KIND_PLAIN	vmcore/src/vm/io_native.h	118;"	d
-EVENT_REQUEST_STATUS_DONE	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_DONE,$/;"	e	enum:__anon72
-EVENT_REQUEST_STATUS_ERROR	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_ERROR} EventRequestStatus;$/;"	e	enum:__anon72
-EVENT_REQUEST_STATUS_RUNNING	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_RUNNING,$/;"	e	enum:__anon72
-EVENT_REQUEST_STATUS_STARTING	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_STARTING = -1,$/;"	e	enum:__anon72
+EVENT_REQUEST_STATUS_DONE	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_DONE,$/;"	e	enum:__anon1
+EVENT_REQUEST_STATUS_ERROR	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_ERROR} EventRequestStatus;$/;"	e	enum:__anon1
+EVENT_REQUEST_STATUS_RUNNING	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_RUNNING,$/;"	e	enum:__anon1
+EVENT_REQUEST_STATUS_STARTING	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_STARTING = -1,$/;"	e	enum:__anon1
 EWL	vmcore/src/rts/cortex-m3/src/MbedTest/LPC17xx.h	/^  __IO uint32_t EWL;$/;"	m	struct:__anon48
 EWOULDBLOCK	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EWOULDBLOCK = IMPORT,		\/* Operation would block *\/$/;"	f	interface:LibC
 EWOULDBLOCK	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^        EWOULDBLOCK = INSTANCE.initConstInt(34),		\/* Operation would block *\/$/;"	f	interface:LibC
@@ -2063,7 +2085,7 @@ EventRequest	debugger/src/com/sun/squawk/debugger/sda/SDPListener.java	/^    fin
 EventRequest	vmcore/src/vm/io_native.h	/^typedef struct eventRequest EventRequest;$/;"	t	typeref:struct:eventRequest
 EventRequestCommand	debugger-proxy/src/com/sun/squawk/debugger/sdp/JDWPSniffer.java	/^        static final class EventRequestCommand extends SnifferCommandSet {$/;"	c	class:JDWPSniffer.JDBSniffer
 EventRequestModifier	debugger/src/com/sun/squawk/debugger/EventRequestModifier.java	/^public abstract class EventRequestModifier {$/;"	c
-EventRequestStatus	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_ERROR} EventRequestStatus;$/;"	t	typeref:enum:__anon72
+EventRequestStatus	vmcore/src/vm/io_native.h	/^            EVENT_REQUEST_STATUS_ERROR} EventRequestStatus;$/;"	t	typeref:enum:__anon1
 EventRequest_COMMAND_SET	debugger/src/com/sun/squawk/debugger/JDWP.java	/^    public static final int EventRequest_COMMAND_SET = 15;$/;"	f	class:JDWP
 EventRequest_ClearAllBreakpoints_COMMAND	debugger/src/com/sun/squawk/debugger/JDWP.java	/^    public static final int EventRequest_ClearAllBreakpoints_COMMAND = 3;$/;"	f	class:JDWP
 EventRequest_Clear_COMMAND	debugger/src/com/sun/squawk/debugger/JDWP.java	/^    public static final int EventRequest_Clear_COMMAND = 2;$/;"	f	class:JDWP
@@ -4954,7 +4976,7 @@ NativeLibrary	cldc/src/com/sun/cldc/jna/NativeLibrary.java	/^public class Native
 NativeName	builder/src/com/sun/cldc/jna/NativeName.java	/^public @interface NativeName {$/;"	i
 NativePragma	cldc/src/com/sun/squawk/pragma/NativePragma.java	/^    private NativePragma() {}$/;"	m	class:NativePragma	file:
 NativePragma	cldc/src/com/sun/squawk/pragma/NativePragma.java	/^public class NativePragma extends PragmaException {$/;"	c
-NativeTask	vmcore/src/vm/io_native.h	/^} NativeTask;$/;"	t	typeref:struct:__anon73
+NativeTask	vmcore/src/vm/io_native.h	/^} NativeTask;$/;"	t	typeref:struct:__anon2
 NativeTaskID	vmcore/src/vm/io_native.h	/^typedef void* NativeTaskID;$/;"	t
 NativeUnsafe	cldc/src/com/sun/squawk/NativeUnsafe.java	/^    private NativeUnsafe() {}$/;"	m	class:NativeUnsafe	file:
 NativeUnsafe	cldc/src/com/sun/squawk/NativeUnsafe.java	/^public final class NativeUnsafe {$/;"	c
@@ -6090,6 +6112,8 @@ RTS_INCLUDE_NAME	builder/src/com/sun/squawk/builder/ccompiler/GccMacOSXCompiler.
 RUNTIME	cldc/src/java/lang/annotation/RetentionPolicy.java	/^  RUNTIME,$/;"	e	enum:RetentionPolicy	file:
 RUNTIME_EXEC_ENV_DEFAULT	phoneme/midp/src/ams/ams_api/reference/classes/com/sun/midp/midlet/MIDletSuite.java	/^    public static final String RUNTIME_EXEC_ENV_DEFAULT = "MIDP.CLDC";$/;"	f	interface:MIDletSuite
 RUNTIME_EXEC_ENV_PROP	phoneme/midp/src/ams/ams_api/reference/classes/com/sun/midp/midlet/MIDletSuite.java	/^    public static final String RUNTIME_EXEC_ENV_PROP =$/;"	f	interface:MIDletSuite
+RUN_UNIT_TESTS	vmcore/src/vm/util.h	27;"	d
+RUN_UNIT_TESTS	vmcore/src/vm/util.h	29;"	d
 Random	cldc/src/java/util/Random.java	/^    public Random() { this(System.currentTimeMillis()); }$/;"	m	class:Random
 Random	cldc/src/java/util/Random.java	/^    public Random(long seed) {$/;"	m	class:Random
 Random	cldc/src/java/util/Random.java	/^class Random {$/;"	c
@@ -6406,6 +6430,8 @@ SDAEventRequest	debugger/src/com/sun/squawk/debugger/sda/SDA.java	/^        prot
 SDAEventRequest	debugger/src/com/sun/squawk/debugger/sda/SDA.java	/^    abstract class SDAEventRequest extends EventRequest {$/;"	c	class:SDA
 SDAListener	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDAListener.java	/^    public SDAListener(SDP sdp) {$/;"	m	class:SDAListener
 SDAListener	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDAListener.java	/^final class SDAListener extends JDWPListener {$/;"	c
+SDA_DEBUGGER	vmcore/src/vm/util.h	41;"	d
+SDA_DEBUGGER	vmcore/src/vm/util.h	43;"	d
 SDP	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDP.java	/^public class SDP {$/;"	c
 SDPCommandSet	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDPCommandSet.java	/^abstract class SDPCommandSet extends CommandSet {$/;"	c
 SDPEventManager	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDP.java	/^        SDPEventManager(EventRequestModifier.Matcher matcher) {$/;"	m	class:SDP.SDPEventManager
@@ -7273,11 +7299,11 @@ TABLESWITCH_S	builder/src/com/sun/squawk/builder/bytecodespec/Instructions.java	
 TABLESWITCH_S	cldc/src/com/sun/squawk/vm/OPC.java	/^        TABLESWITCH_S          = 194,$/;"	f	class:OPC
 TAN	cldc/src/com/sun/squawk/vm/MathOpcodes.java	/^    TAN                    = 3,$/;"	f	interface:MathOpcodes
 TARGET	translator/src/com/sun/squawk/translator/ci/CodeParser.java	/^        public static final int TARGET = 3;$/;"	f	class:CodeParser.PseudoOpcode
-TASK_EXECUTOR_STATUS_DONE	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_DONE,$/;"	e	enum:__anon74
-TASK_EXECUTOR_STATUS_ERROR	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_ERROR$/;"	e	enum:__anon74
-TASK_EXECUTOR_STATUS_RUNNING	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_RUNNING,$/;"	e	enum:__anon74
-TASK_EXECUTOR_STATUS_STARTING	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_STARTING = 0,$/;"	e	enum:__anon74
-TASK_EXECUTOR_STATUS_STOPPING	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_STOPPING,$/;"	e	enum:__anon74
+TASK_EXECUTOR_STATUS_DONE	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_DONE,$/;"	e	enum:__anon3
+TASK_EXECUTOR_STATUS_ERROR	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_ERROR$/;"	e	enum:__anon3
+TASK_EXECUTOR_STATUS_RUNNING	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_RUNNING,$/;"	e	enum:__anon3
+TASK_EXECUTOR_STATUS_STARTING	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_STARTING = 0,$/;"	e	enum:__anon3
+TASK_EXECUTOR_STATUS_STOPPING	vmcore/src/vm/io_native.h	/^            TASK_EXECUTOR_STATUS_STOPPING,$/;"	e	enum:__anon3
 TASK_PRIORITY_HI	cldc/src/com/sun/cldc/jna/TaskExecutor.java	/^    public final static int TASK_PRIORITY_HI = 1;$/;"	f	class:TaskExecutor
 TASK_PRIORITY_HI	vmcore/src/vm/io_native.h	151;"	d
 TASK_PRIORITY_LOW	cldc/src/com/sun/cldc/jna/TaskExecutor.java	/^    public final static int TASK_PRIORITY_LOW = 3;$/;"	f	class:TaskExecutor
@@ -7459,9 +7485,9 @@ TaskExecutor	cldc/src/com/sun/cldc/jna/TaskExecutor.java	/^    public TaskExecut
 TaskExecutor	cldc/src/com/sun/cldc/jna/TaskExecutor.java	/^    public TaskExecutor(String name, int priority, int stacksize) {$/;"	m	class:TaskExecutor
 TaskExecutor	cldc/src/com/sun/cldc/jna/TaskExecutor.java	/^public class TaskExecutor {$/;"	c
 TaskExecutor	vmcore/src/vm/io_native.h	/^} TaskExecutor;$/;"	t	typeref:struct:TaskExecutor_struct
-TaskExecutorStatus	vmcore/src/vm/io_native.h	/^            } TaskExecutorStatus;$/;"	t	typeref:enum:__anon74
+TaskExecutorStatus	vmcore/src/vm/io_native.h	/^            } TaskExecutorStatus;$/;"	t	typeref:enum:__anon3
 TaskExecutor_struct	vmcore/src/vm/io_native.h	/^typedef struct TaskExecutor_struct {$/;"	s
-TaskHandler	vmcore/src/vm/io_native.h	/^typedef (*TaskHandler)(int arg1, int arg2, int arg3, int arg4, int arg5,$/;"	t
+TaskHandler	vmcore/src/vm/io_native.h	/^typedef void*(*TaskHandler)(int arg1, int arg2, int arg3, int arg4, int arg5,$/;"	t
 TaskQueue	imp/src/java/util/Timer.java	/^final class TaskQueue {$/;"	c
 TaskQueue	phoneme/midp/src/core/javautil/reference/classes/java/util/Timer.java	/^class TaskQueue {$/;"	c
 Template	mapper/src/com/sun/squawk/ht2html/Main.java	/^    Template(File file) throws IOException {$/;"	m	class:Template
@@ -8147,6 +8173,7 @@ _DUMMY_JNI_H_	vmcore/src/rts/formic/jni.h	31;"	d
 _DUMMY_JNI_H_	vmcore/src/rts/gcc-9200/jni.h	31;"	d
 _DUMMY_JNI_H_	vmcore/src/rts/gcc-eb40a/jni.h	31;"	d
 _DUMMY_JNI_H_	vmcore/src/rts/vxworks/jni.h	31;"	d
+_ERRNO_H	vmcore/src/rts/formic/myrmics/src/include/errno.h	24;"	d
 _IO	cldc/src/com/sun/squawk/platform/posix/macosx/natives/IoctlImpl.java	/^    private static  int _IO(char g, int n) {$/;"	m	class:IoctlImpl	file:
 _IO	cldc/src/com/sun/squawk/platform/posix/solaris/natives/IoctlImpl.java	/^    private static  int _IO(char g, int n) {$/;"	m	class:IoctlImpl	file:
 _IO	cldc/src/com/sun/squawk/platform/windows/natives/IoctlImpl.java	/^    private static int _IO(char g, int n) {$/;"	m	class:IoctlImpl	file:
@@ -8701,6 +8728,8 @@ addUtf8	cldc/src/com/sun/squawk/ByteBufferEncoder.java	/^    public void addUtf8
 addVMShutdownHook	cldc/src/com/sun/squawk/Isolate.java	/^    private void addVMShutdownHook() {$/;"	m	class:Isolate	file:
 addWeakReference	cldc/src/com/sun/squawk/GarbageCollector.java	/^    final void addWeakReference(Ref reference) {$/;"	m	class:GarbageCollector
 add_rpc_class	vmcore/src/rts/cortex-m3/src/MbedTest/include/Base.h	/^    static void add_rpc_class() {$/;"	f	class:mbed::Base
+addd	vmcore/src/vm/util.h	/^ jlong  addd(jlong l, jlong r)        { return d2lb(lb2d(l) + lb2d(r));           }$/;"	f
+addd	vmcore/src/vm/util.h	/^INLINE jlong  addd(jlong l, jlong r)       { return d2lb(lb2d(l) + lb2d(r));           }$/;"	f
 addedBOM	phoneme/midp/src/i18n/i18n_main/reference/classes/com/sun/cdc/i18n/j2me/UTF_16_Writer.java	/^    protected boolean addedBOM;$/;"	f	class:UTF_16_Writer
 addedBOM	phoneme/midp/src/i18n/i18n_main/reference/classes/com/sun/cldc/i18n/j2me/UTF_16_Writer.java	/^    protected boolean addedBOM;$/;"	f	class:UTF_16_Writer
 addedEvent	vmcore/src/rts/msc/os.c	/^volatile int addedEvent;$/;"	v
@@ -8708,6 +8737,8 @@ addedEvent	vmcore/src/rts/vxworks/os.c	/^volatile int addedEvent;$/;"	v
 addedEvent	vmcore/src/vm/os_posix.c	/^volatile int addedEvent;$/;"	v
 addend	cldc/src/java/util/Random.java	/^    private final static long addend = 0xBL;$/;"	f	class:Random	file:
 addend	phoneme/cldc/src/javaapi/cldc1.1/java/util/Random.java	/^    private final static long addend = 0xBL;$/;"	f	class:Random	file:
+addf	vmcore/src/vm/util.h	/^ int    addf(int l, int r)          { return f2ib(ib2f(l) + ib2f(r));           }$/;"	f
+addf	vmcore/src/vm/util.h	/^INLINE int    addf(int l, int r)           { return f2ib(ib2f(l) + ib2f(r));           }$/;"	f
 addr	mapper/src/com/sun/squawk/mapper/BytecodeTracerEntry.java	/^    Address addr;$/;"	f	class:BytecodeTracerEntry
 addr	mapper/src/com/sun/squawk/mapper/MapBytecodeTracer.java	/^    Address addr;$/;"	f	class:MapBytecodeTracer
 addrGlobals	cldc/src/com/sun/squawk/vm/Global.java	/^                             addrGlobals,$/;"	f	class:Global	file:
@@ -8892,16 +8923,16 @@ arc_qS4	cldc/src/com/sun/squawk/util/MathUtils.java	/^            arc_qS4 =  7.7
 areBitsExternal	cldc/src/com/sun/squawk/util/BitSet.java	/^    public boolean areBitsExternal() {$/;"	m	class:BitSet
 arg	builder/src/com/sun/squawk/builder/JavaCompiler.java	/^    public JavaCompiler arg(String arg) {$/;"	m	class:JavaCompiler
 arg	builder/src/com/sun/squawk/builder/JavaCompiler.java	/^    public JavaCompiler arg(String arg, String option) {$/;"	m	class:JavaCompiler
-arg1	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon73
-arg10	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon73
-arg2	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon73
-arg3	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon73
-arg4	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon73
-arg5	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon73
-arg6	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon73
-arg7	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon73
-arg8	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon73
-arg9	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon73
+arg1	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon2
+arg10	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon2
+arg2	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon2
+arg3	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon2
+arg4	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon2
+arg5	vmcore/src/vm/io_native.h	/^    int arg1, arg2, arg3, arg4, arg5,$/;"	m	struct:__anon2
+arg6	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon2
+arg7	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon2
+arg8	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon2
+arg9	vmcore/src/vm/io_native.h	/^        arg6, arg7, arg8, arg9, arg10;$/;"	m	struct:__anon2
 argCount	debugger-proxy/src/com/sun/squawk/debugger/sdp/ProxyMethod.java	/^    private int argCount = -1;$/;"	f	class:ProxyMethod	file:
 argc	cldc/src/com/sun/squawk/VM.java	/^    private static int argc;$/;"	f	class:VM	file:
 argc	vmcore/src/rts/gcc-macosx/os_main.c	/^        int argc;$/;"	m	struct:mainParametersStruct	file:
@@ -8970,6 +9001,11 @@ assertionsEnabled	builder/src/com/sun/squawk/builder/Preprocessor.java	/^    pub
 assume	builder/src/com/sun/squawk/builder/ccompiler/CCompiler.java	/^        public boolean assume;$/;"	f	class:CCompiler.Options
 assume	mapper/src/com/sun/squawk/VM.java	/^    public static void assume(boolean b) {$/;"	m	class:VM
 assume	romizer/src/com/sun/squawk/VM.java	/^    public static void assume(boolean b) {$/;"	m	class:VM
+assume	vmcore/src/vm/util.h	128;"	d
+assume	vmcore/src/vm/util.h	131;"	d
+assumeAlways	vmcore/src/vm/util.h	138;"	d
+assumeInterp	vmcore/src/vm/util.h	129;"	d
+assumeInterp	vmcore/src/vm/util.h	132;"	d
 assumeInterruptsAreDisabled	vmcore/src/vm/devices.c	/^INLINE void assumeInterruptsAreDisabled() {$/;"	f
 assumeInterruptsAreDisabled	vmcore/src/vm/msg.c	/^INLINE void assumeInterruptsAreDisabled() { }$/;"	f
 assumeInterruptsAreEnabled	vmcore/src/vm/devices.c	/^INLINE void assumeInterruptsAreEnabled() {$/;"	f
@@ -11454,6 +11490,12 @@ cv	vmcore/src/rts/msc/os.c	/^    HANDLE cv;$/;"	m	struct:SimpleMonitor_struct	fi
 cv	vmcore/src/rts/vxworks/os.c	/^    pthread_cond_t cv;$/;"	m	struct:SimpleMonitor_struct	file:
 cv	vmcore/src/vm/os_posix.c	/^    pthread_cond_t cv;$/;"	m	struct:SimpleMonitor_struct	file:
 d	vmcore/src/vm/fp/global.h	/^union  uu2   { jlong l; unsigned int lParts[2]; double d;        };$/;"	m	union:uu2
+d2f	vmcore/src/vm/util.h	/^ int    d2f(jlong l)                 { return f2ib((float)lb2d(l));              }$/;"	f
+d2f	vmcore/src/vm/util.h	/^INLINE int    d2f(jlong l)                 { return f2ib((float)lb2d(l));              }$/;"	f
+d2i	vmcore/src/vm/util.h	/^ int    d2i(jlong l)                 { return (int)double2l(lb2d(l));            }$/;"	f
+d2i	vmcore/src/vm/util.h	/^INLINE int    d2i(jlong l)                 { return (int)double2l(lb2d(l));            }$/;"	f
+d2l	vmcore/src/vm/util.h	/^ jlong  d2l(jlong l)                 { return (jlong)double2ll(lb2d(l));         }$/;"	f
+d2l	vmcore/src/vm/util.h	/^INLINE jlong  d2l(jlong l)                 { return (jlong)double2ll(lb2d(l));         }$/;"	f
 d2lb	vmcore/src/vm/fp/global.h	/^INLINE jlong  d2lb(const double d) {$/;"	f
 d2lb	vmcore/src/vm/fp/global.h	/^INLINE jlong  d2lb(double d)               { union uu2 x; x.d = d; return x.l;         }$/;"	f
 d_name	vmcore/src/rts/cortex-m3/src/MbedTest/include/DirHandle.h	/^    char d_name[NAME_MAX+1];$/;"	m	struct:dirent
@@ -11754,6 +11796,8 @@ digits	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Integer.java	/^    final stati
 dirent	vmcore/src/rts/cortex-m3/src/MbedTest/include/DirHandle.h	/^struct dirent {$/;"	s
 dis	debugger/src/com/sun/squawk/debugger/PacketInputStream.java	/^    private final DataInputStream dis;$/;"	f	class:PacketInputStream	file:
 dis	hosted-support/src/com/sun/squawk/vm/GenericConnectionChannel.java	/^    private DataInputStream dis;$/;"	f	class:GenericConnectionChannel	file:
+disableARMInterrupts	vmcore/src/rts/formic/os.c	92;"	d	file:
+disableInterrupts	vmcore/src/rts/formic/os.c	/^void disableInterrupts(void) {}$/;"	f
 disableInterrupts	vmcore/src/vm/devices.c	/^INLINE void disableInterrupts() {$/;"	f
 disableWithComments	builder/src/com/sun/squawk/builder/Preprocessor.java	/^    public boolean disableWithComments = true;$/;"	f	class:Preprocessor
 disconnect	cldc/src/com/sun/squawk/io/ConnectionBaseAdapter.java	/^    protected abstract void disconnect() throws IOException;$/;"	m	class:ConnectionBaseAdapter
@@ -11799,6 +11843,10 @@ dispose	debugger/src/com/sun/squawk/debugger/sda/SDPListener.java	/^    private 
 div	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public Compiler div();$/;"	m	interface:BaseCompiler
 divWord	ssl/src/com/sun/spot/security/implementation/ModuloExponentiation.java	/^    private void divWord(int[] result, long n, int d) {$/;"	m	class:ModuloExponentiation.MutableBigInteger	file:
 divadd	ssl/src/com/sun/spot/security/implementation/ModuloExponentiation.java	/^    private int divadd(int[] a, int[] result, int offset) {$/;"	m	class:ModuloExponentiation.MutableBigInteger	file:
+divd	vmcore/src/vm/util.h	/^ jlong  divd(jlong l, jlong r)       { return d2lb(JFP_lib_divd(lb2d(l), lb2d(r))); }$/;"	f
+divd	vmcore/src/vm/util.h	/^INLINE jlong  divd(jlong l, jlong r)       { return d2lb(JFP_lib_divd(lb2d(l), lb2d(r))); }$/;"	f
+divf	vmcore/src/vm/util.h	/^ int    divf(int l, int r)           { return f2ib(ib2f(l) \/ ib2f(r));           }$/;"	f
+divf	vmcore/src/vm/util.h	/^INLINE int    divf(int l, int r)           { return f2ib(ib2f(l) \/ ib2f(r));           }$/;"	f
 divide	ssl/src/com/sun/spot/security/implementation/ModuloExponentiation.java	/^    private void divide(MutableBigInteger b, MutableBigInteger quotient,$/;"	m	class:ModuloExponentiation.MutableBigInteger	file:
 divide2	cldc/src/com/sun/squawk/security/ecc/PrimeField.java	/^    public void divide2(int[] r, int[] a) {$/;"	m	class:PrimeField
 divide2	ssl/src/com/sun/spot/security/implementation/ecc/FiniteField.java	/^    public abstract void divide2(int[] r, int[] a);$/;"	m	class:FiniteField
@@ -12181,6 +12229,10 @@ done	debugger/src/com/sun/squawk/debugger/EventManager.java	/^    private boolea
 doneGatherArgs	d.bat	/^:doneGatherArgs$/;"	l
 dos	debugger/src/com/sun/squawk/debugger/PacketOutputStream.java	/^    private final DataOutputStream dos;$/;"	f	class:PacketOutputStream	file:
 dos	hosted-support/src/com/sun/squawk/vm/GenericConnectionChannel.java	/^    private DataOutputStream dos;$/;"	f	class:GenericConnectionChannel	file:
+double2l	vmcore/src/vm/util.h	/^INLINE int double2l(double d)               { return (int)d; }$/;"	f
+double2l	vmcore/src/vm/util.h	304;"	d
+double2ll	vmcore/src/vm/util.h	/^INLINE jlong double2ll(double d)            { return (jlong)d; }$/;"	f
+double2ll	vmcore/src/vm/util.h	303;"	d
 doubleLen	cldc/src/com/sun/squawk/security/ecc/FFA.java	/^    private int doubleLen;$/;"	f	class:FFA	file:
 doubleLen	ssl/src/com/sun/spot/security/implementation/ecc/FFA.java	/^    private int doubleLen;$/;"	f	class:FFA	file:
 doubleToBigInt	cldc/src/java/lang/FloatingDecimal.java	/^    doubleToBigInt( double dval ){$/;"	m	class:FloatingDecimal	file:
@@ -12296,10 +12348,12 @@ emulateeSystemProperties	uei/launcher-hosted-support/src/com/sun/squawk/uei/Emul
 emulatorName	uei/launcher-hosted-support/src/com/sun/squawk/uei/UeiCommandProcessor.java	/^    protected String emulatorName;$/;"	f	class:UeiCommandProcessor
 emulatorVersion	uei/launcher-hosted-support/src/com/sun/squawk/uei/UeiCommandProcessor.java	/^    protected String emulatorVersion;$/;"	f	class:UeiCommandProcessor
 enable	tests/ThreadTest-DE/src/tests/ThreadTest.java	/^        public static void enable(boolean enable) {$/;"	m	class:ThreadTest.PeriodicRunnable
+enableARMInterrupts	vmcore/src/rts/formic/os.c	90;"	d	file:
 enableCompilation	builder/src/com/sun/squawk/builder/commands/RomCommand.java	/^  public boolean enableCompilation(boolean flag) {$/;"	m	class:RomCommand
 enableFeature	cldc/src/com/sun/squawk/util/Tracer.java	/^    public static void enableFeature(String feature) {$/;"	m	class:Tracer
 enableForwardedEvents	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDAListener.java	/^        void enableForwardedEvents() {$/;"	m	class:SDAListener.Event
 enableForwardedEvents	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDAListener.java	/^    public void enableForwardedEvents() {$/;"	m	class:SDAListener
+enableInterrupts	vmcore/src/rts/formic/os.c	/^void enableInterrupts(void) {}$/;"	f
 enableInterrupts	vmcore/src/vm/devices.c	/^INLINE int enableInterrupts() {$/;"	f
 enabled	builder/src/com/sun/squawk/builder/Preprocessor.java	/^        boolean enabled() {$/;"	m	class:Preprocessor.ConditionalScope
 enabled	tests/ThreadTest-DE/src/tests/ThreadTest.java	/^        private static volatile boolean enabled = false;$/;"	f	class:ThreadTest.PeriodicRunnable	file:
@@ -12557,7 +12611,7 @@ errorStr	cldc/src/com/sun/cldc/jna/NativeLibrary.java	/^    public static String
 estSize	translator/src/com/sun/squawk/translator/MethodDB.java	/^        private int estSize;$/;"	f	class:MethodDB.Entry	file:
 event	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDAListener.java	/^        private final SDAListener.Event event;$/;"	f	class:SDAListener.SquawkVM	file:
 event	debugger/src/com/sun/squawk/debugger/EventNotifier.java	/^    private Debugger.Event event;$/;"	f	class:EventNotifier	file:
-event	vmcore/src/vm/io_native.h	/^    EventRequest event;$/;"	m	struct:__anon73
+event	vmcore/src/vm/io_native.h	/^    EventRequest event;$/;"	m	struct:__anon2
 eventEP	cldc/src/com/sun/squawk/VMThread.java	/^    private ExecutionPoint eventEP;$/;"	f	class:VMThread	file:
 eventHandler	debugger-proxy/src/com/sun/squawk/debugger/sdp/SDAListener.java	/^    private Event eventHandler;$/;"	f	class:SDAListener	file:
 eventKind	cldc/src/com/sun/squawk/Isolate.java	/^        final int eventKind;$/;"	f	class:Isolate.LocalListenerWrapper
@@ -12705,7 +12759,13 @@ f	vmcore/src/vm/fp/global.h	/^union  uu1   { int i; float f; };$/;"	m	union:uu1
 f1	debugger/src/tests/TestApp.java	/^    static void f1(int i) {$/;"	m	class:TestApp
 f1	debugger/src/tests/TestApp2.java	/^    static void f1() {$/;"	m	class:TestApp2
 f2	debugger/src/tests/TestApp.java	/^    static void f2(int i) {$/;"	m	class:TestApp
+f2d	vmcore/src/vm/util.h	/^ jlong  f2d(int f)                   { return d2lb((double)ib2f(f));             }$/;"	f
+f2d	vmcore/src/vm/util.h	/^INLINE jlong  f2d(int f)                   { return d2lb((double)ib2f(f));             }$/;"	f
+f2i	vmcore/src/vm/util.h	/^ int    f2i(int f)                   { return (int)float2l(ib2f(f));             }$/;"	f
+f2i	vmcore/src/vm/util.h	/^INLINE int    f2i(int f)                   { return (int)float2l(ib2f(f));             }$/;"	f
 f2ib	vmcore/src/vm/fp/global.h	/^INLINE int   f2ib(float f)              { union  uu1 x; x.f = f; return x.i;         }$/;"	f
+f2l	vmcore/src/vm/util.h	/^ jlong  f2l(int f)                   { return (jlong)float2ll(ib2f(f));          }$/;"	f
+f2l	vmcore/src/vm/util.h	/^INLINE jlong  f2l(int f)                   { return (jlong)float2ll(ib2f(f));          }$/;"	f
 f3	debugger/src/tests/TestApp.java	/^    static void f3(int i) {$/;"	m	class:TestApp
 f4	debugger/src/tests/TestApp.java	/^    static void f4(int i) {$/;"	m	class:TestApp
 f5	debugger/src/tests/TestApp.java	/^    static void f5(int i) {$/;"	m	class:TestApp
@@ -12725,10 +12785,13 @@ fall	vmcore/src/rts/cortex-m3/src/MbedTest/include/InterruptIn.h	/^    void fall
 fallthrough	translator/src/com/sun/squawk/translator/ir/verifier/Frame.java	/^    public void fallthrough() {$/;"	m	class:Frame
 fastTime	cldc/src/java/util/Date.java	/^    private long     fastTime;$/;"	f	class:Date	file:
 fastTime	phoneme/cldc/src/javaapi/cldc1.1/java/util/Date.java	/^    private long     fastTime;$/;"	f	class:Date	file:
+fatalInterpreterError	vmcore/src/vm/util.h	144;"	d
 fatalTarget	translator/src/com/sun/squawk/translator/ir/Target.java	/^    private boolean fatalTarget;$/;"	f	class:Target	file:
 fatalVMError	cldc/src/com/sun/squawk/VM.java	/^    public native static void fatalVMError();$/;"	m	class:VM
 fatalVMError	mapper/src/com/sun/squawk/VM.java	/^    public static void fatalVMError() {$/;"	m	class:VM
 fatalVMError	romizer/src/com/sun/squawk/VM.java	/^    public static void fatalVMError() {$/;"	m	class:VM
+fatalVMError	vmcore/src/vm/util.h	/^NORETURN void fatalVMError(char *msg) {$/;"	f
+fatalVMError0	vmcore/src/vm/util.h	/^NORETURN void fatalVMError0(char *msg, boolean cleanup) {$/;"	f
 fcall	cldc/src/com/sun/squawk/os/CSystem.java	/^    public static float fcall(Parm x) {$/;"	m	class:CSystem
 fcntl	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^    int fcntl(int fd, int cmd, int arg);$/;"	m	interface:LibC
 fcntl	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^    int fcntl(int fd, int cmd, int arg);$/;"	m	interface:LibC
@@ -12921,6 +12984,10 @@ flashTrustManager	ssl/src/com/sun/spot/peripheral/TrustManager.java	/^    public
 flash_addr_of_bootstrap	vmcore/src/rts/gcc-eb40a/os.c	/^int flash_addr_of_bootstrap;$/;"	v
 flatTimes	cldc/src/com/sun/squawk/util/ComputationTimer.java	/^    private static final SquawkHashtable flatTimes = new SquawkHashtable();$/;"	f	class:ComputationTimer	file:
 flen	vmcore/src/rts/cortex-m3/src/MbedTest/include/FileHandle.h	/^    virtual off_t flen() {$/;"	f	class:mbed::FileHandle
+float2l	vmcore/src/vm/util.h	/^INLINE int float2l(float f)                 { return (int)f; }$/;"	f
+float2l	vmcore/src/vm/util.h	305;"	d
+float2ll	vmcore/src/vm/util.h	/^INLINE jlong float2ll(float f)              { return (jlong)f; }$/;"	f
+float2ll	vmcore/src/vm/util.h	302;"	d
 floatInstructions	builder/src/com/sun/squawk/builder/gen/Instruction.java	/^    private static List<Instruction> floatInstructions;$/;"	f	class:Instruction	file:
 floatToIntBits	cldc/src/com/sun/squawk/VM.java	/^    public native static int floatToIntBits(float value);$/;"	m	class:VM
 floatToIntBits	cldc/src/java/lang/Float.java	/^    public static int floatToIntBits(float value) {$/;"	m	class:Float
@@ -13873,6 +13940,7 @@ getHeaderFieldKey	phoneme/midp/src/protocol/http/classes/javax/microedition/io/H
 getHeaderFieldKey	phoneme/midp/src/protocol/http/reference/classes/com/sun/midp/io/j2me/http/Protocol.java	/^    public String getHeaderFieldKey(int index) throws IOException {$/;"	m	class:Protocol
 getHeaderFieldKey	ssl/src/com/sun/squawk/io/j2me/https/Protocol.java	/^    public String getHeaderFieldKey(int index) {$/;"	m	class:Protocol
 getHi	cldc/src/com/sun/squawk/VM.java	/^    public static int getHi(long value) throws AllowInlinedPragma {$/;"	m	class:VM
+getHi	vmcore/src/vm/util.h	/^    INLINE int getHi(jlong value) {$/;"	f
 getHibernatedRunThreads	cldc/src/com/sun/squawk/Isolate.java	/^    VMThread getHibernatedRunThreads() {$/;"	m	class:Isolate
 getHibernatedTimerThreads	cldc/src/com/sun/squawk/Isolate.java	/^    VMThread getHibernatedTimerThreads() {$/;"	m	class:Isolate
 getHigh	translator/src/com/sun/squawk/translator/ir/instr/TableSwitch.java	/^    public int getHigh() {$/;"	m	class:TableSwitch
@@ -14126,6 +14194,7 @@ getListingFor	hosted-support/src/com/sun/squawk/io/j2se/zip/Protocol.java	/^    
 getListingForPrim	hosted-support/src/com/sun/squawk/io/j2se/file/Protocol.java	/^    private void getListingForPrim(String dirName, DataOutputStream dos, boolean recursive) throws IOException {$/;"	m	class:Protocol	file:
 getLiteralKey	vm2c/src/com/sun/squawk/vm2c/Converter.java	/^    public String getLiteralKey(ClassSymbol clazz, String literal) {$/;"	m	class:Converter
 getLo	cldc/src/com/sun/squawk/VM.java	/^    public static int getLo(long value) throws AllowInlinedPragma {$/;"	m	class:VM
+getLo	vmcore/src/vm/util.h	/^    INLINE int getLo(jlong value) {$/;"	f
 getLocal	translator/src/com/sun/squawk/translator/ir/instr/IncDecLocal.java	/^    public Local getLocal() {$/;"	m	class:IncDecLocal
 getLocal	translator/src/com/sun/squawk/translator/ir/instr/LoadLocal.java	/^    public Local getLocal() {$/;"	m	class:LoadLocal
 getLocal	translator/src/com/sun/squawk/translator/ir/instr/LocalVariable.java	/^    public Local getLocal();$/;"	m	interface:LocalVariable
@@ -14279,6 +14348,7 @@ getMidletVendor	imp/src/com/sun/squawk/rms/IApplicationDescriptorEntry.java	/^  
 getMidletVersion	imp/src/com/sun/squawk/rms/ApplicationDescriptorEntry.java	/^    public String getMidletVersion() {$/;"	m	class:ApplicationDescriptorEntry
 getMidletVersion	imp/src/com/sun/squawk/rms/IApplicationDescriptorEntry.java	/^    public String getMidletVersion();$/;"	m	interface:IApplicationDescriptorEntry
 getMidpRecordStoreFilePtr	phoneme/midp/src/rms/rms_api/reference/native/recordStoreFile.c	43;"	d	file:
+getMilliseconds	vmcore/src/rts/formic/os.c	61;"	d	file:
 getMin	imp/src/java/util/Timer.java	/^    TimerTask getMin() {$/;"	m	class:TaskQueue
 getMin	phoneme/midp/src/core/javautil/reference/classes/java/util/Timer.java	/^    TimerTask getMin() {$/;"	m	class:TaskQueue
 getMinute	phoneme/midp/src/core/javautil/reference/classes/com/sun/midp/util/DateParser.java	/^    int getMinute() {$/;"	m	class:DateParser
@@ -15499,6 +15569,8 @@ get_allocated_file_size	vmcore/src/rts/gcc-9200/mmu_fat.c	/^int get_allocated_fi
 get_available_memory	vmcore/src/rts/gcc-9200/os.c	/^static int get_available_memory() {$/;"	f	file:
 get_file_virtual_address	vmcore/src/rts/formic/mmu_fat.c	/^unsigned int get_file_virtual_address(int target_file_name_length, char* target_file_name) {$/;"	f
 get_file_virtual_address	vmcore/src/rts/gcc-9200/mmu_fat.c	/^unsigned int get_file_virtual_address(int target_file_name_length, char* target_file_name) {$/;"	f
+get_flash_base	vmcore/src/rts/formic/os.c	/^unsigned int get_flash_base(void) { return 0; }$/;"	f
+get_flash_size	vmcore/src/rts/formic/os.c	/^unsigned int get_flash_size(void) { return 0; }$/;"	f
 get_level1_page_table_address	vmcore/src/rts/formic/mmu_fat.c	/^static unsigned int get_level1_page_table_address() {$/;"	f	file:
 get_level1_page_table_address	vmcore/src/rts/gcc-9200/mmu_fat.c	/^static unsigned int get_level1_page_table_address() {$/;"	f	file:
 getc	vmcore/src/rts/cortex-m3/src/MbedTest/include/Stream.h	/^    int getc() {$/;"	f	class:mbed::Stream
@@ -15619,7 +15691,7 @@ handler	vmcore/src/rts/gcc-macosx/os_devices.c	/^    void (*handler)(int signum)
 handler	vmcore/src/rts/gcc/os_devices.c	/^    void (*handler)(int signum);$/;"	m	struct:__anon68	file:
 handler	vmcore/src/rts/msc/os_devices.c	/^    void (*handler)(int signum);$/;"	m	struct:__anon70	file:
 handler	vmcore/src/rts/vxworks/os_devices.c	/^    void (*handler)(int signum);$/;"	m	struct:__anon65	file:
-handler	vmcore/src/vm/io_native.h	/^    TaskHandler handler;$/;"	m	struct:__anon73
+handler	vmcore/src/vm/io_native.h	/^    TaskHandler handler;$/;"	m	struct:__anon2
 handlers	translator/src/com/sun/squawk/translator/ir/IRBuilder.java	/^    private Stack handlers;$/;"	f	class:IRBuilder	file:
 handlers	translator/src/com/sun/squawk/translator/ir/verifier/Frame.java	/^    private ExceptionHandler[] handlers;$/;"	f	class:Frame	file:
 handshakeError	phoneme/midp/src/protocol/http/reference/classes/com/sun/midp/io/j2me/http/Protocol.java	/^    private byte handshakeError;$/;"	f	class:Protocol	file:
@@ -15884,6 +15956,14 @@ i	tests/StaticsTest/src/tests/Test.java	/^    private static int i;$/;"	f	class:
 i	vmcore/src/vm/fp/global.h	/^union  uu1   { int i; float f; };$/;"	m	union:uu1
 i1	cldc/src/com/sun/squawk/ServiceOperation.java	/^    private static int i1, i2, i3, i4, i5, i6;$/;"	f	class:ServiceOperation	file:
 i2	cldc/src/com/sun/squawk/ServiceOperation.java	/^    private static int i1, i2, i3, i4, i5, i6;$/;"	f	class:ServiceOperation	file:
+i2b	vmcore/src/vm/util.h	/^INLINE int    i2b(int i)                   { return (byte)i;                           }$/;"	f
+i2c	vmcore/src/vm/util.h	/^INLINE int    i2c(int i)                   { return (char)i;                           }$/;"	f
+i2d	vmcore/src/vm/util.h	/^ jlong  i2d(int i)                   { return d2lb((double)i);                   }$/;"	f
+i2d	vmcore/src/vm/util.h	/^INLINE jlong  i2d(int i)                   { return d2lb((double)i);                   }$/;"	f
+i2f	vmcore/src/vm/util.h	/^ int    i2f(int i)                   { return f2ib((float)i);                    }$/;"	f
+i2f	vmcore/src/vm/util.h	/^INLINE int    i2f(int i)                   { return f2ib((float)i);                    }$/;"	f
+i2l	vmcore/src/vm/util.h	/^INLINE jlong  i2l(int i)                   { return (jlong)i;                          }$/;"	f
+i2s	vmcore/src/vm/util.h	/^INLINE int    i2s(int i)                   { return (short)i;                          }$/;"	f
 i3	cldc/src/com/sun/squawk/ServiceOperation.java	/^    private static int i1, i2, i3, i4, i5, i6;$/;"	f	class:ServiceOperation	file:
 i4	cldc/src/com/sun/squawk/ServiceOperation.java	/^    private static int i1, i2, i3, i4, i5, i6;$/;"	f	class:ServiceOperation	file:
 i5	cldc/src/com/sun/squawk/ServiceOperation.java	/^    private static int i1, i2, i3, i4, i5, i6;$/;"	f	class:ServiceOperation	file:
@@ -16411,6 +16491,7 @@ invokeinterface	tests/Simple/src/tests/InvokeInterfaceBenchmark.java	/^    stati
 invokestatic	tests/Simple/src/tests/InvokeInterfaceBenchmark.java	/^    static void invokestatic(int repetitions) {$/;"	m	class:InvokeInterfaceBenchmark
 invokevirtual	tests/Simple/src/tests/InvokeInterfaceBenchmark.java	/^    static void invokevirtual(int repetitions, C c) {$/;"	m	class:InvokeInterfaceBenchmark
 invpio2	vmcore/src/vm/fp/e_rem_pio2.c	/^invpio2 =  6.36619772367581382433e-01, \/* 0x3FE45F30, 0x6DC9C883 *\/$/;"	v	file:
+ioExecute	vmcore/src/rts/formic/os.c	/^static void ioExecute(void) {}$/;"	f	file:
 ioExecute	vmcore/src/rts/gcc-eb40a/eb40a-io.c	/^ static void ioExecute(void) {$/;"	f	file:
 ioExecute	vmcore/src/vm/io_delegating.c	/^ static void ioExecute(void) {$/;"	f	file:
 ioExecute	vmcore/src/vm/io_metal.c	/^static void ioExecute(void) {$/;"	f	file:
@@ -16497,6 +16578,7 @@ isAccessibleFrom	cldc/src/com/sun/squawk/Klass.java	/^    public final boolean i
 isAccessibleFrom	cldc/src/com/sun/squawk/Klass.java	/^    public static boolean isAccessibleFrom(Klass definingClass, int modifiers, Klass accessingKlass) {$/;"	m	class:Klass
 isAccessibleFrom	cldc/src/com/sun/squawk/Klass.java	/^    public static boolean isAccessibleFrom(Member member, Klass klass) {$/;"	m	class:Klass
 isAccessibleFrom	cldc/src/com/sun/squawk/Member.java	/^    public final boolean isAccessibleFrom(Klass klass) {$/;"	m	class:Member
+isAligned	vmcore/src/vm/util.h	/^    INLINE boolean isAligned(UWord value, UWord alignment) {$/;"	f
 isAlive	cldc/src/com/sun/squawk/Isolate.java	/^    public boolean isAlive() {$/;"	m	class:Isolate
 isAlive	cldc/src/com/sun/squawk/VMThread.java	/^    public final boolean isAlive() {$/;"	m	class:VMThread
 isAlive	cldc/src/java/lang/Thread.java	/^    public final boolean isAlive() {$/;"	m	class:Thread
@@ -16807,6 +16889,7 @@ isPointer	cldc/src/com/sun/squawk/Lisp2GenerationalCollector.java	/^        stat
 isPointer	cldc/src/com/sun/squawk/compiler/Type.java	/^    public boolean isPointer() {$/;"	m	class:Type
 isPowerOf2	builder/src/com/sun/cldc/jna/Pointer.java	/^    boolean isPowerOf2(int value) {$/;"	m	class:Pointer
 isPowerOf2	cldc/src/com/sun/cldc/jna/Pointer.java	/^    boolean isPowerOf2(int value) {$/;"	m	class:Pointer
+isPowerOf2	vmcore/src/vm/util.h	/^    INLINE boolean isPowerOf2(UWord value) {$/;"	f
 isPragma	cldc/src/com/sun/squawk/Klass.java	/^    public final boolean isPragma() {$/;"	m	class:Klass
 isPragmaGlobalStaticFields	translator/src/com/sun/squawk/translator/ci/ClassFileLoader.java	/^    private static boolean isPragmaGlobalStaticFields(Klass klass) {$/;"	m	class:ClassFileLoader	file:
 isPragmaGlobalStaticFieldsInherited	translator/src/com/sun/squawk/translator/ci/ClassFileLoader.java	/^    private static boolean isPragmaGlobalStaticFieldsInherited(Klass klass) {$/;"	m	class:ClassFileLoader	file:
@@ -16937,6 +17020,7 @@ isWindows	cldc/src/com/sun/cldc/jna/platform/Windows.java	/^    public boolean i
 isWindowsCE	builder/src/com/sun/cldc/jna/Platform.java	/^    public static boolean isWindowsCE() { return false;  }$/;"	m	class:Platform
 isWindowsCE	cldc/src/com/sun/cldc/jna/Platform.java	/^    public boolean isWindowsCE() {$/;"	m	class:Platform
 isWindowsCE	cldc/src/com/sun/cldc/jna/platform/Windows.java	/^    public boolean isWindowsCE() {$/;"	m	class:Windows
+isWordAligned	vmcore/src/vm/util.h	/^    INLINE boolean isWordAligned(UWord value) {$/;"	f
 isX11	builder/src/com/sun/cldc/jna/Platform.java	/^    public static boolean isX11() { return false;  }$/;"	m	class:Platform
 isX11	cldc/src/com/sun/cldc/jna/Platform.java	/^    public boolean isX11() {$/;"	m	class:Platform
 isX86Architecture	builder/src/com/sun/squawk/builder/platform/Platform.java	/^    public static boolean isX86Architecture() {$/;"	m	class:Platform
@@ -17121,6 +17205,7 @@ java_lang_Object$missingMethodError	cldc/src/com/sun/squawk/vm/MethodOffsets.jav
 java_lang_Thread$target	cldc/src/com/sun/squawk/vm/FieldOffsets.java	/^    public final static long java_lang_Thread$target = 1 | OOP;$/;"	f	class:FieldOffsets
 java_lang_Thread$vmThread	cldc/src/com/sun/squawk/vm/FieldOffsets.java	/^    public final static long java_lang_Thread$vmThread = 0 | OOP;$/;"	f	class:FieldOffsets
 java_lang_Throwable$trace	cldc/src/com/sun/squawk/vm/FieldOffsets.java	/^    public final static long java_lang_Throwable$trace = 1 | OOP;$/;"	f	class:FieldOffsets
+java_main	vmcore/src/rts/formic/myrmics/src/java_main.c	/^int java_main() {$/;"	f
 javac	builder/src/com/sun/squawk/builder/Build.java	/^    public void javac(String compileClassPath, String preverifyClassPath, File baseDir, File[] srcDirs, boolean j2me, List<String> extraArgs, boolean preprocess) {$/;"	m	class:Build
 javac	builder/src/com/sun/squawk/builder/Build.java	/^    public void javac(String compileClassPath, String preverifyClassPath, File baseDir, File[] srcDirs, boolean j2me, List<String> extraArgs, boolean preprocess, boolean noJava5) {$/;"	m	class:Build
 javac	builder/src/com/sun/squawk/builder/JDK.java	/^    public String javac() {$/;"	m	class:JDK
@@ -17338,6 +17423,11 @@ klassName	mapper/src/com/sun/squawk/mapper/HistogramEntry.java	/^    final Strin
 klassToClass	cldc/src/com/sun/squawk/Klass.java	/^    private static SquawkHashtable klassToClass;$/;"	f	class:Klass	file:
 l	debugger/src/tests/TestApp.java	/^    static long l = -1;$/;"	f	class:TestApp
 l	vmcore/src/vm/fp/global.h	/^union  uu2   { jlong l; unsigned int lParts[2]; double d;        };$/;"	m	union:uu2
+l2d	vmcore/src/vm/util.h	/^ jlong  l2d(jlong l)                 { return d2lb((double)l);                   }$/;"	f
+l2d	vmcore/src/vm/util.h	/^INLINE jlong  l2d(jlong l)                 { return d2lb((double)l);                   }$/;"	f
+l2f	vmcore/src/vm/util.h	/^ int    l2f(jlong l)                 { return f2ib((float)l);                    }$/;"	f
+l2f	vmcore/src/vm/util.h	/^INLINE int    l2f(jlong l)                 { return f2ib((float)l);                    }$/;"	f
+l2i	vmcore/src/vm/util.h	/^INLINE int    l2i(jlong l)                 { return (int)l;                            }$/;"	f
 lParts	vmcore/src/vm/fp/global.h	/^union  uu2   { jlong l; unsigned int lParts[2]; double d;        };$/;"	m	union:uu2
 label	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public Label label();$/;"	m	interface:BaseCompiler
 label	mapper/src/com/sun/squawk/ht2html/Main.java	/^    final String label;$/;"	f	class:Segment
@@ -17438,6 +17528,8 @@ libraryAddress	mapper/src/com/sun/squawk/suiteconverter/FlashConverter.java	/^  
 libraryLoading	cldc/src/com/sun/cldc/jna/Native.java	/^    private static volatile NativeLibrary libraryLoading;$/;"	f	class:Native	file:
 libraryName	builder/src/com/sun/cldc/jna/InterfaceDecl.java	/^    String libraryName;$/;"	f	class:InterfaceDecl
 libraryPattern	builder/src/com/sun/cldc/jna/SourceProcessor.java	/^    Pattern libraryPattern = Pattern.compile("interface\\\\s*(\\\\w+)\\\\s*extends\\\\s*Library");$/;"	f	class:SourceProcessor
+likely	vmcore/src/vm/util.h	67;"	d
+likely	vmcore/src/vm/util.h	70;"	d
 limit	cldc/src/com/sun/squawk/vm/SC.java	/^    public final static int limit = guard + 1;$/;"	f	interface:SC
 limit	mapper/src/com/sun/squawk/ht2html/Main.java	/^    private int limit = -1;$/;"	f	class:Main	file:
 lineAndFile	vm2c/src/com/sun/squawk/vm2c/Converter.java	/^    boolean lineAndFile;$/;"	f	class:Converter
@@ -17684,7 +17776,7 @@ low	translator/src/com/sun/squawk/translator/ir/instr/TableSwitch.java	/^    pri
 lowLevelSetup	vmcore/src/rts/gcc-9200/os.c	/^void lowLevelSetup() {$/;"	f
 lowParmFirst	cldc/src/com/sun/squawk/os/CSystem.java	/^    static boolean lowParmFirst;$/;"	f	class:CSystem
 low_bits_mask	cldc/src/com/sun/squawk/util/MathUtils.java	/^    private static final long low_bits_mask = 0x00000000ffffffffL;$/;"	f	class:MathUtils	file:
-low_result	vmcore/src/vm/io_native.h	/^    int volatile low_result; \/* NOT USED YET: low bits of a 64-bit result *\/$/;"	m	struct:__anon73
+low_result	vmcore/src/vm/io_native.h	/^    int volatile low_result; \/* NOT USED YET: low bits of a 64-bit result *\/$/;"	m	struct:__anon2
 lowbytes	cldc/src/java/lang/FloatingDecimal.java	/^    static final long	lowbytes = ~highbyte;$/;"	f	class:FloatingDecimal
 lowbytes	phoneme/cldc/src/javaapi/cldc1.1/java/lang/FloatingDecimal.java	/^    static final long	lowbytes = ~highbyte;$/;"	f	class:FloatingDecimal
 lseek	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/LibC.java	/^    int lseek(int fd, long offset, int whence);$/;"	m	interface:LibC
@@ -17848,6 +17940,8 @@ mainLoop	phoneme/midp/src/core/javautil/reference/classes/java/util/Timer.java	/
 mainParameters	vmcore/src/rts/gcc-macosx/os_main.c	/^} mainParameters;$/;"	t	typeref:struct:mainParametersStruct	file:
 mainParametersStruct	vmcore/src/rts/gcc-macosx/os_main.c	/^typedef struct mainParametersStruct {$/;"	s	file:
 mainProgrammatic	builder/src/com/sun/squawk/builder/Build.java	/^    public void mainProgrammatic(String... args) {$/;"	m	class:Build
+main_print_infomercial	vmcore/src/rts/formic/myrmics/src/java_main.c	/^void main_print_infomercial(Context *context, int my_bid, int my_cid) {$/;"	f
+main_run_app	vmcore/src/rts/formic/myrmics/src/java_main.c	/^void main_run_app(int my_bid, int my_cid, PrCfgMode core_setup,$/;"	f
 major	cldc/src/com/sun/squawk/ObjectMemoryFile.java	/^    public final int major;$/;"	f	class:ObjectMemoryFile
 makeAffine	cldc/src/com/sun/squawk/security/ecc/ECCurveFp.java	/^    public void makeAffine(ECPoint a) {$/;"	m	class:ECCurveFp
 makeAffine	ssl/src/com/sun/spot/security/implementation/ecc/ECCurve.java	/^    protected abstract void makeAffine(ECPoint o1);$/;"	m	class:ECCurve
@@ -17865,6 +17959,7 @@ makeInt	tests/SmokeTest/src/tests/Test.java	/^        static int makeInt(int b0,
 makeJavadoc	builder/src/com/sun/squawk/builder/commands/MakeAPI.java	/^    private File makeJavadoc(Set packages, File srcDir) {$/;"	m	class:MakeAPI	file:
 makeLong	cldc/src/com/sun/squawk/VM.java	/^    public static long makeLong(int high, int low) throws AllowInlinedPragma {$/;"	m	class:VM
 makeLong	tests/SmokeTest/src/tests/Test.java	/^        static long makeLong(int b0, int b1, int b2, int b3, int b4, int b5, int b6, int b7) {$/;"	m	class:Test.X53Class
+makeLong	vmcore/src/vm/util.h	/^    INLINE jlong makeLong(int high, int low) {$/;"	f
 makeName	phoneme/midp/src/rms/rms_api/reference/i3test/com/sun/midp/rms/TestFileRscLimit.java	/^    String makeName(int i) {$/;"	m	class:TestFileRscLimit
 makeOwnerHistograms	mapper/src/com/sun/squawk/ObjectMemoryMapper.java	/^    private Hashtable<String, Histogram> makeOwnerHistograms() {$/;"	m	class:ObjectMemoryMapper	file:
 makePassThroughInvocation	vm2c/src/com/sun/squawk/vm2c/MethodConverter.java	/^    private String makePassThroughInvocation(JCTree.JCMethodDecl tree) {$/;"	m	class:MethodConverter	file:
@@ -18039,6 +18134,7 @@ matchesStackTraceEnd	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^    pri
 matchesStackTraceRepeitionElement	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^    private Matcher matchesStackTraceRepeitionElement(String line) {$/;"	m	class:TraceViewer	file:
 matchesStackTraceStart	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^    private Matcher matchesStackTraceStart(String line) {$/;"	m	class:TraceViewer	file:
 math	cldc/src/com/sun/squawk/VM.java	/^    public native static double math(int code, double a, double b);$/;"	m	class:VM
+math	vmcore/src/vm/util.h	/^jlong math(int op, jlong rs1_l, jlong rs2_l) {$/;"	f
 max	cldc/src/com/sun/squawk/Address.java	/^    public static Address max() throws NativePragma {$/;"	m	class:Address
 max	cldc/src/com/sun/squawk/Lisp2GenerationalCollector.java	/^        long max = 0;$/;"	f	class:Lisp2GenerationalCollector.Timer
 max	cldc/src/com/sun/squawk/UWord.java	/^    public static UWord max() throws NativePragma {$/;"	m	class:UWord
@@ -18422,6 +18518,10 @@ mul	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public Compiler mul
 mul	cldc/src/com/sun/squawk/security/ecc/FFA.java	/^    public void mul(int[] r, int[] a, int[] b) {$/;"	m	class:FFA
 mul	ssl/src/com/sun/spot/security/implementation/ecc/FFA.java	/^    public void mul(int[] r, int[] a, int[] b) {$/;"	m	class:FFA
 mulAdd	ssl/src/com/sun/spot/security/implementation/ModuloExponentiation.java	/^    private static int mulAdd(int[] out, int[] in, int offset, int len, int k) {$/;"	m	class:ModuloExponentiation	file:
+muld	vmcore/src/vm/util.h	/^ jlong  muld(jlong l, jlong r)       { return d2lb(JFP_lib_muld(lb2d(l), lb2d(r))); }$/;"	f
+muld	vmcore/src/vm/util.h	/^INLINE jlong  muld(jlong l, jlong r)       { return d2lb(JFP_lib_muld(lb2d(l), lb2d(r))); }$/;"	f
+mulf	vmcore/src/vm/util.h	/^ int    mulf(int l, int r)           { return f2ib(ib2f(l) * ib2f(r));           }$/;"	f
+mulf	vmcore/src/vm/util.h	/^INLINE int    mulf(int l, int r)           { return f2ib(ib2f(l) * ib2f(r));           }$/;"	f
 mulsub	ssl/src/com/sun/spot/security/implementation/ModuloExponentiation.java	/^    private int mulsub(int[] q, int[] a, int x, int len, int offset) {$/;"	m	class:ModuloExponentiation.MutableBigInteger	file:
 mult	cldc/src/java/lang/FloatingDecimal.java	/^    mult( FDBigInt other ){$/;"	m	class:FDBigInt
 mult	cldc/src/java/lang/FloatingDecimal.java	/^    mult( int iv ) {$/;"	m	class:FDBigInt
@@ -18549,6 +18649,10 @@ negativeZeroDoubleBits	cldc/src/java/lang/Math.java	/^    private static final l
 negativeZeroDoubleBits	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    private static long negativeZeroDoubleBits = Double.doubleToLongBits(-0.0d);$/;"	f	class:Math	file:
 negativeZeroFloatBits	cldc/src/java/lang/Math.java	/^    private static final long negativeZeroFloatBits = -2147483648;$/;"	f	class:Math	file:
 negativeZeroFloatBits	phoneme/cldc/src/javaapi/cldc1.1/java/lang/Math.java	/^    private static long negativeZeroFloatBits = Float.floatToIntBits(-0.0f);$/;"	f	class:Math	file:
+negd	vmcore/src/vm/util.h	/^ jlong  negd(jlong l)                { return d2lb(- lb2d(l));       }$/;"	f
+negd	vmcore/src/vm/util.h	/^INLINE jlong  negd(jlong l)                { return d2lb(- lb2d(l));       }$/;"	f
+negf	vmcore/src/vm/util.h	/^ int    negf(int l)                  { return f2ib( - ib2f(l));        }$/;"	f
+negf	vmcore/src/vm/util.h	/^INLINE int    negf(int l)                  { return f2ib( - ib2f(l));        }$/;"	f
 nestedClasses	builder/src/com/sun/squawk/builder/commands/MakeAPI.java	/^    private final SortedMap nestedClasses;$/;"	f	class:Suite	file:
 nestedTimes	cldc/src/com/sun/squawk/util/ComputationTimer.java	/^        long nestedTimes;$/;"	f	class:ComputationTimer.Execution
 nestingLevel	builder/src/com/sun/squawk/builder/Macroizer.java	/^    int nestingLevel;$/;"	f	class:MacroDefinition
@@ -18777,7 +18881,7 @@ notifyTid	vmcore/src/rts/vxworks/os_devices.c	/^static pthread_t notifyTid;$/;"	
 notrap	vmcore/src/vm/globals.h	/^boolean     notrap;$/;"	v
 now	cldc/src/com/sun/squawk/GarbageCollector.java	/^    final long now() {$/;"	m	class:GarbageCollector
 npio2_hw	vmcore/src/vm/fp/e_rem_pio2.c	/^static const int npio2_hw[] = {$/;"	v	file:
-nt_errno	vmcore/src/vm/io_native.h	/^    int volatile nt_errno;      \/* the system error number *\/$/;"	m	struct:__anon73
+nt_errno	vmcore/src/vm/io_native.h	/^    int volatile nt_errno;      \/* the system error number *\/$/;"	m	struct:__anon2
 ntohl	cldc/src/com/sun/squawk/platform/posix/Inet.java	/^    public static int ntohl(int netint) {$/;"	m	class:Inet
 ntohl	cldc/src/com/sun/squawk/platform/windows/Inet.java	/^    public static int ntohl(int netint) {$/;"	m	class:Inet
 ntohs	cldc/src/com/sun/squawk/platform/posix/Inet.java	/^    public static short ntohs(short netshort) {$/;"	m	class:Inet
@@ -19572,6 +19676,7 @@ osbackbranch	vmcore/src/rts/msc/os.c	277;"	d	file:
 osbackbranch	vmcore/src/rts/vxworks/os.c	535;"	d	file:
 osevents	cldc/src/com/sun/squawk/VMThread.java	/^    private static EventHashtable osevents;$/;"	f	class:VMThread	file:
 osfinish	vmcore/src/rts/cc/os.c	86;"	d	file:
+osfinish	vmcore/src/rts/formic/os.c	/^void osfinish() {}$/;"	f
 osfinish	vmcore/src/rts/gcc-9200/os.c	/^void osfinish() {$/;"	f
 osfinish	vmcore/src/rts/gcc-eb40a/os.c	/^void osfinish() {$/;"	f
 osfinish	vmcore/src/rts/gcc-macosx/os.c	63;"	d	file:
@@ -19580,6 +19685,7 @@ osfinish	vmcore/src/rts/msc/os.c	278;"	d	file:
 osfinish	vmcore/src/rts/vxworks/os.c	536;"	d	file:
 osize	cldc/src/com/sun/squawk/compiler/Type.java	/^    private final int osize;$/;"	f	class:Type	file:
 osloop	vmcore/src/rts/cc/os.c	84;"	d	file:
+osloop	vmcore/src/rts/formic/os.c	/^INLINE void osloop() {}$/;"	f
 osloop	vmcore/src/rts/gcc-9200/os.c	/^INLINE void osloop() {$/;"	f
 osloop	vmcore/src/rts/gcc-eb40a/os.c	/^INLINE void osloop() {$/;"	f
 osloop	vmcore/src/rts/gcc-macosx/os.c	61;"	d	file:
@@ -21397,7 +21503,11 @@ relocationTable	mapper/src/com/sun/squawk/ObjectMemoryMapper.java	/^    private 
 rem	cldc/src/com/sun/squawk/compiler/BaseCompiler.java	/^    public Compiler rem();$/;"	m	interface:BaseCompiler
 remainingStack	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^    public final long remainingStack;$/;"	f	class:TraceLine
 remarkPasses	cldc/src/com/sun/squawk/Lisp2GenerationalCollector.java	/^    private int remarkPasses;$/;"	f	class:Lisp2GenerationalCollector	file:
+remd	vmcore/src/vm/util.h	/^ jlong  remd(jlong l, jlong r)       { return d2lb(JFP_lib_remd(lb2d(l), lb2d(r))); }$/;"	f
+remd	vmcore/src/vm/util.h	/^INLINE jlong  remd(jlong l, jlong r)       { return d2lb(JFP_lib_remd(lb2d(l), lb2d(r))); }$/;"	f
 rememberRun	builder/src/com/sun/squawk/builder/Build.java	/^    public void rememberRun(Command command, String[] args) {$/;"	m	class:Build
+remf	vmcore/src/vm/util.h	/^ int    remf(int l, int r)           { return f2ib(JFP_lib_remf(ib2f(l), ib2f(r))); }$/;"	f
+remf	vmcore/src/vm/util.h	/^INLINE int    remf(int l, int r)           { return f2ib(JFP_lib_remf(ib2f(l), ib2f(r))); }$/;"	f
 remote	cldc/src/com/sun/squawk/Isolate.java	/^        private final Isolate remote;$/;"	f	class:Isolate.RemoteListenerWrapper	file:
 remoteHostName	cldc/src/com/sun/squawk/io/j2me/socket/Protocol.java	/^    private String remoteHostName;$/;"	f	class:Protocol	file:
 remove	builder/src/com/sun/squawk/builder/Command.java	/^        public void remove() {$/;"	m	class:Command.CommandNameIterator
@@ -21587,7 +21697,7 @@ result	cldc/src/com/sun/squawk/util/ComputationTimer.java	/^        Object resul
 result	hosted-support/src/com/sun/squawk/vm/Channel.java	/^    protected long result;$/;"	f	class:Channel
 result	tests/SmokeTest/src/tests/Test.java	/^    static void result(String name, boolean b) {$/;"	m	class:Test
 result	tests/ThreadTest-DE/src/tests/MiniTestHelper.java	/^    static void result(String name, boolean b) {$/;"	m	class:MiniTestHelper
-result	vmcore/src/vm/io_native.h	/^    int volatile result;     \/* the result returned by called function (the hi 32-bits if a 64-bit result) *\/$/;"	m	struct:__anon73
+result	vmcore/src/vm/io_native.h	/^    int volatile result;     \/* the result returned by called function (the hi 32-bits if a 64-bit result) *\/$/;"	m	struct:__anon2
 resultType	translator/src/com/sun/squawk/translator/ir/InstructionEmitter.java	/^    private byte resultType;$/;"	f	class:InstructionEmitter	file:
 resultValues	translator/src/com/sun/squawk/translator/ir/instr/LookupSwitch.java	/^    private Object resultValues;$/;"	f	class:LookupSwitch	file:
 result_high	vmcore/src/vm/globals.h	213;"	d
@@ -21658,12 +21768,16 @@ roundDir	cldc/src/java/lang/FloatingDecimal.java	/^    int		roundDir; \/\/ set b
 roundDir	phoneme/cldc/src/javaapi/cldc1.1/java/lang/FloatingDecimal.java	/^    int		roundDir; \/\/ set by doubleValue$/;"	f	class:FloatingDecimal
 roundDown	cldc/src/com/sun/squawk/Address.java	/^    public Address roundDown(int alignment) throws NativePragma {$/;"	m	class:Address
 roundDown	cldc/src/com/sun/squawk/GC.java	/^    static int roundDown(int value, int alignment) {$/;"	m	class:GC
+roundDown	vmcore/src/vm/util.h	/^    INLINE UWord roundDown(UWord value, UWord alignment) {$/;"	f
 roundDownToWord	cldc/src/com/sun/squawk/Address.java	/^    public Address roundDownToWord() throws NativePragma {$/;"	m	class:Address
 roundDownToWord	cldc/src/com/sun/squawk/GC.java	/^    static int roundDownToWord(int value)  throws ForceInlinedPragma {$/;"	m	class:GC
+roundDownToWord	vmcore/src/vm/util.h	/^    INLINE UWord roundDownToWord(UWord value) {$/;"	f
 roundUp	cldc/src/com/sun/squawk/Address.java	/^    public Address roundUp(int alignment) throws NativePragma {$/;"	m	class:Address
 roundUp	cldc/src/com/sun/squawk/GC.java	/^    static int roundUp(int value, int alignment) {$/;"	m	class:GC
+roundUp	vmcore/src/vm/util.h	/^    INLINE UWord roundUp(UWord value, UWord alignment) {$/;"	f
 roundUpToWord	cldc/src/com/sun/squawk/Address.java	/^    public Address roundUpToWord() throws NativePragma {$/;"	m	class:Address
 roundUpToWord	cldc/src/com/sun/squawk/GC.java	/^    public static int roundUpToWord(int value)  throws ForceInlinedPragma {$/;"	m	class:GC
+roundUpToWord	vmcore/src/vm/util.h	/^    INLINE UWord roundUpToWord(UWord value) {$/;"	f
 roundup	cldc/src/java/lang/FloatingDecimal.java	/^    roundup(){$/;"	m	class:FloatingDecimal	file:
 roundup	phoneme/cldc/src/javaapi/cldc1.1/java/lang/FloatingDecimal.java	/^    roundup(){$/;"	m	class:FloatingDecimal	file:
 rpc_class	vmcore/src/rts/cortex-m3/src/MbedTest/include/Base.h	/^struct rpc_class {$/;"	s	namespace:mbed
@@ -22373,6 +22487,8 @@ setWriteHeadPosition	imp/src/com/sun/squawk/flash/NorFlashSectorState.java	/^   
 setX	debugger/src/tests/TestApp.java	/^        public void setX(double x2) {$/;"	m	class:TestApp.Ball
 set_blocking_flags	cldc/src/com/sun/squawk/platform/posix/GCFSocketsImpl.java	/^    private void set_blocking_flags(int fd, boolean is_blocking) throws IOException {$/;"	m	class:GCFSocketsImpl	file:
 set_blocking_flags	cldc/src/com/sun/squawk/platform/windows/GCFSocketsImpl.java	/^    private void set_blocking_flags(int fd, boolean is_blocking) throws IOException{$/;"	m	class:GCFSocketsImpl	file:
+set_sda_bp_set_or_stepping	vmcore/src/vm/util.h	49;"	d
+set_sda_bp_set_or_stepping	vmcore/src/vm/util.h	60;"	d
 set_up_java_interrupts	vmcore/src/rts/gcc-eb40a/eb40a-io.c	/^void set_up_java_interrupts() {$/;"	f
 setsockopt	cldc-native-declarations/src/com/sun/squawk/platform/posix/natives/Socket.java	/^    int setsockopt(int socket, int level, int option_name, ByReference option_value, int option_len);$/;"	m	interface:Socket
 setsockopt	cldc/src/com/sun/squawk/platform/posix/natives/Socket.java	/^    int setsockopt(int socket, int level, int option_name, ByReference option_value, int option_len);$/;"	m	interface:Socket
@@ -22435,6 +22551,7 @@ shouldNotReachHere	cldc/src/com/sun/squawk/util/Assert.java	/^    public static 
 shouldNotReachHere	cldc/src/com/sun/squawk/util/Assert.java	/^    public static RuntimeException shouldNotReachHere(String filename, int lineno) {$/;"	m	class:Assert
 shouldNotReachHere	cldc/src/com/sun/squawk/util/Assert.java	/^    public static RuntimeException shouldNotReachHere(String msg) throws NotInlinedPragma {$/;"	m	class:Assert
 shouldNotReachHere	cldc/src/com/sun/squawk/util/Assert.java	/^    public static RuntimeException shouldNotReachHere(String msg, String filename, int lineno) throws NotInlinedPragma {$/;"	m	class:Assert
+shouldNotReachHere	vmcore/src/vm/util.h	125;"	d
 shouldNotReachHereFatal	cldc/src/com/sun/squawk/util/Assert.java	/^    public static RuntimeException shouldNotReachHereFatal() {$/;"	m	class:Assert
 shouldNotReachHereFatal	cldc/src/com/sun/squawk/util/Assert.java	/^    public static RuntimeException shouldNotReachHereFatal(String filename, int lineno) {$/;"	m	class:Assert
 shouldNotReachHereFatal	cldc/src/com/sun/squawk/util/Assert.java	/^    public static RuntimeException shouldNotReachHereFatal(String msg) {$/;"	m	class:Assert
@@ -22699,6 +22816,8 @@ sliceTable	cldc/src/com/sun/squawk/Lisp2Collector.java	/^    private Address sli
 sliceTable	cldc/src/com/sun/squawk/Lisp2GenerationalCollector.java	/^    private Address sliceTable;$/;"	f	class:Lisp2GenerationalCollector	file:
 sliceTableSize	cldc/src/com/sun/squawk/Lisp2Collector.java	/^    private int sliceTableSize;$/;"	f	class:Lisp2Collector	file:
 sliceTableSize	cldc/src/com/sun/squawk/Lisp2GenerationalCollector.java	/^    private int sliceTableSize;$/;"	f	class:Lisp2GenerationalCollector	file:
+sll	vmcore/src/vm/util.h	/^INLINE int    sll(int a, int b)            { return a<<(b&31);                         }$/;"	f
+slll	vmcore/src/vm/util.h	/^INLINE jlong  slll(jlong a, int b)         { return a<<(b&63);                         }$/;"	f
 slot	cldc/src/com/sun/squawk/ScopedLocalVariable.java	/^    public final int slot;$/;"	f	class:ScopedLocalVariable
 slot	translator/src/com/sun/squawk/translator/ir/Local.java	/^    private Slot slot;$/;"	f	class:Local	file:
 slot_size	vmcore/src/rts/formic/memory_management.h	/^  int         slot_size;               \/\/ Size of slots in this slab$/;"	m	struct:MmSlabStruct
@@ -22836,12 +22955,16 @@ squawk_printVersion	vmcore/src/rts/vxworks/os_main.c	/^void squawk_printVersion(
 squawk_select	vmcore/src/vm/io_native.c	/^int squawk_select(int nfds,$/;"	f
 squawkarray	cldc/src/com/sun/squawk/Klass.java	/^    private final static int squawkarray = publik | Modifier.SQUAWKARRAY;$/;"	f	class:Klass	file:
 squawkprimitive	cldc/src/com/sun/squawk/Klass.java	/^    private final static int squawkprimitive = Modifier.SQUAWKPRIMITIVE;$/;"	f	class:Klass	file:
+sra	vmcore/src/vm/util.h	/^INLINE int    sra(int a, int b)            { return a>>(b&31);                         }$/;"	f
+sral	vmcore/src/vm/util.h	/^INLINE jlong  sral(jlong a, int b)         { return a>>(b&63);                         }$/;"	f
 srand	ssl/src/com/sun/midp/ssl/Handshake.java	/^    private byte[] srand = null;$/;"	f	class:Handshake	file:
 src	translator/src/com/sun/squawk/translator/ir/verifier/Frame.java	/^        public int src;$/;"	f	class:TargetList.ForwardTarget
 srcDir	builder/src/com/sun/squawk/builder/util/FileSet.java	/^        private final File srcDir;$/;"	f	class:FileSet.SourceDestDirMapper	file:
 srcDirs	builder/src/com/sun/squawk/builder/Target.java	/^    public final File[] srcDirs;$/;"	f	class:Target
 srcFile	translator/src/com/sun/squawk/MethodBodyTracer.java	/^    private String srcFile;$/;"	f	class:MethodBodyTracer	file:
 srcPath	translator/src/com/sun/squawk/MethodBodyTracer.java	/^    private String srcPath;$/;"	f	class:MethodBodyTracer	file:
+srl	vmcore/src/vm/util.h	/^INLINE int    srl(int a, int b)            { return ((unsigned)a)>>(b&31);             }$/;"	f
+srll	vmcore/src/vm/util.h	/^INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&63);               }$/;"	f
 ss	vmcore/src/vm/globals.h	196;"	d
 ssc	ssl/src/com/sun/midp/ssl/In.java	/^    private SSLStreamConnection ssc;$/;"	f	class:In	file:
 ssc	ssl/src/com/sun/midp/ssl/Out.java	/^    private SSLStreamConnection ssc;$/;"	f	class:Out	file:
@@ -23101,6 +23224,10 @@ subShifted	cldc/src/com/sun/squawk/security/ecc/FFA.java	/^    private int subSh
 subShifted	ssl/src/com/sun/spot/security/implementation/ecc/FFA.java	/^    private int subShifted(int[] r, int[] b, int n, int len) {$/;"	m	class:FFA	file:
 subVarName	vm2c/src/com/sun/squawk/vm2c/Converter.java	/^    public Name subVarName(Name varName) {$/;"	m	class:Converter
 subWord	ssl/src/com/sun/spotx/crypto/implementation/Alg1.java	/^    private int subWord(int x) {$/;"	m	class:Alg1	file:
+subd	vmcore/src/vm/util.h	/^ jlong  subd(jlong l, jlong r)       { return d2lb(lb2d(l) - lb2d(r));           }$/;"	f
+subd	vmcore/src/vm/util.h	/^INLINE jlong  subd(jlong l, jlong r)       { return d2lb(lb2d(l) - lb2d(r));           }$/;"	f
+subf	vmcore/src/vm/util.h	/^ int    subf(int l, int r)           { return f2ib(ib2f(l) - ib2f(r));           }$/;"	f
+subf	vmcore/src/vm/util.h	/^INLINE int    subf(int l, int r)           { return f2ib(ib2f(l) - ib2f(r));           }$/;"	f
 subject	ssl/src/com/sun/midp/pki/X509Certificate.java	/^    private String subject;$/;"	f	class:X509Certificate	file:
 subjectName	ssl/src/com/sun/midp/pki/CertInfo.java	/^    private String subjectName;$/;"	f	class:CertInfo	file:
 substring	builder/src/com/sun/squawk/builder/util/FileSet.java	/^        private final String substring;$/;"	f	class:FileSet.SubstringSelector	file:
@@ -23211,12 +23338,14 @@ sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/gcc-macosx/os_main.c	/^char
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/gcc/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) { return NULL; }$/;"	f
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/msc/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) { return NULL; }$/;"	f
 sysGetAlternateBootstrapSuiteLocation	vmcore/src/rts/vxworks/os.c	/^INLINE char* sysGetAlternateBootstrapSuiteLocation(char* bootstrapSuiteName) {$/;"	f
+sysGetPageSize	vmcore/src/rts/formic/os.c	/^INLINE int sysGetPageSize(void) {$/;"	f
 sysGetPageSize	vmcore/src/rts/gcc-9200/os.c	239;"	d	file:
 sysGetPageSize	vmcore/src/rts/gcc-eb40a/os.c	227;"	d	file:
 sysGetPageSize	vmcore/src/rts/msc/os.c	/^int sysGetPageSize(void) {$/;"	f
 sysGetPageSize	vmcore/src/rts/vxworks/os.c	/^int sysGetPageSize() {$/;"	f
 sysGetPageSize	vmcore/src/vm/os_posix.c	/^int sysGetPageSize(void) {$/;"	f
 sysPlatformName	vmcore/src/rts/cc/os.c	40;"	d	file:
+sysPlatformName	vmcore/src/rts/formic/os.c	29;"	d	file:
 sysPlatformName	vmcore/src/rts/gcc-9200/os.c	279;"	d	file:
 sysPlatformName	vmcore/src/rts/gcc-eb40a/os.c	267;"	d	file:
 sysPlatformName	vmcore/src/rts/gcc-macosx/os.c	34;"	d	file:
@@ -23225,16 +23354,19 @@ sysPlatformName	vmcore/src/rts/gcc/os.c	39;"	d	file:
 sysPlatformName	vmcore/src/rts/msc/os.c	46;"	d	file:
 sysPlatformName	vmcore/src/rts/vxworks/os.c	29;"	d	file:
 sysSIZEOFSTAT	vmcore/src/vm/io_native.c	/^int sysSIZEOFSTAT; FORCE_USED$/;"	v
+sysTimeMicros	vmcore/src/rts/formic/os.c	/^jlong sysTimeMicros() {$/;"	f
 sysTimeMicros	vmcore/src/rts/gcc-9200/os.c	/^jlong sysTimeMicros() {$/;"	f
 sysTimeMicros	vmcore/src/rts/gcc-eb40a/os.c	/^jlong sysTimeMicros() {$/;"	f
 sysTimeMicros	vmcore/src/rts/msc/os.c	/^jlong sysTimeMicros(void) {$/;"	f
 sysTimeMicros	vmcore/src/rts/vxworks/os.c	/^jlong sysTimeMicros() {$/;"	f
 sysTimeMicros	vmcore/src/vm/os_posix.c	/^jlong sysTimeMicros() {$/;"	f
+sysTimeMillis	vmcore/src/rts/formic/os.c	/^jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/rts/gcc-9200/os.c	/^volatile jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/rts/gcc-eb40a/os.c	/^jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/rts/msc/os.c	/^jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/rts/vxworks/os.c	/^jlong sysTimeMillis(void) {$/;"	f
 sysTimeMillis	vmcore/src/vm/os_posix.c	/^jlong sysTimeMillis(void) {$/;"	f
+sysToggleMemoryProtection	vmcore/src/rts/formic/os.c	/^INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}$/;"	f
 sysToggleMemoryProtection	vmcore/src/rts/gcc-9200/os.c	/^INLINE sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}$/;"	f
 sysToggleMemoryProtection	vmcore/src/rts/gcc-eb40a/os.c	/^INLINE sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}$/;"	f
 sysToggleMemoryProtection	vmcore/src/rts/msc/os.c	/^void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {$/;"	f
@@ -24236,6 +24368,8 @@ uninstallSectors	cldc/src/com/sun/squawk/peripheral/SimulatedNorFlashSectorAlloc
 uniqID	builder/src/com/sun/squawk/builder/commands/DocumentorCommand.java	/^    private int uniqID = 0;$/;"	f	class:DocumentorCommand	file:
 unit	vm2c/src/com/sun/squawk/vm2c/ProcessedMethod.java	/^    final JCTree.JCCompilationUnit unit;$/;"	f	class:ProcessedMethod
 unknownMethods	mapper/src/com/sun/squawk/traces/TraceViewer.java	/^    static LongHashtable unknownMethods = new LongHashtable();$/;"	f	class:TraceViewer
+unlikely	vmcore/src/vm/util.h	68;"	d
+unlikely	vmcore/src/vm/util.h	71;"	d
 unlink	cldc/src/com/sun/squawk/platform/posix/natives/LibC.java	/^    int unlink(String name);$/;"	m	interface:LibC
 unlink	cldc/src/com/sun/squawk/platform/posix/natives/LibCImpl.java	/^    public int unlink(String arg0) {$/;"	m	class:LibCImpl
 unlink	cldc/src/com/sun/squawk/platform/windows/natives/LibC.java	/^    int unlink(String name);$/;"	m	interface:LibC
