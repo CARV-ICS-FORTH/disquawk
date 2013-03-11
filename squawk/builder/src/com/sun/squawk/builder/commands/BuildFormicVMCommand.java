@@ -283,19 +283,24 @@ public class BuildFormicVMCommand extends FormicCommand {
     File OBJ_JAVA_SYS  = new File(MYRMICS_DIR, "sys");
     FileSet.SuffixSelector sselector = new FileSet.SuffixSelector(".mb.o");
     //TODO: Add main
-    //objectFiles.add(new File(OBJ_JAVA, "java_main.mb.o"));
-    objectFiles.addAll(new FileSet(OBJ_JAVA      , sselector).list());
-    objectFiles.addAll(new FileSet(OBJ_JAVA_ARCH , sselector).list());
-    objectFiles.addAll(new FileSet(OBJ_JAVA_KT   , sselector).list());
-    objectFiles.addAll(new FileSet(OBJ_JAVA_DBG  , sselector).list());
-    objectFiles.addAll(new FileSet(OBJ_JAVA_NOC  , sselector).list());
-    objectFiles.addAll(new FileSet(OBJ_JAVA_MM   , sselector).list());
-    objectFiles.addAll(new FileSet(OBJ_JAVA_PR   , sselector).list());
-    objectFiles.addAll(new FileSet(OBJ_JAVA_SYS  , sselector).list());
+    List<File> objectFiles2 = new ArrayList<File>();
+    //objectFiles2.add(new File(OBJ_JAVA, "java_main.mb.o"));
+    objectFiles2.addAll(new FileSet(OBJ_JAVA      , sselector).list());
+    objectFiles2.addAll(new FileSet(OBJ_JAVA_ARCH , sselector).list());
+    objectFiles2.addAll(new FileSet(OBJ_JAVA_KT   , sselector).list());
+    objectFiles2.addAll(new FileSet(OBJ_JAVA_DBG  , sselector).list());
+    objectFiles2.addAll(new FileSet(OBJ_JAVA_NOC  , sselector).list());
+    objectFiles2.addAll(new FileSet(OBJ_JAVA_MM   , sselector).list());
+    objectFiles2.addAll(new FileSet(OBJ_JAVA_PR   , sselector).list());
+    objectFiles2.addAll(new FileSet(OBJ_JAVA_SYS  , sselector).list());
 
     env.log(env.brief, "[linking '" + linkerOutputFile.toString() + "'...]");
-    objectFiles.add(0, new File(MYRMICS_DIR, "linker.java.mb.ld"));
-    File[] objects = (File[])objectFiles.toArray(new File[objectFiles.size()]);
+    // the first object must be the linker script
+    objectFiles2.add(0, new File(MYRMICS_DIR, "linker.java.mb.ld"));
+    int size1 = objectFiles2.size();
+    int size2 = objectFiles.size();
+    File[] objects = objectFiles2.toArray(new File[size1+size2]);
+    System.arraycopy(objectFiles.toArray(new File[size2]),0,objects,size1,size2);
     ccompiler.link(objects, linkerOutputFile.toString(), false);
 
     if (!env.verbose) {
@@ -314,7 +319,7 @@ public class BuildFormicVMCommand extends FormicCommand {
     dump += " " + objCopyOutputFile.toString();
     env.exec(dump);
 
-    env.log(env.info, "Build complete");
+    env.log(env.brief, "Build complete");
   }
 
   /**

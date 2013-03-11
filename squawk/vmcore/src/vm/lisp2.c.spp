@@ -392,4 +392,8 @@
         }
 
 NOINLINE static boolean collectGarbage(Address this, Address allocTop, boolean forceFullGC);
+/*if[MICROBLAZE_BUILD]*/
+NOINLINE Address copyObjectGraph(Address this, Address object, Address cb, Address allocTop);
+/*else[MICROBLAZE_BUILD]*/
 NOINLINE static Address copyObjectGraph(Address this, Address object, Address cb, Address allocTop);
+/*end[MICROBLAZE_BUILD]*/

@@ -2,22 +2,22 @@
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle Corporation. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Oracle Corporation, 500 Oracle Parkway, Redwood
  * Shores, CA 94065 or visit www.oracle.com if you need additional
  * information or have any questions.
@@ -42,7 +42,7 @@ import com.sun.squawk.pragma.NotInlinedPragma;
  * ('00' if not) and if so, where is the class located ('01' in the heap, '11' in NVM and '10'
  * in ROM). The forwarding offset is relative to the start of a "slice" with the absolute
  * offset of the slice stored in a fixed size "slice offset table".
- * 
+ *
  * <p><blockquote><pre>
  *       <-------------- (W-C-2) ---------> <------ C ------> <-2->
  *      +----------------------------------+-----------------+-----+
@@ -54,7 +54,7 @@ import com.sun.squawk.pragma.NotInlinedPragma;
  *
  * <h3>Heap Layout</h3>
  * <blockquote><pre>
-    
+
                       memoryEnd ->
                                     Slice table
 
@@ -622,7 +622,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 //            VM.print("classOffsetMask: "); VM.print(classOffsetMask); VM.println();
 //            VM.print("sliceOffsetShift: "); VM.print(sliceOffsetShift); VM.println();
 //            VM.print("heapOffsetBits: "); VM.print(bitsRequiredFor(heapSize / HDR.BYTES_PER_WORD)); VM.println();
-            
+
         sliceTable = alignedMemoryEnd.sub(sliceTableSize);
         Address bitmap = sliceTable.sub(bitmapSize);
 
@@ -713,7 +713,11 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
      */
     static int asPercentOf(long part, long total) {
         // Take care of long multiplication overflow
+/*if[MICROBLAZE_BUILD]*/
+        if (part > (Integer.MAX_VALUE/100)) {
+/*else[MICROBLAZE_BUILD]*/
         if (part > (Long.MAX_VALUE/100)) {
+/*end[MICROBLAZE_BUILD]*/
             total /= 100;
             part /= 100;
         }
@@ -729,7 +733,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
         // Calculate percentage avoiding integer overflow
         return GC.roundDown((heapSize / 100) * idealYoungGenerationSizePercent, HDR.BYTES_PER_WORD);
     }
-    
+
     /**
      * Sets the size for the young generation based on its ideal ratio to the heap size.
      *
@@ -737,7 +741,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
      */
      public void setIdealYoungGenerationSizePercent(int ygPct){
         idealYoungGenerationSizePercent = ygPct;
-    } 
+    }
 
     /**
      * Determines if the current collection is a full collection. That is, is it processing the
@@ -815,7 +819,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 
         // Phase 0: Deregistered any remaining unused stack chunks...
         findUnusedStackChunks();
-        
+
         // Clears the bitmap corresponding to the collection area. Must clear one past the
         // end of the collection area as there can be an object there that has a zero length body.
         Lisp2Bitmap.clearBitsFor(collectionStart, collectionEnd.add(HDR.BYTES_PER_WORD));
@@ -836,11 +840,11 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
         // Phase 2: Insert forward pointers in unused near object bits
         // if doing a full collection (but not one forced by user), allow some slop in the dense prefix
         Offset slopAllowed = Offset.zero(); //disable slop code.
-        
+
         //TODO: fix slop code. Still not working correctly
         // slopAllowed = Offset.fromPrimitive(GC.roundDownToWord(collectionEnd.diff(collectionStart).toInt() / 100)); // 1%
         computeAddresses((forceFullGC || !isFullCollection()) ? Offset.zero() : slopAllowed);
-        
+
         if (!firstMovingBlock.isZero()) {
 
             // Phase 3: Adjust interior pointers using forward pointers from phase2
@@ -1160,10 +1164,12 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
             throws AllowInlinedPragma
 /*end[DEBUG_CODE_ENABLED]*/
     {
+/*if[DEBUG_CODE_ENABLED]*/
         Address pointerAddress;
         Address object;
+/*end[DEBUG_CODE_ENABLED]*/
         Assert.that(GC.inRam(base, base));
-        
+
         switch (visitor) {
             case MARK_VISITOR: {
                 markOop(base, offset);
@@ -1239,10 +1245,12 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
      * @return the value of the oop after visit is complete
      */
     private void visitOops(int visitor, Address base, int len) {
+/*if[DEBUG_CODE_ENABLED]*/
         Address pointerAddress;
         Address object;
+/*end[DEBUG_CODE_ENABLED]*/
         Assert.that(GC.inRam(base, base));
-        
+
         switch (visitor) {
             case MARK_VISITOR: {
                 for (int i = 0; i < len; i++) {
@@ -1507,7 +1515,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
                         printKlassName(gaklass);
                         VM.println();
                     }
-                    
+
                     if (visitor == MARK_VISITOR) {
                         CS.check(object.toObject());
                     }
@@ -2077,7 +2085,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 //    private void verifyStackChunks() throws AllowInlinedPragma {}
 /*end[DEBUG_CODE_ENABLED]*/
 
-    /** 
+    /**
      * Prune stack chunks that have been marked as unused. Can be called in both partial and full collections.
      */
     private void findUnusedStackChunks() throws NotInlinedPragma {
@@ -2143,7 +2151,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
        }
        verifyStackChunks();
     }
-    
+
     /**
      * Find un-referenced stack chunks.
      * Actually, I'm not sure if a stack chunk could still be "in-use, eg. owner field not null,
@@ -3103,7 +3111,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
         }
         Assert.that(!classOrAssociation.isZero());
         Assert.that(!classOrAssociation.eq(Address.fromPrimitive(0xDEADBEEF)));
-        
+
         Address klass = NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
 //        if (!isClassPointer(object, classOrAssociation)) {
 //            klass = NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
@@ -3301,7 +3309,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
                 VM.println();
             }
             GC.checkSC(chunk);
-            
+
             Address nextChunk = NativeUnsafe.getAddress(chunk, SC.next);
             if (!inCollectionSpace(chunk)) {
                 // The pointers in the header part of the stack chunk are not updated here
@@ -3876,7 +3884,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
     private Address compactObjects(Address firstDeadBlock, Address firstMovingBlock) throws NotInlinedPragma {
 
         timer.reset();
-        
+
         Assert.that(!firstDeadBlock.isZero());
         Address free = firstDeadBlock;
         Address object;

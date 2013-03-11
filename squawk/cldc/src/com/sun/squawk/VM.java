@@ -1882,10 +1882,12 @@ hbp.dumpState();
      *
      * @param x the string
      */
-    /* originally was */
-    /* @Vm2c(code="printJavaString(x, streams[currentStream]);") */
 /*if[JAVA5SYNTAX]*/
+/*if[MICROBLAZE_BUILD]*/
     @Vm2c(code="printJavaString(x);")
+/*else[MICROBLAZE_BUILD]*/
+    @Vm2c(code="printJavaString(x, streams[currentStream]);")
+/*end[MICROBLAZE_BUILD]*/
 /*end[JAVA5SYNTAX]*/
     public static void print(String x) {
         executeCIO(-1, ChannelConstants.INTERNAL_PRINTSTRING, -1, 0, 0, 0, 0, 0, 0, x, null);

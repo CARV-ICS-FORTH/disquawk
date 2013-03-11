@@ -1,5 +1,25 @@
+
+Current GVM limitations
+=======================
+
+  * No 64bit support
+    jlong is defined as int32t
+    doubles are actually floats
+
+    As a result there is no proper support for java.lang.Long and
+    java.lang.Double
+
+  * exit(int status) halts the system (actually a while(1)) and just
+    drops the status value.  After all, since GVM is the OS doesn't
+    really make sense to report a status to someone.
+
+  * errno is NOT implemented
+
+Design decisions
+================
+
 Choosing a JVM
-==============
+--------------
 
 * Squawk
     -Still active
@@ -51,21 +71,3 @@ Choosing a JVM
 * gcj
     -complex source code
     -no VM
-
-Design decisions
-================
-
-
-GVM limitations
-==================
-
-  * No 64bit support
-    jlong is defined as int32t
-
-  * No double support: doubles are actually floats
-
-  * exit(int status) halts the system (actually a while(1)) and just
-    drops the status value.  After all, since GVM is the OS doesn't
-    really make sense to report a status to someone.
-
-  * errno is NOT implemented

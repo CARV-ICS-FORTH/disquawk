@@ -384,7 +384,7 @@ class MacroDefinition {
         nestingLevel++;
 
         if (isVoid) {
-            currentLine.append(localsDecl.toString().replace('$', ' '));
+            currentLine.append(localsDecl.toString().replace("$","__attribute__((unused)) "));
         }
     }
 

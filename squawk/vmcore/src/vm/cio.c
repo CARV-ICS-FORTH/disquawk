@@ -45,11 +45,15 @@ INLINE void returnIntResult(int value) {
  */
 INLINE void returnLongResult(jlong value) {
     internalLowResult = (int)value;
+#ifdef JAVA
+    com_sun_squawk_ServiceOperation_result = 0;
+#else
     com_sun_squawk_ServiceOperation_result = (int)(value >> 32);
+#endif  /* JAVA */
 }
 
 /**
- * Sets up the global used to pass an address result from an INTERNAL IO operation back to the VM.
+ * sets up the global used to pass an address result from an INTERNAL IO operation back to the VM.
  * The value is accessed in the VM by calling VM.addressResult().
  *
  * @param value the address value to return to the VM

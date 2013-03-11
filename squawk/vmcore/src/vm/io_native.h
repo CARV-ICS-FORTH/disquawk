@@ -235,12 +235,15 @@ TaskExecutor* createTaskExecutor(char* name, int priority, int stacksize) {
     fatalVMError("TaskExecutor not supported in this configuration");
     return NULL;
 }
+
+#ifndef JAVA
 static void cancelTaskExecutor(TaskExecutor* te) {
     fatalVMError("TaskExecutor not supported in this configuration");
 }
 static int deleteTaskExecutor(TaskExecutor* te) {
     fatalVMError("TaskExecutor not supported in this configuration");
 }
+#endif  /* JAVA */
 
 NativeTask* runBlockingFunction(void* function,
             int arg1, int arg2, int arg3, int arg4, int arg5,
@@ -285,4 +288,3 @@ int getSelectReadPipeFd();
 #endif
 
 #endif	/* _IO_NATIVE_H */
-

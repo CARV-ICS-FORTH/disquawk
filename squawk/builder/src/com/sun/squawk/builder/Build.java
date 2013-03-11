@@ -20,6 +20,7 @@
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
  */
+/* Copyright 2013 ICS-FORTH. All rights reserved */
 
 package com.sun.squawk.builder;
 

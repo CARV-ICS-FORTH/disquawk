@@ -700,7 +700,11 @@ void checkOneAddress(Address ea, int size, Address addr);
             } else {
                 const int highOffset = (PLATFORM_BIG_ENDIAN) ? $offset     : $offset + 1;
                 const int lowOffset  = (PLATFORM_BIG_ENDIAN) ? $offset + 1 : $offset;
+/*if[MICROBLAZE_BUILD]*/
+                setIntTyped($base, highOffset, AddressType_LONG,  0);
+/*else[MICROBLAZE_BUILD]*/
                 setIntTyped($base, highOffset, AddressType_LONG,  (int)($value >> 32));
+/*end[MICROBLAZE_BUILD]*/
                 setIntTyped($base, lowOffset,  AddressType_LONG2, (int) $value);
             }
             setAssume($value == getLongAtWord($base, $offset));

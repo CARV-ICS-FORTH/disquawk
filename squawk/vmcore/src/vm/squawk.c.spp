@@ -1064,7 +1064,11 @@ int writeCStringArray(int length, char **array, int offset) {
  * @param bootstrapSuiteName the name of the boostrap suite
  * @return full or partial path to alternate location, or null
  */
+/*if[MICROBLAZE_BUILD]*/
+char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
+/*else[MICROBLAZE_BUILD]*/
 static char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
+/*end[MICROBLAZE_BUILD]*/
 
 /**
  * Sets up the memory buffer.

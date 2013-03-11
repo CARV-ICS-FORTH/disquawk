@@ -1130,6 +1130,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
         */
 #if SDA_DEBUGGER
 #define SDA_HANDLE_BREAKPOINT_CODE_FRAG                                                                      \
+                Address hbp;                                                                                 \
                 if (!runningOnServiceThread &&                                                               \
                     (hbp = com_sun_squawk_VMThread_hitBreakpoint(newThread)) != null &&                      \
                     com_sun_squawk_HitBreakpoint_state(hbp) == com_sun_squawk_HitBreakpoint_EXC_HIT) {       \
@@ -1140,7 +1141,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
                     /*fprintf(stderr, format("fp = %d newMP = %d ipoffset = %d ip=%d tid=%d returnFP=%A\n"), fp, newMP, ipOffset, ip, com_sun_squawk_VMThread_threadNumber(newThread), getObject(fp, FP_returnFP));*/ \
                 }
 #else
-#define SDA_HANDLE_BREAKPOINT_CODE_FRAG FALSE
+#define SDA_HANDLE_BREAKPOINT_CODE_FRAG
 #endif /*SDA_DEBUGGER */
 
         /**
@@ -1193,9 +1194,9 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
                 if (com_sun_squawk_VM_currentIsolate != newIsolate) {
                     com_sun_squawk_VM_currentIsolate = newIsolate;
                     invalidateClassStateCache();
-                    set_sda_bp_set_or_stepping(newIsolate); /* changed isolate */
+                    set_sda_bp_set_or_stepping(newIsolate) /* changed isolate */
                 } else if (oldRunningOnServiceThread) {
-                    set_sda_bp_set_or_stepping(newIsolate); /* coming off of service thread */
+                    set_sda_bp_set_or_stepping(newIsolate) /* coming off of service thread */
                 }
 
                 /*
@@ -1206,7 +1207,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
 
             } else {
                 runningOnServiceThread = true;
-                set_sda_bp_set_or_stepping(null); /* coming on to service thread */
+                set_sda_bp_set_or_stepping(null) /* coming on to service thread */
             }
 
             /*
@@ -1226,7 +1227,6 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
 /*end[REVERSE_PARAMETERS]*/
                 /*fprintf(stderr, "callRun: fp = %d sp=%d ip=%d tid = %d\n", fp, sp, ip, com_sun_squawk_VMThread_threadNumber(newThread));*/
             } else {
-                Address hbp;
 
                 assumeInterp(getMP() != null);
                 ipOffset = getUWord(ss, SC_lastBCI);
@@ -1234,7 +1234,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
                 ip = (ByteAddress)getMP() + ipOffset;
                 assumeInterp(inCode(ip));
 
-                SDA_HANDLE_BREAKPOINT_CODE_FRAG;
+                SDA_HANDLE_BREAKPOINT_CODE_FRAG
             }
         }
 
@@ -2145,7 +2145,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
              * Skip the padding.
              */
             while ((((UWord)ip) % $size) != 0) {
-                fetchByte();
+              (void)fetchByte();
             }
 
             /*
@@ -3463,9 +3463,9 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
          * <p>
          */
 /*MAC*/ void do_pop_n(int $n) {
-            popAsType(AddressType_ANY);
+            (void)popAsType(AddressType_ANY);
             if (!SQUAWK_64 && $n == 2) {
-                popAsType(AddressType_ANY);
+              (void)popAsType(AddressType_ANY);
             }
         }
 
@@ -3479,7 +3479,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
          * different behaviour of GCC on the Mac with respect to forward
          * declarations of static methods.
          */
+/*if[MICROBLAZE_BUILD]*/
+        extern Address copyObjectGraph(Address, Address, Address, Address);
+/*else[MICROBLAZE_BUILD]*/
         static Address copyObjectGraph(Address, Address, Address, Address);
+/*end[MICROBLAZE_BUILD]*/
         static int collectGarbage(Address, Address, int);
 /*end[GC2C]*/
 
@@ -5689,7 +5693,7 @@ if (l != 0 && r > (java_lang_Long_MAX_VALUE/l)) {
                 }
                 fatalInterpreterError("");
             } else {
-                UWord oldip = (UWord)ip;
+                __attribute__((unused)) UWord oldip = (UWord)ip;
                 Address exception = popAddress();
                 nullCheck((Address)exception);
                 PRINTSTACK();
@@ -5766,7 +5770,8 @@ if (l != 0 && r > (java_lang_Long_MAX_VALUE/l)) {
                 pushAddress(obj);
                 call(com_sun_squawk_VM_monitorexit);
             } else {
-                Address obj2 = pendingMonitors[--pendingMonitorStackPointer];
+                __attribute__((unused)) Address obj2 =
+                  pendingMonitors[--pendingMonitorStackPointer];
                 assumeInterp(obj == obj2);
                 pendingMonitors[pendingMonitorStackPointer] = null;
                 updatePendingMonitorHits();
