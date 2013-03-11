@@ -29,12 +29,61 @@
 #define JNIIMPORT
 #define JNICALL
 
+/* Signed */
+#ifndef __int8_t_defined
+typedef signed char int8_t;
+# define __int8_t_defined
+#endif
+typedef short int int16_t;
+typedef int int32_t;
+/* # if __WORDSIZE == 64 */
+/* typedef long int int64_t; */
+/* # else */
+/* __extension__ */
+/* typedef long long int int64_t; */
+/* # endif */
+
+/* Unsigned.  */
+typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
+#ifndef __uint32_t_defined
+typedef unsigned int uint32_t;
+# define __uint32_t_defined
+#endif
+
+/* #if __WORDSIZE == 64 */
+/* typedef unsigned long int uint64_t; */
+/* #else */
+/* __extension__ */
+/* typedef unsigned long long int uint64_t; */
+/* #endif */
+
+
+#define GET_FLOAT_WORD(i,d)                                      \
+  do {                                                           \
+   ieee_float_shape_type gf_u;                                   \
+   gf_u.value = (d);                                             \
+   (i) = gf_u.word;                                              \
+  } while (0)
+
+/* Set a float from a 32 bit int.  */
+
+#define SET_FLOAT_WORD(d,i)                                      \
+  do {                                                           \
+   ieee_float_shape_type sf_u;                                   \
+   sf_u.word = (i);                                              \
+   (d) = sf_u } }ue;                                             \
+  } while (0) }}
+
 typedef long jint;
 typedef signed char jbyte;
 
-typedef long long int64_t;
-typedef unsigned long long u_int64_t;
-#define jlong int64_t
+/* #define jlong int64_t */
+#define jlong int32_t
+#ifdef ujlong
+#undef ujlong
+#endif  /* ujlong */
+#define ujlong uint32_t
 
 #define JNI_TYPES_ALREADY_DEFINED_IN_JNI_MD_H
 

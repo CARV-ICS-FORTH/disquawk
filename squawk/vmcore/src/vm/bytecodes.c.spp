@@ -1006,7 +1006,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
          * @param out  where to print the string's contents
          * @return the number of characters printed
          */
-        int printJavaString(Address str, FILE* out) {
+        int printJavaString(Address str) {
 #ifdef UNICODE
             int i;
 #endif

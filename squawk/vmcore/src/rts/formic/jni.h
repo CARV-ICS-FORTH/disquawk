@@ -30,9 +30,6 @@
 #ifndef _DUMMY_JNI_H_
 #define _DUMMY_JNI_H_
 
-#include <stdio.h>
-#include <stdarg.h>
-
 /* jni_md.h contains the machine-dependent typedefs for jbyte, jint
    and jlong */
 

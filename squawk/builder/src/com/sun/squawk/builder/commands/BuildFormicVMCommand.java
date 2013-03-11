@@ -57,6 +57,125 @@ public class BuildFormicVMCommand extends FormicCommand {
     return "builds the VM executable for the Formic target";
   }
 
+  /**
+   * Converts the arguments given to this command to romizer arguments.
+   *
+   * @param   args   the arguments passed to this command
+   * @param   arch   the target architecture hint provided by the C compiler
+   * @return  <code>args</code> reformatted for the romizer
+   */
+  private String[] convertToRomizerOptions(String arch) {
+    String[] args;
+    String bootstrapSuiteName = "squawk";
+    List<String> romizerArgs = new ArrayList<String>();
+    String endian = env.getPlatform().isBigEndian() ? "big" : "little";
+    SuiteMetadata parentSuiteMetadata = new SuiteMetadata();
+    SuiteMetadata suiteMetadata = new SuiteMetadata();
+
+    if (env.getspecfifiedBuildDotOverrideFileName() != null) {
+      romizerArgs.add("-override:" + env.getspecfifiedBuildDotOverrideFileName());
+    }
+
+    // pass in properties builder was passed on command line:
+    for (Object key: env.dynamicProperties.keySet()) {
+      Object value = env.dynamicProperties.get(key);
+      romizerArgs.add("-D" + key.toString() + "=" + value.toString());
+    }
+
+    // The remaining args are the modules making up one or more suites
+    boolean isBootstrapSuite = true;
+    List<Target.FilePair> allClassesLocations = new ArrayList<Target.FilePair>();
+    List<Target.FilePair> allJava5ClassesLocations = new ArrayList<Target.FilePair>();
+    List<Target.FilePair> classesLocations = new ArrayList<Target.FilePair>();
+    List<Target.FilePair> java5ClassesLocations = new ArrayList<Target.FilePair>();
+    boolean createJars = true;
+
+    String module = "cldc";
+    Command moduleCommand = env.getCommand(module);
+    Target target = null;
+    if (moduleCommand instanceof Target) {
+      target = (Target) moduleCommand;
+    } else {
+      // see if we can conjure up a target for this module.
+      File moduleDir = new File(module);
+      if (moduleDir.exists() && new File(moduleDir, "src").exists()) {
+        target = env.addTarget(true, module, "");
+      }
+    }
+    if (target != null) {
+      suiteMetadata.addTargetIncluded(module);
+      if (!parentSuiteMetadata.includesTarget(module)) {
+        suiteMetadata.addTargetIncluded(module);
+        suiteMetadata.addTargetsIncluded(target.getDependencyNames());
+        List<Target.FilePair> dirs = new ArrayList<Target.FilePair>();
+        target.addDependencyDirectories(target.getPreverifiedDirectoryName(), dirs, parentSuiteMetadata.getTargetsIncluded());
+        target.addDependencyDirectories(target.getResourcesDirectoryName(), dirs, parentSuiteMetadata.getTargetsIncluded());
+        for (Target.FilePair file : dirs) {
+          if (!allClassesLocations.contains(file) && file.getCanonicalFile().exists()) {
+            classesLocations.add(file);
+            allClassesLocations.add(file);
+          }
+        }
+        if (target.j2me) {
+          dirs = new ArrayList<Target.FilePair>();
+          target.addDependencyDirectories(target.getCompiledDirectoryName(), dirs, parentSuiteMetadata.getTargetsIncluded());
+          for (Target.FilePair file : dirs) {
+            if (!allJava5ClassesLocations.contains(file) && file.getCanonicalFile().exists()) {
+              java5ClassesLocations.add(file);
+              allJava5ClassesLocations.add(file);
+            }
+          }
+        }
+      }
+    } else {
+      throw new BuildException("'" + module + "' module is not a jar/zip file and does not have a target defined for it");
+    }
+
+    romizerArgs.add("-o:" + bootstrapSuiteName);
+    romizerArgs.add("-arch:" + arch);
+    romizerArgs.add("-endian:" + endian);
+    StringBuilder cp = new StringBuilder();
+    cp.append("-cp:");
+    for (Target.FilePair fp: classesLocations) {
+      File file = fp.getFile();
+      cp.append(file.getPath());
+      cp.append(File.pathSeparatorChar);
+    }
+    romizerArgs.add(cp.toString());
+    if (!java5ClassesLocations.isEmpty()) {
+      StringBuilder java5Cp = new StringBuilder();
+      java5Cp.append("-java5cp:");
+      for (Target.FilePair fp: java5ClassesLocations) {
+        File file = fp.getFile();
+        java5Cp.append(file.getPath());
+        java5Cp.append(File.pathSeparatorChar);
+      }
+      romizerArgs.add(java5Cp.toString());
+    }
+    if (createJars) {
+      romizerArgs.add("-jars");
+    }
+
+    for (Target.FilePair fp: classesLocations) {
+      File file = fp.getFile();
+      String path = file.getPath();
+      if (!romizerArgs.contains(path)) {
+        romizerArgs.add(path);
+      }
+    }
+
+    args = new String[romizerArgs.size()];
+    romizerArgs.toArray(args);
+    return args;
+  }
+
+  public void runRomizer() {
+    String[] args;
+    CCompiler ccompiler = env.getCCompiler();
+    String arch = ccompiler == null ? "X86" : ccompiler.getArchitecture();
+    args = convertToRomizerOptions(arch);
+    env.runCommand("romize", args);
+  }
 
   /**
    *
@@ -64,6 +183,10 @@ public class BuildFormicVMCommand extends FormicCommand {
   protected void build() {
 
     CCompiler ccompiler = env.getCCompiler();
+
+    runRomizer();
+
+    updateVM2CGeneratedFile();
 
     // Preprocess any files with the ".spp" suffix
     List<File> generatedFiles = new ArrayList<File>();
@@ -159,6 +282,7 @@ public class BuildFormicVMCommand extends FormicCommand {
     File OBJ_JAVA_PR   = new File(MYRMICS_DIR, "pr");
     File OBJ_JAVA_SYS  = new File(MYRMICS_DIR, "sys");
     FileSet.SuffixSelector sselector = new FileSet.SuffixSelector(".mb.o");
+    //TODO: Add main
     //objectFiles.add(new File(OBJ_JAVA, "java_main.mb.o"));
     objectFiles.addAll(new FileSet(OBJ_JAVA      , sselector).list());
     objectFiles.addAll(new FileSet(OBJ_JAVA_ARCH , sselector).list());
@@ -169,24 +293,25 @@ public class BuildFormicVMCommand extends FormicCommand {
     objectFiles.addAll(new FileSet(OBJ_JAVA_PR   , sselector).list());
     objectFiles.addAll(new FileSet(OBJ_JAVA_SYS  , sselector).list());
 
-    String linkerOutputFile = VM_BLD_DIR.toString() + "vmcore-flash.elf";
-    env.log(env.info, "[linking '" + linkerOutputFile + "'...]");
+    env.log(env.brief, "[linking '" + linkerOutputFile.toString() + "'...]");
     objectFiles.add(0, new File(MYRMICS_DIR, "linker.java.mb.ld"));
     File[] objects = (File[])objectFiles.toArray(new File[objectFiles.size()]);
-    ccompiler.link(objects, linkerOutputFile, false);
+    ccompiler.link(objects, linkerOutputFile.toString(), false);
 
     if (!env.verbose) {
       for (File file : generatedFiles) {
         Build.delete(file);
-        Build.clear(VM_BLD_DIR, true);
+      }
+      for (File file : objectFiles) {
+        Build.delete(file);
       }
     }
 
     // Create the bin file
-    env.log(env.info, "[dumping '" + objCopyOutputFile + "'...]");
+    env.log(env.brief, "[objcopy '" + objCopyOutputFile.toString() + "'...]");
     String dump;
-    dump = "mb-objcopy -O binary --gap-fill 0 " + linkerOutputFile;
-    dump = " " + objCopyOutputFile;
+    dump = "mb-objcopy -O binary --gap-fill 0 " + linkerOutputFile.toString();
+    dump += " " + objCopyOutputFile.toString();
     env.exec(dump);
 
     env.log(env.info, "Build complete");

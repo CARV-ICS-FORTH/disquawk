@@ -23,7 +23,9 @@
  * information or have any questions.
  */
 
+#ifndef JAVA
 #define MAX_STREAMS 4
+#endif /* JAVA */
 
 #if (defined(ASSUME) && ASSUME != 0) | TRACE
 #define INTERPRETER_STATS 1
@@ -63,7 +65,9 @@ typedef struct globalsStruct {
     Address     _Oops[GLOBAL_OOP_COUNT];     /* Storage for the reference typed Java globals. */
     Address     _Buffers[MAX_BUFFERS];       /* Buffers that are allocated by native code. */
     int         _BufferCount;                /* Number of buffers that are currently allocated by native code. */
+#ifndef JAVA
     FILE       *_streams[MAX_STREAMS];       /* The file streams to which the VM printing directives sent. */
+#endif /* JAVA */
     int         _currentStream;              /* The currently selected stream */
     int         _internalLowResult;          /* Value for INTERNAL_LOW_RESULT */
 
@@ -92,15 +96,15 @@ typedef struct globalsStruct {
     jlong       _instructionCount;
 #endif /* PROFILING */
 
-#if TRACE
+#if TRACE && !defined JAVA
     FILE       *_traceFile;                  /* The trace file name */
     boolean     _traceFileOpen;              /* Specifies if the trace file has been opened. */
     boolean     _traceServiceThread;         /* Specifies if execution on the service thread is to be traced. */
     int         _traceLastThreadID;          /* Specifies the thread ID at the last call to trace() */
-    
+
     int         _total_extends;              /* Total number of extends */
     int         _total_slots;                /* Total number of slots cleared */
-    
+
     int         _statsFrequency;             /* The statistics output frequency */
 #endif /* TRACE */
 
@@ -182,7 +186,7 @@ boolean     notrap;
 #define fp                                  defineGlobal(fp)
 #define sp                                  defineGlobal(sp)
 #else
-#if TRACE
+#if TRACE && !defined JAVA
 #define lastIP                              defineGlobal(lastIP)
 #define lastFP                              defineGlobal(lastFP)
 #endif /* TRACE */
@@ -229,8 +233,10 @@ boolean     notrap;
 #define pendingMonitorHits                  defineGlobal(pendingMonitorHits)
 #endif /* INTERPRETER_STATS */
 
+#ifndef JAVA
 #define streams                             defineGlobal(streams)
 #define currentStream                       defineGlobal(currentStream)
+#endif /* JAVA */
 
 #if PLATFORM_TYPE_DELEGATING
 #define channelIO_clazz                     defineGlobal(channelIO_clazz)
@@ -239,9 +245,11 @@ boolean     notrap;
 
 #define nativeFuncPtr                       defineGlobal(nativeFuncPtr)
 
+#ifndef JAVA
 #define STREAM_COUNT                        (sizeof(Streams) / sizeof(FILE*))
+#endif /* JAVA */
 
-#if TRACE
+#if TRACE && !defined JAVA
 #define traceFile                           defineGlobal(traceFile)
 #define traceFileOpen                       defineGlobal(traceFileOpen)
 #define traceServiceThread                  defineGlobal(traceServiceThread)
@@ -268,7 +276,7 @@ boolean     notrap;
 #if defined(PROFILING) | TRACE
 #define lastStatCount                       defineGlobal(lastStatCount)
 #endif /* PROFILING */
-    
+
 /**
  * Initialize/re-initialize the globals to their defaults.
  */
@@ -284,6 +292,7 @@ int initializeGlobals(Globals *globals) {
     runningOnServiceThread = true;
     pendingMonitors = &Oops[ROM_GLOBAL_OOP_COUNT];
 
+#ifndef JAVA
     streams[com_sun_squawk_VM_STREAM_STDOUT] = stdout;
     streams[com_sun_squawk_VM_STREAM_STDERR] = stderr;
     currentStream = com_sun_squawk_VM_STREAM_STDERR;
@@ -294,6 +303,8 @@ int initializeGlobals(Globals *globals) {
     traceLastThreadID = -2;
     traceServiceThread = true;
 #endif /* TRACE */
+
+#endif /* JAVA */
 
 #if PLATFORM_TYPE_SOCKET
     ioport = null;
@@ -306,6 +317,9 @@ int initializeGlobals(Globals *globals) {
 /**
  * Prints the name and current value of all the globals.
  */
+#ifdef JAVA
+#define printGlobals()
+#else
 void printGlobals() {
     FILE *vmOut = streams[currentStream];
 #if TRACE
@@ -332,6 +346,7 @@ void printGlobals() {
     fprintf(vmOut, "printGlobals() requires tracing\n");
 #endif /* TRACE */
 }
+#endif /* JAVA */
 
 /**
  * Sets the stream for the VM.print... methods to one of the com_sun_squawk_VM_STREAM_... constants.
@@ -341,6 +356,9 @@ void printGlobals() {
  *
  * @vm2c proxy( setStream )
  */
+#ifdef JAVA
+# define setStream(x)
+#else
 int setStream(int stream) {
     int result = currentStream;
     currentStream = stream;
@@ -360,10 +378,14 @@ int setStream(int stream) {
     }
     return result;
 }
+#endif /* JAVA */
 
 /**
  * Closes all the open files used for VM printing.
  */
+#ifdef JAVA
+# define finalizeStreams()
+#else
 void finalizeStreams() {
     int i;
     for (i = 0 ; i < MAX_STREAMS ; i++) {
@@ -378,6 +400,7 @@ void finalizeStreams() {
         }
     }
 }
+#endif /* JAVA */
 
 /* These macros are useful for recording the current context
  * (e.g., user or kernel) in a data structure such as a message.
@@ -388,10 +411,10 @@ void finalizeStreams() {
 
 typedef int (*funcPtr0)();
 typedef int (*funcPtr1)(int);
-typedef int (*funcPtr2)(int, int); 
-typedef int (*funcPtr3)(int, int, int); 
+typedef int (*funcPtr2)(int, int);
+typedef int (*funcPtr3)(int, int, int);
 typedef int (*funcPtr4)(int, int, int, int);
-typedef int (*funcPtr5)(int, int, int, int, int); 
+typedef int (*funcPtr5)(int, int, int, int, int);
 typedef int (*funcPtr6)(int, int, int, int, int, int);
 typedef int (*funcPtr7)(int, int, int, int, int, int, int);
 typedef int (*funcPtr8)(int, int, int, int, int, int, int, int);

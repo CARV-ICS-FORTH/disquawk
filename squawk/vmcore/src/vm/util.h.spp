@@ -226,6 +226,7 @@ void printRange(char* label, void* start, void* end);
         return value == roundDownToWord(value);
     }
 
+
     /**
      * Determines if a given value is aligned with respect to a given alignment.
      *
@@ -245,7 +246,13 @@ void printRange(char* label, void* start, void* end);
     * @return the resulting Java long
     */
     INLINE jlong makeLong(int high, int low) {
-        return (((jlong) high) << 32) | ((unsigned int)low);
+#ifdef JAVA
+      if (high)
+        printf("Warning #1: getHi invocation\n");
+      return (jlong)low;
+#else
+      return (((jlong) high) << 32) | ((unsigned int)low);
+#endif  /* JAVA */
     }
 
     /**
@@ -255,7 +262,12 @@ void printRange(char* label, void* start, void* end);
     * @return the high 32-bits of value
     */
     INLINE int getHi(jlong value) {
-        return (int) (value >> 32);
+#ifdef JAVA
+      printf("Warning #1: getHi invocation\n");
+      return (int)value;
+#else
+      return (int) (value >> 32);
+#endif  /* JAVA */
     }
 
     /**
@@ -272,17 +284,23 @@ void printRange(char* label, void* start, void* end);
  *                            Low level operations                           *
 \*---------------------------------------------------------------------------*/
 
-INLINE jlong  slll(jlong a, int b)         { return a<<(b&63);                         }
-INLINE jlong  sral(jlong a, int b)         { return a>>(b&63);                         }
-INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&63);               }
-INLINE int    sll(int a, int b)            { return a<<(b&31);                         }
-INLINE int    sra(int a, int b)            { return a>>(b&31);                         }
-INLINE int    srl(int a, int b)            { return ((unsigned)a)>>(b&31);             }
-INLINE int    i2b(int i)                   { return (byte)i;                           }
-INLINE int    i2s(int i)                   { return (short)i;                          }
-INLINE int    i2c(int i)                   { return (char)i;                           }
-INLINE jlong  i2l(int i)                   { return (jlong)i;                          }
-INLINE int    l2i(jlong l)                 { return (int)l;                            }
+#ifdef JAVA
+INLINE jlong  slll(jlong a, int b)         { return a<<(b&31);                }
+INLINE jlong  sral(jlong a, int b)         { return a>>(b&31);                }
+INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&31);      }
+#else
+INLINE jlong  slll(jlong a, int b)         { return a<<(b&63);                }
+INLINE jlong  sral(jlong a, int b)         { return a>>(b&63);                }
+INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&63);      }
+#endif  /* JAVA */
+INLINE int    sll(int a, int b)            { return a<<(b&31);                }
+INLINE int    sra(int a, int b)            { return a>>(b&31);                }
+INLINE int    srl(int a, int b)            { return ((unsigned)a)>>(b&31);    }
+INLINE int    i2b(int i)                   { return (byte)i;                  }
+INLINE int    i2s(int i)                   { return (short)i;                 }
+INLINE int    i2c(int i)                   { return (char)i;                  }
+INLINE jlong  i2l(int i)                   { return (jlong)i;                 }
+INLINE int    l2i(jlong l)                 { return (int)l;                   }
 
 /*if[FLOATS]*/
 

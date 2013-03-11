@@ -27,7 +27,22 @@
 
 #define IODOTC "formic_io.c"
 #define sysPlatformName() "formic"
+#include "arch.h"
+#include "types.h"
+#include "myrmics.h"
 #include "jni.h"
+#include "errno.h"
+
+/* map various functions to myrmics ones */
+#define fprintf(s, ...) printf(__VA_ARGS__)
+#define fflush(s)
+#define strlen kt_strlen
+#define strncpy kt_strncpy
+#define strncmp kt_strncmp
+#define free kt_free
+#define malloc kt_malloc
+#define atoi kt_atoi
+#define exit(x) ar_halt()
 
 /**
  * Allocate a page-aligned chunk of memory of the given size.
@@ -36,7 +51,7 @@
  * @return pointer to allocated memory or null.
  */
 INLINE void* sysValloc(size_t size) {
-    return valloc(size);
+    return NULL;
 }
 
 /**
@@ -45,7 +60,6 @@ INLINE void* sysValloc(size_t size) {
  * @param ptr to to chunk allocated by sysValloc
  */
 INLINE void sysVallocFree(void* ptr) {
-    free(ptr);
 }
 
 INLINE int sysGetPageSize(void) {
@@ -106,6 +120,11 @@ unsigned int get_flash_base(void) { return 0; }
  * Return the size of the flash memory
  */
 unsigned int get_flash_size(void) { return 0; }
+
+/**
+ * Called by Squawk when a back branch occurs.
+ */
+INLINE void osbackbranch() {}
 #if 0
 
 /**
@@ -122,10 +141,5 @@ unsigned int get_flash_size(void) { return 0; }
  * bSPOT (AT91R40008) does not have an MMU.
  */
 long sysconf(int code) {}
-
-/**
- * Called by Squawk when a back branch occurs.
- */
-INLINE void osbackbranch() {}
 
 #endif

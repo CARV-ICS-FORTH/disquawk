@@ -68,6 +68,8 @@ public class FormicCompiler extends CCompiler {
 
         /* Formic FLAGS */
         buf.append("-DARCH_MB ");
+        buf.append("-DJAVA ");
+        //buf.append("-DJAVA_PREFER_SIZE_OVER_SPEED ");
         buf.append("-mcpu=v8.00.b ");
         buf.append("-mno-xl-soft-mul ");
         buf.append("-mno-xl-multiply-high ");
@@ -79,6 +81,7 @@ public class FormicCompiler extends CCompiler {
         buf.append("-fsingle-precision-constant ");
         buf.append("-mxl-float-convert ");
         buf.append("-mxl-float-sqrt ");
+        //buf.append("-nostdinc ");
         buf.append("-Wall ");
 
         // Only enable debug switch if not optimizing

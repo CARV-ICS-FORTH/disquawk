@@ -23,6 +23,13 @@
  * any questions.
  */
 
+
+/*
+ * Enter shallow sleep
+ */
+void doShallowSleep(long long targetMillis) { return; }
+
+
 #if 0
 #include "spi.h"
 #include "i2c.h"

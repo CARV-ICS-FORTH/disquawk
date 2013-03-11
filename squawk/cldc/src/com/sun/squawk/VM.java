@@ -81,18 +81,18 @@ public class VM implements GlobalStaticFields {
      *
      * These methods must only be called from the VM interpreter or jitted code.
      * In a system where parameters are pushed onto the stack in the right-to-left
-     * order (x86, ARM, etc.) the translator makes sure that these methods 
+     * order (x86, ARM, etc.) the translator makes sure that these methods
      * are changed so that the normal Java left-to-right
      * convention is used so that parameter pushed onto the Java runtime stack
      * do not need to be reordered. The net result of this is that these methods
      * must not be called from regular Java code.
      */
-    
+
     /**
      * The VM class is never to be instantiated. All methods and fields are static.
      */
     private VM(){}
-    
+
     /**
      * Address of the start of the object memory in ROM.
      */
@@ -194,12 +194,12 @@ public class VM implements GlobalStaticFields {
      * The number of elements in the {@link #argv} array.
      */
     private static int argc;
-    
+
     /**
      * True IFF the first isolate has already been invoked with true indicate first invocation.
      */
     private static boolean isFirstIsolateInitialized;
-    
+
     /**
      * The name of the class to invoke main on when an isolate is being initialized.
      */
@@ -211,32 +211,32 @@ public class VM implements GlobalStaticFields {
      */
     private static SquawkHashtable registeredMailboxes;
 /*end[NEW_IIC_MESSAGES]*/
-    
+
     /**
-     * 
+     *
      */
     private static PeripheralRegistry peripheralRegistry;
-    
+
      /**
      * Used by interepreter to provide info on index out of bounds exceptions
      */
     private static int reportedIndex;
-    
+
    /**
      * Used by interepreter to provide info on index out of bounds exceptions
      */
     private static Object reportedArray;
-    
+
     /**
      * Manage shutdown hooks
      */
     static CallbackManager shutdownHooks;
-    
+
     /**
      * Count the number of exceptions thrown.
      */
     private static int throwCount;
-    
+
     /**
      * If VM.outPrint() ever fails to print to System.err, then set to true, and print to VM.print.
      */
@@ -248,7 +248,7 @@ public class VM implements GlobalStaticFields {
      */
     private static Stack taskCache;
 /*end[PLATFORM_TYPE_BARE_METAL]*/
-    
+
     private static int timeAdjustmentsLo;
     private static int timeAdjustmentsHi;
 
@@ -256,9 +256,9 @@ public class VM implements GlobalStaticFields {
      * If true (1), then interpreter-level tracing is on.
      */
     private static int tracing;
-    
+
 //    private static boolean isBlocked;
-    
+
     /*=======================================================================*\
      *                          VM callback routines                         *
      *                                                                       *
@@ -832,7 +832,7 @@ public class VM implements GlobalStaticFields {
         }
         return -1;
     }
-    
+
 /*if[JAVA5SYNTAX]*/
     @Vm2c(root="VM_inRam")
 /*end[JAVA5SYNTAX]*/
@@ -863,7 +863,7 @@ public class VM implements GlobalStaticFields {
 
     static final class WeakIsolateListEntry extends Ref {
         private WeakIsolateListEntry nextIsolateRef;
-        
+
         WeakIsolateListEntry(Isolate isolate, WeakIsolateListEntry next) {
             super(isolate);
             this.nextIsolateRef = next;
@@ -958,7 +958,7 @@ public class VM implements GlobalStaticFields {
         isolates = head;
 //VM.println("VM::pruneIsolateList --- start --");
     }
-    
+
 /*else[ENABLE_MULTI_ISOLATE]*/
 //    static int allocateIsolateID() {
 //        return 1;
@@ -970,20 +970,20 @@ public class VM implements GlobalStaticFields {
 //    static void pruneIsolateList() {
 //    }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
 /*if[FLASH_MEMORY]*/
     /**
 	 * Address of the 64 bit millisecond counter
 	 */
     private static Address timeAddr;
 /*end[FLASH_MEMORY]*/
-    
+
     /**
      * The squawk parameters specified on the command line (-Dfoo.bar=true).
      * Set by JavaApplicationManager
      */
     private static Hashtable commandLineProperties;
-    
+
     /**
      * The squawk parameters specified on the command line (-Dfoo.bar=true).
      */
@@ -1003,7 +1003,7 @@ public class VM implements GlobalStaticFields {
      * The zeroth element of the array represents the top of the stack, which is the frame of the caller's
      * method. The last element of the array represents the bottom of the stack, which is the first method
      * invocation in the sequence.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param count  how many frames from the stack to reify, starting from the frame
@@ -1015,11 +1015,11 @@ public class VM implements GlobalStaticFields {
         if (!VMThread.currentThread().isAlive()) {
             return new ExecutionPoint[0];
         }
-        
+
         return reifyStack0(VMThread.currentThread(), VM.getFP(), count);
 
     }
-    
+
     private static boolean insaneFP(Object stack, Address fp) {
         Offset fpOffset = fp.diff(Address.fromObject(stack));
         int size = GC.getArrayLengthNoCheck(stack) * HDR.BYTES_PER_WORD;
@@ -1033,14 +1033,14 @@ public class VM implements GlobalStaticFields {
         }
 
     }
-    
+
     /**
      * Returns an array of stack trace elements, each representing one stack frame in the current call stack.
      * The zeroth element of the array represents the top of the stack, which is the frame of the caller's
      * method. The last element of the array represents the bottom of the stack, which is the first method
      * invocation in the sequence.
-     * 
-     * NOTE: This method may retun null ExecutionPoints in the aray if an error occurs while decoding the stack. 
+     *
+     * NOTE: This method may retun null ExecutionPoints in the aray if an error occurs while decoding the stack.
      *
      * @param thread the thread to inspect
      * @param count  how many frames from the stack to reify, starting from the frame
@@ -1062,7 +1062,7 @@ public class VM implements GlobalStaticFields {
         Offset fpBaseOffset = fpBase.diff(Address.fromObject(stack));
         int frames = 0;
         Address fp;
-        
+
         /*
          * Count the number of frames in GC free zone.
          */
@@ -1075,7 +1075,7 @@ public class VM implements GlobalStaticFields {
             frames++;
             fp = VM.getPreviousFP(fp);
         }
-        
+
         // GC might invalidate these ocasionally, so let's do it explicitly:
         fpBase = Address.zero();
         fp     = Address.zero();
@@ -1112,15 +1112,15 @@ public class VM implements GlobalStaticFields {
         }
         return trace;
     }
-    
+
     /**
-     * Returns an array of stack trace elements, each representing one stack frame in the call stack of the 
+     * Returns an array of stack trace elements, each representing one stack frame in the call stack of the
      * specified thread.
-     * 
+     *
      * The zeroth element of the array represents the top of the stack, which is the frame of the caller's
      * method. The last element of the array represents the bottom of the stack, which is the first method
      * invocation in the sequence.
-     * 
+     *
      * NOTE: This may miss the top frame. See slightly different stack walking code
      *       in the debugger's inspectStack() method.
      *
@@ -1134,7 +1134,7 @@ public class VM implements GlobalStaticFields {
         if (thread == VMThread.currentThread()) {
             return reifyCurrentStack(count);
         }
-        
+
         if (!thread.isAlive()) {
             return new ExecutionPoint[0];
         }
@@ -1206,7 +1206,7 @@ hbp.dumpState();
             return;
         }
 /*end[ENABLE_SDA_DEBUGGER]*/
-        
+
         /*
          * Get the fp, ip, mp, and relative ip of the frame before the
          * one that is currently executing.
@@ -1294,7 +1294,7 @@ hbp.dumpState();
                             return;
                         }
 /*end[ENABLE_SDA_DEBUGGER]*/
-                        
+
                         NativeUnsafe.setAddress(throwingStack, SC.lastFP, fp);
                         NativeUnsafe.setUWord(throwingStack, SC.lastBCI, handler_bci);
                         return;
@@ -1361,7 +1361,7 @@ hbp.dumpState();
      */
     public native static double longBitsToDouble(long value);
 /*end[FLOATS]*/
-    
+
 
     /*=======================================================================*\
      *                           Romizer support                             *
@@ -1383,12 +1383,12 @@ hbp.dumpState();
      * @return true if the system is big endian
      */
     public static native boolean isBigEndian();
-    
+
     /**
      * On a hosted system , this calls System.setProperty(), otherwise calls Isolate.currentIsolate().setProperty()
-     * 
+     *
      * @param name property name
-     * @param value property value 
+     * @param value property value
      */
     public static void setProperty(String name, String value) {
         Isolate.currentIsolate().setProperty(name, value);
@@ -1556,7 +1556,7 @@ hbp.dumpState();
     static Klass asKlass(Address object) {
         return VM.asKlass(object.toObject());
     }
-    
+
     /*-----------------------------------------------------------------------*\
      *                       Access to global memory                         *
     \*-----------------------------------------------------------------------*/
@@ -1710,7 +1710,7 @@ hbp.dumpState();
      * relating to methods in dynamically loaded classes.
      */
     static final int STREAM_SYMBOLS = 2;
-    
+
     /**
      * The maximum priority that a system thread can have.
      */
@@ -1882,8 +1882,10 @@ hbp.dumpState();
      *
      * @param x the string
      */
+    /* originally was */
+    /* @Vm2c(code="printJavaString(x, streams[currentStream]);") */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="printJavaString(x, streams[currentStream]);")
+    @Vm2c(code="printJavaString(x);")
 /*end[JAVA5SYNTAX]*/
     public static void print(String x) {
         executeCIO(-1, ChannelConstants.INTERNAL_PRINTSTRING, -1, 0, 0, 0, 0, 0, 0, x, null);
@@ -2184,7 +2186,7 @@ hbp.dumpState();
     @Vm2c(code="fatalVMError(\"\");")
 /*end[JAVA5SYNTAX]*/
     public native static void fatalVMError();
-    
+
     /**
      * Switches from executing the Thread.currentThread to Thread.otherThread. This operation
      * will cause these two variables to be swapped, and the execution to continue after
@@ -2212,7 +2214,7 @@ hbp.dumpState();
      * @param object    the root of the object graph to copy
      * @param cb        the ObjectMemorySerializer.ControlBlock
      */
-    private native static void executeCOG(Object object, 
+    private native static void executeCOG(Object object,
                    Object /*untyped to avoid dragging in controlblock class when not used */ cb);
 
     /**
@@ -2346,7 +2348,7 @@ hbp.dumpState();
         Assert.that(getHi(value) == high);
         return value;
     }
-    
+
     /**
      * Return the high word of a Java long
      *
@@ -2356,7 +2358,7 @@ hbp.dumpState();
     public static int getHi(long value) throws AllowInlinedPragma {
         return (int)(value >>> 32);
     }
-    
+
    /**
      * Return the low word of a Java long
      *
@@ -2366,13 +2368,13 @@ hbp.dumpState();
     public static int getLo(long value) throws AllowInlinedPragma {
         return (int)(value & 0x00000000FFFFFFFFL);
     }
-    
+
 /*if[DEBUG_CODE_ENABLED]*/
     // to test system clock changes, mock up changing the system clock in Java.
-    
+
     private static int debugClockAdjustmentsLo;
     private static int debugClockAdjustmentsHi;
-    
+
     /**
      * Gets the current time.
      *
@@ -2394,25 +2396,25 @@ hbp.dumpState();
 //		return NativeUnsafe.getLong(timeAddr, 0);
 /*end[FLASH_MEMORY]*/
     }
-    
+
     public static void setSystemClockMockInit(long newTime) {
         long curTime = getTimeMillis();
         long delta = newTime - curTime;
         debugClockAdjustmentsHi = getHi(delta);
         debugClockAdjustmentsLo = getLo(delta);
     }
-        
+
     public static void setSystemClockMock(long newTime) {
         long curTime = getTimeMillis();
         long delta = newTime - curTime;
         long adj = makeLong(debugClockAdjustmentsHi, debugClockAdjustmentsLo) + delta;
-        
+
         debugClockAdjustmentsHi = getHi(adj);
         debugClockAdjustmentsLo = getLo(adj);
         adjustSystemTime(delta);
     }
 /*end[DEBUG_CODE_ENABLED]*/
-    
+
     /**
      * Gets the current time.
      *
@@ -2457,12 +2459,12 @@ hbp.dumpState();
 //        return realTime + adjust;
 //    }
 /*end[DEBUG_CODE_ENABLED]*/
-    
+
     /**
      * Adjust system state to reflect change in clock.
      * If the clock changes for some reason (user sets clock, get new time over network etc),
      * this should be called to adjust the system to the new time.
-     * 
+     *
      * @param deltaT The difference in ms between the new time and the old time. Negative value means clock was adjusted back.
      */
     public static void adjustSystemTime(long deltaT) {
@@ -2477,9 +2479,9 @@ hbp.dumpState();
 
     /**
      * Relative time does not change when the clock is adjusted. If 100 ms pass between two calls to relativeTimeMillis(), then
-     * the difference between those two return values will be roughly 100, whether or not the clock was adjusted forward, 
+     * the difference between those two return values will be roughly 100, whether or not the clock was adjusted forward,
      * backward, or not at all.
-     * 
+     *
      * @return the relative time in milliseconds
      */
     public static long relativeTimeMillis() {
@@ -2599,7 +2601,7 @@ hbp.dumpState();
         if (executingHooks) {
             return;
         }
-        
+
         executingHooks = true;
         if (VM.isVerbose()) {
             System.out.println("Running top-level shutdown hooks:");
@@ -2613,7 +2615,7 @@ hbp.dumpState();
         }
         haltVM(code);
     }
-    
+
     /**
      * Halt the VM without running exit hooks.
      *
@@ -2641,10 +2643,10 @@ hbp.dumpState();
      *
      *   </ul>
      *
-     * <p> A <i>shutdown hook</i> is a runnable.  When the virtual machine begins its 
+     * <p> A <i>shutdown hook</i> is a runnable.  When the virtual machine begins its
      * shutdown sequence it will
      * start all registered shutdown hooks in some unspecified order and let
-     * them run serially (this may result in lower memory requirements than running 
+     * them run serially (this may result in lower memory requirements than running
      * all hooks concurrently).  Note that daemon threads will
      * continue to run during the shutdown sequence, as will non-daemon threads
      * if shutdown was initiated by invoking the <tt>{@link #stopVM stopVM}</tt>
@@ -2688,7 +2690,7 @@ hbp.dumpState();
      * access nonexistent memory.  If the virtual machine aborts then no
      * guarantee can be made about whether or not any shutdown hooks will be
      * run. <p>
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param   iso the isolate context to run the hook in.
@@ -2711,14 +2713,14 @@ hbp.dumpState();
         if (executingHooks) {
             throw new IllegalStateException();
         }
-        
+
         shutdownHooks.add(iso, hook);
     }
-    
-    
+
+
     /**
      * De-registers a previously-registered virtual-machine shutdown hook. <p>
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param   iso the isolate context the hook was registered with.
@@ -2738,10 +2740,10 @@ hbp.dumpState();
         if (executingHooks) {
             throw new IllegalStateException();
         }
-        
+
         return shutdownHooks.remove(iso, hook);
     }
-    
+
     /**
      * Registers a new virtual-machine shutdown hook.
      *
@@ -2759,10 +2761,10 @@ hbp.dumpState();
      *
      *   </ul>
      *
-     * <p> A <i>shutdown hook</i> is a runnable.  When the virtual machine begins its 
+     * <p> A <i>shutdown hook</i> is a runnable.  When the virtual machine begins its
      * shutdown sequence it will
      * start all registered shutdown hooks in some unspecified order and let
-     * them run serially (this may result in lower memory requirements than running 
+     * them run serially (this may result in lower memory requirements than running
      * all hooks concurrently).  Note that daemon threads will
      * continue to run during the shutdown sequence, as will non-daemon threads
      * if shutdown was initiated by invoking the <tt>{@link #stopVM stopVM}</tt>
@@ -2826,11 +2828,11 @@ hbp.dumpState();
         if (executingHooks) {
             throw new IllegalStateException();
         }
-        
+
         shutdownHooks.add(VMThread.asVMThread(hook).getIsolate(), hook);
     }
-    
-    
+
+
     /**
      * De-registers a previously-registered virtual-machine shutdown hook. <p>
      *
@@ -2850,7 +2852,7 @@ hbp.dumpState();
         if (executingHooks) {
             throw new IllegalStateException();
         }
-        
+
         return shutdownHooks.remove(VMThread.asVMThread(hook).getIsolate(), hook);
     }
 
@@ -2892,7 +2894,7 @@ hbp.dumpState();
      * @vm2c proxy
      */
     public native static void setBytes(Address dst, byte value, int length);
-    
+
     /**
      * VM-private version of System.arraycopy for arrays that does little error checking.
      * <p>
@@ -2907,8 +2909,8 @@ hbp.dumpState();
      *     <code>src.length</code>, the length of the source array.
      * <li><code>dstOffset+length</code> is not greater than
      *     <code>dst.length</code>, the length of the destination array.
-     * <li>any actual component of the source array from position 
-     *     <code>srcOffset</code> through <code>srcOffset+length-1</code> 
+     * <li>any actual component of the source array from position
+     *     <code>srcOffset</code> through <code>srcOffset+length-1</code>
      *     can be converted to the component type of the destination array
      * </ul>
      * <p>
@@ -2946,7 +2948,7 @@ hbp.dumpState();
      * @param      totalLength       the number of array elements to be copied.
      * @param      dataSize       the size of a data element (1, 2, 4, 8)
      */
-    private static void arraycopy0(Object src, int src_position, Object dst, int dst_position, 
+    private static void arraycopy0(Object src, int src_position, Object dst, int dst_position,
                                            int totalLength, int dataSize) {
         // think harder about equivalnce between backward branch counts and bytes copied vie GC.arraycopy()
         final int MAXMOVE = 4096; // in word-size units
@@ -2966,7 +2968,7 @@ hbp.dumpState();
             default:
                 Assert.shouldNotReachHere();
         }
-        
+
         Assert.that(src != null && GC.getKlass(src).isArray());
         Assert.that(dst != null && GC.getKlass(dst).isArray());
         Assert.that(src_position >= 0 && dst_position >= 0 && totalLength >= 0);
@@ -2985,11 +2987,11 @@ hbp.dumpState();
             VMThread.yield();
         }
     }
-    
+
     /**
      * VM-private version of System.arraycopy for arrays of primitives that does little error checking.
      * <p>
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * Impose the following restrictions on the input arguments:
@@ -3003,8 +3005,8 @@ hbp.dumpState();
      *     <code>src.length</code>, the length of the source array.
      * <li><code>dstOffset+length</code> is not greater than
      *     <code>dst.length</code>, the length of the destination array.
-     * <li>any actual component of the source array from position 
-     *     <code>srcOffset</code> through <code>srcOffset+length-1</code> 
+     * <li>any actual component of the source array from position
+     *     <code>srcOffset</code> through <code>srcOffset+length-1</code>
      *     can be converted to the component type of the destination array
      * </ul>
      * <p>
@@ -3042,16 +3044,16 @@ hbp.dumpState();
      * @param      totalLength       the number of array elements to be copied.
      * @param      dataSize       the size of a data element (1, 2, 4, 8)
      */
-    public static void arraycopyPrimitive0(Object src, int src_position, Object dst, int dst_position, 
+    public static void arraycopyPrimitive0(Object src, int src_position, Object dst, int dst_position,
                                            int totalLength, int dataSize) {
         Assert.that(GC.getKlass(src) == GC.getKlass(dst));
         arraycopy0(src, src_position, dst, dst_position, totalLength, dataSize);
     }
-    
+
     /**
      * VM-private version of System.arraycopy for arrays of objects that does little error checking.
      * <p>
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * Impose the following restrictions on the input arguments:
@@ -3065,8 +3067,8 @@ hbp.dumpState();
      *     <code>src.length</code>, the length of the source array.
      * <li><code>dstOffset+length</code> is not greater than
      *     <code>dst.length</code>, the length of the destination array.
-     * <li>any actual component of the source array from position 
-     *     <code>srcOffset</code> through <code>srcOffset+length-1</code> 
+     * <li>any actual component of the source array from position
+     *     <code>srcOffset</code> through <code>srcOffset+length-1</code>
      *     can be converted to the component type of the destination array
      * </ul>
      * <p>
@@ -3103,7 +3105,7 @@ hbp.dumpState();
      * @param      dst_position       start position in the destination data.
      * @param      length       the number of array elements to be copied.
      */
-    public static void arraycopyObject0(Object src, int src_position, Object dst, int dst_position, 
+    public static void arraycopyObject0(Object src, int src_position, Object dst, int dst_position,
                                            int length) {
         Assert.that(dst != null && GC.getKlass(dst).isArray());
 /*if[WRITE_BARRIER]*/
@@ -3113,12 +3115,12 @@ hbp.dumpState();
 /*end[WRITE_BARRIER]*/
         arraycopy0(src, src_position, dst, dst_position, length, HDR.BYTES_PER_WORD);
     }
-    
+
      /**
      * Do actual copy from memory at address + boffset to array
      *
      * Copy from memory to byte array.
-     * Copy <code>number</code> bytes from the memory location specified by the address <code>dst</code> and byte offset <code>boffset</code> to 
+     * Copy <code>number</code> bytes from the memory location specified by the address <code>dst</code> and byte offset <code>boffset</code> to
      * the byte array <code>bytes</code> starting at position <code>low</code>.
      *
      * @param src the base memory address
@@ -3143,13 +3145,13 @@ hbp.dumpState();
         if (low > GC.getArrayLength(dst) - number) {
             throw new ArrayIndexOutOfBoundsException(low + number);
         }
-        
+
         VM.copyBytes(src, boffset, Address.fromObject(dst), low * elementSize, number * elementSize, false);
     }
-    
+
     /**
      * Do actual copy from array to memory at address + boffset
-     * 
+     *
      * Copy <code>number</code> bytes from byte array <code>bytes</code> starting at position <code>low</code>.to the memory location specified
      * by the address <code>dst</code> and byte offset <code>boffset</code>.
      *
@@ -3174,10 +3176,10 @@ hbp.dumpState();
         if (low > GC.getArrayLength(src) - number) {
             throw new ArrayIndexOutOfBoundsException(low + number);
         }
-        
+
         VM.copyBytes(Address.fromObject(src), low * elementSize, dst, boffset, number * elementSize, false);
     }
-    
+
     /**
      * Allocate a chunk of zeroed memory from RAM.
      *
@@ -3208,13 +3210,13 @@ hbp.dumpState();
     @Vm2c(code="if (ASSUME || TYPEMAP) { while (start < end) { if (ASSUME) { *((UWord *)start) = DEADBEEF; } setType(start, AddressType_UNDEFINED, HDR_BYTES_PER_WORD); start = (UWord *)start + 1; } }")
 /*end[JAVA5SYNTAX]*/
     native static void deadbeef(Address start, Address end);
-    
-    /** 
+
+    /**
      * Perform a shallow copy of the original object, without calling a constructor
-     * 
-     *  WARNING: This is bypassing the write barrier, which is (sort of) OK because we are writing to a new 
+     *
+     *  WARNING: This is bypassing the write barrier, which is (sort of) OK because we are writing to a new
      *           object. This can't create a ptr from old->young gen, which is what write barrier is looking for.
-     *           Don't copy this code for other purposes! 
+     *           Don't copy this code for other purposes!
      *
      * @param original the object to copy
      * @return a copy of the original object.
@@ -3252,7 +3254,7 @@ hbp.dumpState();
 
     /**
      * Get the sentinal OutOfMemoryException object
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @return the object
@@ -3262,10 +3264,10 @@ hbp.dumpState();
     }
 
     /**
-     * Print thread name as safely as possible. 
-     * 
+     * Print thread name as safely as possible.
+     *
      * Called by error reporting code, so doesn't assert, or intentionally throw exceptions!
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param thr the thread to print
@@ -3290,12 +3292,12 @@ hbp.dumpState();
         VM.print("Thread-");
         VM.print(thr.getThreadNumber());
     }
-    
+
     /**
      * Print thread name as safely as possible, to System.err, or VM.print if that fails.
-     * 
+     *
      * Called by error reporting code, so doesn't assert, or intentionally throw exceptions!
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param thr the thread to print
@@ -3320,10 +3322,10 @@ hbp.dumpState();
         VM.outPrint("Thread-");
         VM.outPrint(thr.getThreadNumber());
     }
-    
+
     /**
-     * Print branch count as safely as possible. 
-     * 
+     * Print branch count as safely as possible.
+     *
      * Called by error reporting code, so doesn't assert, or intentionally throw exceptions!
      */
     public static void outPrintBC() {
@@ -3334,7 +3336,7 @@ hbp.dumpState();
             VM.outPrint(" branches ");
         }
     }
-    
+
     /**
      * Prints the backtrace using VM.print(). This code should not throw an exception unless VM.print()
      * or ExecutionPoint.printToVM() is broken.
@@ -3361,9 +3363,9 @@ hbp.dumpState();
             }
         }
     }
-    
+
     /**
-     * Safely print exception and stack trace to System.err. Handles exceptions in 
+     * Safely print exception and stack trace to System.err. Handles exceptions in
      * Throwable.toString and printStackTrace, including OutOfMemoryExceptions.
      *
      * In all cases, this should print the message, the thread name, and the orginal exception (cclass name or toString).
@@ -3375,10 +3377,10 @@ hbp.dumpState();
     public static Throwable printExceptionAndTrace(Throwable exc, String msg) {
         return printExceptionAndTrace(exc, msg, true);
     }
-    
+
     /**
      * Print str safely to Stream, or to VM.print if that fails.
-     * 
+     *
      * @param stream stream to print on
      * @param str string to print
      */
@@ -3396,7 +3398,7 @@ hbp.dumpState();
 
     /**
      * Print str safely to Stream, or to VM.print if that fails.
-     * 
+     *
      * @param stream stream to print on
      * @param str string to print
      */
@@ -3407,7 +3409,7 @@ hbp.dumpState();
 
     /**
      * Print new line safely to Stream, or to VM.print if that fails.
-     * 
+     *
      * @param stream stream to print on
      */
     public static void outPrintln(PrintStream stream) {
@@ -3416,7 +3418,7 @@ hbp.dumpState();
 
     /**
      * Print val safely to Stream, or to VM.print if that fails.
-     * 
+     *
      * @param stream stream to print on
      * @param val long to print
      */
@@ -3434,7 +3436,7 @@ hbp.dumpState();
 
     /**
      * Print str safely to System.err, or to VM.print if that fails.
-     * 
+     *
      * @param str string to print
      */
     public static void outPrint(String str) {
@@ -3443,7 +3445,7 @@ hbp.dumpState();
 
     /**
      * Print str safely to System.err, or to VM.print if that fails.
-     * 
+     *
      * @param str string to print
      */
     public static void outPrintln(String str) {
@@ -3452,7 +3454,7 @@ hbp.dumpState();
 
     /**
      * Print new line safely to System.err, or to VM.print if that fails.
-     * 
+     *
      */
     public static void outPrintln() {
         outPrintln(System.err);
@@ -3460,15 +3462,15 @@ hbp.dumpState();
 
     /**
      * Print val safely to System.err, or to VM.print if that fails.
-     * 
+     *
      * @param val long to print
      */
     public static void outPrint(long val) {
         outPrint(System.err, val);
     }
-    
+
     /**
-     * Safely print exception and stack trace to System.err. Handles exceptions in 
+     * Safely print exception and stack trace to System.err. Handles exceptions in
      * Throwable.toString and printStackTrace, including OutOfMemoryExceptions.
      *
      * In all cases, this should print the message, the thread name, and the orginal exception (cclass name or toString).
@@ -3480,7 +3482,7 @@ hbp.dumpState();
      */
     public static Throwable printExceptionAndTrace(Throwable exc, String msg, boolean printUsingThrowable) {
         String origExcName = "unknown";
-        
+
         // print preamble. Should never fail:
         try {
             VM.outPrintln(msg);
@@ -3496,7 +3498,7 @@ hbp.dumpState();
         }
 
         try {
-           /* 
+           /*
             * Try to print stack trace normally, via streams. If that fails, try to print to
             * using VM.print(). Catches errors in io redirection, remote printing, etc...
             */
@@ -3538,7 +3540,7 @@ hbp.dumpState();
             return exc2;
         }
     }
-    
+
     /*-----------------------------------------------------------------------*\
      *                          I/O natives                                  *
     \*-----------------------------------------------------------------------*/
@@ -3729,7 +3731,7 @@ hbp.dumpState();
      * @param send      an outgoing array parameter
      * @param receive   an incoming array parameter
      * @return          the integer result value
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
     public static int execIO(int op, int channel, int i1, int i2, int i3, int i4, int i5, int i6, Object send, Object receive) throws IOException {
         int context = currentIsolate.getChannelContext();
@@ -3766,7 +3768,7 @@ hbp.dumpState();
 //     * @param data      the message data or null
 //     * @param status    the message status
 //     * @return          the Address result or null
-//     * @throws java.io.IOException 
+//     * @throws java.io.IOException
 //     */
 //    public static Address execMessageIO(int op, Object key, Object data, int status) throws IOException {
 //        for (; ; ) {
@@ -3802,7 +3804,7 @@ hbp.dumpState();
      * @param send      a outgoing reference parameter
      * @param receive   an incoming reference parameter (i.e. an array of some type)
      * @return          the long result
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
     public static long execIOLong(int op, int channel, int i1, int i2, int i3, int i4, int i5, int i6, Object send, Object receive) throws IOException {
         int low     = execIO(op, channel, i1, i2, i3, i4, i5, i6, send, receive);
@@ -3849,8 +3851,8 @@ hbp.dumpState();
 //            throw new RuntimeException("Error executing event channel: " + ex);
 //        }
 //    }
-/*end[ENABLE_CHANNEL_GUI]*/ 
-    
+/*end[ENABLE_CHANNEL_GUI]*/
+
 /*if[FLASH_MEMORY]*/
     /**
      * Waits for an interrupt.
@@ -3913,7 +3915,7 @@ hbp.dumpState();
     public static void setAsDaemonThread(Thread t) {
     	VMThread.asVMThread(t).setDaemon(true);
     }
-    
+
     /**
      * Sets the given thread to the given priority, bounded by MAX_SYS_PRIORITY (eg. allowing
      * higher than normal priority levels)
@@ -3921,7 +3923,7 @@ hbp.dumpState();
      * NORM_PRIORITY.
      *
      * Should only be called by system code. This interface likely to change to more RTSJ-like scheme.
-     * 
+     *
      * @param t The thread
      * @param level the system priority level (currently supports normal priorities as well as 11, and 12)
      * @exception  IllegalArgumentException  If the priority is not in the
@@ -3934,12 +3936,12 @@ hbp.dumpState();
 
     /**
      * Gets a new IO channel.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param type the channel type
      * @return the identifier for the newly created channel
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
     public static int getChannel(int type) throws IOException {
         int context = currentIsolate.getChannelContext();
@@ -3951,11 +3953,11 @@ hbp.dumpState();
 
     /**
      * Frees a channel.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param channel the identifier of the channel to free
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
     public static void freeChannel(int channel) throws IOException {
         int context = currentIsolate.getChannelContext();
@@ -4021,7 +4023,7 @@ hbp.dumpState();
     /*=======================================================================*\
      *                           USER VISIBLE STATS                          *
     \*=======================================================================*/
-    
+
     /**
      * Virtual machine statistics.<p>
      *
@@ -4041,10 +4043,10 @@ hbp.dumpState();
      *      System.out.println("GC time: " + (gcTimeDiff * 100) / totalTimeDiff + "%");
      *      System.out.println("System/Idle time: " + (sysTimeDiff * 100) / totalTimeDiff + "%");
      * </pre>
-     *  
+     *
      */
     public static class Stats {
-        
+
         /**
          *  Get the total time the VM was idle. <p>
          *
@@ -4055,7 +4057,7 @@ hbp.dumpState();
         public static long getTotalWaitTime() {
             return VMThread.getTotalWaitTime();
         }
-        
+
         /**
          * Get the number of objects allocated since reboot.
          *
@@ -4066,7 +4068,7 @@ hbp.dumpState();
         public static int getObjectsAllocatedTotal() {
             return GC.newCount;
         }
-        
+
         /**
          * Get the number of Thread objects allocated since reboot.
          *
@@ -4075,7 +4077,7 @@ hbp.dumpState();
         public static int getThreadsAllocatedCount() {
             return VMThread.getThreadsAllocatedCount();
         }
-        
+
         /**
          * Return count of thread context switching since reboot.<p>
          *
@@ -4086,7 +4088,7 @@ hbp.dumpState();
         public static int getThreadSwitchCount() {
             return VMThread.getThreadSwitchCount();
         }
-        
+
         /**
          * Return the number of times that a thread was blocked trying to synchronize on an object.<p>
          *
@@ -4099,7 +4101,7 @@ hbp.dumpState();
         public static int getContendedMontorEnterCount() {
             return VMThread.getContendedMontorEnterCount();
         }
-        
+
         /**
          * Return the number of monitors allocated.<p>
          *
@@ -4113,7 +4115,7 @@ hbp.dumpState();
         public static int getMonitorsAllocatedCount() {
             return VMThread.getMonitorsAllocatedCount();
         }
-        
+
         /**
          * Return the number of stacks allocated. <p>
          *
@@ -4126,7 +4128,7 @@ hbp.dumpState();
         public static int getStacksAllocatedCount() {
             return VMThread.getStacksAllocatedCount();
         }
-        
+
         /**
          * Return size of the largest stack ever allocated.
          *
@@ -4135,7 +4137,7 @@ hbp.dumpState();
         public static int getMaxStackSize() {
             return VMThread.getMaxStackSize();
         }
-        
+
         /**
          * Return number of exceptions thrown.
          *
@@ -4144,7 +4146,7 @@ hbp.dumpState();
         public static int getThrowCount() {
             return throwCount;
         }
-        
+
         /**
          * Pre-create all data structures used in heap stats, so heap walking won't allocate more memory.
          */
@@ -4157,24 +4159,24 @@ hbp.dumpState();
          * Count how many instances, and how many bytes are used, by all objects that are the same age or younger than
          * startObj. Print out statistics of each class that has at least one instance in the set found in the heap walk.
          * Statistics are NOT sorted.
-         * 
+         *
          * @param startObj the object to start walking from , or null
-         * @param printInstances 
+         * @param printInstances
          */
         public static void printHeapStats(Object startObj, boolean printInstances) {
             GC.printHeapStats(startObj, printInstances, true);
         }
-        
+
         /**
          * Do heap walk from start object (or whole heap is startObj is null).
          * Print info on each object.
-         * 
+         *
          * @param startObj the object to start walking from , or null
          */
         public static void printHeap(Object startObj) {
             GC.printHeapStats(startObj, true, false);
         }
-        
+
         /**
          * tag for data sent by sendStatData()
          */
@@ -4204,9 +4206,9 @@ hbp.dumpState();
         public static final int STAT_HEAP_FREE               = 23;
         public static final int STAT_HEAP_TOTAL              = 24;
         public static final int NUM_STAT_VALUES              = 25;
-        
+
         private long[] values;
-        
+
         /**
          * Create a new Stats object,
          *
@@ -4215,7 +4217,7 @@ hbp.dumpState();
         public Stats() {
             values = new long[NUM_STAT_VALUES];
         }
-        
+
         /**
          * Take a sample of all data and store into <code>values</code>.<p>
          *
@@ -4250,7 +4252,7 @@ hbp.dumpState();
             values[STAT_HEAP_FREE]               = GC.freeMemory();
             values[STAT_HEAP_TOTAL]              = GC.totalMemory();
         }
-      
+
         /**
          * Take a sample of all statics and send to output stream <code>dos</code>. <p>
          *
@@ -4264,7 +4266,7 @@ hbp.dumpState();
          *     byte tag     = NUM_STAT_VALUES - 1
          *     long value
          *</pre>
-         *     
+         *
          * The data can be read by a DataInputStream.
          *
          * @param dos output stream to send values.
@@ -4282,11 +4284,11 @@ hbp.dumpState();
                 System.out.println("Error writing stat "+ ex);
                 ex.printStackTrace();
             }
-            
+
         }
-        
+
     } /* Stats */
-    
+
    /*=======================================================================*\
      *                           Core VM functions                           *
     \*=======================================================================*/
@@ -4309,7 +4311,7 @@ hbp.dumpState();
     public static boolean userGCAllowed() {
         return allowUserGC;
     }
-    
+
     /**
      * Determines if the VM was built with memory access type checking enabled.
      *
@@ -4321,7 +4323,7 @@ hbp.dumpState();
 
     /**
      * Gets the next available hashcode.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @return the hashcode
@@ -4349,7 +4351,7 @@ hbp.dumpState();
      */
     public static Enumeration getManifestPropertyNames() {
     	Hashtable names = new Hashtable();
-    	Suite suite = VM.getCurrentIsolate().getLeafSuite();            
+    	Suite suite = VM.getCurrentIsolate().getLeafSuite();
         while (suite != null) {
         	Enumeration additions = suite.getManifestPropertyNames();
         	while (additions.hasMoreElements()) {
@@ -4369,7 +4371,7 @@ hbp.dumpState();
      */
     public static String getManifestProperty(String name) {
         // look for the property in the current leaf suite, and then up the chain of parent suites until we find it
-        Suite suite = VM.getCurrentIsolate().getLeafSuite();            
+        Suite suite = VM.getCurrentIsolate().getLeafSuite();
         while (suite != null) {
             String value = suite.getManifestProperty(name);
             if (value != null) {
@@ -4380,7 +4382,7 @@ hbp.dumpState();
 
         return null;
     }
-    
+
     /**
      * A helper method to provide access to the manifest of midlet suites from outside the bootstrap.
      * @param uri suite's uri
@@ -4396,10 +4398,10 @@ hbp.dumpState();
 		}
     	return properties;
     }
-    
+
     /**
      * If the suite is registered, unregister it with the garbage collector. Otherwise do nothing.
-     * 
+     *
      * @param uri the suite to unregister.
      */
     public static void unregisterSuite(String uri) {
@@ -4408,7 +4410,7 @@ hbp.dumpState();
     		GC.unRegisterReadOnlyObjectMemory(objectMemory);
     	}
     }
-    
+
     /**
      * Determines if the current isolate is set and initialized.
      *
@@ -4420,7 +4422,7 @@ hbp.dumpState();
 
     /**
      * Determines if the threading system is initialized.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @return true if the threading system is initialized.
@@ -4467,13 +4469,13 @@ hbp.dumpState();
 
     /**
      * Gets the identifier for a native method.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param name   the fully qualified name of the native method
      * @return the identifier for the method or -1 if the method does not exist or cannot be dynamically bound to
      */
-    public static int lookupNative(String name) 
+    public static int lookupNative(String name)
 /*if[ENABLE_DYNAMIC_CLASSLOADING]*/
         throws HostedPragma
 /*end[ENABLE_DYNAMIC_CLASSLOADING]*/
@@ -4530,7 +4532,7 @@ hbp.dumpState();
     public static boolean isExported(Member member) {
         return true;
     }
-    
+
     /**
      * Determines if the field or method is internal, so should be retained (even if symbol gets stripped)
      *
@@ -4540,7 +4542,7 @@ hbp.dumpState();
     public static boolean isCrossSuitePrivate(Member member) {
         return false;
     }
-    
+
      /**
      * Determines if the klass is internal, so should be retained (even if symbol gets stripped)
      *
@@ -4602,7 +4604,7 @@ hbp.dumpState();
     public static boolean isArray(Object o) {
         return (GC.getKlass(o).isArray());
     }
-    
+
    /**
      * Returns the length of the specified array object, as an int.
      *
@@ -4617,11 +4619,11 @@ hbp.dumpState();
         }
         return GC.getArrayLength(array);
     }
-    
+
     static boolean isFirstIsolateInitialized() {
         return isFirstIsolateInitialized;
     }
-    
+
     static String getIsolateInitializerClassName() {
         return isolateInitializer;
     }
@@ -4641,7 +4643,7 @@ hbp.dumpState();
 
     /**
      * Register named mailbox with the system.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param name the public name of the mailboz
@@ -4654,14 +4656,14 @@ hbp.dumpState();
         } else if (registeredMailboxes.get(name) != null) {
             return false;
         }
-        
+
         registeredMailboxes.put(name, mailbox);
         return true;
     }
-    
+
     /**
      * Unregister named mailbox with the system.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
      *
      * @param name the public name of the mailboz
@@ -4672,7 +4674,7 @@ hbp.dumpState();
             registeredMailboxes.get(name) == null) {
             throw new IllegalStateException("Mailbox " + name + " is not registered");
         }
-        
+
         registeredMailboxes.remove(name);
     }
 
@@ -4690,36 +4692,36 @@ hbp.dumpState();
     /**
      * Answer the time in millis until another thread is runnable. Will return
      * zero if another thread is already runnable, otherwise the delta until the
-     * first thread on the timer queue becomes runnable, otherwise Long.MAX_VALUE 
+     * first thread on the timer queue becomes runnable, otherwise Long.MAX_VALUE
      * if there are no threads on the timer queue. This method takes no account of
-     * events. 
-     * 
+     * events.
+     *
      * @return time in millis
      */
     public static long getTimeBeforeAnotherThreadIsRunnable() {
         return VMThread.getTimeBeforeAnotherThreadIsRunnable();
     }
-    
+
     public static PeripheralRegistry getPeripheralRegistry() {
         if (peripheralRegistry == null) {
             peripheralRegistry = new PeripheralRegistry();
         }
         return peripheralRegistry;
     }
-    
+
     /**
      * Answer an array of threads that are runnable now, in the order
      * they appear in the runnable queue.
-     * 
+     *
      * @return the runnable threads
      */
     public static Thread[] getRunnableThreads() {
     	return VMThread.getRunnableThreads();
     }
-    
+
 	private static Object keyedGlobalsMutex;
 	private static IntHashtable keyeGlobals;
-	
+
 	public static Object getKeyedGlobalsMutex() {
 		if (keyedGlobalsMutex == null) {
 			keyedGlobalsMutex = new Object();
@@ -4730,12 +4732,12 @@ hbp.dumpState();
 
 	/**
 	 * Return the global registered using setGlobal with key.
-	 * 
+	 *
 	 * All clients must wrap access to keyed globals in a synchronised block:
 	 * <code>
 	 * synchronized (VM.getGlobalsMutex()) {
 	 *   // access/manipulate globals here ...
-	 * }  
+	 * }
 	 * </code>
 	 * @param key
 	 * @return the object last placed with putKeyedGlobal
@@ -4746,12 +4748,12 @@ hbp.dumpState();
 
 	/**
 	 * Set the global registered for key.
-	 * 
+	 *
 	 * All clients must wrap access to keyed globals in a synchronised block:
 	 * <code>
 	 * synchronized (VM.getGlobalsMutex()) {
 	 *   // access/manipulate globals here ...
-	 * }  
+	 * }
 	 * </code>
 	 * @param key
 	 * @param value

@@ -98,18 +98,26 @@ void cioExecute(void) {
   */
     Address o1      = com_sun_squawk_ServiceOperation_o1;
 /*  Address o2      = com_sun_squawk_ServiceOperation_o2; */
+#ifndef JAVA
     FILE   *vmOut   = streams[currentStream];
+#endif /* JAVA */
 
     switch (op) {
 
         case ChannelConstants_INTERNAL_SETSTREAM: {
+#ifndef JAVA
             com_sun_squawk_ServiceOperation_result = setStream(i1);
             assume(streams[currentStream] != null);
+#endif
             break;
         }
 
         case ChannelConstants_INTERNAL_PRINTSTRING: {
+#ifdef JAVA
+            printJavaString(o1);
+#else
             printJavaString(o1, vmOut);
+#endif /* JAVA */
             break;
         }
 

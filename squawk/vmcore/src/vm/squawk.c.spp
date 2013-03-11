@@ -39,10 +39,10 @@
  */
 const char *format(const char* fmt);
 
+#include "os.c"
+
 /* used by io.c...*/
 #include "io_native.h"
-
-#include "os.c"
 
 #ifndef DIAGNOSTICS_ENABLED
 /* for ARM, defined in arm-library, otherwise do it here. */
@@ -225,7 +225,11 @@ static Address lookupStaticMethod(int cid, int methodOffset);
 /**
  * The tracing limits.
  */
+#ifdef JAVA
+const jlong MAX_UJLONG = (jlong)0xffffffff;
+#else
 const jlong MAX_UJLONG = (jlong)0x7fffffff << 32 | 0xffffffff;
+#endif /* JAVA */
 #ifndef TRACESTART
 #define TRACESTART MAX_UJLONG
 #endif
@@ -366,11 +370,12 @@ typedef int Type;
 /*
  * Define java-style FP conversions:
  *
- *** On Intel (and PPC it seems), the hardware does not produce the correct results
- *** for f.p. to int conversions when the value is NaN or out of
- *** range, so we need to explicitly handle the special cases.
- *** Don't know about ARM. Sparc only needs to check for NANs.
- *** Could make CPU-specific versions, but or now do most general case:
+ *** On Intel (and PPC it seems), the hardware does not produce the
+ *** correct results for f.p. to int conversions when the value is NaN
+ *** or out of range, so we need to explicitly handle the special
+ *** cases.  Don't know about ARM. Sparc only needs to check for NANs.
+ *** Could make CPU-specific versions, but or now do most general
+ *** case:
  ***/
 
 NOINLINE jlong float2ll_slow(float f) {
@@ -379,17 +384,28 @@ NOINLINE jlong float2ll_slow(float f) {
     jlong r;
 
     if (f != f)
-        r = 0;
+      r = 0;
     else if ( f < *((float *) &LongMin_f))
-        r = 0x8000000000000000LL;
+#ifdef JAVA
+      r = 0x80000000L;
+#else
+      r = 0x8000000000000000LL;
+#endif  /* JAVA */
     else if ( f >= *((float *) &LongMax_f))
-        r = 0x7fffffffffffffffLL;
+#ifdef JAVA
+      r = 0x7fffffffL;
+#else
+      r = 0x7fffffffffffffffLL;
+#endif  /* JAVA */
     else
-        r = (jlong) f;
+      r = (jlong) f;
     return r;
 }
 
 NOINLINE jlong double2ll_slow(double d) {
+#ifdef JAVA
+    return float2ll_slow(d);
+#else  /* NOT JAVA */
 #if ARM_FPA
     static const ujlong LongMin_d = 0x00000000c3e00000LL;
     static const ujlong LongMax_d = 0x0000000043e00000LL;
@@ -409,9 +425,30 @@ NOINLINE jlong double2ll_slow(double d) {
     else
         r = (jlong) d;
     return r;
+#endif  /* JAVA */
+}
+
+NOINLINE int float2l_slow(float f) {
+    static const unsigned int IntegerMin_f = 0xcf000000L;
+    static const unsigned long IntegerMax_f = 0x4f000000L;
+
+    int r;
+
+    if (f != f)
+      r = 0;
+    else if ( f < *((float *) &IntegerMin_f))
+      r = 0x80000000U;
+    else if ( f >= *((float *) &IntegerMax_f))
+      r = 0x7fffffff;
+    else
+      r = (int) f;
+    return r;
 }
 
 NOINLINE int double2l_slow(double d) {
+#ifdef JAVA
+    return float2l_slow(d);
+#else  /* NOT JAVA */
 #if ARM_FPA
     static const ujlong IntegerMin_d = 0x00000000c1e00000LL;
     static const ujlong IntegerMax_d = 0x0000000041e00000LL;
@@ -423,32 +460,15 @@ NOINLINE int double2l_slow(double d) {
     int r;
 
     if (d != d)
-	r = 0;
+      r = 0;
     else if ( d < *((double *) &IntegerMin_d))
-	r = 0x80000000U;
+      r = 0x80000000U;
     else if ( d >= *((double *) &IntegerMax_d))
-	r = 0x7fffffff;
+      r = 0x7fffffff;
     else
-	r = (int) d;
+      r = (int) d;
     return r;
-
-}
-
-NOINLINE int float2l_slow(float f) {
-    static const unsigned int IntegerMin_f = 0xcf000000L;
-    static const unsigned long IntegerMax_f = 0x4f000000L;
-
-    int r;
-
-    if (f != f)
-	r = 0;
-    else if ( f < *((float *) &IntegerMin_f))
-	r = 0x80000000U;
-    else if ( f >= *((float *) &IntegerMax_f))
-	r = 0x7fffffff;
-    else
-	r = (int) f;
-    return r;
+#endif  /* JAVA */
 }
 /*end[FLOATS]*/
 
@@ -655,6 +675,11 @@ int parseQuantity(char *p, const char* arg) {
  * @return the size of the file or -1 if it doesn't exist
  */
 Offset getFileSize(const char *file) {
+#ifdef JAVA
+    printf("Error #2: Can't get file size, no stat() implementation available\n");
+
+    stopVM(-1);
+#else
     struct stat buf;
     if (stat(file, &buf) == 0) {
         return buf.st_size;
@@ -665,6 +690,7 @@ Offset getFileSize(const char *file) {
         }
         return -1;
     }
+#endif /* JAVA */
 }
 
 /**
@@ -677,6 +703,11 @@ Offset getFileSize(const char *file) {
  *                 the system to exit.
  */
 int readFile(const char *file, Address buffer, UWord size) {
+#ifdef JAVA
+    printf("Error #3: Can't read file, no implementation available\n");
+
+    stopVM(-1);
+#else
     struct stat buf;
     int result = -1;
     if (stat(file, &buf) == 0) {
@@ -707,6 +738,7 @@ int readFile(const char *file, Address buffer, UWord size) {
         }
     }
     return result;
+#endif /* JAVA */
 }
 
 /*
@@ -1025,10 +1057,10 @@ int writeCStringArray(int length, char **array, int offset) {
     return offset;
 }
 
-/** 
+/**
  * Return another path to find the bootstrap suite with the given name.
  * On some platforms the suite might be stored in an odd location
- * 
+ *
  * @param bootstrapSuiteName the name of the boostrap suite
  * @return full or partial path to alternate location, or null
  */
@@ -1036,9 +1068,9 @@ static char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
 
 /**
  * Sets up the memory buffer.
- * 
+ *
  * All "Start" values are rounded up to the system page size (note that page size on SPOT is 4 BYTES!)
- * 
+ *
  * Desktop machine memory layout:
  *
  * Memory_start
@@ -1127,7 +1159,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 #else /* VIRTUAL_ADDRESS_SPACE_LOWER_BOUND */
     com_sun_squawk_VM_romEnd = (Address)(get_flash_base() + get_flash_size());
 #endif /* VIRTUAL_ADDRESS_SPACE_LOWER_BOUND */
-    
+
 #else /* FLASH_MEMORY */
     // ROM starts at the begining of the VM's memory buffer
     com_sun_squawk_VM_romStart = com_sun_squawk_VM_bootstrapStart = memory;
@@ -1287,7 +1319,7 @@ void setupSignals() {
 void termHandler(int signum, siginfo_t * pInfo, void * pContext) {
 /* WARNING: ARE THESE SAFE TO CALL FROM A SIGNAL HANDLER??? */
     fprintf(stderr, "\nSquawk VM caught signal %d\nTERMINATIN©G\n", signum);
-  
+
     fatalVMError(strsignal(signum));
 
 }
@@ -1320,7 +1352,7 @@ void crashHandler(int signum, siginfo_t * pInfo, void * pContext) {
 
 void setupSignals() {
     struct sigaction sa;
-    
+
     nativeFuncPtr = NULL;
 
     sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
@@ -1337,7 +1369,7 @@ void setupSignals() {
       exit(0);
    }
 #endif
-    
+
     sa.sa_flags = SA_SIGINFO;
     sa.sa_sigaction = termHandler;
     if(sigaction(SIGINT, &sa, NULL)) {
@@ -1573,7 +1605,7 @@ void verifyBuildFlags() {
         fprintf(stderr, "Test failed. Expected 0x%x, received 0x%x at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
         exit(EXIT_FAILURE); \
     } \
-    
+
 #define assertEquals8(msg, expected, received) \
     if (received != expected) { \
         fprintf(stderr, "Test failed. Expected 0x%llx, received 0x%llx at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
@@ -1585,7 +1617,7 @@ void testLongs() {
     const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
     const int   PATTERN3 = 0xAAAAAAAA;
     const int   MAX      = 0xFFFFFFFF;
-    
+
     jlong l1 = makeLong(PATTERN3, PATTERN3);
     assertEquals8("makeLong() 1", PATTERN1, l1);
 
@@ -1610,7 +1642,7 @@ void testUnaligned() {
     Address buf = ((char*)&tmp); // first check aligned:
     tmp[0] = 0;
     tmp[1] = 0;
-    
+
     {
         jlong val;
         jlong valCheck;
@@ -1620,7 +1652,7 @@ void testUnaligned() {
         assertEquals8("overwrite", 0ll, tmp[1]);
         valCheck = getLong(buf, 0);
         assertEquals8("getLong", PATTERN1, valCheck);
-        
+
         setUnalignedLong(buf, 0, PATTERN1);
         assertEquals8("overwrite", 0ll, tmp[1]);
         valCheck = getLong(buf, 0);
@@ -1661,7 +1693,7 @@ void testUnaligned() {
         val = getUnalignedInt(buf, 0);
         assertEquals4("swap4", PATTERN3_SWAP, val);
     }
-    
+
     // -------- force unaligned -----------------
     buf = ((char*)&tmp) + 1;
 
@@ -1714,7 +1746,7 @@ void testWordAt() {
     swap8(buf);
     val = getLongAtWord(buf, 0);
     assertEquals8("swap8", PATTERN1_SWAP, val);
-    
+
     setLongAtWord(buf, 0, PATTERN2);
     val = getLongAtWord(buf, 0);
     assertEquals8("getLongAtWord 2", PATTERN2, val);
@@ -1757,7 +1789,7 @@ void fpTest() {
     fprintf(vmOut, format("d1 * d1 = %D\n"), (d1 * d1));fflush(vmOut);
     fflush(vmOut);
 #endif
-    
+
     if (f0 == 0.0) {
         // fprintf(vmOut, "fpTest passed 1\n");
     } else {
@@ -1771,7 +1803,7 @@ void fpTest() {
     }
 
 #if C_FP_CONVERSIONS_OK
-    // Test that the normal C conversions are OK to use, or if the 
+    // Test that the normal C conversions are OK to use, or if the
     // functions float2l, float2ll, double2l, double2ll are needed on this platform:
 
     //fprintf(vmOut, "Running C_FP_CONVERSIONS_OK tests...\n");
@@ -1790,7 +1822,7 @@ void fpTest() {
     assertEquals8("float2ll(F_H_NEG_NAN)", float2ll_slow(ib2f(F_H_NEG_NAN)), (jlong)(ib2f(F_H_NEG_NAN)));
     assertEquals8("float2ll(F_POS_INFINITY)", float2ll_slow(ib2f(F_POS_INFINITY)), (jlong)(ib2f(F_POS_INFINITY)));
     assertEquals8("float2ll(F_NEG_INFINITY)", float2ll_slow(ib2f(F_NEG_INFINITY)), (jlong)(ib2f(F_NEG_INFINITY)));
-    
+
     assertEquals4("double2l(1.0)", double2l_slow(1.0), (int)1.0);
     assertEquals4("double2l(D_L_POS_NAN)", double2l_slow(lb2d(D_L_POS_NAN)), (int)(lb2d(D_L_POS_NAN)));
     assertEquals4("double2l(D_H_POS_NAN)", double2l_slow(lb2d(D_H_POS_NAN)), (int)(lb2d(D_H_POS_NAN)));
@@ -1844,7 +1876,7 @@ Address Squawk_setup(int argc, char *argv[]) {
      * Check that the build flags were correct.
      */
     verifyBuildFlags();
-    
+
     unitTests();
 #endif
 
@@ -2029,7 +2061,11 @@ void printStrSafely(Address value, char* valueName, Address low, Address high, c
     if (value == 0) {
         fprintf(stderr, "NULL.\n");
     } else if (result) {
+#ifdef JAVA
+        printJavaString(value);
+#else
         printJavaString(value, stderr);
+#endif
         fprintf(stderr, "\n");
     } else {
         fprintf(stderr, "%p is NOT in %s range %p .. %p\n", value, rangeName, low, high);
@@ -2080,8 +2116,8 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
     stackHigh = Address_add(ss, getArrayLength(ss) * HDR_BYTES_PER_WORD);
     printValueInRange(_sp, "sp", sl, stackHigh, "current stack");
     printValueInRange(_fp, "fp", sl, stackHigh, "current stack");
-    
-    // saved values not always valid. 
+
+    // saved values not always valid.
     fprintf(stderr, "        next three saved values may not be valid:\n");
 #if com_sun_squawk_Klass_ENABLE_DYNAMIC_CLASSLOADING
     printValueInRange(saved_ip, "saved_ip", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
@@ -2090,7 +2126,7 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
 #endif
     printValueInRange(saved_sp, "saved_sp", sl, stackHigh, "current stack");
     printValueInRange(saved_fp, "saved_fp", sl, stackHigh, "current stack");
-    
+
     if (userStack) {
         Address thread = getObject(ss, SC_owner);
 
@@ -2110,7 +2146,7 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
             fprintf(stderr, "    in garbage collection\n");
         }
     }
-    
+
     if (!com_sun_squawk_VM_extendsEnabled) {
         fprintf(stderr, "    stack extension disabled\n");
     }
@@ -2126,7 +2162,7 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
  */
 void Squawk_run(int argc, char *argv[]) {
     Address bootstrapSuite = Squawk_setup(argc, argv);
-    
+
 //fpTest();
 
 #ifdef MACROIZE
@@ -2196,8 +2232,8 @@ void Squawk_main(int argc, char *argv[]) {
  * @param argv the parameter argument vector
  */
 int Squawk_main_wrapper(int argc, char *argv[]) {
-    int ignore = initializeGlobals(&userGlobals);
-    
+      initializeGlobals(&userGlobals);
+
 /*if[!EMULATOR_LAUNCHER]*/
 /*else[EMULATOR_LAUNCHER]*/
 //    char *executable = argv[0];
@@ -2239,7 +2275,7 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
     argc--;
 
     Squawk_main(argc, argv);
-    
+
     return 0;
 }
 
@@ -2247,6 +2283,7 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
  * Some platforms have non-standard startup requirements. If so, define os_main() to handle
  * the issues.
  */
+#ifndef JAVA
 #if defined(__APPLE__) || defined(VXWORKS)
 #include "os_main.c"
 #endif
@@ -2261,6 +2298,7 @@ int main(int argc, char *argv[]) {
 #endif /* !__APPLE__ */
 }
 #endif /* VXWORKS */
+#endif /* JAVA */
 
 /**
  * lookup a klass from the bootstrap suite

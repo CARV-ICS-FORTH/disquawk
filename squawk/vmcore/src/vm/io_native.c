@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -36,8 +36,6 @@
 #include <netdb.h>
 #include <dlfcn.h>
 #include <sys/stat.h>
-
-/*#include "util.h"*/
 
 #if defined(VXWORKS)
 #include <vxWorks.h>
@@ -96,7 +94,7 @@ int sysFD_ISSET(int i1, fd_set* set) {
 
 #define com_sun_squawk_platform_posix_callouts_Libc_Stat_layout_LEN 5
 const int com_sun_squawk_platform_posix_callouts_Libc_Stat_layout[com_sun_squawk_platform_posix_callouts_Libc_Stat_layout_LEN] = {
-    com_sun_squawk_platform_posix_callouts_Libc_Stat_layout_LEN, 
+    com_sun_squawk_platform_posix_callouts_Libc_Stat_layout_LEN,
     sizeof(struct stat),
     offsetof(struct stat, st_mode),
     offsetof(struct stat, st_mtime),
@@ -107,7 +105,7 @@ const int com_sun_squawk_platform_posix_callouts_Libc_Stat_layout[com_sun_squawk
 
 #if defined(sun) || defined(_MSC_VER) || defined(linux)
 const int _com_sun_squawk_platform_posix_natives_SocketImpl_sockaddr_inImpl_layout[com_sun_squawk_platform_posix_callouts_Socket_SockAddr_layout_LEN] = {
-    com_sun_squawk_platform_posix_callouts_Socket_SockAddr_layout_LEN, 
+    com_sun_squawk_platform_posix_callouts_Socket_SockAddr_layout_LEN,
     sizeof(struct sockaddr_in),
     -1,
     offsetof(struct sockaddr_in, sin_family),
@@ -116,7 +114,7 @@ const int _com_sun_squawk_platform_posix_natives_SocketImpl_sockaddr_inImpl_layo
 };
 #else /* mac osx, vxworks */
 const int _com_sun_squawk_platform_posix_natives_SocketImpl_sockaddr_inImpl_layout[com_sun_squawk_platform_posix_callouts_Socket_SockAddr_layout_LEN] = {
-    com_sun_squawk_platform_posix_callouts_Socket_SockAddr_layout_LEN, 
+    com_sun_squawk_platform_posix_callouts_Socket_SockAddr_layout_LEN,
     sizeof(struct sockaddr_in),
     offsetof(struct sockaddr_in, sin_len),
     offsetof(struct sockaddr_in, sin_family),
@@ -156,7 +154,7 @@ int squawk_select(int nfds,
     }
     if (DEBUG_SELECT) { fprintf(stderr, "squawk_select returning with %d fd events\n", res); }
 
-    /* on return, teLoopingHandler() will call signalEvent(), which will wake up Squawk thread (if needed), 
+    /* on return, teLoopingHandler() will call signalEvent(), which will wake up Squawk thread (if needed),
      * and wake up Java thread waiting for select to return.
      */
     return res;
@@ -175,7 +173,7 @@ int cancel_squawk_select() {
 /*
  * Stores some events that have not yet occurred, plus all events that have occurred.
  * @TODO: This is a polling mechanism. GetEvent has to search all event requests looking for events that occurred.
- *        May want to queue up events that have occurred. In any case, pay attention to linear searches, especially at 
+ *        May want to queue up events that have occurred. In any case, pay attention to linear searches, especially at
  *        Event signalling time.
  */
 
@@ -502,7 +500,7 @@ static NativeTask* getNextTask(TaskExecutor* te) {
  */
 void teLoopingHandler(TaskExecutor* te) {
     if (DEBUG_EVENTS_LEVEL) { fprintf(stderr, "in teLoopingHandler() %p\n", te); }
-    
+
     assume(te && te->status == TASK_EXECUTOR_STATUS_STARTING);
     setTaskID(te);
     te->status = TASK_EXECUTOR_STATUS_RUNNING;
@@ -516,7 +514,7 @@ void teLoopingHandler(TaskExecutor* te) {
         } else {
             assumeAlways(te->status != TASK_EXECUTOR_STATUS_RUNNING); /* we've been cancelled! */
             if (DEBUG_EVENTS_LEVEL) { fprintf(stderr, "in teLoopingHandler() cancelled, now cleanup \n"); }
-            /* Cancel any pending tasks on runQ. 
+            /* Cancel any pending tasks on runQ.
              * no new tasks can be added unless status == TASK_EXECUTOR_STATUS_RUNNING, so can run without lock.
              */
             ntask = te->runQ;
@@ -766,7 +764,7 @@ static dlentry dltable[] = {
 };
 
 #define DL_TABLE_SIZE (sizeof(dltable) / sizeof(dlentry))
-    
+
 #ifndef USE_CUSTOM_DL_CODE
 #define sys_RTLD_DEFAULT() RTLD_DEFAULT
 
@@ -795,7 +793,7 @@ void* sysdlsym(void* handle, char* name) {
     if (handle == 0) {
         handle = sys_RTLD_DEFAULT();
     }
-    
+
     return (void*)dlsym(handle, name);
 }
 
@@ -862,7 +860,7 @@ void* sysdlsym(void* handle, char* name) {
             res = getError();
             break;
         }
-    		
+
         case ChannelConstants_CONTEXT_HIBERNATE: {
             // TODO this is faked, we have no implementation currently.
             res = ChannelConstants_RESULT_OK;

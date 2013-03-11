@@ -777,7 +777,11 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
                 setLongTyped(ea, 0, AddressType_LONG, value);
             } else if (PLATFORM_UNALIGNED_LOADS) {
                 /* optimize for 32-bit registers */
+#ifdef JAVA
+                unsigned int hi = 0;
+#else
                 unsigned int hi = value >> 32;
+#endif  /* JAVA */
                 unsigned int lo = value & 0xFFFFFFFF;
                 if (PLATFORM_BIG_ENDIAN) {
                     setIntTyped(ea, 0, AddressType_LONG, hi);
@@ -788,7 +792,11 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
                 }
             } else {
                 /* optimize for 32-bit registers */
+#ifdef JAVA
+                unsigned int hi = 0;
+#else
                 unsigned int hi = value >> 32;
+#endif  /* JAVA */
                 unsigned int lo = value & 0xFFFFFFFF;
                 unsigned int b0 =  hi        & 0xFF;
                 unsigned int b1 = (hi >> 8)  & 0xFF;
@@ -998,11 +1006,20 @@ INLINE_UNALIGNED jlong getUnalignedLong(Address base, Offset offset) {
                 unsigned int first = getIntTyped((Address)ea, 0, AddressType_ANY);
                 unsigned int second = getIntTyped((Address)ea, 1, AddressType_ANY);
                 if (PLATFORM_BIG_ENDIAN) {
-                      return ((jlong)first << 32) | second;
+#ifdef JAVA
+                  return (jlong)second;
+#else
+                  return ((jlong)first << 32) | second;
+#endif  /* JAVA */
                 } else {
-                      return ((jlong)second << 32) | first;
+#ifdef JAVA
+                  return (jlong)first;
+#else
+                  return ((jlong)second << 32) | first;
+#endif  /* JAVA */
                 }
             } else {
+                unsigned int lo, hi;
                 unsigned int b1 = getUByteTyped(ea, 0, AddressType_ANY);
                 unsigned int b2 = getUByteTyped(ea, 1, AddressType_ANY);
                 unsigned int b3 = getUByteTyped(ea, 2, AddressType_ANY);
@@ -1012,14 +1029,17 @@ INLINE_UNALIGNED jlong getUnalignedLong(Address base, Offset offset) {
                 unsigned int b7 = getUByteTyped(ea, 6, AddressType_ANY);
                 unsigned int b8 = getUByteTyped(ea, 7, AddressType_ANY);
                 if (PLATFORM_BIG_ENDIAN) {
-                    unsigned int lo =  (b5 << 24) | (b6 << 16) | (b7 << 8) | b8;
-                    unsigned int hi =  (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
-                    return ((jlong)hi << 32) | lo;
+                    lo =  (b5 << 24) | (b6 << 16) | (b7 << 8) | b8;
+                    hi =  (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
                 } else {
-                    unsigned int lo =  (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
-                    unsigned int hi =  (b8 << 24) | (b7 << 16) | (b6 << 8) | b5;
-                    return ((jlong)hi << 32) | lo;
+                    lo =  (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
+                    hi =  (b8 << 24) | (b7 << 16) | (b6 << 8) | b5;
                 }
+#ifdef JAVA
+                return (jlong)lo;
+#else
+                return ((jlong)hi << 32) | lo;
+#endif  /* JAVA */
             }
         }
 

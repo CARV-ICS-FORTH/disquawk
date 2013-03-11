@@ -30,7 +30,7 @@ public abstract class FormicCommand extends Command {
 	    out.println(errMsg);
 	    out.println();
 	    out.println(getDescription());
-	    out.println("usage: " + getName() + " [ -h | -clean | -platform:[host | formic] ]");
+	    out.println("usage: " + getName() + " [ -h | -clean ]");
 	}
 
 	/**
@@ -38,13 +38,10 @@ public abstract class FormicCommand extends Command {
 	 */
 	public void run(String[] args) {
 	    if (args.length == 0) {
-	    	usage("");
+	    	build();
 	    } else {
 	        if (args[0].equals("-clean")) {
-	            clean();
-	        } else if (args[0].startsWith("-platform:")) {
-	        	platformName = args[0].substring(10);
-	        	build();
+            clean();
 	        } else {
 	        	usage("");
 	        }
