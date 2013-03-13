@@ -282,9 +282,7 @@ public class BuildFormicVMCommand extends FormicCommand {
     File OBJ_JAVA_PR   = new File(MYRMICS_DIR, "pr");
     File OBJ_JAVA_SYS  = new File(MYRMICS_DIR, "sys");
     FileSet.SuffixSelector sselector = new FileSet.SuffixSelector(".mb.o");
-    //TODO: Add main
     List<File> objectFiles2 = new ArrayList<File>();
-    //objectFiles2.add(new File(OBJ_JAVA, "java_main.mb.o"));
     objectFiles2.addAll(new FileSet(OBJ_JAVA      , sselector).list());
     objectFiles2.addAll(new FileSet(OBJ_JAVA_ARCH , sselector).list());
     objectFiles2.addAll(new FileSet(OBJ_JAVA_KT   , sselector).list());
