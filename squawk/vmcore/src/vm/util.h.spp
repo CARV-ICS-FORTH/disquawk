@@ -264,7 +264,7 @@ void printRange(char* label, void* start, void* end);
     INLINE int getHi(jlong value) {
 #ifdef JAVA
       printf("Warning #1: getHi invocation\n");
-      return (int)value;
+      return 0;
 #else
       return (int) (value >> 32);
 #endif  /* JAVA */

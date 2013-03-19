@@ -25,6 +25,10 @@
 #define TRUE 1
 #define FALSE 0
 
+// Override setting from platform.h
+#undef PLATFORM_UNALIGNED_LOADS
+#define PLATFORM_UNALIGNED_LOADS false
+
 #define IODOTC "formic_io.c"
 #define sysPlatformName() "formic"
 #include "arch.h"

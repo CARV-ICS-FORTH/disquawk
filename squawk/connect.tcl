@@ -2,7 +2,6 @@ connect mb mdm -cable type xilinx_platformusb frequency 1500000 -debugdevice dev
 
 stop
 
-dow a.out
+#dow vmcore/build/vmcore-flash.elf
 
-run
-
+#run

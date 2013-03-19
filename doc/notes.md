@@ -14,6 +14,7 @@ For the usb:
 ------------
   http://www.george-smart.co.uk/wiki/Xilinx_JTAG_Linux
   Alternatives:
+    #http://www.petalogix.com/support/kb/xilinx_ubuntu_install
     #http://forums.xilinx.com/t5/Installation-and-Licensing/installing-platform-cable-USB-II-ubuntu/td-p/66729
     #http://rmdir.de/~michael/xilinx/
 
@@ -29,19 +30,75 @@ Scripts to source:
   . /opt/Xilinx/12.4/ISE_DS/common/settings64.sh /opt/Xilinx/12.4/ISE_DS/common
 
 
+                                     Formic
+================================================================================
+
+Caches:
+-------
+  Instruction Cache Level 1:
+    * IL1 is 4-KB, two-way set associative, no write support
+  Data Cache Level 1:
+    * DL1 is 8-KB, two-way set associative, write through
+    * Forwards without storing any access that is marked non-cacheable
+      (C=0) or I/O (I=1). Also, everything is forwarded when the block
+      is disabled.
+    * Provides a serial clear operation, where all entries are
+      invalidated in both ways
+    * Provides an invalidation interface to L2 cache, where a single
+      entry is invalidated if it exists in the DL1 cache
+  Level 2 Cache:
+    * 8 ways. Each way has 8192 words of 32 bits = 512 cache lines of
+      64 bytes. Total size 8 x 512 x 64 = 256 KB.
+    * An LRU policy is also supported, using 3 bits per tag.
+    * The L2 data are stored in the off-FPGA SRAM through one of the
+      ports of the SRAM CTL block.
+
+Acronyms:
+---------
+  MBS      = MicroBlaze Slice
+    (aka core, L1, L2 counters, mailbox and network engines)
+  UART     = Universal Asynchronous Receiver/Transmitter
+  XBAR     = Crossbar
+  LUT      = LookUp Table
+  ART      = Address Region Table block
+  MNI      = MBS Netwrork Interface
+  CTL      = Control block
+  CMX      = Counters & Mailbox block
+  XBI      = Crossbar Interface block
+  VC       = Virtual Channel
+  SRAM_CTL = SRAM Controller block
+  TLB      = Translation Lookaside Buffer
+  GTP      = Gigabit Transceiver Port
+  BCTL     = Formic Board Controller block
+
+
+                                  Formicarium
+================================================================================
+
+  Always tail /home/lyberis/measure.log and /home/lyberis/server.log
+
+  UART board is 0x1C
+
                                    Board info
 ================================================================================
 
 My Board:
 ---------
   board BID
-  up    0x10
-  down  0x00
+  up    0x010
+  down  0x000
   RESET: first the lower then the upper board
 
-Core-IDs = 0-7  --> 0x000-0x111
-DRAM = 0xC
-BRD_CTL = 0xF
+  Core-IDs = 0-7  --> 0x000-0x111
+  DRAM = 0xC
+  BRD_CTL = 0xF
+
+Specs:
+------
+  8 cores per board
+  128MB DRAM (for the whole board)
+  22-port crossbar
+  5-port TLB
 
 Communication:
 --------------
@@ -50,7 +107,7 @@ Communication:
 
 Serial port:
 ------------
-  we use minicom
+  We use minicom
   ttyS0
   no flow control
   38400 rate
@@ -66,12 +123,14 @@ How to download and run a microblaze elf:
 xmd.tcl contents:
 -----------------
   connect mb mdm -cable type xilinx_platformusb frequency 1500000 -debugdevice deviceNr 1 cpunr 1
-
   stop
-
   dow foo.elf
-
   run
+
+GDB:
+----
+  Open xmd (connect, stop, dow, don't run but stp)
+  mb-gdb foo.elf (target remote localhost:1234)
 
 
                                      squawk
@@ -89,8 +148,8 @@ Checkout and build myrmics in vmcore/src/rts/formic/myrmics
 To build Squawk:
 ----------------
     ./d -prod -mac 2>&1
-    ./d -prod -mac vm2c 2>&1
     ./d -prod -mac -comp:formic buildFormicVM 2>&1
+
 
                                     Myrmics
 ================================================================================
@@ -103,6 +162,7 @@ Notes:
 ------
   arch/mb/init.c sets permissions
   arch/mb/boot.s clears bss
+
 
                                  GNU classpath
 ================================================================================
@@ -178,4 +238,3 @@ Makefile mods:
     Verb= (to make it print the commands)
     LIBS := $(filter-out -lpthread,$(LIBS)) (to remove pthreads)
     CXX.Flags += -ggdb
-

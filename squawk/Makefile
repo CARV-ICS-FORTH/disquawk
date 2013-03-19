@@ -1,7 +1,8 @@
 BUILD_DIR=./vmcore/build
+ELF=${BUILD_DIR}/vmcore-flash.elf
 MAKE_CMD=./d
 #MAKE_FLAGS=-prod -verbose #This is for debug purposes (verbose and no macroize)
-MAKE_FLAGS=-prod -mac
+MAKE_FLAGS=-prod -mac -assume -verbose
 MYRMICS=./vmcore/src/rts/formic/myrmics/src
 AT=@
 
@@ -52,9 +53,12 @@ GEN_FILES= \
   vm2c/preprocessed \
   vmcore/src/rts/formic/myrmics
 
-all: ${BUILD_DIR}/vmcore-flash.elf
+all: ${ELF}
 
-${BUILD_DIR}/vmcore-flash.elf: myrmics ${GEN_FILES}
+run:
+	${MYRMICS}/client -pwr_formic -boot formic -elf ${ELF}
+
+${ELF}: myrmics ${GEN_FILES}
 	${AT}${MAKE_CMD} ${MAKE_FLAGS} -comp:formic buildFormicVM
 
 ${GEN_FILES}:

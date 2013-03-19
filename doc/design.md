@@ -18,6 +18,11 @@ Current GVM limitations
 Design decisions
 ================
 
+DRAM mapping
+------------
+  Code starts at 0x00 and is 10MB long
+  User space is 84MB
+
 Choosing a JVM
 --------------
 
