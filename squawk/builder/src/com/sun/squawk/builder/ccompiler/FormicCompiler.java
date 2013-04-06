@@ -122,7 +122,7 @@ public class FormicCompiler extends CCompiler {
         File linkerOutputFile = new File(output);
 
         // objects[0] is the linker script
-        exec = "mb-ld -N -M -T " + objects[0] + " ";
+        exec = "mb-ld -N -T " + objects[0] + " ";
         // This is bad but it works
         exec += Build.join(Arrays.copyOfRange(objects, 1, objects.length)) + " ";
         exec += "--format elf32-microblazele --oformat elf32-microblazele ";

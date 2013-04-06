@@ -150,6 +150,10 @@ To build Squawk:
     ./d -prod -mac 2>&1
     ./d -prod -mac -comp:formic buildFormicVM 2>&1
 
+Open Questions:
+---------------
+    What about Isolate???
+    What about Real Time???
 
                                     Myrmics
 ================================================================================

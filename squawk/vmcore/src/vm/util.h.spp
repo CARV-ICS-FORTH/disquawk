@@ -317,9 +317,15 @@ INLINE int double2l(double d)               { return (int)d; }
 INLINE int float2l(float f)                 { return (int)f; }
 #else
 /* can't rely on C conversions. */
+/*if[MICROBLAZE_BUILD]*/
+#define float2ll float2l_slow
+#define double2ll float2l_slow
+#define double2l float2l_slow
+/*else[MICROBLAZE_BUILD]*/
 #define float2ll float2ll_slow
 #define double2ll double2ll_slow
 #define double2l double2l_slow
+/*end[MICROBLAZE_BUILD]*/
 #define float2l float2l_slow
 
 extern jlong float2ll_slow(float f);

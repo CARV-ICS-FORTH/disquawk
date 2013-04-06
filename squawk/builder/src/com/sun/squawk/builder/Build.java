@@ -1781,13 +1781,13 @@ public class Build {
         }
         if (!hasBeenRun(command, args)) {
             if (command instanceof Target) {
-                log(brief, "[building " + command.getName() + "...]");
+                log(brief, "[\033[1;36mbuilding\033[m " + command.getName() + "...]");
             } else if (command instanceof GeneratorCommand) {
-                log(info, "[generating " + command.getName() + "...]");
+                log(info, "[\033[1;32mgenerating\033[m " + command.getName() + "...]");
             } else if (command instanceof LinkTarget) {
-                log(info, "[linking " + command.getName() + "...]");
+                log(info, "[\033[1;37mlinking\033[m " + command.getName() + "...]");
             } else {
-                log(brief, "[running " + command.getName() + "...]");
+                log(brief, "[\033[1;33mrunning\033[m " + command.getName() + "...]");
             }
             if (verbose) {
             	log(info, "  description: " + command.getDescription());

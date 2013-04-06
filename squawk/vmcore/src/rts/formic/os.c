@@ -25,6 +25,11 @@
 #define TRUE 1
 #define FALSE 0
 
+/* Disable non volatile memory */
+#define DEFAULT_NVM_SIZE   0
+
+#define DEFAULT_RAM_SIZE   MM_MB_KERNEL_SIZE
+
 // Override setting from platform.h
 #undef PLATFORM_UNALIGNED_LOADS
 #define PLATFORM_UNALIGNED_LOADS false
@@ -50,12 +55,19 @@
 
 /**
  * Allocate a page-aligned chunk of memory of the given size.
+ * THIS IS INVOKED ONLY ONCE TO ALLOCATE THE WHOLE MEMORY
  *
  * @param size size in bytes to allocate
  * @return pointer to allocated memory or null.
  */
 INLINE void* sysValloc(size_t size) {
-    return NULL;
+  int           my_cid;
+  size_t        kernel_base;
+
+  my_cid = ar_get_core_id();
+  kernel_base = mm_va_kernel_base(my_cid);
+
+  return (void*)kernel_base;
 }
 
 /**
@@ -63,11 +75,10 @@ INLINE void* sysValloc(size_t size) {
  *
  * @param ptr to to chunk allocated by sysValloc
  */
-INLINE void sysVallocFree(void* ptr) {
-}
+#define sysVallocFree(x)
 
 INLINE int sysGetPageSize(void) {
-  return 0;
+  return MM_PAGE_SIZE;
 }
 
 /**
@@ -120,10 +131,11 @@ void osfinish() {}
  * Return the start address of the flash memory
  */
 unsigned int get_flash_base(void) { return 0; }
+
 /**
  * Return the size of the flash memory
  */
-unsigned int get_flash_size(void) { return 0; }
+unsigned int get_flash_size(void) { return DEFAULT_RAM_SIZE; }
 
 /**
  * Called by Squawk when a back branch occurs.

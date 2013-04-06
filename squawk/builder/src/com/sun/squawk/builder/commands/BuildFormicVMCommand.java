@@ -41,7 +41,7 @@ public class BuildFormicVMCommand extends FormicCommand {
   public static final File VM_SRC_RTS_DIR = new File("vmcore/src/rts");
   public static final File VM_SRC_FILE = new File(VM_SRC_DIR, "squawk.c");
   public static final File VM2C_SRC_FILE = new File(VM_SRC_DIR, "vm2c.c.spp");
-  public static final File linkerOutputFile = new File(VM_BLD_DIR, "vmcore-flash.elf");
+  public static final File linkerOutputFile = new File(VM_BLD_DIR, "squawk.elf");
   public static final File objCopyOutputFile = new File(VM_BLD_DIR, "vm-formic.bin");
 
   private ArrayList<String> vm2cRootClasses;
@@ -172,7 +172,7 @@ public class BuildFormicVMCommand extends FormicCommand {
   public void runRomizer() {
     String[] args;
     CCompiler ccompiler = env.getCCompiler();
-    String arch = ccompiler == null ? "X86" : ccompiler.getArchitecture();
+    String arch = ccompiler.getArchitecture();
     args = convertToRomizerOptions(arch);
     env.runCommand("romize", args);
   }
@@ -184,7 +184,7 @@ public class BuildFormicVMCommand extends FormicCommand {
 
     CCompiler ccompiler = env.getCCompiler();
 
-    runRomizer();
+    //runRomizer();
 
     updateVM2CGeneratedFile();
 
@@ -250,7 +250,6 @@ public class BuildFormicVMCommand extends FormicCommand {
        *     literal translation of the source. Regardless of the processor architecture, using
        *     such flags might be necessary to implement Java virtual machine semantics in C code.
        */
-
       env.log(env.brief, "[compiling floating point sources in " + FP_SRC_DIR + " ...]");
       List<File> sources = new FileSet(FP_SRC_DIR, new FileSet.SuffixSelector(".c")).list();
       for (File source : sources) {
@@ -274,7 +273,7 @@ public class BuildFormicVMCommand extends FormicCommand {
     File OBJ_JAVA      = new File(MYRMICS_DIR, "obj/java");
     // TODO: Compile myrmics
     // Add the myrmics' compiled files for linking
-    File OBJ_JAVA_ARCH = new File(MYRMICS_DIR, "arch");
+    File OBJ_JAVA_ARCH = new File(MYRMICS_DIR, "arch/mb/");
     File OBJ_JAVA_KT   = new File(MYRMICS_DIR, "kt");
     File OBJ_JAVA_DBG  = new File(MYRMICS_DIR, "dbg");
     File OBJ_JAVA_NOC  = new File(MYRMICS_DIR, "noc");
@@ -294,7 +293,7 @@ public class BuildFormicVMCommand extends FormicCommand {
 
     env.log(env.brief, "[linking '" + linkerOutputFile.toString() + "'...]");
     // the first object must be the linker script
-    objectFiles2.add(0, new File(MYRMICS_DIR, "linker.java.mb.ld"));
+    objectFiles2.add(0, new File("java.ld"));
     int size1 = objectFiles2.size();
     int size2 = objectFiles.size();
     File[] objects = objectFiles2.toArray(new File[size1+size2]);

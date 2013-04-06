@@ -997,6 +997,9 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
  * handle Strings with non-ascii characters.
  */
 //#define UNICODE true
+/*if[MICROBLAZE_BUILD]*/
+#define printJavaString(a, b) printJavaString(a)
+/*end[MICROBLAZE_BUILD]*/
 
         /**
          * Prints the contents of a Java String object to a given stream.
@@ -1006,7 +1009,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
          * @param out  where to print the string's contents
          * @return the number of characters printed
          */
-        int printJavaString(Address str) {
+    int printJavaString(Address str, File* out) {
 #ifdef UNICODE
             int i;
 #endif
@@ -1194,9 +1197,9 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
                 if (com_sun_squawk_VM_currentIsolate != newIsolate) {
                     com_sun_squawk_VM_currentIsolate = newIsolate;
                     invalidateClassStateCache();
-                    set_sda_bp_set_or_stepping(newIsolate) /* changed isolate */
+                    set_sda_bp_set_or_stepping(newIsolate); /* changed isolate */
                 } else if (oldRunningOnServiceThread) {
-                    set_sda_bp_set_or_stepping(newIsolate) /* coming off of service thread */
+                    set_sda_bp_set_or_stepping(newIsolate); /* coming off of service thread */
                 }
 
                 /*
@@ -1207,7 +1210,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
 
             } else {
                 runningOnServiceThread = true;
-                set_sda_bp_set_or_stepping(null) /* coming on to service thread */
+                set_sda_bp_set_or_stepping(null); /* coming on to service thread */
             }
 
             /*

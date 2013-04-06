@@ -117,11 +117,7 @@ void cioExecute(void) {
         }
 
         case ChannelConstants_INTERNAL_PRINTSTRING: {
-#ifdef JAVA
-            printJavaString(o1);
-#else
             printJavaString(o1, vmOut);
-#endif /* JAVA */
             break;
         }
 
