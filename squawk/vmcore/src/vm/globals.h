@@ -96,7 +96,7 @@ typedef struct globalsStruct {
     jlong       _instructionCount;
 #endif /* PROFILING */
 
-#if TRACE && !defined JAVA
+#if TRACE
     FILE       *_traceFile;                  /* The trace file name */
     boolean     _traceFileOpen;              /* Specifies if the trace file has been opened. */
     boolean     _traceServiceThread;         /* Specifies if execution on the service thread is to be traced. */
@@ -186,7 +186,7 @@ boolean     notrap;
 #define fp                                  defineGlobal(fp)
 #define sp                                  defineGlobal(sp)
 #else
-#if TRACE && !defined JAVA
+#if TRACE
 #define lastIP                              defineGlobal(lastIP)
 #define lastFP                              defineGlobal(lastFP)
 #endif /* TRACE */
@@ -249,7 +249,7 @@ boolean     notrap;
 #define STREAM_COUNT                        (sizeof(Streams) / sizeof(FILE*))
 #endif /* JAVA */
 
-#if TRACE && !defined JAVA
+#if TRACE
 #define traceFile                           defineGlobal(traceFile)
 #define traceFileOpen                       defineGlobal(traceFileOpen)
 #define traceServiceThread                  defineGlobal(traceServiceThread)
@@ -420,5 +420,3 @@ typedef int (*funcPtr7)(int, int, int, int, int, int, int);
 typedef int (*funcPtr8)(int, int, int, int, int, int, int, int);
 typedef int (*funcPtr9)(int, int, int, int, int, int, int, int, int);
 typedef int (*funcPtr10)(int, int, int, int, int, int, int, int, int, int);
-
-

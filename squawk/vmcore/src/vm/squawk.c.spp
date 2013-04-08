@@ -1465,7 +1465,9 @@ Address processArgs(char *argv[], const int argc) {
             } else if (equals(arg, "tnoservice")) {
                 traceServiceThread = false;
             } else if (equals(arg, "terr")) {
+#ifndef JAVA
                 traceFile = stderr;
+#endif  /* JAVA */
             } else if (startsWith(arg, "ts:")) {
                 setTraceStart(parseQuantityLong(arg+3, wholeArg));
             } else if (startsWith(arg, "te:")) {
@@ -2006,6 +2008,7 @@ void Squawk_continue(Globals *gp) {
 //        fprintf(stderr, "[switched to %s context]\n", (gp == &kernelGlobals ? "kernel" : "user"));
 //    }
 
+    diagnosticWithValue("in Squawk_continue:", ip);
     /*
      * This is the main bytecode execution loop.
      */
@@ -2238,6 +2241,7 @@ void Squawk_run(int argc, char *argv[]) {
 #endif
 
     saveContextRegisters();
+    diagnosticWithValue("in Squawk_run: Squawk_continue", ip);
     Squawk_continue(gp);
 }
 

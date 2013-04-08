@@ -95,5 +95,6 @@ typedef jfloat	jdouble;
 
 typedef jint    jsize;
 
+#define FILE void*
 
 #endif /* !_JAVASOFT_JNI_MD_H_ */

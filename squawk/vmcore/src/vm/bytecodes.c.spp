@@ -1991,9 +1991,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                 branchCountHigh = high;
             }
             count = getBranchCount();
+/*if[!MICROBLAZE_BUILD]*/
             if (statsFrequency != 0 && (count % statsFrequency) == 0) {
                 printCacheStats();
             }
+/*end[MICROBLAZE_BUILD]*/
             if (count >= getTraceStart()) {
                 com_sun_squawk_VM_tracing = true;
             }
