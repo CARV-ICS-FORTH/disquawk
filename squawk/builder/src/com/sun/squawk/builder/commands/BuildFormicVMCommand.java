@@ -309,13 +309,6 @@ public class BuildFormicVMCommand extends FormicCommand {
       }
     }
 
-    // Create the bin file
-    env.log(env.brief, "[objcopy '" + objCopyOutputFile.toString() + "'...]");
-    String dump;
-    dump = "mb-objcopy -O binary --gap-fill 0 " + linkerOutputFile.toString();
-    dump += " " + objCopyOutputFile.toString();
-    env.exec(dump);
-
     env.log(env.brief, "Build complete");
   }
 

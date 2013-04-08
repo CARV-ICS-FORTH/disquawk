@@ -2367,8 +2367,10 @@ static Address lookupStaticMethod(int cid, int methodOffset) {
     Address method;
     //fprintf(stderr, "Lookup of %d in class %d = ", methodOffset, cid);
     klass = lookupKlass(cid);
+    //diagnosticWithValue("LookupStaticMethod klass: ", klass);
     assume(inROM(klass));
     method = getStaticMethod(klass, methodOffset);
+    //diagnosticWithValue("LookupStaticMethod method: ", method);
     assume(inCode(method));
     //fprintf(stderr, "%x\n", method);
     return method;
