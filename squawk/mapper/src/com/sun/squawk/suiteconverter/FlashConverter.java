@@ -54,6 +54,7 @@ public class FlashConverter {
         out.println("where addresses are specified in hex and options include:");
         out.println();
         out.println("    -boot:<file>    file path for bootstrap suite (default=squawk.suite)");
+        out.println("    -o:<file>       output file (default=<suite>.bin)");
         out.println("    -suitepath:<directories separated by '" + File.pathSeparatorChar + "'>");
         out.println("    -endian:<value> convert object memories to this endianess (default is endianess of object_memory_file)");
         out.println("    -verbose, -v    provide more output while running");
@@ -63,7 +64,7 @@ public class FlashConverter {
     /**
      * Address should be a hex number, but also support address based on file size
      * address = file://
-     * 
+     *
      * @param address a hex number or file://file
      * @return
      */
@@ -128,7 +129,7 @@ public class FlashConverter {
             }
         }
 
-        if (args.length - argc != 2) {
+        if (args.length - argc < 2) {
             usage("missing suite file and/or relocation address");
             return false;
         }
@@ -189,7 +190,7 @@ public class FlashConverter {
 		suite.writeToStream(new DataOutputStream(fos));
 		fos.close();
     }
-    
+
     /*---------------------------------------------------------------------------*\
      *                                  main                                     *
     \*---------------------------------------------------------------------------*/

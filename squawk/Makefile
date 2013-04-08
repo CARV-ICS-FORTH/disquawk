@@ -7,7 +7,7 @@ BUILDER_SRC=builder/src/com/sun/squawk/builder
 BUILDER=./d
 #BUILDER_FLAGS=-prod -verbose #This is for debug purposes (verbose and no macroize)
 ifeq ($(ARCH), formic)
-BUILDER_FLAGS=-prod -mac -assume -verbose -comp:$(ARCH) -cflags:-I./$(MYRMICS_SRC)/include
+BUILDER_FLAGS=-prod -mac -comp:$(ARCH) -cflags:-I./$(MYRMICS_SRC)/include -assume -verbose
 else
 BUILDER_FLAGS=-prod -mac -assume -verbose
 endif
@@ -41,7 +41,7 @@ run:
 
 FormicApp.suite: $(APP_OBJ)
 	$(AT)echo $(STR_ROM) $@
-	$(AT)$(BUILDER) romize -arch:$(ARCH) -endian:little -o:FormicApp -cp:$(APP)/classes -parent:squawk FormicApp
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -arch:$(ARCH) -endian:little -o:FormicApp -cp:$(APP)/classes -parent:squawk FormicApp
 
 $(APP)/classes/%.class: $(APP)/src/%.java
 	$(AT)echo $(STR_JVC) $@
@@ -71,10 +71,12 @@ squawk.suite.bin: squawk.suite suite_addr.txt
 	$(AT)echo $(STR_FLC) $@
 	$(AT)$(BUILDER) flashconv -endian:little -v $< $(SUITES_ADDR)
 
-FormicApp.suite.bin: FormicApp.suite suite_addr.txt
+FormicApp.suite.bin: FormicApp.suite suite_addr.txt squawk.suite.bin
 	$(eval SUITES_ADDR := $(shell cat suite_addr.txt))
 	$(AT)echo $(STR_FLC) $@
-	$(AT)$(BUILDER) flashconv -endian:little -v $< `wc -c squawk.suite.bin | sed 's/ .*$//g' | xargs printf "%X" | xargs -I size echo "obase=16;ibase=16; $(SUITES_ADDR)+size" | bc` $(SUITES_ADDR)
+	$(eval TMP := $(shell wc -c squawk.suite.bin | awk '{print $$1}' | xargs printf "%X" | xargs -I size echo "obase=16;ibase=16; $(SUITES_ADDR)+size" | bc))
+	$(AT)echo $(BUILDER) flashconv \-endian:little \-v $< $(TMP) $(SUITES_ADDR)
+	$(AT)$(BUILDER) flashconv -endian:little -v $< $(TMP) $(SUITES_ADDR)
 
 suite_addr.txt: $(MYRMICS_SRC)/linker.java.mb.ld romizer.ts myrmics
 	$(AT)rm -f java.ld
