@@ -273,7 +273,6 @@ public class VM implements GlobalStaticFields {
      * @param bootstrapSuite        the bootstrap suite
      */
     static void startup(Suite bootstrapSuite) throws InterpreterInvokedPragma {
-        System.out.println("[DIAG] in VM.startup");
 
         /*
          * Set default for allowing Runtime.gc() to work.

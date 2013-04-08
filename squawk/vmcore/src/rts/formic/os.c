@@ -53,6 +53,9 @@
 #define atoi kt_atoi
 #define exit(x) ar_halt()
 
+//extern int __linker_end_bss;
+extern int __linker_squawk_suite_end;
+
 /**
  * Allocate a page-aligned chunk of memory of the given size.
  * THIS IS INVOKED ONLY ONCE TO ALLOCATE THE WHOLE MEMORY
@@ -63,6 +66,13 @@
 INLINE void* sysValloc(size_t size) {
   int           my_cid;
   size_t        kernel_base;
+
+  if (size>MM_MB_KERNEL_SIZE) {
+    fprintf(stderr, "Requesting %d Bytes but there are only %d available\n",
+            size, MM_MB_KERNEL_SIZE);
+    return NULL;
+  }
+
 
   my_cid = ar_get_core_id();
   kernel_base = mm_va_kernel_base(my_cid);
@@ -135,7 +145,8 @@ unsigned int get_flash_base(void) { return 0; }
 /**
  * Return the size of the flash memory
  */
-unsigned int get_flash_size(void) { return DEFAULT_RAM_SIZE; }
+//unsigned int get_flash_size(void) { return &__linker_end_bss; }
+unsigned int get_flash_size(void) { return &__linker_squawk_suite_end; }
 
 /**
  * Called by Squawk when a back branch occurs.

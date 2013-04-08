@@ -62,15 +62,19 @@ public class Assert {
     /**
      * Create one centralized place where an exception is thrown in case of Assert failure.
      * Makes it easier to place a single breakpoint and debug.
-     * 
+     *
      * @param message
      */
     protected static void throwAssertFailedException(String message)  throws NotInlinedPragma {
+      // HACK: Skip new in exception
+      /*if[!MICROBLAZE_BUILD]*/
         if (System.err != null) {
             System.err.flush();
             System.out.flush();
             throw new RuntimeException("Assertion failed: " + message);
-        } else {
+        } else
+      /*end[MICROBLAZE_BUILD]*/
+        {
             VM.print("Assertion failed: ");
             VM.println(message);
             VM.println("Too early to throw exception");
@@ -85,7 +89,12 @@ public class Assert {
      * @param message
      */
     private static void throwAssertFailedException(String systemMessage, String message)  throws NotInlinedPragma {
+      // HACK: Skip new in exception
+      /*if[MICROBLAZE_BUILD]*/
+        throwAssertFailedException(message);
+      /*else[MICROBLAZE_BUILD]*/
         throwAssertFailedException(systemMessage + message);
+      /*end[MICROBLAZE_BUILD]*/
     }
 
     /**
@@ -97,7 +106,7 @@ public class Assert {
     private static void throwAssertFailedException(String systemMessage, String message, String filename, int lineno)  throws NotInlinedPragma {
         throwAssertFailedException(systemMessage + "(" + filename + ":" + lineno + "): " + message);
     }
-    
+
     /**
      * Asserts that the specified condition is true. If the condition is false,
      * a RuntimeException is thrown with the specified message.

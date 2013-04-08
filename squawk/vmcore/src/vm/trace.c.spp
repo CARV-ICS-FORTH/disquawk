@@ -384,13 +384,17 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
                     fprintf(traceFile, format("*STACKTRACE*:\"%d\n"), repetitions);
                     repetitions = 0;
                 }
+/*if[MICROBLAZE_BUILD]*/
+                fprintf(traceFile, format("*STACKTRACE*:%A:%d\n"), (uint32_t)frame.MP-(uint32_t)com_sun_squawk_VM_bootstrapStart, frame.PC);
+/*else[MICROBLAZE_BUILD]*/
                 fprintf(traceFile, format("*STACKTRACE*:%A:%d\n"), frame.MP, frame.PC);
+/*end[MICROBLAZE_BUILD]*/
             }
         }
 
         recursionGuard++;
         if (recursionGuard != 0 && (recursionGuard % 100) == 0) {
-//            fprintf(stderr, "**Call depth suspiciously deep [%d] - infinite recursion?**\n", recursionGuard);
+            fprintf(stderr, "**Call depth suspiciously deep [%d] - infinite recursion?**\n", recursionGuard);
         }
 
         traceIP = (ByteAddress)getObject(traceFP, FP_returnIP);

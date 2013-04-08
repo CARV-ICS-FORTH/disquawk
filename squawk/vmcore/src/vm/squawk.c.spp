@@ -1159,6 +1159,10 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
     // Allocate the memory buffer
     memory = newBuffer(realMemorySize, "memory", true);
     memoryEnd = Address_add(memory, memorySize);
+#ifdef JAVA
+    printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
+    printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
+#endif  /* JAVA */
 #ifdef FLASH_MEMORY
     bootstrapSize = loadBootstrapSuiteFromFlash(bootstrapSuiteFile, &com_sun_squawk_VM_romStart, &suite, &com_sun_squawk_VM_bootstrapHash);
     com_sun_squawk_VM_bootstrapStart = com_sun_squawk_VM_romStart;
@@ -2008,7 +2012,6 @@ void Squawk_continue(Globals *gp) {
 //        fprintf(stderr, "[switched to %s context]\n", (gp == &kernelGlobals ? "kernel" : "user"));
 //    }
 
-    diagnosticWithValue("in Squawk_continue:", ip);
     /*
      * This is the main bytecode execution loop.
      */
@@ -2241,7 +2244,6 @@ void Squawk_run(int argc, char *argv[]) {
 #endif
 
     saveContextRegisters();
-    diagnosticWithValue("in Squawk_run: Squawk_continue", ip);
     Squawk_continue(gp);
 }
 
