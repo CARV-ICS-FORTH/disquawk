@@ -42,7 +42,6 @@ public class BuildFormicVMCommand extends FormicCommand {
   public static final File VM_SRC_FILE = new File(VM_SRC_DIR, "squawk.c");
   public static final File VM2C_SRC_FILE = new File(VM_SRC_DIR, "vm2c.c.spp");
   public static final File linkerOutputFile = new File(VM_BLD_DIR, "squawk.elf");
-  public static final File objCopyOutputFile = new File(VM_BLD_DIR, "vm-formic.bin");
 
   private ArrayList<String> vm2cRootClasses;
 
@@ -290,6 +289,12 @@ public class BuildFormicVMCommand extends FormicCommand {
     objectFiles2.addAll(new FileSet(OBJ_JAVA_MM   , sselector).list());
     objectFiles2.addAll(new FileSet(OBJ_JAVA_PR   , sselector).list());
     objectFiles2.addAll(new FileSet(OBJ_JAVA_SYS  , sselector).list());
+    /*if[LIBGCC]*/
+    FileSet.SuffixSelector sselector2 = new FileSet.SuffixSelector(".o");
+    File VM_SRC_RTS_OBJ =
+      new File(VM_SRC_RTS_DIR , ccompiler.getRtsIncludeName()+"/libgcc");
+    objectFiles2.addAll(new FileSet(VM_SRC_RTS_OBJ, sselector2).list());
+    /*end[LIBGCC]*/
 
     env.log(env.brief, "[linking '" + linkerOutputFile.toString() + "'...]");
     // the first object must be the linker script
@@ -411,8 +416,7 @@ public class BuildFormicVMCommand extends FormicCommand {
     // remove intermediate build files
     Build.clear(VM_BLD_DIR, true);
 
-    // remove vm-formic.bin, etc.
-    Build.delete(objCopyOutputFile);
+    // remove elf
     Build.delete(linkerOutputFile);
 
     // this may not be empty. ignore if this fails.

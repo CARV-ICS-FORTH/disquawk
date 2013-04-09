@@ -36,12 +36,12 @@ typedef signed char int8_t;
 #endif
 typedef short int int16_t;
 typedef int int32_t;
-/* # if __WORDSIZE == 64 */
-/* typedef long int int64_t; */
-/* # else */
-/* __extension__ */
-/* typedef long long int int64_t; */
-/* # endif */
+# if __WORDSIZE == 64
+typedef long int int64_t;
+# else
+__extension__
+typedef long long int int64_t;
+# endif
 
 /* Unsigned.  */
 typedef unsigned char uint8_t;
@@ -51,12 +51,12 @@ typedef unsigned int uint32_t;
 # define __uint32_t_defined
 #endif
 
-/* #if __WORDSIZE == 64 */
-/* typedef unsigned long int uint64_t; */
-/* #else */
-/* __extension__ */
-/* typedef unsigned long long int uint64_t; */
-/* #endif */
+#if __WORDSIZE == 64
+typedef unsigned long int uint64_t;
+#else
+__extension__
+typedef unsigned long long int uint64_t;
+#endif
 
 
 #define GET_FLOAT_WORD(i,d)                                      \
@@ -78,20 +78,20 @@ typedef unsigned int uint32_t;
 typedef long jint;
 typedef signed char jbyte;
 
-/* #define jlong int64_t */
-#define jlong int32_t
+#define jlong int64_t
+/* #define jlong int32_t */
 #ifdef ujlong
 #undef ujlong
 #endif  /* ujlong */
-#define ujlong uint32_t
+#define ujlong uint64_t
 
 #define JNI_TYPES_ALREADY_DEFINED_IN_JNI_MD_H
 
 typedef unsigned char	jboolean;
 typedef unsigned short	jchar;
-typedef short		jshort;
-typedef float		jfloat;
-typedef jfloat	jdouble;
+typedef short     jshort;
+typedef float     jfloat;
+typedef ujlong    jdouble; /* HACK: Define doubles as long*/
 
 typedef jint    jsize;
 

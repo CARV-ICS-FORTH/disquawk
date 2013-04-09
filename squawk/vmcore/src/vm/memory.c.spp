@@ -500,13 +500,13 @@ void checkOneAddress(Address ea, int size, Address addr);
          * @param type   the expected type of the value about to be read from the effective address
          * @return       the value
          */
-/*if[MICROBLAZE_BUILD]*/
-#define getLongAtWordTyped getIntTyped
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 /*MAC*/ jlong getLongAtWordTyped(Address $base, Offset $offset, char $type) {
             return *((jlong *)checkType(&((UWordAddress)$base)[$offset], $type, 8));
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define getLongAtWordTyped getIntTyped
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Given a base address and offset to a 64 bit value, sets the corresponding value.
@@ -516,16 +516,16 @@ void checkOneAddress(Address ea, int size, Address addr);
          * @param type   the type of the value about to be written to the effective address
          * @param value  the value
          */
-/*if[MICROBLAZE_BUILD]*/
-#define setLongAtWordTyped setIntTyped
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 /*MAC*/ void setLongAtWordTyped(Address $base, Offset $offset, char $type, jlong $value) {
             jlong *ea = (jlong *)&((UWordAddress)$base)[$offset];
             setType(ea, $type, 8);
             *ea = $value;
             checkPostWrite(ea, 8);
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define setLongAtWordTyped setIntTyped
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Given a base address and offset to a 64 bit value, return the corresponding value.
@@ -535,13 +535,13 @@ void checkOneAddress(Address ea, int size, Address addr);
          * @param type   the expected type of the value about to be read from the effective address
          * @return       the value
          */
-/*if[MICROBLAZE_BUILD]*/
-#define getLongTyped getIntTyped
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 /*MAC*/ jlong getLongTyped(Address $base, Offset $offset, char $type) {
             return *((jlong *)checkType(&((jlong *)$base)[$offset], $type, 8));
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define getLongTyped getIntTyped
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Given a base address and offset to a 64 bit value, set the corresponding value.
@@ -551,16 +551,16 @@ void checkOneAddress(Address ea, int size, Address addr);
          * @param type   the type of the value about to be written to the effective address
          * @param value  the value
          */
-/*if[MICROBLAZE_BUILD]*/
-#define setLongTyped setIntTyped
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 /*MAC*/ void setLongTyped(Address $base, Offset $offset, char $type, jlong $value) {
             jlong *ea = (jlong *)&((jlong *)$base)[$offset];
             setType(ea, $type, 8);
             *ea = $value;
             checkPostWrite(ea, 8);
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define setLongTyped setIntTyped
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Given a base address and offset to a UWord value, return the corresponding value.
@@ -698,14 +698,14 @@ void checkOneAddress(Address ea, int size, Address addr);
          * @param offset the offset (in 64 bit words) from 'base' at which to write
          * @param value  the value to write
          */
-/*if[MICROBLAZE_BUILD]*/
-#define setLong setInt
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 /*MAC*/ void setLong(Address $base, Offset $offset, jlong $value) {
             setLongTyped($base, $offset, AddressType_LONG, $value);
             setAssume($value == getLong($base, $offset));
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define setLong setInt
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Sets a 64 bit value in memory at a UWord offset.
@@ -714,9 +714,7 @@ void checkOneAddress(Address ea, int size, Address addr);
          * @param offset the offset (in UWords) from 'base' at which to write
          * @param value  the value to write
          */
-/*if[MICROBLAZE_BUILD]*/
-#define setLongAtWord setInt
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 /*MAC*/ void setLongAtWord(Address $base, Offset $offset, jlong $value) {
             if (SQUAWK_64 || PLATFORM_UNALIGNED_64_LOADS) {
                 setLongAtWordTyped($base, $offset, AddressType_LONG, $value);
@@ -728,7 +726,9 @@ void checkOneAddress(Address ea, int size, Address addr);
             }
             setAssume($value == getLongAtWord($base, $offset));
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define setLongAtWord setInt
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Sets a 16 bit value in memory.
@@ -795,9 +795,7 @@ INLINE_UNALIGNED void setUnalignedInt(Address base, Offset offset, int value) {
          * @param offset the offset (in 64 bit words) from 'base' at which to write
          * @param value  the value to write
          */
-/*if[MICROBLAZE_BUILD]*/
-#define setUnalignedLong setUnalignedInt
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value) {
             signed char *ea = &((signed char *)base)[offset];
             if (PLATFORM_UNALIGNED_64_LOADS || (!PLATFORM_UNALIGNED_LOADS && isAligned((UWord)ea, 8))) {
@@ -847,7 +845,9 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
             }
             setAssume(value == getUnalignedLong(base, offset));
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define setUnalignedLong setUnalignedInt
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Gets a signed 8 bit value from memory.
@@ -944,9 +944,7 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
          * @param offset the offset (in UWords) from 'base' from which to load
          * @return the value
          */
-/*if[MICROBLAZE_BUILD]*/
-#define getLongAtWord(a,b) getIntTyped(a,b, AddressType_LONG)
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 /*MAC*/ jlong getLongAtWord(Address $base, Offset $offset) {
             if (SQUAWK_64 || PLATFORM_UNALIGNED_64_LOADS) {
                 return getLongAtWordTyped($base, $offset, AddressType_LONG);
@@ -964,7 +962,9 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
                 return res;
             }
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define getLongAtWord(a,b) getIntTyped(a,b, AddressType_LONG)
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Gets a signed 16 bit value from memory.
@@ -1021,9 +1021,7 @@ INLINE_UNALIGNED int getUnalignedInt(Address base, Offset offset) {
          * @param offset the offset (in bytes) from 'base' from which to load
          * @return the value
          */
-/*if[MICROBLAZE_BUILD]*/
-#define getUnalignedLong getUnalignedInt
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 INLINE_UNALIGNED jlong getUnalignedLong(Address base, Offset offset) {
             signed char *ea = &((signed char *)base)[offset];
             if (PLATFORM_UNALIGNED_64_LOADS || (!PLATFORM_UNALIGNED_LOADS && isAligned((UWord)ea, 8))) {
@@ -1057,7 +1055,9 @@ INLINE_UNALIGNED jlong getUnalignedLong(Address base, Offset offset) {
                 return ((jlong)hi << 32) | lo;
             }
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define getUnalignedLong getUnalignedInt
+/*end[MICROBLAZE32_BUILD]*/
 
         /*-----------------------------------------------------------------------*\
          *                           Endianess swapping                          *
@@ -1114,9 +1114,7 @@ INLINE_UNALIGNED jlong getUnalignedLong(Address base, Offset offset) {
          *
          * @param address   the address of the value
          */
-/*if[MICROBLAZE_BUILD]*/
-#define swap8 swap4
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
         void swap8(Address address) {
             char type = (TYPEMAP ? getType(address) : AddressType_UNDEFINED);
             if (!(PLATFORM_UNALIGNED_LOADS || isAligned((UWord)address, 4))) {
@@ -1144,7 +1142,9 @@ INLINE_UNALIGNED jlong getUnalignedLong(Address base, Offset offset) {
                 setIntTyped(address, 1, type, SWAP4_VAL(hi));
             }
         }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define swap8 swap4
+/*end[MICROBLAZE32_BUILD]*/
 
         /**
          * Swaps the endianess of a value.

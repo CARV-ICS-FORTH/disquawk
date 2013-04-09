@@ -713,11 +713,11 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
      */
     static int asPercentOf(long part, long total) {
         // Take care of long multiplication overflow
-/*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
         if (part > (Integer.MAX_VALUE/100)) {
-/*else[MICROBLAZE_BUILD]*/
-        if (part > (Long.MAX_VALUE/100)) {
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//      if (part > (Long.MAX_VALUE/100)) {
+/*end[MICROBLAZE32_BUILD]*/
             total /= 100;
             part /= 100;
         }

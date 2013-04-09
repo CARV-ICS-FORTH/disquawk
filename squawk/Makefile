@@ -1,13 +1,14 @@
 BUILD_DIR=./vmcore/build
 ELF=${BUILD_DIR}/squawk.elf
-MYRMICS_SRC=./vmcore/src/rts/formic/myrmics/src
+RTS_SRC=./vmcore/src/rts/formic
+MYRMICS_SRC=$(RTS_SRC)/myrmics/src
 AT=@
 ARCH?=formic
 BUILDER_SRC=builder/src/com/sun/squawk/builder
 BUILDER=./d
 #BUILDER_FLAGS=-prod -verbose #This is for debug purposes (verbose and no macroize)
 ifeq ($(ARCH), formic)
-BUILDER_FLAGS=-prod -mac -comp:$(ARCH) -cflags:-I./$(MYRMICS_SRC)/include -assume -verbose
+BUILDER_FLAGS=-prod -mac -comp:$(ARCH) -cflags:-I./$(MYRMICS_SRC)/include -assume -tracing
 else
 BUILDER_FLAGS=-prod -mac -assume -verbose
 endif
@@ -20,10 +21,10 @@ SUITES_ADDR:=D2428
 STR_CLN = "[1m[ [31mCLN [0;1m][0m"
 STR_BLD = "[1m[ [32mBLD [0;1m][0m"
 STR_ROM = "[1m[ [33mROM [0;1m][0m"
-STR_JVC = "[1m[ [34mJVC [0;1m][0m"
+STR_FLC = "[1m[ [34mFLC [0;1m][0m"
 STR_LNK = "[1m[ [35mLNK [0;1m][0m"
-STR_BIN = "[1m[ [36mELF [0;1m][0m"
-STR_FLC = "[1m[ [37mFLC [0;1m][0m"
+STR_ELF = "[1m[ [36mELF [0;1m][0m"
+STR_JVC = "[1m[ [37mJVC [0;1m][0m"
 
 .PHONY: base hello run myrmics
 
@@ -53,8 +54,18 @@ build.jar: $(BUILDER_SRC)/*.java $(BUILDER_SRC)/commands/*.java
 	$(AT)echo $(STR_BLD) $@
 	$(AT)$(BUILDER) builder
 
+$(RTS_SRC)/os.c:$(RTS_SRC)/os_math.c
+
+$(RTS_SRC)/%.c:$(RTS_SRC)/%.c.spp
+	$(AT)echo $(STR_BLD) $@
+	$(AT)$(BUILDER) spp $<
+
 # builds the squawk executable for x86 platforms
+ifeq ($(ARCH), formic)
+squawk: romizer.ts $(RTS_SRC)/os.c
+else
 squawk: romizer.ts
+endif
 	$(AT)echo $(STR_ROM) $@
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) rom cldc
 
@@ -78,7 +89,7 @@ FormicApp.suite.bin: FormicApp.suite suite_addr.txt squawk.suite.bin
 	$(AT)echo $(BUILDER) flashconv \-endian:little \-v $< $(TMP) $(SUITES_ADDR)
 	$(AT)$(BUILDER) flashconv -endian:little -v $< $(TMP) $(SUITES_ADDR)
 
-suite_addr.txt: $(MYRMICS_SRC)/linker.java.mb.ld romizer.ts myrmics
+suite_addr.txt: $(MYRMICS_SRC)/linker.java.mb.ld romizer.ts myrmics $(RTS_SRC)/os.c
 	$(AT)rm -f java.ld
 	$(AT)cp $< java.ld
 	$(AT)echo $(STR_ELF) $@
@@ -126,4 +137,7 @@ distclean: clean
               vm2c/vm2c.input\
               vmcore/link.map\
               ../formic-tests/*/classes\
-              ../formic-apps/*/classes
+              ../formic-apps/*/classes\
+              $(RTS_SRC)/*.c.spp.preprocessed\
+              $(RTS_SRC)/os.c\
+              $(RTS_SRC)/os_math.c

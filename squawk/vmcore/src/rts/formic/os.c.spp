@@ -170,3 +170,9 @@ INLINE void osbackbranch() {}
 long sysconf(int code) {}
 
 #endif
+
+// If there are no available math macro implementations include them
+// (this is expected to be slower)
+/*if[!LIBGCC]*/
+#include "os_math.c"
+/*end[LIBGCC]*/

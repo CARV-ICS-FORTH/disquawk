@@ -53,7 +53,7 @@ void diagnosticPrimWithValue(char* msg, int len, int val) {
 /*if[MICROBLAZE_BUILD]*/
     printf("%s %s %#x\r\n", DIAG_INTRO, msg, val);
 /*else[MICROBLAZE_BUILD]*/
-    printf("%s %.*s %#x\r\n", DIAG_INTRO, len, msg, val);
+//  printf("%s %.*s %#x\r\n", DIAG_INTRO, len, msg, val);
 /*end[MICROBLAZE_BUILD]*/
     fflush(stdout);
 }
@@ -229,11 +229,11 @@ static Address lookupStaticMethod(int cid, int methodOffset);
 /**
  * The tracing limits.
  */
-/*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
 const jlong MAX_UJLONG = (jlong)0xffffffff;
-/*else[MICROBLAZE_BUILD]*/
-const jlong MAX_UJLONG = (jlong)0x7fffffff << 32 | 0xffffffff;
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//const jlong MAX_UJLONG = (jlong)0x7fffffff << 32 | 0xffffffff;
+/*end[MICROBLAZE32_BUILD]*/
 #ifndef TRACESTART
 #define TRACESTART MAX_UJLONG
 #endif
@@ -382,9 +382,7 @@ typedef int Type;
  *** case:
  ***/
 
-/*if[MICROBLAZE_BUILD]*/
-#define float2ll_slow float2l_slow
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 NOINLINE jlong float2ll_slow(float f) {
     static const unsigned long LongMin_f = 0xdf000000L;
     static const unsigned long LongMax_f = 0x5f000000L;
@@ -400,11 +398,11 @@ NOINLINE jlong float2ll_slow(float f) {
       r = (jlong) f;
     return r;
 }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define float2ll_slow float2l_slow
+/*end[MICROBLAZE32_BUILD]*/
 
-/*if[MICROBLAZE_BUILD]*/
-#define double2ll_slow float2l_slow
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 NOINLINE jlong double2ll_slow(double d) {
 #if ARM_FPA
     static const ujlong LongMin_d = 0x00000000c3e00000LL;
@@ -426,7 +424,9 @@ NOINLINE jlong double2ll_slow(double d) {
         r = (jlong) d;
     return r;
 }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define double2ll_slow float2l_slow
+/*end[MICROBLAZE32_BUILD]*/
 
 NOINLINE int float2l_slow(float f) {
     static const unsigned int IntegerMin_f = 0xcf000000L;
@@ -445,9 +445,7 @@ NOINLINE int float2l_slow(float f) {
     return r;
 }
 
-/*if[MICROBLAZE_BUILD]*/
-#define double2l_slow float2l_slow
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 NOINLINE int double2l_slow(double d) {
 #if ARM_FPA
     static const ujlong IntegerMin_d = 0x00000000c1e00000LL;
@@ -469,7 +467,9 @@ NOINLINE int double2l_slow(double d) {
       r = (int) d;
     return r;
 }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define double2l_slow float2l_slow
+/*end[MICROBLAZE32_BUILD]*/
 /*end[FLOATS]*/
 
 /**
@@ -675,11 +675,7 @@ int parseQuantity(char *p, const char* arg) {
  * @return the size of the file or -1 if it doesn't exist
  */
 Offset getFileSize(const char *file) {
-/*if[MICROBLAZE_BUILD]*/
-    printf("Error #2: Can't get file size, no stat() implementation available\n");
-
-    stopVM(-1);
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE_BUILD]*/
     struct stat buf;
     if (stat(file, &buf) == 0) {
         return buf.st_size;
@@ -690,6 +686,10 @@ Offset getFileSize(const char *file) {
         }
         return -1;
     }
+/*else[MICROBLAZE_BUILD]*/
+//  printf("Error #2: Can't get file size, no stat() implementation available\n");
+//
+//  stopVM(-1);
 /*end[MICROBLAZE_BUILD]*/
 }
 
@@ -703,11 +703,7 @@ Offset getFileSize(const char *file) {
  *                 the system to exit.
  */
 int readFile(const char *file, Address buffer, UWord size) {
-/*if[MICROBLAZE_BUILD]*/
-    printf("Error #3: Can't read file, no implementation available\n");
-
-    stopVM(-1);
-/*else[MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE_BUILD]*/
     struct stat buf;
     int result = -1;
     if (stat(file, &buf) == 0) {
@@ -738,6 +734,10 @@ int readFile(const char *file, Address buffer, UWord size) {
         }
     }
     return result;
+/*else[MICROBLAZE_BUILD]*/
+//  printf("Error #3: Can't read file, no implementation available\n");
+//
+//  stopVM(-1);
 /*end[MICROBLAZE_BUILD]*/
 }
 
@@ -773,20 +773,20 @@ static void printCacheStats() {
     fprintf(stderr, "----------------------------------");
 #ifdef PROFILING
     count = instructionCount-lastStatCount;
-/*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
     fprintf(stderr, " %ld.%02ld M Instructions ", count/1000000, (count % 1000000) / 10000);
-/*else[MICROBLAZE_BUILD]*/
-    fprintf(stderr, " %lld.%02lld M Instructions ", count/1000000, (count % 1000000) / 10000);
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//  fprintf(stderr, " %lld.%02lld M Instructions ", count/1000000, (count % 1000000) / 10000);
+/*end[MICROBLAZE32_BUILD]*/
     lastStatCount = instructionCount;
 #else
 #if TRACE
     count = getBranchCount()-lastStatCount;
-/*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
     fprintf(stderr, " %ld.02%ld M Branches ", count/1000000, (count % 1000000) / 10000);
-/*else[MICROBLAZE_BUILD]*/
-    fprintf(stderr, " %lld.02%lld M Branches ", count/1000000, (count % 1000000) / 10000);
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//  fprintf(stderr, " %lld.02%lld M Branches ", count/1000000, (count % 1000000) / 10000);
+/*end[MICROBLAZE32_BUILD]*/
     lastStatCount = getBranchCount();
 #endif /* TRACE */
 #endif /* PROFILING */
@@ -1075,7 +1075,7 @@ int writeCStringArray(int length, char **array, int offset) {
 /*if[MICROBLAZE_BUILD]*/
 char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
 /*else[MICROBLAZE_BUILD]*/
-static char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
+//static char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
 /*end[MICROBLAZE_BUILD]*/
 
 /**
@@ -1624,15 +1624,15 @@ void verifyBuildFlags() {
         exit(EXIT_FAILURE); \
     } \
 
-/*if[MICROBLAZE_BUILD]*/
-#define assertEquals8 assertEquals4
-/*else[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
 #define assertEquals8(msg, expected, received) \
     if (received != expected) { \
         fprintf(stderr, "Test failed. Expected 0x%llx, received 0x%llx at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
         exit(EXIT_FAILURE); \
     }
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//#define assertEquals8 assertEquals4
+/*end[MICROBLAZE32_BUILD]*/
 
 void testLongs() {
     const jlong PATTERN1 = 0xAAAAAAAAAAAAAAAALL;
@@ -1643,36 +1643,36 @@ void testLongs() {
     jlong l1 = makeLong(PATTERN3, PATTERN3);
     assertEquals8("makeLong() 1", PATTERN1, l1);
 
-/*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
     assertEquals4("getHi() 1", 0, getHi(l1));
-/*else[MICROBLAZE_BUILD]*/
-    assertEquals4("getHi() 1", PATTERN3, getHi(l1));
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//  assertEquals4("getHi() 1", PATTERN3, getHi(l1));
+/*end[MICROBLAZE32_BUILD]*/
     assertEquals4("getLo() 1", PATTERN3, getLo(l1));
 
     l1 = makeLong(PATTERN3, MAX);
     assertEquals8("makeLong() 2", PATTERN2, l1);
 
-/*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
     assertEquals4("getHi() 1", 0, getHi(l1));
-/*else[MICROBLAZE_BUILD]*/
-    assertEquals4("getHi() 2", PATTERN3, getHi(l1));
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//  assertEquals4("getHi() 2", PATTERN3, getHi(l1));
+/*end[MICROBLAZE32_BUILD]*/
     assertEquals4("getLo() 2", MAX,      getLo(l1));
 }
 
 void testUnaligned() {
-/*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
     const jlong PATTERN1 = 0x11223344L;
     const jlong PATTERN1_SWAP = 0x44332211L;
     const jlong PATTERN2 = 0xAAAAAAAAL;
     const jlong PATTERN2_SWAP = 0xAAAAAAAAL;
-/*else[MICROBLAZE_BUILD]*/
-    const jlong PATTERN1 = 0x1122334455667788LL;
-    const jlong PATTERN1_SWAP = 0x8877665544332211LL;
-    const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
-    const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//  const jlong PATTERN1 = 0x1122334455667788LL;
+//  const jlong PATTERN1_SWAP = 0x8877665544332211LL;
+//  const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
+//  const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
+/*end[MICROBLAZE32_BUILD]*/
     const int   PATTERN3 = 0x55667788;
     const int   PATTERN3_SWAP = 0x88776655;
     jlong tmp[2];
@@ -1775,17 +1775,17 @@ void testUnaligned() {
 }
 
 void testWordAt() {
-/*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE32_BUILD]*/
     const jlong PATTERN1 = 0x11223344L;
     const jlong PATTERN1_SWAP = 0x44332211L;
     const jlong PATTERN2 = 0xAAAAAAAAL;
     const jlong PATTERN2_SWAP = 0xAAAAAAAAL;
-/*else[MICROBLAZE_BUILD]*/
-    const jlong PATTERN1 = 0x1122334455667788LL;
-    const jlong PATTERN1_SWAP = 0x8877665544332211LL;
-    const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
-    const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
-/*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE32_BUILD]*/
+//  const jlong PATTERN1 = 0x1122334455667788LL;
+//  const jlong PATTERN1_SWAP = 0x8877665544332211LL;
+//  const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
+//  const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
+/*end[MICROBLAZE32_BUILD]*/
     const int   PATTERN3 = 0x55667788;
     const int   PATTERN3_SWAP = 0x88776655;
     jlong tmp;
