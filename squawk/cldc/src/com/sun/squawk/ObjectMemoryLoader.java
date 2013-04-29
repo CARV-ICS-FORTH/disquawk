@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -54,11 +54,11 @@ import com.sun.squawk.vm.HDR;
  *
  */
 public class ObjectMemoryLoader {
- 
+
 /*if[VERIFY_SIGNATURES]*/
     private static boolean signatureVerifierInitialised = false;
     private static boolean noPublicKeyInstalled = false;
-    
+
     private static byte[] getPublicKey() {
 		byte[] result = new byte[256];
 		int numberOfBytesRead = VM.execSyncIO(ChannelConstants.GET_PUBLIC_KEY, result.length, 0,0,0,0,0, result, null);
@@ -83,7 +83,7 @@ public class ObjectMemoryLoader {
         }
     }
 /*end[VERIFY_SIGNATURES]*/
-    
+
     /**
      * Calculates the hash of an array of bytes.
      *
@@ -173,7 +173,7 @@ public class ObjectMemoryLoader {
             throw new OutOfMemoryError("garbage collection occured while loading object memory from " + uri);
         }
     }
-    
+
     /**
      * Loads an object memory from a given input stream. If the URI describing the source of the input
      * stream corresponds to the URI of an object memory already present in the system, then that object
@@ -182,7 +182,7 @@ public class ObjectMemoryLoader {
      * @param uri                     a URI identifying the object memory being loaded
      * @param loadIntoReadOnlyMemory  specifies if the object memory should be put into read-only memory
      * @return the ObjectMemoryFile instance encapsulating the loaded/resolved object memory
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
     public static ObjectMemoryFile load(String uri, boolean loadIntoReadOnlyMemory) throws IOException {
         String url;
@@ -204,7 +204,7 @@ System.out.println("filePathelements=" + filePathelements);
             throw e;
         }
     }
-    
+
     /**
      * The restartable entry point to loading.
      *
@@ -216,8 +216,10 @@ System.out.println("filePathelements=" + filePathelements);
      */
     private static ObjectMemoryFile load0(DataInputStream dis, String uri, boolean loadIntoReadOnlyMemory, boolean headerOnly) {
         ObjectMemoryLoader loader;
-/*if[VERIFY_SIGNATURES]*/
+        VM.print("[DIAG]  load0 for "+uri+"\n");
+
         if (uri.startsWith("spotsuite:")) {
+/*if[VERIFY_SIGNATURES]*/
         	ensurePublicKeyInitialised();
             InputStream suiteIn;
             String signatureVerificationErrorMessage = "";
@@ -240,20 +242,20 @@ System.out.println("filePathelements=" + filePathelements);
                 	} else {
                 		//System.out.println("NOT verifying suite with uri " + uri);
                 	}
-                	
+
 				} catch (SignatureVerifierException e) {
                     throw new Error(signatureVerificationErrorMessage+((VM.isVerbose())?("\n\t"+e.getMessage()):""));
                 } finally {
                     suiteIn.close();
                 }
-                
+
             } catch (IOException e) {
             	throw new Error(signatureVerificationErrorMessage+((VM.isVerbose())?("\n\t"+e.getMessage()):""));
             }
+/*end[VERIFY_SIGNATURES]*/
             ObjectMemoryReader reader = new FlashObjectMemoryReader(dis, uri);
             loader = new FlashObjectMemoryLoader(reader, loadIntoReadOnlyMemory);
         } else
-/*end[VERIFY_SIGNATURES]*/
         {
             ObjectMemoryReader reader = new ObjectMemoryReader(dis, uri);
             loader = new ObjectMemoryLoader(reader, loadIntoReadOnlyMemory);
@@ -459,6 +461,11 @@ System.out.println("filePathelements=" + filePathelements);
             VM.collectGarbage(true);
         }
 
+        VM.print("[DIAG] in loadThis\n");
+        VM.print("       Name:"+url+"\n");
+        VM.print("       Root:"+root+"\n");
+        VM.print("       size:"+size+"\n");
+
         // Relocate the pointers in the memory and move the buffer into read-only memory if necessary
         Address relocatedBuffer = relocateMemory(parent, buffer, oopMap);
 
@@ -491,7 +498,7 @@ System.out.println("filePathelements=" + filePathelements);
     }
 
     static String filePathelements;
-    
+
     /**
      * Expecting a string that looks something like "c:\dev\1${File.separatorChar}c:\windows".
      * @param path entries
@@ -514,7 +521,7 @@ System.out.println("filePathelements=" + filePathelements);
         }
         filePathelements = buffer.toString();
     }
-    
+
     /**
      * Expecting a string that looks something like "c:\dev\1${File.separatorChar}c:\windows".
      * @param path entries
@@ -535,7 +542,7 @@ System.out.println("filePathelements=" + filePathelements);
         }
         filePathelements = buffer.toString();
     }
-    
+
     /**
      * Converts ObjectMemory.BOOTSTRAP_URI to the bootstrap URI given by the
      * system property <code>bootstrap.suite.url</code>.  Any other URI is
@@ -693,8 +700,8 @@ System.out.println("filePathelements=" + filePathelements);
  */
 class ObjectMemoryReader extends StructuredFileInputStream {
 
-    
-    
+
+
     /**
      * Creates a <code>ObjectMemoryReader</code> that reads object memory file components
      * from a given input stream.

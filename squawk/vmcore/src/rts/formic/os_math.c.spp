@@ -1,8 +1,12 @@
 #ifndef __OS_MAIN_H__
 #define __OS_MAIN_H__
 
+#ifdef UNIT_TEST
+#include "jni_md.h"
+#endif  /* UNIT_TEST */
+
 /*if[!MICROBLAZE32_BUILD]*/
-typedef union{
+typedef union {
   float f;
   unsigned int u;
 } float_bits;
@@ -546,5 +550,54 @@ jlong __moddi3(jlong a, jlong b)
   return (r ^ s) - s;                /* negate if s == -1 */
 }
 /*end[MICROBLAZE32_BUILD]*/
+
+#ifdef UNIT_TEST
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define assert(x) \
+  if (!(x)) {\
+    printf("Assert failed: ");               \
+    printf(TOSTRING(x)); \
+    printf("\n"); \
+  }
+
+int main()
+{
+  long long a = 0xAAAAAAAAAAAAAAAALL;
+  long long b = 0x00000000BBBBBBBBLL;
+  long long c = 0x000000000000BBBBLL;
+  long long d = 0x000000BBBBBBBBBBLL;
+  long long e = 0x1122334455667788LL;
+  long long f = 0x0000004455667788LL;
+  long long g = 0x1122330000000000LL;
+
+  assert(e==e && "64bit equality T");
+  assert(e!=f && "64bit equality F");
+  assert(e!=g && "64bit equality F2");
+  assert(f!=g && "64bit equality F3");
+
+  long long mod_ll = __moddi3(a, b);
+  assert(mod_ll==0xFFFFFFFFCCCCCCCCLL && "mod LL");
+
+  long div_l = (long)__divdi3(a,b);
+  assert(div_l==0XFFFFFFFF8BA2E8BALL && "div b L");
+
+  long long div_ll = __divdi3(a,c);
+  assert(div_ll==0xFFFF8BA2745CA2E9LL && "div c LL");
+
+  mod_ll = __moddi3(a,c);
+  assert(mod_ll==0xFFFFFFFFFFFF7777LL && "mod c LL");
+
+  long mul_ll = __muldi3(c, d);
+  assert(mul_ll==0x89AB444443BA99LL && "mul c d LL");
+
+  int ia = 0xF000;
+  int trailing = __ctzsi2(ia);
+  assert(trailing==12 && "Trailing zero bits");
+
+  return 0;
+}
+
+#endif  /* UNIT_TEST */
 
 #endif /* __OS_MAIN_H__ */

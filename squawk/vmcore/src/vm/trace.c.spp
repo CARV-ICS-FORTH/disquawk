@@ -419,7 +419,12 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
  * @param  traceFP   the current frame pointer which will not be valid if opcode at 'traceIP' is OPC_EXTEND
  * @param  traceSP   the current operand stack pointer
  */
+/*if[MICROBLAZE_BUILD]*/
+void trace(ByteAddress traceIP, UWordAddress traceFP,
+           UWordAddress traceSP, unsigned char opcode) {
+/*else[MICROBLAZE_BUILD]*/
 void trace(ByteAddress traceIP, UWordAddress traceFP, UWordAddress traceSP) {
+/*end[MICROBLAZE_BUILD]*/
 #ifndef MACROIZE
     ByteAddress saveIP = ip;   // save the global IP
 #endif /* MACROIZE */
@@ -472,7 +477,12 @@ void trace(ByteAddress traceIP, UWordAddress traceFP, UWordAddress traceSP) {
     level += calculateCallDepth(traceFP);
 
     // Write out the first part of the trace line which has the following ':' separated components:
+/*if[MICROBLAZE_BUILD]*/
+    fprintf(traceFile, format("*TRACE*:%d:%d:%A:%d:%x:"), threadID, level,
+            traceMP-(uint32_t)com_sun_squawk_VM_bootstrapStart, pc, opcode);
+/*else[MICROBLAZE_BUILD]*/
     fprintf(traceFile, format("*TRACE*:%d:%d:%A:%d:"), threadID, level, traceMP, pc);
+/*end[MICROBLAZE_BUILD]*/
 
     // Write out the decoded instruction
 #if TYPEMAP

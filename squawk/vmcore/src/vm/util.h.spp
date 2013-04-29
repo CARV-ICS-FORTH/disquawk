@@ -246,13 +246,13 @@ void printRange(char* label, void* start, void* end);
     * @return the resulting Java long
     */
     INLINE jlong makeLong(int high, int low) {
-#ifdef JAVA
+/*if[MICROBLAZE32_BUILD]*/
       if (high)
         printf("Warning #1: getHi invocation\n");
       return (jlong)low;
-#else
-      return (((jlong) high) << 32) | ((unsigned int)low);
-#endif  /* JAVA */
+/*else[MICROBLAZE32_BUILD]*/
+//    return (((jlong) high) << 32) | ((unsigned int)low);
+/*end[MICROBLAZE32_BUILD]*/
     }
 
     /**
@@ -262,12 +262,12 @@ void printRange(char* label, void* start, void* end);
     * @return the high 32-bits of value
     */
     INLINE int getHi(jlong value) {
-#ifdef JAVA
+/*if[MICROBLAZE32_BUILD]*/
       printf("Warning #1: getHi invocation\n");
       return 0;
-#else
-      return (int) (value >> 32);
-#endif  /* JAVA */
+/*else[MICROBLAZE32_BUILD]*/
+//    return (int) (value >> 32);
+/*end[MICROBLAZE32_BUILD]*/
     }
 
     /**
@@ -284,15 +284,15 @@ void printRange(char* label, void* start, void* end);
  *                            Low level operations                           *
 \*---------------------------------------------------------------------------*/
 
-#ifdef JAVA
+/*if[MICROBLAZE32_BUILD]*/
 INLINE jlong  slll(jlong a, int b)         { return a<<(b&31);                }
 INLINE jlong  sral(jlong a, int b)         { return a>>(b&31);                }
 INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&31);      }
-#else
-INLINE jlong  slll(jlong a, int b)         { return a<<(b&63);                }
-INLINE jlong  sral(jlong a, int b)         { return a>>(b&63);                }
-INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&63);      }
-#endif  /* JAVA */
+/*else[MICROBLAZE32_BUILD]*/
+//INLINE jlong  slll(jlong a, int b)         { return a<<(b&63);                }
+//INLINE jlong  sral(jlong a, int b)         { return a>>(b&63);                }
+//INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&63);      }
+/*end[MICROBLAZE32_BUILD]*/
 INLINE int    sll(int a, int b)            { return a<<(b&31);                }
 INLINE int    sra(int a, int b)            { return a>>(b&31);                }
 INLINE int    srl(int a, int b)            { return ((unsigned)a)>>(b&31);    }

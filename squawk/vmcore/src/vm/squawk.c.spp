@@ -1624,7 +1624,7 @@ void verifyBuildFlags() {
         exit(EXIT_FAILURE); \
     } \
 
-/*if[MICROBLAZE32_BUILD]*/
+/*if[!MICROBLAZE32_BUILD]*/
 #define assertEquals8(msg, expected, received) \
     if (received != expected) { \
         fprintf(stderr, "Test failed. Expected 0x%llx, received 0x%llx at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
@@ -1786,8 +1786,8 @@ void testWordAt() {
 //  const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
 //  const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
 /*end[MICROBLAZE32_BUILD]*/
-    const int   PATTERN3 = 0x55667788;
-    const int   PATTERN3_SWAP = 0x88776655;
+//    const int   PATTERN3 = 0x55667788;
+//    const int   PATTERN3_SWAP = 0x88776655;
     jlong tmp;
     Address buf = &tmp;
     jlong val;
@@ -1811,11 +1811,11 @@ void testWordAt() {
 void fpTest() {
     float f0 = 0.0;
     float f1 = 1.0;
-    double d0 = 0.0;
-    double d1 = 1.0;
     //    FILE *vmOut = streams[currentStream];
 
 #if 0
+    double d0 = 0.0;
+    double d1 = 1.0;
     fprintf(vmOut, format("f0 = %i\n"), f2ib(f0));
     fprintf(vmOut, format("f1 = %i\n"), f2ib(f1));
     fprintf(vmOut, format("f0 + f0 = %i\n"), f2ib(f0 + f0));
@@ -1891,7 +1891,7 @@ void fpTest() {
     assertEquals8("double2ll(D_POS_INFINITY)", double2ll_slow(lb2d(D_POS_INFINITY)), (jlong)(lb2d(D_POS_INFINITY)));
     assertEquals8("double2ll(D_NEG_INFINITY)", double2ll_slow(lb2d(D_NEG_INFINITY)), (jlong)(lb2d(D_NEG_INFINITY)));
 
-    assertEquals8("(jlong)1E+100D == max long",     (jlong)1E+100D, 0x7fffffffffffffffLL);
+    assertEquals8("(jlong)1E+100D == max long",     (jlong)1E+100, 0x7fffffffffffffffLL);
 #endif
 }
 /*else[FLOATS]*/
@@ -1901,9 +1901,13 @@ void fpTest() {
 void unitTests() {
     diagnostic("in unitTests");
     testLongs();
+    diagnostic("in unitTests ... Longs     OK");
     testUnaligned();
+    diagnostic("in unitTests ... Unaligned OK");
     testWordAt();
+    diagnostic("in unitTests ... WordAt    OK");
     fpTest();
+    diagnostic("in unitTests ... FP        OK");
 }
 
 #endif /* RUN_UNIT_TESTS */
@@ -2040,6 +2044,7 @@ void Squawk_continue(Globals *gp) {
 
         opcode = fetchUByte();
 
+
 #ifdef PROFILING
         opcodeCopy = opcode;
 #endif
@@ -2051,7 +2056,11 @@ void Squawk_continue(Globals *gp) {
 
 #if TRACE
         if (com_sun_squawk_VM_tracing) {
-            trace(ipCopy, fp, sp);
+/*if[MICROBLAZE_BUILD]*/
+          /*trace(ipCopy, fp, sp, opcode);*/
+/*else[MICROBLAZE_BUILD]*/
+//          trace(ipCopy, fp, sp);
+/*end[MICROBLAZE_BUILD]*/
         }
 #endif /* TRACE */
 

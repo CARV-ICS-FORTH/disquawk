@@ -30,6 +30,9 @@
 
 #define DEFAULT_RAM_SIZE   MM_MB_KERNEL_SIZE
 
+/* Try to use the normal C conversions */
+#define C_FP_CONVERSIONS_OK 0
+
 // Override setting from platform.h
 #undef PLATFORM_UNALIGNED_LOADS
 #define PLATFORM_UNALIGNED_LOADS false
@@ -94,8 +97,8 @@ INLINE int sysGetPageSize(void) {
 /**
  * Return the current time in milliseconds.
  */
-jlong sysTimeMillis(void) {
-  return 0;
+INLINE jlong sysTimeMillis(void) {
+  return (jlong)ar_timer_get_msec();
 }
 #define getMilliseconds sysTimeMillis
 
@@ -116,15 +119,11 @@ jlong sysTimeMicros() {
 INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}
 
 /**
- * Cannot determine what the purpose of this function is. This function is not
- * implemented for the eSPOT or the bSPOT.
+ * Cannot determine what the purpose of this function is. This
+ * function is not implemented for the eSPOT or the bSPOT. It gets
+ * called in every bytecode execution.
  */
 INLINE void osloop() {}
-
-/**
- * Execute an IO operation for a Squawk isolate.
- */
-static void ioExecute(void) {}
 
 #define enableARMInterrupts enableInterrupts
 void enableInterrupts(void) {}
@@ -146,7 +145,7 @@ unsigned int get_flash_base(void) { return 0; }
  * Return the size of the flash memory
  */
 //unsigned int get_flash_size(void) { return &__linker_end_bss; }
-unsigned int get_flash_size(void) { return &__linker_squawk_suite_end; }
+unsigned int get_flash_size(void) { return (unsigned int)&__linker_squawk_suite_end; }
 
 /**
  * Called by Squawk when a back branch occurs.

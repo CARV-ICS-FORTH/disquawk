@@ -273,6 +273,8 @@ public class VM implements GlobalStaticFields {
      * @param bootstrapSuite        the bootstrap suite
      */
     static void startup(Suite bootstrapSuite) throws InterpreterInvokedPragma {
+      VM.print("[DIAG]  in STARTUP\n");
+
 
         /*
          * Set default for allowing Runtime.gc() to work.
@@ -284,6 +286,7 @@ public class VM implements GlobalStaticFields {
          * for use by the code in do_throw() and the OutOfMemoryError.
          */
         GC.initialize(bootstrapSuite);
+      VM.print("[DIAG]  initialized GC\n");
 
         vmbufferDecoder  = new VMBufferDecoder();
         outOfMemoryError = new OutOfMemoryError();
@@ -294,6 +297,7 @@ public class VM implements GlobalStaticFields {
         String[] args  = new String[argc];
         currentIsolate = new Isolate("com.sun.squawk.JavaApplicationManager", args, bootstrapSuite);
         currentIsolate.initializeClassKlass();
+        VM.print("[DIAG]  Isolation initialized\n");
 
         /*
          * Initialise threading.
@@ -301,6 +305,7 @@ public class VM implements GlobalStaticFields {
         VMThread.initializeThreading();
         synchronizationEnabled = true;
 
+        VM.print("[DIAG]  Threading initialized\n");
         /*
          * Fill in the args array with the C command line arguments.
          */
@@ -318,6 +323,7 @@ public class VM implements GlobalStaticFields {
             shutdownHooks = new CallbackManager(true);
             currentIsolate.primitiveThreadStart();
             VMThread.initializeThreading2();
+            VM.print("[DIAG]  Service operation Loop is UP\n");
             ServiceOperation.execute();
         } catch (Throwable ex) {
             fatalVMError();
@@ -2395,7 +2401,11 @@ hbp.dumpState();
 //    	if (timeAddr.isZero()) {
 //    		timeAddr = Address.fromPrimitive(execSyncIO(ChannelConstants.GET_CURRENT_TIME_ADDR, 0));
 //    	}
+/*if[MICROBLAZE_BUILD]*/
+		return timeAddr.hashCode();
+/*else[MICROBLAZE_BUILD]*/
 //		return NativeUnsafe.getLong(timeAddr, 0);
+/*end[MICROBLAZE_BUILD]*/
 /*end[FLASH_MEMORY]*/
     }
 
@@ -2451,7 +2461,11 @@ hbp.dumpState();
 //    	if (timeAddr.isZero()) {
 //    		timeAddr = Address.fromPrimitive(execSyncIO(ChannelConstants.GET_CURRENT_TIME_ADDR, 0));
 //    	}
-//		return NativeUnsafe.getLong(timeAddr, 0);
+/*if[MICROBLAZE_BUILD]*/
+		return timeAddr.hashCode();
+/*else[MICROBLAZE_BUILD]*/
+	return NativeUnsafe.getLong(timeAddr, 0);
+/*end[MICROBLAZE_BUILD]*/
 /*end[FLASH_MEMORY]*/
     }
 /*else[DEBUG_CODE_ENABLED]*/

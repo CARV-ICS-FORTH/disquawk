@@ -37,7 +37,7 @@ import com.sun.squawk.util.Assert;
  *
  */
 public class JavaApplicationManager {
-    
+
     /**
      * Purely static class should not be instantiated.
      */
@@ -74,28 +74,28 @@ public class JavaApplicationManager {
      */
      private static String testMIDletClass;
 /*end[DEBUG_CODE_ENABLED]*/
-    
+
     /**
      * Specify the MIDlet- property to extract to determine which MIDlet should be run from a suite.
      */
     private static int midletPropertyNum;
 
-     
+
     /**
      * Main routine.
      *
      * @param args the command line argument array
-     * @throws java.lang.Exception 
+     * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
         // If no name is specified for MIDlet, assume MIDlet-1
         midletPropertyNum = 1;
-        
+
         String mainClassName = null;
         String[] javaArgs = null;
 
 /*if[!EMULATOR_LAUNCHER]*/
-        
+
         /*
          * Process any switches.
          */
@@ -109,7 +109,7 @@ public class JavaApplicationManager {
             javaArgs = new String[] {"-name", testMIDletClass};
         } else
 /*end[DEBUG_CODE_ENABLED]*/
-            if (args.length > 0) {
+        if (args.length > 0) {
             /*
              * Split out the class name from the other arguments.
              */
@@ -119,7 +119,7 @@ public class JavaApplicationManager {
                 javaArgs[i] = args[i+1];
             }
         } // else use midletPropertyNum
-        
+
 /*else[EMULATOR_LAUNCHER]*/
 //        mainClassName = "com.sun.squawk.uei.j2me.Launcher";
 //        javaArgs = new String[args.length];
@@ -127,13 +127,13 @@ public class JavaApplicationManager {
 //            javaArgs[i] = args[i];
 //        }
 /*end[EMULATOR_LAUNCHER]*/
-        
+
         /*
          * Get the start time.
          */
         long startTime = System.currentTimeMillis();
         int exitCode = 999;
-        
+
 /*if[ENABLE_MULTI_ISOLATE]*/
         try {
             /*
@@ -181,7 +181,7 @@ public class JavaApplicationManager {
 //                }
 //            }
 /*end[ENABLE_ISOLATE_MIGRATION]*/
-            
+
             /*
              * Get the exit status.
              */
@@ -211,7 +211,7 @@ public class JavaApplicationManager {
          * Stop the VM.
          */
         VM.stopVM(exitCode);
-        
+
 /*else[ENABLE_MULTI_ISOLATE]*/
 //        AppThread appThread = null;
 //        try {
@@ -227,12 +227,14 @@ public class JavaApplicationManager {
 //                args[0] = "MIDlet-" + midletPropertyNum;
 //                appThread = new AppThread(Isolate.MIDLET_WRAPPER_CLASS, args);
 //            }
-//            
+//            VM.print("parentSuiteURI="+parentSuiteURI+"\n");
 //            VM.getCurrentIsolate().morphBootstrapInto(null, classPath, parentSuiteURI);
+//            VM.print("morph done starting AppThread\n");
 //            /*
 //             * Start the application thread and wait for it to complete.
 //             */
 //            appThread.start();
+//            VM.print("Done AppThread\n");
 //            //appThread.join(); // note that this isnt waiting for all app threads to finish, just this thread.
 //        } catch (Error e) {
 //            System.err.println(e);
@@ -240,7 +242,7 @@ public class JavaApplicationManager {
 //                e.printStackTrace();
 //            }
 //        }
-/*end[ENABLE_MULTI_ISOLATE]*/        
+/*end[ENABLE_MULTI_ISOLATE]*/
     }
 
     /**
@@ -436,7 +438,7 @@ public class JavaApplicationManager {
                 "    -traceswapper         trace endianess swapping\n"
                 );
         }
-        
+
         GC.getCollector().usage(out);
         out.print(
                 "    -egc                  enable excessive garbage collection\n" +
@@ -454,12 +456,17 @@ public class JavaApplicationManager {
 class AppThread extends Thread {
     String mainClass;
     String[] args;
-    
+
     AppThread(String mainClass, String[] args) {
         this.mainClass = mainClass;
         this.args = args;
+
+        VM.println("[DIAG]  AppThread Instantiated with");
+        VM.println("[DIAG]    Mainclass: "+mainClass);
+        for (int i=0; i<args.length; ++i)
+          VM.println("[DIAG]    Arg["+i+"]: "+args[i]);
     }
-    
+
     public void run() {
         Isolate.runMain(mainClass, args);
     }

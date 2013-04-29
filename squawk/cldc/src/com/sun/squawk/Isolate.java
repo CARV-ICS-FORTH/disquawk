@@ -117,7 +117,7 @@ import com.sun.squawk.vm.*;
 public final class Isolate implements Runnable {
 
     private final static boolean DEBUG_CODE_ENABLED = /*VAL*/false/*DEBUG_CODE_ENABLED*/;
-    
+
     public final static boolean ENABLE_MULTI_ISOLATE = /*VAL*/false/*ENABLE_MULTI_ISOLATE*/;
 
     /**
@@ -194,7 +194,7 @@ public final class Isolate implements Runnable {
      * The child threads of the isolate.
      */
     private SquawkHashtable childThreads = new SquawkHashtable();
-    
+
     /**
      * Flag to show that class Klass has been initialized.
      */
@@ -316,12 +316,12 @@ public final class Isolate implements Runnable {
      */
     private SquawkHashtable mailboxAddresses;
 /*end[NEW_IIC_MESSAGES]*/
-    
+
     /**
      * Isolate lifecycle callback handlers.
      */
     private CallbackManager shutdownHooks;
-    
+
 /*if[ENABLE_MULTI_ISOLATE]*/
         /**
      * The parent isolate that created and started this isolate.
@@ -332,7 +332,7 @@ public final class Isolate implements Runnable {
      * The child isolates of the isolate.
      */
     private SquawkHashtable childIsolates;
-    
+
     private CallbackManager suspendHooks;
     private CallbackManager resumeHooks;
 
@@ -346,7 +346,7 @@ public final class Isolate implements Runnable {
      */
     private VMThread joiners;
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * name for isolate
      */
@@ -380,7 +380,7 @@ public final class Isolate implements Runnable {
         VM.registerIsolate(this);
         Assert.always(VM.getCurrentIsolate() == null);
     }
-    
+
     public void morphBootstrapInto(Hashtable properties, String classPath, String parentSuiteSourceURI) {
 /*if[!ENABLE_DYNAMIC_CLASSLOADING]*/
 /*else[ENABLE_DYNAMIC_CLASSLOADING]*/
@@ -892,7 +892,7 @@ public final class Isolate implements Runnable {
 /*else[ENABLE_MULTI_ISOLATE]*/
 //  public final static int SUPPORTED_EVENTS = SHUTDOWN_EVENT_MASK;
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * Monitor isolate lifecycle events such as shutdown, hibernate, and unhibernate. Isolate life-cycle events can be
      * monitored by implementing LifecycleListener, and registering it with the isolate using
@@ -1182,7 +1182,7 @@ public final class Isolate implements Runnable {
 
             // remove remote hook in this Isolate
             return cbm.remove(rlw);
-        } 
+        }
 /*else[ENABLE_MULTI_ISOLATE]*/
 //        if (this == currentIsolate) { // local
 //            // remove (wrapper) hook in this Isolate
@@ -1215,7 +1215,7 @@ public final class Isolate implements Runnable {
             return null;
         } else {
             Object res = null;
-            
+
             /*
              * Do quick test for class state at the head of the queue.
              */
@@ -1578,7 +1578,7 @@ public final class Isolate implements Runnable {
         }
     }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * Starts running this isolate.
      *
@@ -1629,7 +1629,7 @@ public final class Isolate implements Runnable {
 /*if[ENABLE_MULTI_ISOLATE]*/
         addVMShutdownHook();
 /*end[ENABLE_MULTI_ISOLATE]*/
-        
+
         // Invoke the main of the specified Isolate initializer specified on command line as -isolateinit:
         if (initializerClassName != null) {
             Klass klass = null;
@@ -1659,12 +1659,12 @@ public final class Isolate implements Runnable {
 
         runMain(mainClassName, args);
     }
-    
-    /** 
+
+    /**
      * Find the main class and call it's main().
-     * 
+     *
      * @param mainClassName
-     * @param args 
+     * @param args
      */
     static void runMain(String mainClassName, String[] args) {
         try {
@@ -1814,7 +1814,7 @@ public final class Isolate implements Runnable {
         }
     }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * Stop the isolate. The <code>handleLifecycleListenerEvent()</code> method will be called on any {@link LifecycleListener LifecycleListeners} registered
      * to handle <code>EXIT</code> events on this isolate.
@@ -1967,7 +1967,7 @@ public final class Isolate implements Runnable {
         if (state != ALIVE) {
             throw new IllegalStateException();
         }
-        
+
 /*if[ENABLE_SDA_DEBUGGER]*/
         if (debugger != null) {
             throw new IllegalStateException("cannot hibernate an isolate with an attached debugger");
@@ -1981,7 +1981,7 @@ public final class Isolate implements Runnable {
         hibernate(HIBERNATED, true);
     }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * Modifies the state of this isolate.
      *
@@ -2021,7 +2021,7 @@ public final class Isolate implements Runnable {
                         throw new IllegalArgumentException();
                 }
             }
-            
+
             removeVMShutdownHook();
 /*end[ENABLE_MULTI_ISOLATE]*/
 
@@ -2067,7 +2067,7 @@ public final class Isolate implements Runnable {
                 parentIsolate = null;
             }
 /*end[ENABLE_MULTI_ISOLATE]*/
-            
+
             /*
              * Hibernate all the executing threads.
              */
@@ -2097,7 +2097,7 @@ public final class Isolate implements Runnable {
         thread.nextTimerThread = hibernatedTimerThreads;
         hibernatedTimerThreads = thread;
     }
-    
+
     /**
      * Unhibernate the isolate. The <code>handleLifecycleListenerEvent()</code> method will be called on any {@link LifecycleListener LifecycleListeners} registered
      * to handle <code>UNHIBERNATE</code> events on this isolate.
@@ -2156,7 +2156,7 @@ public final class Isolate implements Runnable {
 //        Assert.that(thread.nextTimerThread == null);
 //    }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * Determines if this isolate is {@link #hibernate() hibernated}.
      *
@@ -2169,7 +2169,7 @@ public final class Isolate implements Runnable {
             return false;
         }
     }
-    
+
     /**
      * Determines if this isolate has been (re)started and not yet (re)hibernated or exited.
      *
@@ -2279,7 +2279,7 @@ public final class Isolate implements Runnable {
         return res;
     }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * Get the string representation of the isolate.
      *
@@ -2866,7 +2866,7 @@ public final class Isolate implements Runnable {
     public int getId() {
     	return id;
     }
-    
+
 /*if[ENABLE_SDA_DEBUGGER]*/
     public void updateBreakpoints(Breakpoint[] breakpoints) {
         this.breakpoints = breakpoints;

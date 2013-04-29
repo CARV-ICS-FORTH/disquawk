@@ -2020,7 +2020,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
          */
 /*MAC*/ void do_bbtarget_sys() {
             osbackbranch();
-            bbtarget_trace();
+            /*bbtarget_trace();*/
             checkReferenceSlots();
         }
 

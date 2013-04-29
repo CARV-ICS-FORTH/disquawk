@@ -716,7 +716,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 /*if[MICROBLAZE32_BUILD]*/
         if (part > (Integer.MAX_VALUE/100)) {
 /*else[MICROBLAZE32_BUILD]*/
-//      if (part > (Long.MAX_VALUE/100)) {
+//       if (part > (Long.MAX_VALUE/100)) {
 /*end[MICROBLAZE32_BUILD]*/
             total /= 100;
             part /= 100;

@@ -819,8 +819,8 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
                 unsigned int b1 = (hi >> 8)  & 0xFF;
                 unsigned int b2 = (hi >> 16) & 0xFF;
                 unsigned int b3 = (hi >> 24) & 0xFF;
-                unsigned int b4 = (lo >> 0) & 0xFF;
-                unsigned int b5 = (lo >> 8) & 0xFF;
+                unsigned int b4 = (lo >> 0)  & 0xFF;
+                unsigned int b5 = (lo >> 8)  & 0xFF;
                 unsigned int b6 = (lo >> 16) & 0xFF;
                 unsigned int b7 = (lo >> 24) & 0xFF;
                 if (PLATFORM_BIG_ENDIAN) {
@@ -833,14 +833,26 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
                     setByteTyped(ea, 6, AddressType_ANY, (char)b1);
                     setByteTyped(ea, 7, AddressType_ANY, (char)b0);
                 } else {
-                    setByteTyped(ea, 0, AddressType_ANY, (char)b0);
-                    setByteTyped(ea, 1, AddressType_ANY, (char)b1);
-                    setByteTyped(ea, 2, AddressType_ANY, (char)b2);
-                    setByteTyped(ea, 3, AddressType_ANY, (char)b3);
-                    setByteTyped(ea, 4, AddressType_ANY, (char)b4);
-                    setByteTyped(ea, 5, AddressType_ANY, (char)b5);
-                    setByteTyped(ea, 6, AddressType_ANY, (char)b6);
-                    setByteTyped(ea, 7, AddressType_ANY, (char)b7);
+/*if[MICROBLAZE_BUILD]*/
+                    /* mb-gcc stores it that wat */
+                    setByteTyped(ea, 0, AddressType_ANY, (char)b4);
+                    setByteTyped(ea, 1, AddressType_ANY, (char)b5);
+                    setByteTyped(ea, 2, AddressType_ANY, (char)b6);
+                    setByteTyped(ea, 3, AddressType_ANY, (char)b7);
+                    setByteTyped(ea, 4, AddressType_ANY, (char)b0);
+                    setByteTyped(ea, 5, AddressType_ANY, (char)b1);
+                    setByteTyped(ea, 6, AddressType_ANY, (char)b2);
+                    setByteTyped(ea, 7, AddressType_ANY, (char)b3);
+/*else[MICROBLAZE_BUILD]*/
+//                  setByteTyped(ea, 0, AddressType_ANY, (char)b0);
+//                  setByteTyped(ea, 1, AddressType_ANY, (char)b1);
+//                  setByteTyped(ea, 2, AddressType_ANY, (char)b2);
+//                  setByteTyped(ea, 3, AddressType_ANY, (char)b3);
+//                  setByteTyped(ea, 4, AddressType_ANY, (char)b4);
+//                  setByteTyped(ea, 5, AddressType_ANY, (char)b5);
+//                  setByteTyped(ea, 6, AddressType_ANY, (char)b6);
+//                  setByteTyped(ea, 7, AddressType_ANY, (char)b7);
+/*end[MICROBLAZE_BUILD]*/
                 }
             }
             setAssume(value == getUnalignedLong(base, offset));

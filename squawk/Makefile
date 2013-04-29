@@ -8,7 +8,7 @@ BUILDER_SRC=builder/src/com/sun/squawk/builder
 BUILDER=./d
 #BUILDER_FLAGS=-prod -verbose #This is for debug purposes (verbose and no macroize)
 ifeq ($(ARCH), formic)
-BUILDER_FLAGS=-prod -mac -comp:$(ARCH) -cflags:-I./$(MYRMICS_SRC)/include -assume -tracing
+BUILDER_FLAGS=-prod -comp:$(ARCH) -cflags:-I./$(MYRMICS_SRC)/include -assume -tracing
 else
 BUILDER_FLAGS=-prod -mac -assume -verbose
 endif
@@ -75,8 +75,6 @@ squawk.suite: romizer.ts
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -DPLATFORM_TYPE_DELEGATING=false -DPLATFORM_TYPE_NATIVE=false -o:squawk -arch:Formic -endian:little -cp:./cldc/j2meclasses/:./cldc/resources/: -java5cp:./cldc/classes: ./cldc/j2meclasses ./cldc/resources
 
 # Convert the suite file to a binary
-# FIXME: Find a way to automatically update the last argument
-#          (the address of the bootstrap suite in the memory)
 squawk.suite.bin: squawk.suite suite_addr.txt
 	$(eval SUITES_ADDR := $(shell cat suite_addr.txt))
 	$(AT)echo $(STR_FLC) $@
@@ -90,7 +88,7 @@ FormicApp.suite.bin: FormicApp.suite suite_addr.txt squawk.suite.bin
 	$(AT)$(BUILDER) flashconv -endian:little -v $< $(TMP) $(SUITES_ADDR)
 
 suite_addr.txt: $(MYRMICS_SRC)/linker.java.mb.ld romizer.ts myrmics $(RTS_SRC)/os.c
-	$(AT)rm -f java.ld
+	$(AT)rm -f java.ld $@
 	$(AT)cp $< java.ld
 	$(AT)echo $(STR_ELF) $@
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) -comp:formic buildFormicVM
@@ -106,10 +104,11 @@ $(ELF): myrmics romizer.ts java.ld
 java.ld: $(MYRMICS_SRC)/linker.java.mb.ld squawk.suite.bin FormicApp.suite.bin
 	$(AT)echo $(STR_LNK) $@
 	$(AT)rm -f $@
-	$(AT)awk '/SUITE/{i++}i==0{print}' $< > $@
+	$(AT)awk '/__linker_formic_code/{i++}i==0{print}' $< > $@
 	$(AT)od -v -An -t x4 -w4 squawk.suite.bin | awk '{print "LONG(0x"$$1")"}' >> $@
+	$(AT)echo '__linker_formic_code = ABSOLUTE(.);'>> $@
 	$(AT)od -v -An -t x4 -w4 FormicApp.suite.bin | awk '{print "LONG(0x"$$1")"}' >> $@
-	$(AT)awk '/SUITE/{i++}i==1{print}' $< >> $@
+	$(AT)awk '/__linker_squawk_suite_end/{i++}i==1{print}' $< >> $@
 
 # if the builder changed we have to rebuild everything
 romizer.ts: build.jar
