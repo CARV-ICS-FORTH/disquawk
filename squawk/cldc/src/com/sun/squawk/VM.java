@@ -273,7 +273,7 @@ public class VM implements GlobalStaticFields {
      * @param bootstrapSuite        the bootstrap suite
      */
     static void startup(Suite bootstrapSuite) throws InterpreterInvokedPragma {
-      VM.print("[DIAG]  in STARTUP\n");
+      VM.println("[DIAG]  in STARTUP");
 
 
         /*
@@ -286,7 +286,6 @@ public class VM implements GlobalStaticFields {
          * for use by the code in do_throw() and the OutOfMemoryError.
          */
         GC.initialize(bootstrapSuite);
-      VM.print("[DIAG]  initialized GC\n");
 
         vmbufferDecoder  = new VMBufferDecoder();
         outOfMemoryError = new OutOfMemoryError();
@@ -297,7 +296,7 @@ public class VM implements GlobalStaticFields {
         String[] args  = new String[argc];
         currentIsolate = new Isolate("com.sun.squawk.JavaApplicationManager", args, bootstrapSuite);
         currentIsolate.initializeClassKlass();
-        VM.print("[DIAG]  Isolation initialized\n");
+        VM.println("[DIAG]  Isolation initialized");
 
         /*
          * Initialise threading.
@@ -305,7 +304,7 @@ public class VM implements GlobalStaticFields {
         VMThread.initializeThreading();
         synchronizationEnabled = true;
 
-        VM.print("[DIAG]  Threading initialized\n");
+        VM.println("[DIAG]  Threading initialized");
         /*
          * Fill in the args array with the C command line arguments.
          */
@@ -323,7 +322,7 @@ public class VM implements GlobalStaticFields {
             shutdownHooks = new CallbackManager(true);
             currentIsolate.primitiveThreadStart();
             VMThread.initializeThreading2();
-            VM.print("[DIAG]  Service operation Loop is UP\n");
+            VM.println("[DIAG]  Service operation Loop is UP");
             ServiceOperation.execute();
         } catch (Throwable ex) {
             fatalVMError();
@@ -1730,7 +1729,9 @@ hbp.dumpState();
      */
     public static int setStream(int stream) {
 /*if[FLASH_MEMORY]*/
+/*if[!MICROBLAZE_BUILD]*/
         Assert.always(stream >= STREAM_STDOUT && stream <= STREAM_STDERR); // "invalid stream specifier"
+/*end[MICROBLAZE_BUILD]*/
 /*else[FLASH_MEMORY]*/
 //        Assert.always(stream >= STREAM_STDOUT && stream <= STREAM_SYMBOLS); // "invalid stream specifier"
 /*end[FLASH_MEMORY]*/

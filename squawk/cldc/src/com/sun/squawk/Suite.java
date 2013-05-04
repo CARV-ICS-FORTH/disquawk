@@ -84,17 +84,17 @@ public final class Suite {
 	 * Resource files embedded in the suite.
 	 */
     private ResourceFile[] resourceFiles;
-	
+
 	/**
 	 * Manifest properties embedded in the suite.
 	 */
 	private ManifestProperty [] manifestProperties;
-    
+
     /**
      * PROPERTIES_MANIFEST_RESOURCE_NAME has already been looked for or found.
      */
     private boolean isPropertiesManifestResourceInstalled;
-    
+
     /**
      * List of classes that should throw a NoClassDefFoundError instead of a ClassNotFoundException.
      * See implementation of {@link Klass#forName(String)} for more information.
@@ -107,7 +107,7 @@ public final class Suite {
      * This field not saved in the suite file.
      */
     private Klass[] stripClassesLater;
-	
+
     /**
      * Creates a new <code>Suite</code> instance.
      *
@@ -222,7 +222,7 @@ public final class Suite {
     }
 
 	/**
-	 * Gets the contents of a resource file embedded in the suite. 
+	 * Gets the contents of a resource file embedded in the suite.
      * Search parent suites for data before this suite.
 	 *
 	 * @param name the name of the resource file whose contents is to be retrieved
@@ -235,7 +235,7 @@ public final class Suite {
         }
 		return resourceFiles[index].data;
 	}
-    
+
     /**
 	 * Gets the index of the resource file embedded in the suite.
 	 *
@@ -262,7 +262,7 @@ public final class Suite {
 
 	/**
 	 * Return all of the resource files defined for this suite.
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceFile[] getResourceFiles() {
@@ -271,7 +271,7 @@ public final class Suite {
 
 	/**
 	 * Gets the names of all manifest properties embedded in this suite.
-	 * 
+	 *
      * @return enumeration over the names
 	 */
     Enumeration getManifestPropertyNames() {
@@ -281,7 +281,7 @@ public final class Suite {
 		}
 		return names.elements();
 	}
-	
+
 	/**
 	 * Gets the value of an {@link Suite#PROPERTIES_MANIFEST_RESOURCE_NAME} property embedded in the suite.
 	 *
@@ -309,7 +309,7 @@ public final class Suite {
         }
 		return manifestProperties [index].value;
 	}
-	
+
     /**
      * Finds a resource with a given name.  This method returns null if no
      * resource with this name is found.  The rules for searching
@@ -441,10 +441,10 @@ public final class Suite {
 
     /**
      * Copy the boot classes from the original bootstrap suite to new bootstrap suite.
-     * If during romize process (like in tck run), a malformed class is detected, we re-run the romizer. 
-     * We need to copy over the 
-     * 
-     * @param originalbootstrap 
+     * If during romize process (like in tck run), a malformed class is detected, we re-run the romizer.
+     * We need to copy over the
+     *
+     * @param originalbootstrap
      */
     public void reinstallBootClasses(Suite originalbootstrap) {
         checkWrite();
@@ -527,12 +527,12 @@ public final class Suite {
     public void setUnusedClasses(Klass[] klasses) {
         stripClassesLater = klasses;
     }
-    
+
     /**
      * Installs the metadatas found in metadataSuite directly into my metadatas.  This is done by the Romizer
      * as it saves all of the original metadata into a separate suite, but on loading, these need to be put back
      * into the original Suite.  This original suite turns out to be the parent of the suite containing the metadata
-     * 
+     *
      * @param metadataSuite
      */
     void pushUpMetadatas() {
@@ -556,12 +556,12 @@ public final class Suite {
         parent.closed = oldclosed;
         parent.checkSuite();
     }
-    
+
     /**
      * If a {@link Klass#forName(String)} is performed and class requested is not found AND
      * its added to our list of {@link #classesToNoClassDefFoundError} then we will throw a
      * {@link NoClassDefFoundError}.
-     * 
+     *
      * @param classNames
      */
 	public void addNoClassDefFoundErrorClassNames(String[] classNames) {
@@ -581,13 +581,13 @@ public final class Suite {
      * If a {@link Klass#forName(String)} is performed and class requested is not found AND
      * its added to our list of {@link #classesToNoClassDefFoundError} then we will throw a
      * {@link NoClassDefFoundError}.
-     * 
+     *
      * @param className
      */
     String[] getNoClassDefFoundErrorClassNames() {
         return noClassDefFoundErrorClassNames;
     }
-    
+
     boolean shouldThrowNoClassDefFoundErrorFor(String className) {
         if (noClassDefFoundErrorClassNames == null) {
             return false;
@@ -608,7 +608,7 @@ public final class Suite {
     \*---------------------------------------------------------------------------*/
 
 	/**
-	 * Installs a collection of resource files into this suite. 
+	 * Installs a collection of resource files into this suite.
 	 *
 	 * @param resourceFile file to install
 	 */
@@ -622,7 +622,7 @@ public final class Suite {
             // Add the properties defined in the manifest file
             loadProperties(resourceFile.data);
         }
-        int index = getResourceDataIndex(resourceFile.name); 
+        int index = getResourceDataIndex(resourceFile.name);
         if (index < 0) {
 //          if (VM.isVerbose()) {
             System.out.println("[Including resource: " + resourceFile.name + "]");
@@ -641,7 +641,7 @@ public final class Suite {
     static boolean isWhiteSpace(char ch) {
         return (ch == ' ') || (ch == '\t');
     }
-    
+
     /**
      * Strip the leading white space characters from string "Src", starting from index "start".
      */
@@ -652,8 +652,8 @@ public final class Suite {
         }
         return src.substring(start);
     }
-    
-    /** 
+
+    /**
      * Parse properties from jar manifest file. Based on manifest spec:
      *     http://java.sun.com/j2se/1.4.2/docs/guide/jar/jar.html
      *
@@ -661,7 +661,7 @@ public final class Suite {
      * Note that this syntax is slightly different than the "application descriptor" syntax in the IMP and MIDP specs.
      * An "application descriptor" does not support "continuation lines", or trailing spaces in a value. This is
      * an known annoyance of the MIDP spec.  In addition, the MIDP 1.0 and IMP 1.0 specs have in a bug in the BNF,
-     * such that white space is REQUIRED before and after the value. The MIDP 2.0 specs correctly show that such 
+     * such that white space is REQUIRED before and after the value. The MIDP 2.0 specs correctly show that such
      * white space is optional.
      */
     protected void loadProperties(byte[] bytes) {
@@ -676,7 +676,7 @@ public final class Suite {
                     // NOTE - spec says that this ends the main section. Is this right?
                     continue;
                 }
-                
+
                 int keyEnd = line.indexOf(':');
                 boolean continuationLine = isWhiteSpace(line.charAt(0));
                 if (continuationLine) {
@@ -695,7 +695,7 @@ public final class Suite {
                     throw new IOException("Illformed property line :" + line);
                 }
             }
-            
+
             if (key != null) {
                 setProperty(key, value);
             }
@@ -705,13 +705,13 @@ public final class Suite {
             }
         }
     }
-    
+
     public void setProperty(String key, String value) {
         Assert.that(value != null);
         ManifestProperty property = new ManifestProperty(key, value);
         installProperty(property);
     }
-    
+
     /**
 	 * Installs a collection of IMlet property values into this suite.
 	 *
@@ -835,6 +835,8 @@ public final class Suite {
             }
         }
 
+if(name.equals("FormicApp"))
+        VM.println("[DIAG]  Suite.lookup: "+name+" Suite: "+this.getName()+" "+classes.length);
         for (int i = 0 ; i < classes.length ; i++) {
             Klass klass = classes[i];
             if (klass != null) {
@@ -949,9 +951,18 @@ public final class Suite {
         if (!(root instanceof Suite)) {
             throw new Error("object memory in '" + om.getURI() + "' does not contain a suite");
         }
+        // VM.println("[DIAG] --= "+Integer.toHexString(((Suite)root).getClassCount()));
+        // for (int i = 0 ; i < ((Suite)root).getClassCount() ; i++) {
+        //   Klass klass = ((Suite)root).getKlass(i);
+        //     if (klass != null) {
+        //       VM.println("[DIAG] --- "+i+" "+klass.getInternalName());
+        //         }
+        //     else
+        //       VM.println("[DIAG] --- "+i+" NULL");
+        //     }
         return (Suite)root;
     }
-    
+
     /**
      * Gets the Suite corresponding to a given URI, loading it if necessary.
      *
@@ -1068,7 +1079,7 @@ public final class Suite {
      * when closed.
      */
     public static final int DEBUG = 3;
-    
+
     /**
      * Denotes a suite that contains all the KlassMetadata for its parent suite.  This is to allow
      * the parent suite to have zero symbolic information, but still have the information
@@ -1078,25 +1089,25 @@ public final class Suite {
 
     /**
      * File name extension that identifies a Suite, includes the '.'.
-     * 
+     *
      * Duplicated in builder, com.sun.squawk.builder.commands.MakeAPI
      */
     public static final String FILE_EXTENSION = ".suite";
 
     /**
      * File name extension that identifies a Suite's api, includes the '.'.
-     * 
+     *
      * Duplicated in builder, com.sun.squawk.builder.commands.MakeAPI
      */
     public static final String FILE_EXTENSION_API = ".api";
 
     /**
      * File name extension that identifies a Suite's metadata, includes the '.'.
-     * 
+     *
      * Duplicated in builder, com.sun.squawk.builder.commands.MakeAPI
      */
     public static final String FILE_EXTENSION_METADATA = ".metadata";
-    
+
     /**
      * Denotes the name of the resource that represents the resource name from which I extract
      * properties from when an {@link #installResource(ResourceFile)} is done.
@@ -1137,7 +1148,7 @@ public final class Suite {
 
     /**
      * Create a new KlassMetadata array that has all of the elements of originalMetadatas except
-     * metadata for classes in the strippedClasses set. 
+     * metadata for classes in the strippedClasses set.
      * @param originalmetadatas, sorted by suiteID, with no nulls
      * @param strippedClasses set of classes to be stripped
      * @return new array, sorted by suiteID, with no nulls
@@ -1146,7 +1157,7 @@ public final class Suite {
         if (originalMetadatas == null) {
             return null;
         }
-        
+
         Vector metadatasV = new Vector(originalMetadatas.length);
         for (int i = 0; i < originalMetadatas.length; i++) {
             KlassMetadata metadata = originalMetadatas[i];
@@ -1180,7 +1191,7 @@ public final class Suite {
             throw new IllegalArgumentException();
         }
         checkSuite();
-        
+
         Suite copy = new Suite(name, parent, type);
         SquawkHashtable deadClasses = null; // set of stripped classes
 

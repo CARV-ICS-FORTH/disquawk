@@ -1668,6 +1668,7 @@ public final class Isolate implements Runnable {
      */
     static void runMain(String mainClassName, String[] args) {
         try {
+            VM.println("[DIAG]  in runMain: "+mainClassName);
             Klass klass = Klass.forName(mainClassName);
             klass.main(args);
 

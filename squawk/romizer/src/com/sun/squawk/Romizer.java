@@ -48,7 +48,7 @@ public class Romizer {
      * The "build.properties" file.
      */
     protected static Properties buildProperties;
-    
+
     private static String buildDotOverrideFileName;
 
     static String getBuildProperty(String key) {
@@ -61,7 +61,7 @@ public class Romizer {
         }
         return result;
     }
-            
+
     /**
      * Reads the contents of the build properties.
      */
@@ -107,7 +107,7 @@ public class Romizer {
         }
         buildProperties.put(key, value);
     }
-    
+
     /**
      * The name of the suite being romized (the full name)
      */
@@ -122,7 +122,7 @@ public class Romizer {
      * The search path for classes in the suite.
      */
     private String classPath;
-    
+
     /**
      * The search path for classes in the suite, but with Java 5 meta data still present.
      */
@@ -158,7 +158,7 @@ public class Romizer {
      * Specifies if the .suite.metadata file will be created.
      */
     private boolean createMetadata = true;
-    
+
     /**
      * Specifies if the timing information should be displayed.
      */
@@ -175,26 +175,26 @@ public class Romizer {
      * This is a prototype translator used to process and print translator options. It is not the translator used for translation.
      */
     private TranslatorInterface protoTranslator;
-    
+
     /**
      * Holds the name of the class that caused the last NoClassDefFoundError.
      */
     protected String lastClassName;
-    
+
     protected List<String> noClassDefFoundErrorClasses = new ArrayList<String>();
-    
+
     protected HashMap<String, String> jadProperties = new HashMap<String, String>();
 
     /**
      * This is the ObjectGraphLoader used when the -parent: option is used to specify the suite to load
      */
     protected ObjectGraphLoader objectGraphLoader;
-    
+
     /**
      * If true, do not create the C header "rom.h"
      */
     private boolean noHeader;
-    
+
     /**
      * Creates the romizer instance used to romize a suite.
      *
@@ -223,14 +223,14 @@ public class Romizer {
         if (errMsg != null) {
             out.println("**** " + errMsg + " ****");
         }
-        
+
         out.println("Usage: romize [-options] classnames|dirnames|jarfiles...");
         out.println("where options include:");
         out.println();
         out.println("    -cp:<directories and jar/zip files separated by '"+File.pathSeparatorChar+"'>");
         out.println("                        paths where classes and sources can be found (required)");
         out.println("    -suitepath:<directories separated by '"+File.pathSeparatorChar+"'>");
-        out.println("                        path where suite files can be found");        
+        out.println("                        path where suite files can be found");
         out.println("    -o:<name>           name of suite to generate (required)");
         out.println("    -boot:<name>        name of suite to to use for references to " + ObjectMemory.BOOTSTRAP_URI + " suite URL (default=file://squawk.suite)");
         out.println("    -parent:<name>      name of suite to use as the parent of the suite being built");
@@ -264,15 +264,15 @@ public class Romizer {
         out.println("                        must be followed by -value: option");
         out.println("    -value:<name>       set value to add to suite's JAD properties");
         out.println("                        must be preceded by -key: option");
-        
+
         protoTranslator.printTraceFlags(out);
-        
+
         if (Klass.TRACING_ENABLED) {
             out.println("    -tracestripping     trace stripping of symbolic information from suite");
             out.println("    -traceoms           trace object memory serialization");
             out.println("    -traceswapper       trace endianess swapping");
         }
-        
+
         out.println("    -h                  show this help message and exit");
         out.println();
         out.println();
@@ -310,7 +310,7 @@ public class Romizer {
                 String value = "false"; // The default value where there is not '='.
                 index = predicate.indexOf('=');
                 boolean doNotOfPredicate = false;
-                
+
                 if (index != -1) {
                     value = predicate.substring(index+1);
                     if (predicate.indexOf("!=") == (index - 1)) {
@@ -342,12 +342,12 @@ public class Romizer {
         }
         System.out.flush();
     }
-    
+
     /**
      * Command line interface.
      *
      * @param args
-     * @throws IOException 
+     * @throws IOException
      */
     public static void main(String args[]) throws IOException {
         Romizer romizer = null;
@@ -387,7 +387,7 @@ public class Romizer {
             }
         }
     }
-    
+
     /**
      * Runs this instance of the romizer to produce a single suite.
      *
@@ -426,7 +426,7 @@ public class Romizer {
             	String value = jadProperties.get(key);
             	suite.setProperty(key, value);
             }
-            
+
             // Create the image file for the suite
             ComputationTimer.time("suite file creation", new ComputationTimer.ComputationException() {
                 public Object run() throws Exception {
@@ -605,7 +605,7 @@ public class Romizer {
             } else if (arg.startsWith("-suitepath:")) {
                 String path = arg.substring("-suitepath:".length());
                 ObjectMemoryLoader.addFilePath(path);
-                
+
             } else if (arg.startsWith("-nobuildproperties")) {
                 if (buildDotOverrideFileName != null) {
                     throw new RuntimeException("Can't specify both -nobuildproperties and -override:");
@@ -750,7 +750,7 @@ public class Romizer {
         });
         return sortedClassNames;
     }
-    
+
     /**
      * Loads and translates the classes in the suite.
      *
@@ -772,12 +772,12 @@ public class Romizer {
         try {
 	        translator.open(suite, classPath);
         	suite.addNoClassDefFoundErrorClassNames(noClassDefFoundErrorClasses.toArray(new String[noClassDefFoundErrorClasses.size()]));
-            
+
             if (suite.isBootstrap() && (previous != null)) {
                 // Trying to create bootstrap suite, but previous romize failed. Need to copy over the previous boot classes to new bootstrap suite
                 suite.reinstallBootClasses(previous.suite);
             }
-            
+
 	        // Sort the classes in order to make sure that regardless of what platform we are on
 	        // the order of the classes will be the same
 	        String[] sortedClassNames = createSortedClassList(classNames);
@@ -836,6 +836,7 @@ public class Romizer {
      * Creates the serialized object memory representing the classes in the translated suite.
      */
 	private void createImage() throws IOException {
+      VM.println("[DIAG]  in createImage");
 
         // Open the map file.
         File file = new File(suiteName + ".sym");
@@ -916,7 +917,7 @@ public class Romizer {
         printGlobalVariables(symbols);
         printGlobalAddresses(symbols);
         printGlobalOops(symbols);
-        
+
         symbols.close();
     }
 

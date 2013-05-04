@@ -338,6 +338,13 @@ System.out.println("filePathelements=" + filePathelements);
             return new ObjectMemoryFile(minor, major, attributes, parentHash, parentURI, null);
         }
 
+        VM.print("[DIAG]  in load(bool)\n");
+        VM.print("        Minor     : "+minor+"\n");
+        VM.print("        Major     : "+major+"\n");
+        VM.print("        Attributes: "+attributes+"\n");
+        VM.print("        parentHash: 0x"+Integer.toHexString(parentHash)+"\n");
+        VM.print("        parentURI : "+parentURI+"\n");
+
         // Load the parent of this object memory file
         ObjectMemory parent;
         if (parentURI.length() == 0) {
@@ -458,13 +465,14 @@ System.out.println("filePathelements=" + filePathelements);
         // Run the collector to prevent a collection being run during relocation which
         // will screw a RAM buffer
         if (!VM.isHosted()) {
-            VM.collectGarbage(true);
+          VM.collectGarbage(true);
         }
 
-        VM.print("[DIAG] in loadThis\n");
-        VM.print("       Name:"+url+"\n");
-        VM.print("       Root:"+root+"\n");
-        VM.print("       size:"+size+"\n");
+        VM.print("[DIAG]  in loadThis\n");
+        VM.print("        Read:"+reader.getBytesRead()+"\n");
+        VM.print("        rootOffset: "+root+"\n");
+        VM.print("        memorySize: "+size+"\n");
+        VM.print("        hash      : 0x"+Integer.toHexString(hash)+"\n");
 
         // Relocate the pointers in the memory and move the buffer into read-only memory if necessary
         Address relocatedBuffer = relocateMemory(parent, buffer, oopMap);

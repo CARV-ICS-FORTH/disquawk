@@ -2,22 +2,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -31,7 +31,7 @@ import com.sun.squawk.io.j2me.spotsuite.Pointer;
 import com.sun.squawk.util.*;
 
 /**
- * 
+ *
  */
 public class FlashObjectMemoryLoader extends ObjectMemoryLoader {
 
@@ -50,6 +50,13 @@ public class FlashObjectMemoryLoader extends ObjectMemoryLoader {
 	}
 
 	protected byte[] loadMemory(int size) {
+      /* This is to print the loaded buffer */
+      // byte[] buffer = new byte[size];
+      // reader.readFully(buffer, "memory");
+      // for (int i = 0; i <300; ++i)
+      //   VM.println("[HASH]O 0x"+Integer.toHexString(buffer[i]));
+      // return buffer;
+
 		// record the current address of the reader (this is the location of
 		// memory)
 		memoryAddress = ((FlashObjectMemoryReader) reader).getCurrentAddress();
@@ -73,6 +80,7 @@ public class FlashObjectMemoryLoader extends ObjectMemoryLoader {
 	protected void skipMemoryPadding(String parentURI, int memorySize) {
 		FlashObjectMemoryReader r = (FlashObjectMemoryReader) reader;
 		Offset off = r.getCurrentAddress().roundUpToWord().diff(r.getCurrentAddress());
+        VM.println("        padding   : "+off.toInt());
 		r.skip(off.toInt(), "skipping pad");
 	}
 
@@ -99,7 +107,7 @@ class FlashObjectMemoryReader extends ObjectMemoryReader {
 	/**
 	 * Creates a <code>ObjectMemoryReader</code> that reads object memory file
 	 * components from a given input stream.
-	 * 
+	 *
 	 * @param in
 	 *            the input stream
 	 * @param filePath

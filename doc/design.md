@@ -2,18 +2,19 @@
 Current GVM limitations
 =======================
 
-  * No 64bit support
-    jlong is defined as int32t
-    doubles are actually floats
+  * doubles are actually floats
 
-    As a result there is no proper support for java.lang.Long and
-    java.lang.Double
+    As a result there is no proper support for java.lang.Double
 
   * exit(int status) halts the system (actually a while(1)) and just
     drops the status value.  After all, since GVM is the OS doesn't
     really make sense to report a status to someone.
 
   * errno is NOT implemented
+
+  * GC=com.sun.squawk.Lisp2GenerationalCollector breaks it
+  * GC=com.sun.squawk.Lisp2Collector also breaks it
+  * GC=com.sun.squawk.CheneyCollector
 
 Design decisions
 ================
@@ -26,8 +27,8 @@ DRAM mapping
 Choosing a JVM
 --------------
 
-* Squawk
-    -Still active
+5~5~* Squawk
+    -Still active (don't think so)
     -~150k LOC of which 8k are C and 590 are Assembly
     -bare metal ready
 * JamVM

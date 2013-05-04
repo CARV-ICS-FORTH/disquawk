@@ -139,6 +139,11 @@ GDB:
 Read http://java.net/projects/squawk/pages/SquawkBuildOptions
 Modify the build.properties file
 
+Notes:
+------
+  The VM is started from squawk.c[.spp]
+  Bootstrap suite is loaded by loadBootstrapSuiteFromFlash
+
 To build the builder:
 ---------------------
     cd builder; ./bld.sh

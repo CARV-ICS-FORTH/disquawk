@@ -461,8 +461,7 @@ class AppThread extends Thread {
         this.mainClass = mainClass;
         this.args = args;
 
-        VM.println("[DIAG]  AppThread Instantiated with");
-        VM.println("[DIAG]    Mainclass: "+mainClass);
+        VM.println("[DIAG]  AppThread Instantiated with: "+mainClass);
         for (int i=0; i<args.length; ++i)
           VM.println("[DIAG]    Arg["+i+"]: "+args[i]);
     }

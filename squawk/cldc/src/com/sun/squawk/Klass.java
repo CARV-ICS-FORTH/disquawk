@@ -232,7 +232,7 @@ public class Klass<T> {
      * The bottom 8 bits of the modifier for <init>() (if present).
      */
     private byte initModifiers;
-    
+
     /**
      * offset given to methods that are illegal to call, such as hosted methods.
      */
@@ -250,7 +250,7 @@ public class Klass<T> {
     /**
      * Gets the Class instance corresponding to a given Klass instance, creating it
      * first if necessary.
-     * 
+     *
      * @param klass the Klass object
      * @return the Class object
      */
@@ -285,12 +285,12 @@ public class Klass<T> {
 
     /**
      * Look up class from class files.
-     * 
+     *
      * @param className
      * @return class, exception, or null
-     * @throws HostedPragma 
+     * @throws HostedPragma
      */
-    private static Object forNameDynamic(String className)  
+    private static Object forNameDynamic(String className)
 /*if[!ENABLE_DYNAMIC_CLASSLOADING]*/
         throws HostedPragma
 /*end[ENABLE_DYNAMIC_CLASSLOADING]*/
@@ -322,21 +322,22 @@ public class Klass<T> {
                 }
             }
         }
-        
+
         if (cnfe != null) {
             return cnfe;
         }
         return klass;
     }
-    
+
     /**
      * Returns the <code>Klass</code> object associated with the class
      * with the given string name.
      * @param className the class name to lookup
      * @return Klass
-     * @throws java.lang.ClassNotFoundException 
+     * @throws java.lang.ClassNotFoundException
      */
     public static synchronized Klass forName(String className) throws ClassNotFoundException {
+        VM.println("[DIAG]  Klass.forName: "+className);
        // Verbose trace.
         if (VM.isVeryVerbose()) {
             VM.print("[Klass.forName(");
@@ -401,7 +402,7 @@ public class Klass<T> {
         this.refStaticFieldsSize = refStaticFieldsSize;
         this.initModifiers = initModifiers;
     }
-    
+
     /**
      * Creates a new instance of a class. This method can only be called for a non-array,
      * non-interface class that {@link #hasDefaultConstructor has a default constructor}.
@@ -436,7 +437,7 @@ T
     /**
      * Return true if this class can be allocated (not abstract or interface, etc.)
      * If true, there may be some object "obj" such that GC.getKlass(obj) == this class.
-     * 
+     *
      * @return true if objects of this klass can be insta
      */
     public boolean isInstantiable() {
@@ -540,7 +541,7 @@ T
             return -1;
         }
     }
-    
+
     /**
      * Determines if this class has a default constructor.
      *
@@ -708,7 +709,7 @@ T
     }
 
     /** Handle extra cases that only happen during translation.
-     * 
+     *
      * @param klass
      * @return
      * @throws HostedPragma
@@ -891,7 +892,7 @@ T
             staticMethods = null;
         }
     }
-    
+
     /**
      * Only used by UninitializedObjectClass constructor.
      *
@@ -1443,7 +1444,7 @@ T
         }
         return superType.findSlot(iklass, islot);
     }
-    
+
     /**
      * Given an index in the vtable, find the slot in the interface class that is the defines the method.
      * This does NOT search super interfaces. Otherwise, this is the reverse of findSlot.
@@ -1517,7 +1518,7 @@ T
         if (member instanceof Method) {
             Method method = (Method)member;
             StringBuffer buf;
-            
+
             if (showType) {
                 buf = new StringBuffer(method.getReturnType().getInternalName()).append(' ').append(s);
             } else {
@@ -1728,7 +1729,7 @@ T
                             }
                         }
                     }
-                    
+
                     // Update static methods for methods that were dead-method eliminated, hosted, or otherwise not there
                     for (int i = 0; i != staticMethods.length; i++) {
                         if (staticMethods[i] == null) {
@@ -1971,7 +1972,7 @@ T
             }
         }
 
-        /* 
+        /*
          * Register all global statics now. If we wait until lazily initialized at code emit time, we might skip over
          * global vars used by java->c translated methods but not by a java method (becuase Java method was dead method eliminated).
          **/
@@ -1979,7 +1980,7 @@ T
             Assert.always(VM.getCurrentIsolate().getLeafSuite().isBootstrap(), "Can't use GlobalStaticFields pragma outside of boostrap suite");
             initializeGlobalStatics(this, fields);
         }
-        
+
         /*
          * Compile-time constants must be reified at runtime for non-romized code in order for
          * the TCK to pass. There are numerous TCK tests that access these fields via either
@@ -2080,7 +2081,7 @@ T
                 case CID.OFFSET:
                 case CID.UWORD:
                     throw Assert.shouldNotReachHere();
-                    
+
                 case CID.BYTE:    // fall through ...
                 case CID.BOOLEAN: // fall through ...
                 case CID.SHORT:   // fall through ...
@@ -2101,7 +2102,7 @@ T
                     break;
                 }
             }
-            
+
             Integer index = (Integer)table.get(fieldname);
             if (index == null) {
                 index = new Integer(table.size());
@@ -2109,7 +2110,7 @@ T
             }
         }
     }
-        
+
     /**
      * Initializes the instance field information for this class based on a
      * given set of class file field definitions. The {@link #instanceSizeBytes}
@@ -2132,7 +2133,7 @@ T
             dataMapWord = UWord.zero();
             return;
         }
-        
+
         // Special handling for strings
         if (this == Klass.STRING || this == Klass.STRING_OF_BYTES ) {
             Assert.that(fields.length == 0); // strings cannot have instance fields.
@@ -2462,7 +2463,7 @@ T
                  */
                 if (superMethod != null && !superMethod.getDefiningClass().isInterface()) {
                     Assert.that(superMethod.isAccessibleFrom(this)); // lookupMethod() ensures this is true
-                    
+
                     if (superMethod.isFinal()) {
                         throw new NoClassDefFoundError("cannot override final method: " + superMethod);
                     }
@@ -2480,7 +2481,7 @@ T
                         modifiers |= Modifier.HASFINALIZER;
                     }
 /*end[FINALIZATION]*/
-                    
+
                     method.setOffset(superMethod.getOffset());
                 } else {
                     method.setOffset(offset++);
@@ -2708,7 +2709,7 @@ T
     /*---------------------------------------------------------------------------*\
      *                        Method and field lookup                            *
     \*---------------------------------------------------------------------------*/
-         
+
     /**
      * Finds the <code>Method</code> object representing a method in
      * this class's hierarchy. This method returns null if the method does
@@ -2772,10 +2773,10 @@ T
         }
         return null;
     }
-    
+
     /**
      * Finds the <code>Method</code> object representing a method in
-     * this class, given an index in the vtable. This method returns null if the method, 
+     * this class, given an index in the vtable. This method returns null if the method,
      * or metadata for the method does not exist.
      *
      * Use {@link getMethod} when you have the index of the methods defined in this class.
@@ -2790,7 +2791,7 @@ T
         if (offset >= table.length) {
             return null;
         }
-        
+
         KlassMetadata metadata = getMetadata();
         if (metadata == null) {
             return null;
@@ -2856,7 +2857,7 @@ T
 //        return null;
 /*end[ENABLE_RUNTIME_METADATA_FOR_COMPLETE_STATICS]*/
     }
-    
+
     /**
      * Gets the metadata for this class that contains the symbolic information
      * for its fields and methods. This can only be called on a non-synthetic
@@ -2948,7 +2949,7 @@ T
         int mid = parser.getMemberID(category, index);
         return new Method(metadata, mid);
     }
-    
+
     /**
      * Looks up the method's index in the klass. Returns the index or -1.
      *
@@ -2965,7 +2966,7 @@ T
         }
         return -1;
     }
-    
+
     /**
      * Gets the bytecode array for the given Method object
      *
@@ -2981,7 +2982,7 @@ T
 //        }
         return table[method.getOffset()];
     }
-    
+
     /**
      * Tests if the given method is the designated "missing method".
      *
@@ -2998,7 +2999,7 @@ T
         }
         return method == match;
     }
-    
+
     private Method findMethodDynamic(Object body)
 /*if[!ENABLE_DYNAMIC_CLASSLOADING]*/
         throws HostedPragma
@@ -3012,7 +3013,7 @@ T
         }
         return null;
     }
-    
+
     /**
      * Searches for the symbolic method declaration corresponding to a given method body
      * that was defined by this class.
@@ -3043,7 +3044,7 @@ T
         if (index >= 0) {
             methodID = parser.lookupMethod(SymbolParser.VIRTUAL_METHODS, index);
         }
-        
+
         if (methodID < 0) {
             index = getMethodIndex(body, true);
             if (index >= 0) {
@@ -3390,7 +3391,7 @@ T
         }
     }
 /*end[ENABLE_RUNTIME_METADATA_FOR_COMPLETE_STATICS]*/
-            
+
     /**
      * Initializes this class. This method implements the detailed class
      * initialization procedure described in section 2.17.5 (page 53) of
@@ -3475,7 +3476,7 @@ T
                 initializeFinalsWithMetaData();
             }
 /*end[ENABLE_RUNTIME_METADATA_FOR_COMPLETE_STATICS]*/
-            
+
             clinit();
             /*
              * Step 9
@@ -3602,12 +3603,12 @@ T
      * The type for <code>int</code>.
      */
     public static final Klass INT;
-    
+
     /**
      * The type for <code>float</code>.
      */
     public static final Klass FLOAT;
-    
+
     /**
      * The type for <code>long</code>.
      */
@@ -3627,7 +3628,7 @@ T
      * The type for the second word of a <code>double</code> value.
      */
     public static final Klass DOUBLE2;
-    
+
     /**
      * The type for <code>void</code>.
      */
@@ -3719,7 +3720,7 @@ T
      * The type for <code>float[]</code>.
      */
     public static final Klass FLOAT_ARRAY;
-    
+
     /**
      * The type for <code>long[]</code>.
      */
@@ -3729,7 +3730,7 @@ T
      * The type for <code>double[]</code>.
      */
     public static final Klass DOUBLE_ARRAY;
-    
+
     /**
      * The type for <code>com.sun.squawk.StringOfBytes</code>.
      */
@@ -3869,7 +3870,7 @@ T
         LONG_ARRAY         = boot(OBJECT,        "[long",                   CID.LONG_ARRAY,        synthetic); // only used by translator
         FLOAT_ARRAY        = boot(OBJECT,        "[float",                  CID.FLOAT_ARRAY,       synthetic); // only used by translator
         DOUBLE_ARRAY       = boot(OBJECT,        "[double",                 CID.DOUBLE_ARRAY,      synthetic); // only used by translator
-        
+
         // Ensure that all the reserved system classes are loaded if running in a hosted environment
         if (VM.isHosted()) {
             initBootstrapClassesHostedEarly();
@@ -3914,7 +3915,7 @@ T
             virtualMethods = superType.virtualMethods;
         }
     }
-    
+
     /**
      * Ensure that all the reserved system classes are loaded if running in a hosted environment.
      */
@@ -4041,13 +4042,13 @@ T
         if (suite == null) {
             suite = isolate.getBootstrapSuite();
         }
-        return suite.lookup(name); 
+        return suite.lookup(name);
     }
 
     /**
      * Lookup or create class. If the class does not already exist, then a new Klass instance is
      * created and returned.
-     * 
+     *
      * @see #getClass(String, boolean)
      *
      * @param   name       the name of the class to get
@@ -4100,7 +4101,7 @@ T
 /*if[FLOATS]*/
         if (type == DOUBLE) {
             return DOUBLE2;
-        } else 
+        } else
 /*end[FLOATS]*/
         {
             Assert.that(type == LONG); // Is not double word type.
