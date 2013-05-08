@@ -28,9 +28,11 @@ BUILDER_FLAGS=-prod -mac -assume -verbose
 endif
 # Make APP point to a directory containing src/FormicApp.java with the
 # application's Main class
-APP?=../formic-tests/HelloWorld
+#APP?=../formic-tests/HelloWorld
+APP?=../formic-tests/Linpack
 APP_SRC=$(APP)/src/*.java
 APP_OBJ=$(APP_SRC:$(APP)/src/%.java=$(APP)/classes/%.class)
+APP_OBJ_VER=$(APP_SRC:$(APP)/src/%.java=$(APP)/classes/preverified/%.class)
 # The starting address of the suites in memory (this is automatically
 # calculated later)
 SUITES_ADDR:=D2428
@@ -38,6 +40,7 @@ SUITES_ADDR:=D2428
 STR_CLN = "[1m[ [31mCLN [0;1m][0m"
 STR_BLD = "[1m[ [32mBLD [0;1m][0m"
 STR_ROM = "[1m[ [33mROM [0;1m][0m"
+STR_VER = "[1m[ [33mVER [0;1m][0m"
 STR_FLC = "[1m[ [34mFLC [0;1m][0m"
 STR_LNK = "[1m[ [35mLNK [0;1m][0m"
 STR_ELF = "[1m[ [36mELF [0;1m][0m"
@@ -60,9 +63,13 @@ run:
 
 map: squawk.suite.map FormicApp.suite.map
 
-FormicApp.suite: $(APP_OBJ)
+$(APP)/classes/preverified/%.class: $(APP)/classes/%.class
+	$(AT)echo $(STR_VER) $@
+	$(AT)./preverify -d $(APP)/classes/preverified -classpath $(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ FormicApp
+
+FormicApp.suite: $(APP_OBJ_VER)
 	$(AT)echo $(STR_ROM) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -arch:$(ARCH) -endian:little -o:FormicApp -cp:$(APP)/classes -parent:squawk FormicApp
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -arch:$(ARCH) -endian:little -o:FormicApp -cp:$(APP)/classes/preverified -parent:squawk FormicApp
 
 # Create the Application suite map (useful to translate the traces)
 FormicApp.suite.map: FormicApp.suite
