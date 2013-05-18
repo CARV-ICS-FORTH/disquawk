@@ -35,19 +35,19 @@
 #undef UINT64_MAX
 #define UINT64_MAX             (__UINT64_C(18446744073709551615))
 
-#include "lib/fixsfdi.c"
 #include "lib/clzsi2.c"
 #include "lib/clzdi2.c"
 #include "lib/cmpdi2.c"
-#include "lib/ucmpdi2.c"
+#include "lib/ctzsi2.c"
+#include "lib/divdi3.c"
+#include "lib/extendsfdf2.c"
+#include "lib/fixsfdi.c"
 #include "lib/floatdisf.c"
 #include "lib/muldi3.c"
-#include "lib/ctzsi2.c"
-#include "lib/udivmoddi4.c"
-#include "lib/divdi3.c"
 #include "lib/moddi3.c"
 #include "lib/truncdfsf2.c"
-#include "lib/extendsfdf2.c"
+#include "lib/udivmoddi4.c"
+#include "lib/ucmpdi2.c"
 
 /*end[MICROBLAZE32_BUILD]*/
 
