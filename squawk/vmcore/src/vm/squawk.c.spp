@@ -514,10 +514,12 @@ void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
         }
     }
 
+#ifndef JAVA
     /*
      * Zero the bytes in the buffer.
      */
     memset(buffer, 0, (int)size);
+#endif /* JAVA */
 
     /*
      * Register the buffer.
@@ -1160,8 +1162,10 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
     memory = newBuffer(realMemorySize, "memory", true);
     memoryEnd = Address_add(memory, memorySize);
 #ifdef JAVA
-    printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
-    printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
+    if (DEBUG_STARTUP || com_sun_squawk_GC_traceFlags != 0) {
+      printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
+      printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
+    }
 #endif  /* JAVA */
 #ifdef FLASH_MEMORY
     bootstrapSize = loadBootstrapSuiteFromFlash(bootstrapSuiteFile, &com_sun_squawk_VM_romStart, &suite, &com_sun_squawk_VM_bootstrapHash);

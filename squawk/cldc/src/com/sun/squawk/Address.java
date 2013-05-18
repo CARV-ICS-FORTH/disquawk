@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -62,7 +62,7 @@ import com.sun.squawk.vm.*;
  *       A Squawk primitive value of type T cannot be passed as a parameter
  *       values of any other type than T. For example, you cannot
  *       call T.toString(), or String.valueOf(T). The methods of the classes NativeUnsafe and GC
- *       have a special permission to allow Squawk primitive values to passed in place of 
+ *       have a special permission to allow Squawk primitive values to passed in place of
  *       parameters of type Object.
  *   </li>
  * </ul>
@@ -135,7 +135,7 @@ public final class Address {
      *
      * @return this address as an object reference
      */
-	
+
     public Object toObject() throws NativePragma {
         return this;
     }

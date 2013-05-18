@@ -835,8 +835,6 @@ public final class Suite {
             }
         }
 
-if(name.equals("FormicApp"))
-        VM.println("[DIAG]  Suite.lookup: "+name+" Suite: "+this.getName()+" "+classes.length);
         for (int i = 0 ; i < classes.length ; i++) {
             Klass klass = classes[i];
             if (klass != null) {

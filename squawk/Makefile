@@ -29,7 +29,8 @@ endif
 # Make APP point to a directory containing src/FormicApp.java with the
 # application's Main class
 #APP?=../formic-tests/HelloWorld
-APP?=../formic-tests/Linpack
+#APP?=../formic-tests/Linpack
+APP?=../formic-tests/Double2String
 APP_SRC=$(APP)/src/*.java
 APP_OBJ=$(APP_SRC:$(APP)/src/%.java=$(APP)/classes/%.class)
 APP_OBJ_VER=$(APP_SRC:$(APP)/src/%.java=$(APP)/classes/preverified/%.class)
@@ -59,7 +60,8 @@ hello: squawk FormicApp.suite
 	$(AT)./squawk -suite:FormicApp FormicApp
 
 run:
-	$(AT)$(MYRMICS_SRC)/client -pwr_formic -boot formic -elf $(ELF)
+	$(AT)rm -f run.log
+	$(AT)$(MYRMICS_SRC)/client -pwr_formic -boot formic -elf $(ELF) | tee run.log
 
 map: squawk.suite.map FormicApp.suite.map
 
@@ -74,7 +76,7 @@ FormicApp.suite: $(APP_OBJ_VER)
 # Create the Application suite map (useful to translate the traces)
 FormicApp.suite.map: FormicApp.suite
 	$(AT)echo $(STR_MAP) $@
-	$(AT)$(BUILDER) map -notypemap -cp:$(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ $<
+	$(AT)$(BUILDER) map -nofielddefs -notypemap -cp:$(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ $<
 
 $(APP)/classes/%.class: $(APP)/src/%.java
 	$(AT)echo $(STR_JVC) $@
@@ -115,7 +117,7 @@ squawk.suite.map: squawk.suite
 squawk.suite.bin: squawk.suite suite_addr.txt
 	$(eval SUITES_ADDR := $(shell cat suite_addr.txt))
 	$(AT)echo $(STR_FLC) $@
-	$(AT)$(BUILDER) flashconv -endian:little -v $< $(SUITES_ADDR)
+	$(AT)$(BUILDER) flashconv -endian:little $< $(SUITES_ADDR)
 
 # Calculates the size of the bootstrap suite and adds it to the size
 # of the pure elf file..  This is used as the address of the
@@ -124,8 +126,7 @@ FormicApp.suite.bin: FormicApp.suite suite_addr.txt squawk.suite.bin
 	$(eval SUITES_ADDR := $(shell cat suite_addr.txt))
 	$(AT)echo $(STR_FLC) $@
 	$(eval TMP := $(shell wc -c squawk.suite.bin | awk '{print $$1}' | xargs printf "%X" | xargs -I size echo "obase=16;ibase=16; $(SUITES_ADDR)+size" | bc))
-	$(AT)echo $(BUILDER) flashconv \-endian:little \-v $< $(TMP) $(SUITES_ADDR)
-	$(AT)$(BUILDER) flashconv -endian:little -v $< $(TMP) $(SUITES_ADDR)
+	$(AT)$(BUILDER) flashconv -endian:little $< $(TMP) $(SUITES_ADDR)
 
 # Calculates the size of the elf file.  This is going to be used as
 # the address of the bootstrap suite in memory

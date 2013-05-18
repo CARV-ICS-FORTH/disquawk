@@ -227,14 +227,17 @@ public class JavaApplicationManager {
 //                args[0] = "MIDlet-" + midletPropertyNum;
 //                appThread = new AppThread(Isolate.MIDLET_WRAPPER_CLASS, args);
 //            }
-//            VM.print("parentSuiteURI="+parentSuiteURI+"\n");
+//            if (VM.isVerbose())
+//              VM.print("parentSuiteURI="+parentSuiteURI+"\n");
 //            VM.getCurrentIsolate().morphBootstrapInto(null, classPath, parentSuiteURI);
-//            VM.print("morph done starting AppThread\n");
+//            if (VM.isVerbose())
+//              VM.print("morph done starting AppThread\n");
 //            /*
 //             * Start the application thread and wait for it to complete.
 //             */
 //            appThread.start();
-//            VM.print("Done AppThread\n");
+//            if (VM.isVerbose())
+//              VM.print("Done AppThread\n");
 //            //appThread.join(); // note that this isnt waiting for all app threads to finish, just this thread.
 //        } catch (Error e) {
 //            System.err.println(e);
@@ -461,9 +464,11 @@ class AppThread extends Thread {
         this.mainClass = mainClass;
         this.args = args;
 
-        VM.println("[DIAG]  AppThread Instantiated with: "+mainClass);
-        for (int i=0; i<args.length; ++i)
-          VM.println("[DIAG]    Arg["+i+"]: "+args[i]);
+        if (VM.isVerbose()) {
+          VM.println("[DIAG]  AppThread Instantiated with: "+mainClass);
+          for (int i=0; i<args.length; ++i)
+            VM.println("[DIAG]    Arg["+i+"]: "+args[i]);
+        }
     }
 
     public void run() {

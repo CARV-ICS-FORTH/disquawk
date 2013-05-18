@@ -87,8 +87,8 @@ typedef signed char jbyte;
 
 #define JNI_TYPES_ALREADY_DEFINED_IN_JNI_MD_H
 
-typedef unsigned char	jboolean;
-typedef unsigned short	jchar;
+typedef unsigned char     jboolean;
+typedef unsigned short    jchar;
 typedef short     jshort;
 typedef float     jfloat;
 typedef ujlong    jdouble; /* HACK: Define doubles as long*/

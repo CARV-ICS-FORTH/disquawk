@@ -2339,7 +2339,7 @@ public class Build {
             }
         }
         Build builder = new Build(buildDotOverrideFileName);
-        System.out.println("Platform: " + builder.platform);
+//        System.out.println("Platform: " + builder.platform);
         try {
             builder.mainProgrammatic(args);
             System.out.println("Total time: " + ((System.currentTimeMillis() - start) / 1000) + "s");
@@ -2625,7 +2625,7 @@ public class Build {
             cOptions.platformType = platformOption;
             cOptions.cflags += " -D" + derivedPropName + "=1";
             updateProperty(derivedPropName, "true", true);
-            System.out.println("PLATFORM_TYPE=" + platformOption);
+//            System.out.println("PLATFORM_TYPE=" + platformOption);
         } else {
             updateProperty(derivedPropName, "false", true);
         }
@@ -2638,10 +2638,10 @@ public class Build {
         String derivedPropName = "GC_" + collectorName;
         if (getProperty("GC").equals(collectorName)) {
             updateProperty(derivedPropName, "true", true);
-            System.out.println(derivedPropName + "=true");
+//            System.out.println(derivedPropName + "=true");
         } else {
             updateProperty(derivedPropName, "false", true);
-            System.out.println(derivedPropName + "=false");
+//            System.out.println(derivedPropName + "=false");
         }
     }
 

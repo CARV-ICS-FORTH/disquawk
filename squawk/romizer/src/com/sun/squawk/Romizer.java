@@ -836,7 +836,6 @@ public class Romizer {
      * Creates the serialized object memory representing the classes in the translated suite.
      */
 	private void createImage() throws IOException {
-      VM.println("[DIAG]  in createImage");
 
         // Open the map file.
         File file = new File(suiteName + ".sym");
@@ -910,6 +909,8 @@ public class Romizer {
     private void printSymFile(ObjectMemory memory, PrintStream symbols) throws IOException {
         // Add a few symbols.
         VM.printNatives(symbols);
+        // printMethodAddresses(symbols);
+
         symbols.println("PMR.ROM_SIZE=" + memory.getSize());
         symbols.println("PMR.ROM_SUITE_TABLE=" + memory.getRoot());
         symbols.println("PMR.REVERSE_PARAMETERS=" + (Translator.REVERSE_PARAMETERS ? 1 : 0));

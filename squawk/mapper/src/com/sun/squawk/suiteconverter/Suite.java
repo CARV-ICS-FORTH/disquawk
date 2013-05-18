@@ -207,16 +207,18 @@ public class Suite {
                         + " bytes");
             }
 
-            VM.println("[DIAG]  in writeToStream");
-            VM.println("        Minor     : "+FLASH_SUITE_MINOR_VERSION);
-            VM.println("        Major     : "+FLASH_SUITE_MAJOR_VERSION);
-            VM.println("        Attributes: "+(ObjectMemoryFile.ATTRIBUTE_32BIT | (isTargetBigEndian() ? ObjectMemoryFile.ATTRIBUTE_BIGENDIAN : 0)));
-            VM.println("        parentHash: 0x"+Integer.toHexString(getParent().getHash()));
-            VM.println("        parentURI : "+getSpotParentURL());
-            VM.println("        rootOffset: "+rootOffset);
-            VM.println("        memorySize: "+memorySize);
-            VM.println("        padding   : "+(outputHeaderSize - unpaddedHdrSize));
-            VM.println("        hash      : 0x"+Integer.toHexString(getHash()));
+            if (VM.isVerbose()) {
+              VM.println("[DIAG]  in writeToStream");
+              VM.println("        Minor     : "+FLASH_SUITE_MINOR_VERSION);
+              VM.println("        Major     : "+FLASH_SUITE_MAJOR_VERSION);
+              VM.println("        Attributes: "+(ObjectMemoryFile.ATTRIBUTE_32BIT | (isTargetBigEndian() ? ObjectMemoryFile.ATTRIBUTE_BIGENDIAN : 0)));
+              VM.println("        parentHash: 0x"+Integer.toHexString(getParent().getHash()));
+              VM.println("        parentURI : "+getSpotParentURL());
+              VM.println("        rootOffset: "+rootOffset);
+              VM.println("        memorySize: "+memorySize);
+              VM.println("        padding   : "+(outputHeaderSize - unpaddedHdrSize));
+              VM.println("        hash      : 0x"+Integer.toHexString(getHash()));
+            }
 
         } else {
             if (VM.isVerbose()) {

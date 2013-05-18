@@ -216,7 +216,8 @@ System.out.println("filePathelements=" + filePathelements);
      */
     private static ObjectMemoryFile load0(DataInputStream dis, String uri, boolean loadIntoReadOnlyMemory, boolean headerOnly) {
         ObjectMemoryLoader loader;
-        VM.print("[DIAG]  load0 for "+uri+"\n");
+        if (VM.isVerbose())
+          VM.print("[DIAG]  load0 for "+uri+"\n");
 
         if (uri.startsWith("spotsuite:")) {
 /*if[VERIFY_SIGNATURES]*/
@@ -338,12 +339,14 @@ System.out.println("filePathelements=" + filePathelements);
             return new ObjectMemoryFile(minor, major, attributes, parentHash, parentURI, null);
         }
 
-        VM.print("[DIAG]  in load(bool)\n");
-        VM.print("        Minor     : "+minor+"\n");
-        VM.print("        Major     : "+major+"\n");
-        VM.print("        Attributes: "+attributes+"\n");
-        VM.print("        parentHash: 0x"+Integer.toHexString(parentHash)+"\n");
-        VM.print("        parentURI : "+parentURI+"\n");
+        if (VM.isVerbose()) {
+          VM.print("[DIAG]  in load(bool)\n");
+          VM.print("        Minor     : "+minor+"\n");
+          VM.print("        Major     : "+major+"\n");
+          VM.print("        Attributes: "+attributes+"\n");
+          VM.print("        parentHash: 0x"+Integer.toHexString(parentHash)+"\n");
+          VM.print("        parentURI : "+parentURI+"\n");
+        }
 
         // Load the parent of this object memory file
         ObjectMemory parent;
@@ -468,11 +471,13 @@ System.out.println("filePathelements=" + filePathelements);
           VM.collectGarbage(true);
         }
 
-        VM.print("[DIAG]  in loadThis\n");
-        VM.print("        Read:"+reader.getBytesRead()+"\n");
-        VM.print("        rootOffset: "+root+"\n");
-        VM.print("        memorySize: "+size+"\n");
-        VM.print("        hash      : 0x"+Integer.toHexString(hash)+"\n");
+        if (VM.isVerbose()) {
+          VM.print("[DIAG]  in loadThis\n");
+          VM.print("        Read:"+reader.getBytesRead()+"\n");
+          VM.print("        rootOffset: "+root+"\n");
+          VM.print("        memorySize: "+size+"\n");
+          VM.print("        hash      : 0x"+Integer.toHexString(hash)+"\n");
+        }
 
         // Relocate the pointers in the memory and move the buffer into read-only memory if necessary
         Address relocatedBuffer = relocateMemory(parent, buffer, oopMap);

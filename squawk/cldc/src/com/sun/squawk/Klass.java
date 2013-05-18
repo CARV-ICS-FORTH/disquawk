@@ -337,7 +337,6 @@ public class Klass<T> {
      * @throws java.lang.ClassNotFoundException
      */
     public static synchronized Klass forName(String className) throws ClassNotFoundException {
-        VM.println("[DIAG]  Klass.forName: "+className);
        // Verbose trace.
         if (VM.isVeryVerbose()) {
             VM.print("[Klass.forName(");

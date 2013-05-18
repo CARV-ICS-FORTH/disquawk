@@ -53,7 +53,7 @@ public final class ObjectGraphSerializer {
      * This maps host objects to their serialized addresses.
      */
     private static ArrayHashtable objectMap = new ArrayHashtable();
-    
+
     /**
      * Support pushing and popping of the objectMap.  This is done to support the serialization of a Suite which should not have anything shared with any future Suites that are serialized.
      */
@@ -63,12 +63,12 @@ public final class ObjectGraphSerializer {
      * Guards against re-entry to the alloc method.
      */
     private static boolean inAlloc = false;
-    
+
     /**
      * Keep track of how many levels deep of save we are in.
      */
     private static int saveDepth;
-    
+
     /**
      * Turn on a significantly more verbose mode to allow for debugging.
      */
@@ -114,7 +114,7 @@ public final class ObjectGraphSerializer {
         NativeUnsafe.resolveClasses(objectMap);
 
         ObjectMemorySerializer.ControlBlock cb = ObjectMemorySerializer.ControlBlock.createControlBlock();
-        
+
         cb.root = ((Address) objectMap.get(object)).diff(start).toInt();
 
         int size = NativeUnsafe.getMemorySize() - currentMemorySize;
@@ -127,16 +127,16 @@ public final class ObjectGraphSerializer {
 
         return cb;
     }
-    
+
     public static void popObjectMap() {
     	objectMap = objectMapStack.pop();
     }
-    
+
     public static void pushObjectMap() {
     	objectMapStack.push(objectMap);
     	objectMap = new ArrayHashtable(objectMap);
     }
-    
+
     /**
      * Get the Squawk class name corresponding to a standard Java Class name.
      *
@@ -410,7 +410,7 @@ public final class ObjectGraphSerializer {
                         }
                         break;
                     }
-                    
+
                     case CID.DOUBLE_ARRAY: {
                         double[] array = (double[])object;
                         serializedObject = alloc(object, klass, array.length);

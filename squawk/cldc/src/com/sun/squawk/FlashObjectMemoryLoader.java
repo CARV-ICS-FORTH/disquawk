@@ -80,7 +80,8 @@ public class FlashObjectMemoryLoader extends ObjectMemoryLoader {
 	protected void skipMemoryPadding(String parentURI, int memorySize) {
 		FlashObjectMemoryReader r = (FlashObjectMemoryReader) reader;
 		Offset off = r.getCurrentAddress().roundUpToWord().diff(r.getCurrentAddress());
-        VM.println("        padding   : "+off.toInt());
+        if (VM.isVerbose())
+          VM.println("        padding   : "+off.toInt());
 		r.skip(off.toInt(), "skipping pad");
 	}
 

@@ -289,12 +289,16 @@ public class BuildFormicVMCommand extends FormicCommand {
     objectFiles2.addAll(new FileSet(OBJ_JAVA_MM   , sselector).list());
     objectFiles2.addAll(new FileSet(OBJ_JAVA_PR   , sselector).list());
     objectFiles2.addAll(new FileSet(OBJ_JAVA_SYS  , sselector).list());
-    /*if[LIBGCC]*/
-    FileSet.SuffixSelector sselector2 = new FileSet.SuffixSelector(".o");
-    File VM_SRC_RTS_OBJ =
-      new File(VM_SRC_RTS_DIR , ccompiler.getRtsIncludeName()+"/libgcc");
-    objectFiles2.addAll(new FileSet(VM_SRC_RTS_OBJ, sselector2).list());
-    /*end[LIBGCC]*/
+   /* look in rts/arch/libgcc for the .o files with the required
+      gcc macros else build them from source
+      (using the ones provided with mb-gcc is expected to perform better)
+      However ATM some of them are missing
+   */
+    // FIXME: make it configurable through build.properties
+    // FileSet.SuffixSelector sselector2 = new FileSet.SuffixSelector(".o");
+    // File VM_SRC_RTS_OBJ =
+    //   new File(VM_SRC_RTS_DIR , ccompiler.getRtsIncludeName()+"/libgcc");
+    // objectFiles2.addAll(new FileSet(VM_SRC_RTS_OBJ, sselector2).list());
 
     env.log(env.brief, "[linking '" + linkerOutputFile.toString() + "'...]");
     // the first object must be the linker script

@@ -142,7 +142,8 @@ Modify the build.properties file
 Notes:
 ------
   The VM is started from squawk.c[.spp]
-  Bootstrap suite is loaded by loadBootstrapSuiteFromFlash
+  Bootstrap suite is loaded by loadBootstrapSuiteFromFlash in
+  vmcore/src/vm/suite.c
 
 To build the builder:
 ---------------------
