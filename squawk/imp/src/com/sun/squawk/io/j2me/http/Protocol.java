@@ -1,22 +1,22 @@
 /*
  * Copyright 1999-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -48,7 +48,7 @@ import com.sun.squawk.io.ConnectionBase;
  * for an HTTP connection.
  */
 public class Protocol extends ConnectionBase implements HttpConnection {
-    
+
 /*if[!FLASH_MEMORY]*/
     /** Call using a full URL (remember to include the FILE part!"
      * > squawk com.sun.squawk.io.j2me.http.Protocol http://www.yahoo.com/index.html
@@ -67,7 +67,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
             twiddler.setPriority(Thread.MIN_PRIORITY);
             VM.setAsDaemonThread(twiddler);
             twiddler.start();
-            
+
 //            HttpConnection conn = null;
 //            InputStream is = null;
 //            OutputStream os = null;
@@ -83,7 +83,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
 ////                os = conn.openOutputStream();
 ////                os.write("test\n\n\n".getBytes());
 ////                os.flush();
-////                
+////
 //                // Getting the response code will open the connection,
 //                // send the request, and read the HTTP response headers.
 //                // The headers are stored until requested.
@@ -157,7 +157,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
 /*end[FLASH_MEMORY]*/
 
     private static final String HTTP_PROXY_MANIFEST_PROPERTY = "com.sun.squawk.io.j2me.http.Protocol-HttpProxy";
-    
+
     private int index; // used by URL parsing functions
     private String url;
     private String protocol;
@@ -215,19 +215,19 @@ public class Protocol extends ConnectionBase implements HttpConnection {
     }
 
     public Connection open(String protocol, String url, int mode, boolean timeouts) throws IOException {
-        
+
         if(protocol == null || protocol.length()==0){
             throw new IllegalArgumentException("Protocol cannot be null or empty");
         }
-        
+
         if (mode != Connector.READ && mode != Connector.WRITE && mode != Connector.READ_WRITE) {
             throw new IllegalArgumentException("illegal mode: " + mode);
         }
-        
+
         if (opened) {
             throw new IOException("already connected");
         }
-        
+
         this.url = url;
         this.mode = mode;
         this.timeouts = timeouts;
@@ -480,7 +480,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
         public void close() throws IOException {
             if(opened){
                 opened=false;
-                if (--opens == 0) disconnect();    
+                if (--opens == 0) disconnect();
             }
         }
 
@@ -521,7 +521,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
             if(opened){
                 flush();
                 opened=false;
-                if (--opens == 0) disconnect();    
+                if (--opens == 0) disconnect();
             }
         }
 
@@ -575,7 +575,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
 
     public void setRequestProperty(String key, String value) throws IOException {
         if(connected){
-            throw new IOException("Cannot set request property when already connected");                
+            throw new IOException("Cannot set request property when already connected");
         }
         reqProperties.put(key, value);
     }
@@ -736,7 +736,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
             String proxyReqAdd = "";
 
             /* Determine port number */
-            String httpProxy = VM.getManifestProperty(HTTP_PROXY_MANIFEST_PROPERTY);
+            String httpProxy = VM.getAppProperty(HTTP_PROXY_MANIFEST_PROPERTY);
             if (httpProxy == null) {
                 // Try to get the property from the Isolates properties
                 httpProxy = Isolate.currentIsolate().getProperty(HTTP_PROXY_MANIFEST_PROPERTY);
@@ -886,7 +886,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
             if (key.length() == 0)
                 throw new IOException("malformed header field");
 
-            
+
             if (line.length() <= colonIndex + 2) {
                 value = "";
             } else {
@@ -898,7 +898,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
     }
 
     /*
-     * Uses the shared stringbuffer to read a line 
+     * Uses the shared stringbuffer to read a line
      */
     private String readLine(InputStream in) throws IOException {
         int c;
@@ -907,7 +907,7 @@ public class Protocol extends ConnectionBase implements HttpConnection {
         while(true) {
 
             c = in.read();
-            
+
             if (c < 0) {
                 return null;
             }
@@ -930,15 +930,15 @@ public class Protocol extends ConnectionBase implements HttpConnection {
         if (connected) {
             if (streamConnnection != null) {
                 if(streamInput!=null){
-                    streamInput.close(); 
+                    streamInput.close();
                     streamInput=null;
                 }
-                
+
                 if(streamOutput!=null){
                     streamOutput.close();
                     streamOutput=null;
                 }
-                
+
                 streamConnnection.close();
                 streamConnnection = null;
             }

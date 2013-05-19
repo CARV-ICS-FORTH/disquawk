@@ -2,17 +2,17 @@
  * Copyright 2006-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2010-2011 Oracle. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -44,6 +44,7 @@ import com.sun.squawk.flash.NorFlashMemoryHeap;
  * so store has to be erased.
  */
 public class RecordStoreManager implements IRecordStoreManager {
+    private final static boolean DO_VERSION_CHECKS = false; // app rollback means that we might be going backwards intentionally
 
     protected INorFlashMemoryHeap memoryHeap;
     protected IRecordStoreEntry[] currentRecordStores;
@@ -51,7 +52,7 @@ public class RecordStoreManager implements IRecordStoreManager {
     protected INorFlashMemoryHeapScanner memoryHeapScanner;
     protected IRmsEntryVisitor scanVisitor;
     protected IRmsEntryVisitor reScanVisitor;
-    
+
     protected RecordStoreManager() {  // used by testing
     }
 
@@ -60,7 +61,7 @@ public class RecordStoreManager implements IRecordStoreManager {
         this.memoryHeapScanner = this;
         init();
     }
-    
+
     // is this used?
     public RecordStoreManager(INorFlashMemoryHeap memoryHeap, INorFlashMemoryHeapScanner memoryHeapScanner, IRmsEntryVisitor scanVisitor, IRmsEntryVisitor reScanVisitor) throws RecordStoreException {
         this.memoryHeap = memoryHeap;
@@ -70,7 +71,7 @@ public class RecordStoreManager implements IRecordStoreManager {
         currentRecordStores = new IRecordStoreEntry[4];
         init();
     }
-    
+
     protected String checkMIDletVersion(String nameInstalled, String vendorInstalled, String versionInstalled) {
         if (currentApplicationDescriptor == null) {
             return "Initializing RMS for MID-let: " + nameInstalled + ", -Version: " + versionInstalled + ", -Vendor: " + vendorInstalled;
@@ -90,16 +91,20 @@ public class RecordStoreManager implements IRecordStoreManager {
         if (!vendorInstalled.equals(vendorFound)) {
             return "Erasing RMS, since installed MIDlet-Vendor: " + vendorInstalled + " does not match prior -Vendor: " + vendorFound;
         }
-        if (versionInstalled == null) {
-            if (versionFound == null) {
+        if (!DO_VERSION_CHECKS) {
+            return null;
+        } else {
+            if (versionInstalled == null) {
+                if (versionFound == null) {
+                    return null;
+                }
+            } else if (versionInstalled.compareTo(versionFound) >= 0) {
                 return null;
             }
-        } else if (versionInstalled.compareTo(versionFound) >= 0) {
-            return null;
         }
         return "Erasing RMS, since installed MIDlet-Version: " + versionInstalled + " does not match prior -Version: " + versionFound;
     }
-    
+
     public boolean deleteRecordStore(String name) throws RecordStoreException {
         IRecordStoreEntry recordStore = getRecordStore(name, false);
         if (recordStore == null) {
@@ -110,11 +115,11 @@ public class RecordStoreManager implements IRecordStoreManager {
         currentRecordStores[recordStore.getId()] = null;
         return true;
     }
-    
+
     public IRmsEntry getEntryAt(Address address) throws RecordStoreException {
         return getEntryIn(memoryHeap.getBlockAt(address));
     }
-    
+
     public IRmsEntry getEntryIn(IMemoryHeapBlock block) throws RecordStoreException {
         if (block == null || !block.isAllocated()) {
             return null;
@@ -136,7 +141,7 @@ public class RecordStoreManager implements IRecordStoreManager {
                     entry = new RecordStoreSequenceEntry();
                     break;
                 default:
-                    entry = new UnknownEntry();                    
+                    entry = new UnknownEntry();
             }
             entry.setAddress(block.getAddress());
             entry.readFrom(block);
@@ -151,11 +156,11 @@ public class RecordStoreManager implements IRecordStoreManager {
             }
         }
     }
-    
+
     public long getErasedSequenceCurrentValue() {
         return memoryHeap.getErasedSequenceCurrentValue();
     }
-    
+
     protected IRecordStoreEntry getRecordStore(int storeId) {
         if (storeId >= currentRecordStores.length) {
             IRecordStoreEntry[] temp = currentRecordStores;
@@ -164,7 +169,7 @@ public class RecordStoreManager implements IRecordStoreManager {
         }
         return currentRecordStores[storeId];
     }
-    
+
     public IRecordStoreEntry getRecordStore(String name, boolean createIfNecessary) throws RecordStoreException {
         for (int i=0, max=currentRecordStores.length; i < max; i++) {
             IRecordStoreEntry recordStore = currentRecordStores[i];
@@ -197,7 +202,7 @@ public class RecordStoreManager implements IRecordStoreManager {
         }
         return null;
     }
-    
+
     public String[] getRecordStoreNames() {
         Vector names = new Vector();
         for (int i=0, max=currentRecordStores.length; i < max; i++) {
@@ -263,22 +268,22 @@ public class RecordStoreManager implements IRecordStoreManager {
             currentRecordStores = new IRecordStoreEntry[4];
         }
     }
-    
+
     /**
      * Mark the block at "address" as "STALE". Updates actual flash memory.
      * @param address of RmsEntry to free
-     * @throws RecordStoreException 
+     * @throws RecordStoreException
      */
     public void invalidateEntryAt(Address address) throws RecordStoreException {
         memoryHeap.freeBlockAt(address);
     }
-    
+
     /**
      * Write the RmsEntry type byte, RmsEntry data, and optional pad byte.
-     * 
+     *
      * @param entry RmsEntry to write
      * @return address of the written RmsEntry
-     * @throws RecordStoreException 
+     * @throws RecordStoreException
      */
     public Address logEntry(IRmsEntry entry) throws RecordStoreException {
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream(64);
@@ -298,7 +303,7 @@ public class RecordStoreManager implements IRecordStoreManager {
             throw new RecordStoreException(e.getMessage());
         }
     }
-    
+
     public void reScanBlock(Address oldAddress, Address newAddress, IMemoryHeapBlock block) throws RecordStoreException {
         IRmsEntry entry = getEntryIn(block);
         if (entry == null) {

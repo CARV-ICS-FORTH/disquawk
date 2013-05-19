@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -114,7 +114,7 @@ public class KlassMetadata {
 //                System.out.println("trivial classtable for " + definedClass);
 //            }
         }
-      
+
         /**
          * Constructor for stripping.
          *
@@ -170,7 +170,7 @@ public class KlassMetadata {
             }
         }
     }
-    
+
     KlassMetadata(Klass definedClass, byte[] symbols, Klass[] classTable) {
     	this.definedClass = definedClass;
     	this.symbols = symbols;
@@ -244,7 +244,7 @@ public class KlassMetadata {
         if (methods == null) {
             return null;
         }
-        
+
         Object[] methodArray = isStatic ? definedClass.getStaticMethods()  : definedClass.getVirtualMethods();
         if (methodArray.length == methods.length) {
             // MethodMetadata table was NOT stripped of nulls.
@@ -278,7 +278,7 @@ public class KlassMetadata {
         return null;
     }
 
-    
+
     /**
      * Get the static or instance method metadatas
      *
@@ -287,7 +287,7 @@ public class KlassMetadata {
     MethodMetadata[] geMethodMetadata(boolean isStatic) {
         return null;
     }
-    
+
     /**
      * Get a parser for the symbolic information for the class.
      *
@@ -388,7 +388,7 @@ public class KlassMetadata {
             return null;
         }
 
-        if (type == Suite.APPLICATION) {
+        if (type == Suite.APPLICATION && !MethodMetadata.lineNumberTablesKept()) {
             boolean anyRuntimeStaticsRequired = false;
             for (int i = 0; i != metadatas.length; ++i) {
                 Klass klass = metadatas[i].getDefinedClass();
@@ -400,7 +400,7 @@ public class KlassMetadata {
                     break;
                 }
             }
-            
+
             if (!anyRuntimeStaticsRequired) {
                 if (Klass.TRACING_ENABLED && Tracer.isTracing("stripping")) {
                     Tracer.traceln("Discarded all metadata for " + suite);
@@ -432,7 +432,7 @@ public class KlassMetadata {
     public static boolean isExternaltoSuite(Klass klass, int stripType) {
         return (stripType != Suite.APPLICATION) && VM.isExported(klass);
     }
-    
+
     /**
      * Prunes the symbols based on a given suite type.
      *
@@ -443,7 +443,7 @@ public class KlassMetadata {
             Tracer.traceln("Processing metadata for " + definedClass);
         }
         boolean internalClass = !isExternaltoSuite(definedClass, type);
-        if (internalClass && ((definedClass.getModifiers() & Modifier.COMPLETE_RUNTIME_STATICS) == 0)) {
+        if (internalClass && ((definedClass.getModifiers() & Modifier.COMPLETE_RUNTIME_STATICS) == 0) && !MethodMetadata.lineNumberTablesKept()) {
             if (Klass.TRACING_ENABLED && Tracer.isTracing("stripping")) {
                 Tracer.traceln("  discarded all metadata");
             }
@@ -508,7 +508,7 @@ public class KlassMetadata {
                 System.out.println(s);
             }
         }
-         
+
         /** do not instantiate */
         private Debug() {}
     }

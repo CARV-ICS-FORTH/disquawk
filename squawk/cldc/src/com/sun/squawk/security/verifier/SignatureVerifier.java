@@ -1,23 +1,23 @@
-//if[VERIFY_SIGNATURES]
+//if[FLASH_MEMORY]
 /*
  * Copyright 2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -56,15 +56,15 @@ public class SignatureVerifier {
 	 * DEBUG is used for enabling and disabling debug code, usually to write debug messages
 	 * which are defined in the form: <br> if (SignatureVerifier.DEBUG) {<some code} <br>
 	 * If enabled is set to false the compiler will no include the debug code to the class file, as the
-	 * statements are unreachable. Thus using this kind of debug statements doesn't increase the size of 
-	 * the code. This wouldn't be the case if the statement is in another method, and as 
+	 * statements are unreachable. Thus using this kind of debug statements doesn't increase the size of
+	 * the code. This wouldn't be the case if the statement is in another method, and as
 	 * code size and execution time is crucial for spots no debug_output method is included in the Debug class
 	 * and the if statement must be indcluded in the code which needs debug output.<br>
-	 * REMARK: debugging can only be enabled and disabled by recompiling and reflashing the squawk library. 
-	 * 
+	 * REMARK: debugging can only be enabled and disabled by recompiling and reflashing the squawk library.
+	 *
 	 */
 	static final boolean DEBUG=false;
-    
+
     /** The class is never to be instantiated. All methods and fields are static. */
 	private SignatureVerifier() {
 	}
@@ -99,7 +99,7 @@ public class SignatureVerifier {
     private static final byte ASN_INTEGER = 2;
     private static final byte ASN_SEQUENCE = 16;
     private static final int SUITE_VERIFIED = 0xFE;
-	
+
 /*if[NATIVE_VERIFICATION_ONLY]*/
 /*else[NATIVE_VERIFICATION_ONLY]*/
 //	private static SHA md;
@@ -117,17 +117,17 @@ public class SignatureVerifier {
 			if (SignatureVerifier.DEBUG) {
 				System.out.println("SignatureVerifier.initialize:\n\tpublicKey: " + publicKey);
             }
-	
+
 /*if[NATIVE_VERIFICATION_ONLY]*/
 /*else[NATIVE_VERIFICATION_ONLY]*/
 //			md=new SHA();
 /*end[NATIVE_VERIFICATION_ONLY]*/
         } catch (Exception ex) {
-			publicKey = null;			
+			publicKey = null;
 /*if[NATIVE_VERIFICATION_ONLY]*/
 /*else[NATIVE_VERIFICATION_ONLY]*/
 //			md = null;
-/*end[NATIVE_VERIFICATION_ONLY]*/			
+/*end[NATIVE_VERIFICATION_ONLY]*/
 			if (SignatureVerifier.DEBUG) {
 				ex.printStackTrace();
             }
@@ -136,24 +136,24 @@ public class SignatureVerifier {
 	}
 
     /**
-	 * Verifies a buffer 
-     * @param buffer 
-     * @param signature 
+	 * Verifies a buffer
+     * @param buffer
+     * @param signature
      * @todo javadoc
      * @throws SignatureVerifierException
-     * @throws IOException 
+     * @throws IOException
 	 */
 	public static void verify(byte[] buffer, byte[] signature) throws SignatureVerifierException, IOException {
 		verify(buffer, 0, buffer.length, signature, 0, signature.length);
 	}
 
 	/**
-	 * Verifies a buffer 
-     * @param buffer 
-     * @param bufferOffset 
-     * @param bufferLength 
-     * @param signature 
-     * @param signatureOffset 
+	 * Verifies a buffer
+     * @param buffer
+     * @param bufferOffset
+     * @param bufferLength
+     * @param signature
+     * @param signatureOffset
      * @param signatureLength
      * @todo javadoc
 	 * @throws SignatureVerifierException
@@ -171,23 +171,23 @@ public class SignatureVerifier {
     				"Includes Offset: "+bufferOffset);
         }
     	VM.execSyncIO(ChannelConstants.INTERNAL_COMPUTE_SHA1_FOR_MEMORY_REGION,address.toUWord().toInt(), bufferLength , 0, 0, 0, 0, result, null);
-		
+
 		result = Arrays.copy(result, 0, 20, 0, 20);
 		if (SignatureVerifier.DEBUG) {
 			System.out.println("Hash computed using NATIVE function: \n"+HexEncoding.hexEncode(result));
         }
-/*else[NATIVE_VERIFICATION]*/	
+/*else[NATIVE_VERIFICATION]*/
 //	md.reset();
 //  md.doFinal(buffer, bufferOffset, bufferLength, result, 0);
-//  if (SignatureVerifier.DEBUG)		
+//  if (SignatureVerifier.DEBUG)
 //			System.out.println("Hash computed using Java class: \n"+HexEncoding.hexEncode(result));
-//		
+//
 /*end[NATIVE_VERIFICATION]*/
 		if (!verifyMessageDigest(result, signature,signatureOffset,signatureLength)) {
 			throw new SignatureVerifierException("Signature verification failed");
 		}
 }
-	
+
 	/**
 	 * Verifies a suite in flash memory. Remark: The suite header must be
 	 * shorter than MAXIMUM_HEADER_SIZE bytes. This is only guarenteed in the
@@ -198,14 +198,13 @@ public class SignatureVerifier {
 	 * have any length. Furthermore verifySuite expects that the first integer
 	 * after the object memory in the suite is the hash. This is only the case
 	 * for suite converted for flashmemory, thus it won't work for other suites.
-	 * 
+	 *
 	 * @param suiteIn
 	 *            An input stream which allows retrieving a suite. This usually
 	 *            is a FlashInputStream pointing to a suite in the flash memory.
      * @throws SignatureVerifierException
-     * @throws IOException 
+     * @throws IOException
 	 */
-	
 	public static void verifySuite(InputStream suiteIn) throws SignatureVerifierException, IOException {
 /*if[NATIVE_VERIFICATION]*/
 		verifySuite(suiteIn, true);
@@ -213,13 +212,13 @@ public class SignatureVerifier {
 //		verifySuite(suiteIn, false);
 /*end[NATIVE_VERIFICATION]*/
 	}
- 
+
 	/**
 	 * Verifies a suite in flash memory using either the java Signature or a
-	 * native read from flash and sha1 code. It is only intented to ensure that 
-	 * the byte code wasn't changed for Java compliance reasons. It does NOT 
-	 * protect against attackers (especially if ignoreSuiteVerifiedFlag==false). 
-	 * For functionallity which require such protection (like access control 
+	 * native read from flash and sha1 code. It is only intented to ensure that
+	 * the byte code wasn't changed for Java compliance reasons. It does NOT
+	 * protect against attackers (especially if ignoreSuiteVerifiedFlag==false).
+	 * For functionallity which require such protection (like access control
 	 * for over the air deployment)use the verify method.
 	 * <p>
 	 * Remark: The suite header must be shorter than MAXIMUM_HEADER_SIZE bytes.
@@ -231,30 +230,30 @@ public class SignatureVerifier {
 	 * expects that the first integer after the object memory in the suite is
 	 * the hash. This is only the case for suite converted for flashmemory, thus
 	 * it won't work for other suites.
-	 * 
+	 *
 	 * @param suiteIn
 	 *            An input stream which allows retrieving a suite. This usually
 	 *            is a FlashInputStream pointing to a suite in the flash memory.
 	 * @param useNativeSHA
-	 *            Use faster message digest computation. Native C is about 85x faster 
-	 * 	      than the pure Java version. useNativeSHA=true cannot be 
-	 *            used if NATIVE_VERIFICATION compile flag not set, and 
+	 *            Use faster message digest computation. Native C is about 85x faster
+	 * 	      than the pure Java version. useNativeSHA=true cannot be
+	 *            used if NATIVE_VERIFICATION compile flag not set, and
 	 *            useNativeSHA=false cannot be used if NATIVE_VERIFICATION_ONLY is
 	 *             set.In this cases verifySuite will throw a RuntimeException
      * @throws SignatureVerifierException
-     * @throws IOException 
-	 */	
+     * @throws IOException
+	 */
 	public static void verifySuite(InputStream suiteIn, boolean useNativeSHA) throws SignatureVerifierException, IOException {
-	    int suiteAddress = -1;		
-/*if[FLASH_MEMORY]*/		
+	    int suiteAddress = -1;
+/*if[FLASH_MEMORY]*/
 	    com.sun.squawk.io.j2me.spotsuite.Pointer pointer = ((com.sun.squawk.io.j2me.spotsuite.Pointer) suiteIn);
 		suiteAddress = pointer.getCurrentAddress();
 /*else[FLASH_MEMORY]*/
 //      throw new RuntimeException("Internal Error: This code does not yet work outside of FLASH case");
 /*end[FLASH_MEMORY]*/
 		// Make sure that a key to verify was set
-		ensureInitialized();	
-	
+		ensureInitialized();
+
 		if (useNativeSHA) {
 /*if[NATIVE_VERIFICATION]*/
 /*if[FLASH_MEMORY]*/
@@ -362,7 +361,7 @@ public class SignatureVerifier {
 		} else {
 /*if[NATIVE_VERIFICATION_ONLY]*/
 			throw new RuntimeException(
-					"Internal Error: useNativeSHA=false in call to verifySuite although squawk was built without Java verification support. (NATIVE_VERIFICATION_ONLY==TRUE)");			
+					"Internal Error: useNativeSHA=false in call to verifySuite although squawk was built without Java verification support. (NATIVE_VERIFICATION_ONLY==TRUE)");
 /*else[NATIVE_VERIFICATION_ONLY]*/
 //			if (SignatureVerifier.DEBUG)
 //				System.out.println("\tReading suite");
@@ -376,7 +375,7 @@ public class SignatureVerifier {
 //			}
 /*end[NATIVE_VERIFICATION_ONLY]*/
 		}
-        
+
 		// Read the signature header. This part of the suite is included in the
 		// signature verification
 		// signature header
@@ -393,12 +392,12 @@ public class SignatureVerifier {
 		if (!useNativeSHA) {
 /*if[NATIVE_VERIFICATION_ONLY]*/
 			throw new RuntimeException(
-					"Internal Error: useNativeSHA=false in call to verifySuite although squawk was built without Java verification support. (NATIVE_VERIFICATION_ONLY==TRUE)");			
+					"Internal Error: useNativeSHA=false in call to verifySuite although squawk was built without Java verification support. (NATIVE_VERIFICATION_ONLY==TRUE)");
 /*else[NATIVE_VERIFICATION_ONLY]*/
 //			md.update(bytes, 0, read);
 /*end[NATIVE_VERIFICATION_ONLY]*/
 		}
-		
+
 		if (read < SIGNATURE_HEADER_LENGTH) {
 			throw new SignatureVerifierException("Signature verification failed. Signature header invalid.");
         }
@@ -434,12 +433,12 @@ public class SignatureVerifier {
 		// C (Mozilla NSS, used because of simpler licensing)
 		// Read + SHA 134kB (spotlib+template application)
 		// 183 ms (with compilerflag -O0)
-		// ?   ms 
+		// ?   ms
 
 		// Now the ECC computation time is the dominates startup.
 		// For each suite ECC verification takes about 1000ms.
 		byte[] result = new byte[20];
-		
+
 		if (useNativeSHA) {
 /*if[NATIVE_VERIFICATION]*/
 			if (SignatureVerifier.DEBUG) {
@@ -464,12 +463,12 @@ public class SignatureVerifier {
 			}
 /*end[NATIVE_VERIFICATION]*/
 		} else { // !useNativeSHA
-			// Assume that code flow will never reach here if NATIVE_VERIFICATION==false 
+			// Assume that code flow will never reach here if NATIVE_VERIFICATION==false
 			//(because of exception throwing at beginning of method. But use flags here
-			// to allow compiling if COMPUTE_SHA1_FOR_MEMORY_REGION is not defined 
+			// to allow compiling if COMPUTE_SHA1_FOR_MEMORY_REGION is not defined
 /*if[NATIVE_VERIFICATION_ONLY]*/
 			throw new RuntimeException (
-				"Internal Error: useNativeSHA=false in call to verifySuite although squawk was built without Java verification support. (NATIVE_VERIFICATION_ONLY==TRUE)");			
+				"Internal Error: useNativeSHA=false in call to verifySuite although squawk was built without Java verification support. (NATIVE_VERIFICATION_ONLY==TRUE)");
 /*else[NATIVE_VERIFICATION_ONLY]*/
 //			long startTime;
 //			if (SignatureVerifier.DEBUG)
@@ -485,9 +484,9 @@ public class SignatureVerifier {
 			// buffer is zero.
 			// (TODO: For clearness a verifySuite which only takes the signature
 			// (and no buffer) should be added to the crypto library)
-			
+
 		}
-        
+
 		// Verify the suite and throw an exception if
         // verification failed.
         // result contains the pre-computed SHA hash.
@@ -499,7 +498,7 @@ public class SignatureVerifier {
         }
 /*if[FLASH_MEMORY]*/
         try {
-            setSuiteVerifiedFlag(suiteAddress);	
+            setSuiteVerifiedFlag(suiteAddress);
             if (SignatureVerifier.DEBUG) {
                 System.out.println("Suite verified flag set");
             }
@@ -517,11 +516,11 @@ public class SignatureVerifier {
         }
 /*end[NATIVE_VERIFICATION]*/
 	}
-	
-	
-	  /**
-     * Verifies the signature with an externally computed sha1 hash. 
-     *  
+
+
+	/**
+     * Verifies the signature with an externally computed sha1 hash.
+     *
      * <p>
      * A call to this method also resets this <code>Signature</code> object to
      * the state it was in when previously initialized via a call to
@@ -529,10 +528,10 @@ public class SignatureVerifier {
      * verify another message. In addition, note that the initial vector(IV)
      * used in AES and DES algorithms in CBC mode will be reset to 0.
      * <p>
-     *  To use this method Signature.init has to be called before to initialize 
-     *  the key, while calling Signature.update does not have any effect on the 
+     *  To use this method Signature.init has to be called before to initialize
+     *  the key, while calling Signature.update does not have any effect on the
      *  result.
-     *  
+     *
      * <p>
      * Note:
      * <ul>
@@ -540,17 +539,17 @@ public class SignatureVerifier {
      *     vector(IV) to 0. The initial vector(IV) can be re-initialized using
      *     the <code>init(Key, byte, byte[], short, short)</code> method.</li>
      * </ul>
-     * <p>     
-     *  
-     * @param digestBuf The externally compute sha1 hash to be verified 
+     * <p>
+     *
+     * @param digestBuf The externally compute sha1 hash to be verified
      * @param sigBuff the input buffer containing signature data
      * @param sigOffset the offset into <code>sigBuff</code> where signature
      *   data begins
-     * @param sigLength the byte length of the signature data 
+     * @param sigLength the byte length of the signature data
      *
      * @return <code>true</code> if the signature verifies, <code>false</code>
      *   otherwise. Note, if <code>sigLength</code> is inconsistent with this
-     *   <code>Signature</code> algorithm, <code>false</code> is returned. 
+     *   <code>Signature</code> algorithm, <code>false</code> is returned.
      *
      * @throws CryptoException with the following reason codes:
      *   <ul>
@@ -573,80 +572,80 @@ public class SignatureVerifier {
      */
     private static boolean  verifyMessageDigest(byte[]digestBuf, byte[] sigBuff, int sigOffset, int sigLength)
             throws CryptoException {
-             
+
         // See: ANSI X9.62-1998, 5.4 Signature Verification
-        
+
         if (publicKey == null) {
             CryptoException.throwIt(CryptoException.INVALID_INIT);
         }
         if (publicKey.initOk==false) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
-        
+
         // We can use the PrimeField class to do all the (mod n) computations
         ECCurveFp curve = publicKey.getCurve();
         PrimeField field = curve.getOrder();
         FFA ffa = field.getFFA();
-        
+
         // check the sequence header
         if ((sigLength < 6) || (sigBuff[sigOffset++] != (ASN_CONSTRUCTED | ASN_SEQUENCE))) { return false; }
         int sequenceLen = sigBuff[sigOffset++];
         if ((sequenceLen != sigLength - 2) || (sequenceLen < 4)) { return false; }
-        
+
         // read the first integer: 'r'
         if (sigBuff[sigOffset++] != ASN_INTEGER) { return false; }
         int len = sigBuff[sigOffset++];
         sequenceLen -= (2 + len);
         if (sequenceLen < 2) { return false; }
         int[] r = ffa.from(sigBuff, sigOffset, len); sigOffset += len;
-        
+
         // read the second integer: 's'
         if (sigBuff[sigOffset++] != ASN_INTEGER) { return false; }
         len = sigBuff[sigOffset++];
         sequenceLen -= (2 + len);
         if (sequenceLen != 0) { return false; }
         int[] s = ffa.from(sigBuff, sigOffset, len);
-        
+
         // 'r' and 's' must be in the interval [1..n-1]
         int[] n = field.getP();
         if (ffa.is(r, 0) || ffa.is(s, 0) || (ffa.cmp(r, n) >= 0)
             || (ffa.cmp(s, n) >= 0)) {
             return false;
         }
-        
+
         int[] u1 = ffa.acquireVar();
         int[] u2 = ffa.acquireVar();
-        
+
         int[] tmp = ffa.from(ffa.acquireVar(digestBuf.length * 8), digestBuf, 0, digestBuf.length);
         field.trim(u1, tmp);        // u1 = e mod n
-        
+
         //System.out.println("e = " + ffa.toString(u1));
         //System.out.println("r = " + ffa.toString(r));
         //System.out.println("s = " + ffa.toString(s));
-        
+
         field.invert(s, s);
         field.multiply(u1, u1, s);  // u1 = (e * s^-1) mod n
         field.multiply(u2, r, s);   // u2 = (r * s^-1) mod n
-        
+
         ECPoint G = curve.getGenerator().clonePoint();
         ECPoint Q = publicKey.getKeyData().clonePoint();
-        
+
         curve.multiplySum(G, u1, Q, u2);    // G = u1 * G + u2 * Q;
-        
+
         field.trim(s, G.x);         // s = x1 mod n
-        
+
         boolean verified = (ffa.cmp(r, s) == 0);
-        
+
         ffa.releaseVar(r);
         ffa.releaseVar(s);
         ffa.releaseVar(u1);
         ffa.releaseVar(u2);
         G.release();
         Q.release();
-        
+
         return verified;
     }
-    
+
     /** gets the ECPublicKey from the X962 encoding in a byte array
      *  @param publicKeyS EC public key in X962 encoding. Must be a SEC160r key.
      *  @return ECPublicKey the Elliptic curve public key, or null if publicKeyS
@@ -654,7 +653,7 @@ public class SignatureVerifier {
      */
     private static ECPublicKey getPublicECKeyFromX962Encoding(byte[] publicKeyBA,  int offset, int length) throws CryptoException  {
         //KeyPair keyPair = new KeyPair(KeyPair.ALG_EC_FP, ECKey.SECP160R1);
-        
+
         //keyPair.genKeyPair();
         //ECPublicKey publicKey=new ECPublicKeyImpl();
         ECPublicKey newKey=new ECPublicKey();
@@ -668,11 +667,11 @@ public class SignatureVerifier {
             newKey.getW(buf, 0);
             System.out.println("getPublicECKeyFromX962Encoding from point:"+HexEncoding.hexEncode(buf,buf.length));
         }
-        
+
         //return (ECPublicKey)keyPair.getPublic();
         return newKey;
     }
-    
+
     public static boolean getSuiteVerifiedFlag(int suiteAddress) throws IllegalArgumentException {
 /*if[FLASH_MEMORY]*/
         int suiteVerifiedFlagAddress=getSuiteVerifiedFlagAddress(suiteAddress);
@@ -683,10 +682,10 @@ public class SignatureVerifier {
 //	    return false;
 /*end[FLASH_MEMORY]*/
     }
-    
+
     private static void setSuiteVerifiedFlag(int suiteAddress) throws IllegalArgumentException {
 	int verifiedFlagAddress = getSuiteVerifiedFlagAddress(suiteAddress);
-	
+
 //	if (SignatureVerifier.DEBUG)
 //		System.out
 //			.println("Setting suiteVerifiedFlag.\n\tCurrent value"
@@ -695,7 +694,7 @@ public class SignatureVerifier {
 //				+ SUITE_VERIFIED + "\n\tsuiteaddress:"
 //				+ suiteAddress + "\n\tverifiedFlagAddress:"
 //				+ (verifiedFlagAddress));
-    
+
 	    // Set the suiteVerifiedFlag to verified.
 	    byte[] tb = new byte[2];
 	    // Ensure to flash at an even address.
@@ -723,7 +722,7 @@ public class SignatureVerifier {
 	    	System.out.println("Warning: Setting suite verified flag failed.");
         }
     }
-    
+
     private static int getSuiteVerifiedFlagAddress(int suiteAddress) throws IllegalArgumentException {
 		int slotSize = VM.execSyncIO(ChannelConstants.GET_ALLOCATED_FILE_SIZE, suiteAddress);
 		if (slotSize <=0 ) {
@@ -740,7 +739,7 @@ public class SignatureVerifier {
         }
 		return verifiedFlagAddress;
 	}
-    
+
     public static boolean isVerifiedSuite(InputStream suiteIn) {
 	    com.sun.squawk.io.j2me.spotsuite.Pointer pointer = ((com.sun.squawk.io.j2me.spotsuite.Pointer) suiteIn);
 		return SignatureVerifier.getSuiteVerifiedFlag(pointer.getCurrentAddress());

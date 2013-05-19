@@ -1,22 +1,22 @@
 /*
  * Copyright 1998-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -46,7 +46,7 @@ import com.sun.squawk.imp.ImpGlobal;
  * by starting and pausing them individually.
  * The application management software maintains the state of the
  * <code>MIDlet</code> and
- * invokes methods on the <code>MIDlet</code> to change states. 
+ * invokes methods on the <code>MIDlet</code> to change states.
  * The <code>MIDlet</code>
  * implements these methods to update its internal activities and
  * resource usage as directed by the application management software.
@@ -61,12 +61,12 @@ import com.sun.squawk.imp.ImpGlobal;
  * quickly.<p>
  */
 public abstract class MIDlet {
-    
+
     /**
      * Remember our LifecycleListener.
      */
     private Isolate.LifecycleListener midletDestroyer;
-    
+
     /**
      * Protected constructor for subclasses.
      */
@@ -89,13 +89,13 @@ public abstract class MIDlet {
     /**
      * Install midletDestroyer LifecycleListener, then start isolate.
      * Called by MIDLetTunnelImpl to start the isolate.
-     */ 
+     */
     void startWrapper() throws MIDletStateChangeException {
         // In theory (if pauaseApp() supported_, this could be called more than once.
         Isolate.currentIsolate().addLifecycleListener(midletDestroyer, Isolate.SHUTDOWN_EVENT_MASK);
         startApp();
     }
-    
+
     /**
      * Signals the <code>MIDlet</code> that it has entered the
      * <em>Active</em> state.
@@ -164,7 +164,7 @@ public abstract class MIDlet {
      * regardless of how this method terminates. If it is not an
      * unconditional request, the <code>MIDlet</code> can signify
      * that it wishes
-     * to stay in its current state by throwing the 
+     * to stay in its current state by throwing the
      * <code>MIDletStateChangeException</code>.
      * This request may be honored and the <code>destroy()</code>
      * method called again at a later time.
@@ -174,7 +174,7 @@ public abstract class MIDlet {
      *
      * @param unconditional If true when this method is called,
      * the <code>MIDlet</code> must cleanup and release all resources.
-     * If false the <code>MIDlet</code> may throw 
+     * If false the <code>MIDlet</code> may throw
      * <CODE>MIDletStateChangeException</CODE>
      * to indicate it does not want to be destroyed at this time.
      *
@@ -231,7 +231,7 @@ public abstract class MIDlet {
     /**
      * Provides a <code>MIDlet</code> with a mechanism to retrieve named
      * properties from the application management software.
-     * The properties are retrieved from the combination of 
+     * The properties are retrieved from the combination of
      * the application descriptor file and the manifest.
      * If an attributes in the descriptor has the same name
      * as an attribute in the manifest the value from the
@@ -249,7 +249,7 @@ public abstract class MIDlet {
         if(key == null){
             throw new NullPointerException();
         }
-        return VM.getManifestProperty(key);
+        return VM.getAppProperty(key);
     }
 
     /**
@@ -259,7 +259,7 @@ public abstract class MIDlet {
      * to determine which
      * applications to move to the <em>Active</em> state.
      * <p>
-     * When the application management software decides to activate this  
+     * When the application management software decides to activate this
      * application it will call the <code>startApp</code> method.
      * <p> The application is generally in the <em>Paused</em> state
      * when this is
@@ -277,5 +277,5 @@ public abstract class MIDlet {
     com.sun.midp.midlet.MIDletPeer getMIDletPeer() {
         return null;
     }
-     
+
 }

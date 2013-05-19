@@ -707,7 +707,7 @@ class FloatingDecimal{
          */
         Bbits = nFractBits + B2 + ((B5 < n5bits.length) ? n5bits[B5] : (B5 * 3));
         tenSbits = S2 + 1 + (((S5 + 1) < n5bits.length) ? n5bits[(S5 + 1)] : ((S5 + 1) * 3));
-        if (Bbits < 64 && tenSbits < 64) {
+       if (Bbits < 64 && tenSbits < 64) {
             if (Bbits < 32 && tenSbits < 32) {
                 // wa-hoo! They're all ints!
                 int b = ((int) fractBits * small5pow[B5]) << B2;
@@ -727,7 +727,7 @@ class FloatingDecimal{
                 high = (b + m > tens);
                 if (q >= 10) {
                     // bummer, dude
-                    throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ /// skipped                               "Assertion botch: excessivly large digit "+q
+                    throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ "Assertion botch 1: excessivly large digit "+q
                             /* #endif */);
                 } else if ((q == 0) && !high) {
                     // oops. Usually ignore leading zero.
@@ -750,7 +750,7 @@ class FloatingDecimal{
                     m *= 10;
                     if (q >= 10) {
                         // bummer, dude
-                        throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ /// skipped                                   "Assertion botch: excessivly large digit "+q
+                        throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ "Assertion botch 2: excessivly large digit "+q
                                 /* #endif */);
                     }
                     if (m > 0L) {
@@ -787,7 +787,7 @@ class FloatingDecimal{
                 high = (b + m > tens);
                 if (q >= 10) {
                     // bummer, dude
-                    throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ /// skipped                               "Assertion botch: excessivly large digit "+q
+                    throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ "Assertion botch 3: excessivly large digit "+q
                             /* #endif */);
                 } else if ((q == 0) && !high) {
                     // oops. Usually ignore leading zero.
@@ -810,7 +810,7 @@ class FloatingDecimal{
                     m *= 10;
                     if (q >= 10) {
                         // bummer, dude
-                        throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ /// skipped                                   "Assertion botch: excessivly large digit "+q
+                        throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ "Assertion botch 4: excessivly large digit "+q
                                 /* #endif */);
                     }
                     if (m > 0L) {
@@ -857,7 +857,7 @@ class FloatingDecimal{
             high = (Bval.add(Mval).cmp(tenSval) > 0);
             if (q >= 10) {
                 // bummer, dude
-                throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ /// skipped                           "Assertion botch: excessivly large digit "+q
+                throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ "Assertion botch 5: excessivly large digit "+q
                         /* #endif */);
             } else if ((q == 0) && !high) {
                 // oops. Usually ignore leading zero.
@@ -879,7 +879,7 @@ class FloatingDecimal{
                 Mval = Mval.mult(10);
                 if (q >= 10) {
                     // bummer, dude
-                    throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ /// skipped                               "Assertion botch: excessivly large digit "+q
+                    throw new RuntimeException( /* #ifdef VERBOSE_EXCEPTIONS */ "Assertion botch 6: excessivly large digit "+q
                             /* #endif */);
                 }
                 low = (Bval.cmp(Mval) < 0);
@@ -2226,7 +2226,7 @@ final class FDBigInt {
 	// ensure that this and S have the same number of
 	// digits. If S is properly normalized and q < 10 then
 	// this must be so.
-	if ( nWords != S.nWords ){
+	if ( this.nWords != S.nWords ){
 	    throw new IllegalArgumentException(
 /* #ifdef VERBOSE_EXCEPTIONS */
 /// skipped                       "disparate values"
@@ -2236,7 +2236,7 @@ final class FDBigInt {
 	// estimate q the obvious way. We will usually be
 	// right. If not, then we're only off by a little and
 	// will re-add.
-	int n = nWords-1;
+	int n = this.nWords-1;
 	long q = ((long)data[n]&0xffffffffL) / (long)S.data[n];
 	long diff = 0L;
 	for ( int i = 0; i <= n ; i++ ){

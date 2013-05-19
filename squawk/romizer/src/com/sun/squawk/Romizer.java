@@ -498,12 +498,18 @@ public class Romizer {
 
         Suite parentSuite = null;
         String key = null;
+        boolean userAskedForDCE = false;
+
         while (argc != args.length) {
             String arg = args[argc];
 
             if (arg == null || arg.charAt(0) != '-') {
                 break;
-            } else if (arg.startsWith("-D")) {
+            } else if (arg.equalsIgnoreCase("-deadClassElimination:true")) {
+                userAskedForDCE = true;
+            }
+
+            if (arg.startsWith("-D")) {
                 try {
                     String name = arg.substring("-D".length(), arg.indexOf('='));
                     String value = arg.substring(arg.indexOf('=') + 1);
@@ -596,7 +602,13 @@ public class Romizer {
                 System.setProperty("bootstrap.suite.url", suiteUrl);
             } else if (arg.startsWith("-parent:")) {
                 String parentSuiteName = arg.substring("-parent:".length());
-                String suiteUrl = "file://" + parentSuiteName + Suite.FILE_EXTENSION;
+                String suiteUrl;
+                if (false && ObjectMemoryLoader.SIGNATURE_SCHEME == ObjectMemoryLoader.CHAINED_SIGNATURE) {
+                    // suites normally signed, but romizer can't handle that yet. So use unsigned suite...
+                    suiteUrl = "file://unsigned-" + parentSuiteName + Suite.FILE_EXTENSION;
+                } else {
+                    suiteUrl = "file://" + parentSuiteName + Suite.FILE_EXTENSION;
+                }
                 try {
                     parentSuite = objectGraphLoader.loadSuite(suiteUrl);
                 } catch (IOException e) {
@@ -645,10 +657,19 @@ public class Romizer {
         if (file.exists()) {
             VM.resetSymbolsStripping(file);
         } else {
-            if (VM.isVerbose()) {
-                System.out.println("Suite export properties file \"" + file.getPath() + "\" not found. Dead-class elimination option disabled.");
+            if (suiteType == Suite.APPLICATION) {
+                VM.resetSymbolsStrippingForApp();
             }
-            VM.setProperty("translator.deadClassElimination", "false");
+            if (userAskedForDCE) {
+                if (VM.isVerbose()) {
+                    System.out.println("Suite export properties file \"" + file.getPath() + "\" not found. Treating all application symbols as internal.");
+                }
+            } else {
+                if (VM.isVerbose()) {
+                    System.out.println("Suite export properties file \"" + file.getPath() + "\" not found. Dead-class elimination option disabled.");
+                }
+                VM.setProperty("translator.deadClassElimination", "false");
+            }
         }
 
         // Parse class name args (if any)
@@ -909,8 +930,6 @@ public class Romizer {
     private void printSymFile(ObjectMemory memory, PrintStream symbols) throws IOException {
         // Add a few symbols.
         VM.printNatives(symbols);
-        // printMethodAddresses(symbols);
-
         symbols.println("PMR.ROM_SIZE=" + memory.getSize());
         symbols.println("PMR.ROM_SUITE_TABLE=" + memory.getRoot());
         symbols.println("PMR.REVERSE_PARAMETERS=" + (Translator.REVERSE_PARAMETERS ? 1 : 0));

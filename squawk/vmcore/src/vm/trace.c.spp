@@ -387,7 +387,7 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
 /*if[MICROBLAZE_BUILD]*/
                 fprintf(traceFile, format("*STACKTRACE*:%A:%d\n"), (uint32_t)frame.MP-(uint32_t)com_sun_squawk_VM_bootstrapStart, frame.PC);
 /*else[MICROBLAZE_BUILD]*/
-                fprintf(traceFile, format("*STACKTRACE*:%A:%d\n"), frame.MP, frame.PC);
+//              fprintf(traceFile, format("*STACKTRACE*:%A:%d\n"), frame.MP, frame.PC);
 /*end[MICROBLAZE_BUILD]*/
             }
         }
@@ -423,7 +423,7 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
 void trace(ByteAddress traceIP, UWordAddress traceFP,
            UWordAddress traceSP, unsigned char opcode) {
 /*else[MICROBLAZE_BUILD]*/
-void trace(ByteAddress traceIP, UWordAddress traceFP, UWordAddress traceSP) {
+//void trace(ByteAddress traceIP, UWordAddress traceFP, UWordAddress traceSP) {
 /*end[MICROBLAZE_BUILD]*/
 #ifndef MACROIZE
     ByteAddress saveIP = ip;   // save the global IP
@@ -481,7 +481,7 @@ void trace(ByteAddress traceIP, UWordAddress traceFP, UWordAddress traceSP) {
     fprintf(traceFile, format("*TRACE*:%d:%d:%A:%d:%x:"), threadID, level,
             traceMP-(uint32_t)com_sun_squawk_VM_bootstrapStart, pc, opcode);
 /*else[MICROBLAZE_BUILD]*/
-    fprintf(traceFile, format("*TRACE*:%d:%d:%A:%d:"), threadID, level, traceMP, pc);
+//  fprintf(traceFile, format("*TRACE*:%d:%d:%A:%d:"), threadID, level, traceMP, pc);
 /*end[MICROBLAZE_BUILD]*/
 
     // Write out the decoded instruction

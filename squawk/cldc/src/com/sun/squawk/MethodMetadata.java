@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -54,13 +54,28 @@ public class MethodMetadata {
         preserveLocalVariableTables = true;
     }
 
+
+    /**
+     * @see #strip(MethodMetadata[])
+     */
+    static boolean lineNumberTablesKept() {
+        return preserveLineNumberTables;
+    }
+
+    /**
+     * @see #strip(MethodMetadata[])
+     */
+    static boolean localVariableTablesKept() {
+        return preserveLocalVariableTables;
+    }
+
     /**
      * The line number table.
      *
      * @see  #getLineNumberTable()
      */
     final int [] lnt;
-    
+
     /**
      * The offset of the method in the static/virtual method table.
      */
@@ -95,7 +110,7 @@ public class MethodMetadata {
 /*if[ENABLE_SDA_DEBUGGER]*/
         if (lvt != null) {
             return new FullMethodMetadata(offset, lvt, lnt);
-        } else 
+        } else
 /*end[ENABLE_SDA_DEBUGGER]*/
             if (lnt != null) {
             return new MethodMetadata(offset, lnt);
@@ -103,7 +118,7 @@ public class MethodMetadata {
             return null;
         }
     }
-     
+
     /**
      * Creates a copy of this object with the line number table stripped if <code>lnt == false</code>
      * and the local variable table stripped if <code>lvt == false</code>. If both parameters are false, returns null.
@@ -116,7 +131,7 @@ public class MethodMetadata {
 /*if[ENABLE_SDA_DEBUGGER]*/
         if (lvt && this.getLocalVariableTable() != null) {
             return new FullMethodMetadata(this.offset, this.getLocalVariableTable(), lnt ? this.lnt : null);
-        } else  
+        } else
 /*end[ENABLE_SDA_DEBUGGER]*/
             if (lnt && this.getLineNumberTable() != null) {
             return new MethodMetadata(this.offset, this.lnt);
@@ -147,7 +162,7 @@ public class MethodMetadata {
                 if (temp.size() == 0) {
                     return null;
                 }
-                
+
                 MethodMetadata[] result = new MethodMetadata[temp.size()];
                 temp.copyInto(result);
                 Arrays.sort(result, new MethodMetadataComparer());
@@ -180,11 +195,11 @@ public class MethodMetadata {
     public ScopedLocalVariable[] getLocalVariableTable() {
         return null;
     }
-    
+
     /*---------------------------------------------------------------------------*\
      *                 Support stripped MethodMetadata arrays                          *
     \*---------------------------------------------------------------------------*/
-    
+
     final static class MethodMetadataComparer implements Comparer {
         /**
          * Compares its two arguments for order.  Returns a negative integer,
@@ -199,7 +214,7 @@ public class MethodMetadata {
             return ma.offset - mb.offset;
         }
     }
-    
+
     /**
      * Search through the array of MethodMetadata looking for the metadata for the method with vtable/stable index keyOffset.
      *
@@ -208,15 +223,15 @@ public class MethodMetadata {
      * @return the index into the MethodMetadata array, or -1 if not found.
      */
     public static int binarySearch(MethodMetadata[] a, int keyOffset) {
-        
+
         int low = 0;
         int high = a.length-1;
-        
+
         while (low <= high) {
             int mid = (low + high) >>> 1;
             MethodMetadata midVal = a[mid];
             int cmp = midVal.offset - keyOffset;
-            
+
             if (cmp < 0) {
                 low = mid + 1;
             } else if (cmp > 0) {

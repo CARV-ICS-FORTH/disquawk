@@ -339,11 +339,11 @@ INLINE boolean setArrayLength(Address _oop, int _size);
  * A macro replacement for 'getType()' is intentionally omitted.
  */
 #define UNUSED(x)                       (void)(sizeof((x)));
-#define setType(ea, type, size)         UNUSED(ea) UNUSED(type)
+#define setType(ea, type, size)         UNUSED(ea) UNUSED(type) UNUSED(size)
 #define checkType(ea, type, size)       ea
 #define setTypeRange(ea, length, type)
 #define zeroTypes(start, end)
-#define copyTypes(src, dst, length)
+#define copyTypes(src, dst, length)     UNUSED(src) UNUSED(dst) UNUSED(length)
 #define getMutationType()               0
         char getType(Address ea) {
             fatalVMError("getType() called without TYPEMAP");

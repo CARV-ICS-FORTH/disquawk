@@ -25,6 +25,10 @@
 
 //#define UNICODE true
 
+#if NATIVE_VERIFICATION
+#include "util/sha.h"
+#endif /* NATIVE_VERIFICATION */
+
 /**
  * Sets up the global used to pass an int result from an INTERNAL IO operation back to the VM.
  * The value is accessed in the VM by calling VM.serviceResult().
@@ -53,7 +57,7 @@ INLINE void returnLongResult(jlong value) {
 }
 
 /**
- * sets up the global used to pass an address result from an INTERNAL IO operation back to the VM.
+ * Sets up the global used to pass an address result from an INTERNAL IO operation back to the VM.
  * The value is accessed in the VM by calling VM.addressResult().
  *
  * @param value the address value to return to the VM
@@ -80,10 +84,6 @@ INLINE void returnAddressResult(Address value) {
  * Include the message processing code.
  */
 #include "msg.c"
-#endif
-
-#ifdef NATIVE_VERIFICATION
-#include "util/sha.h"
 #endif
 
 /**
@@ -133,7 +133,7 @@ void cioExecute(void) {
             break;
         }
 
-/* use this as a proxy for if[FLOATS], which can't be used because this file isn't an .spp file */
+/* use this as a proxy for / *if[FLOATS], which can't be used because this file isn't an .spp file */
 #ifdef F_POS_INFINITY
         case ChannelConstants_INTERNAL_PRINTDOUBLE: {
             fprintf(vmOut, format("%D"), lb2d(makeLong(i1, i2)));

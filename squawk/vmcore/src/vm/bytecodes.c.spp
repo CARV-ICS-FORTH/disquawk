@@ -1009,7 +1009,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
          * @param out  where to print the string's contents
          * @return the number of characters printed
          */
-    int printJavaString(Address str, File* out) {
+    int printJavaString(Address str, FILE* out) {
 #ifdef UNICODE
             int i;
 #endif
@@ -1027,7 +1027,7 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
 /*if[MICROBLAZE_BUILD]*/
                     fprintf(out, "%s", chars);
 /*else[MICROBLAZE_BUILD]*/
-                    fprintf(out, "%.*s", length, chars);
+//                  fprintf(out, "%.*s", length, chars);
 /*end[MICROBLAZE_BUILD]*/
                     written = length;
 #ifdef UNICODE
@@ -1137,7 +1137,8 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
         */
 #if SDA_DEBUGGER
 #define SDA_HANDLE_BREAKPOINT_CODE_FRAG                                                                      \
-                Address hbp;                                                                                 \
+                Address hbp;
+
                 if (!runningOnServiceThread &&                                                               \
                     (hbp = com_sun_squawk_VMThread_hitBreakpoint(newThread)) != null &&                      \
                     com_sun_squawk_HitBreakpoint_state(hbp) == com_sun_squawk_HitBreakpoint_EXC_HIT) {       \
@@ -2020,7 +2021,9 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
          */
 /*MAC*/ void do_bbtarget_sys() {
             osbackbranch();
-            /*bbtarget_trace();*/
+/*if[!MICROBLAZE_BUILD]*/
+            bbtarget_trace();
+/*end[MICROBLAZE_BUILD]*/
             checkReferenceSlots();
         }
 
@@ -3491,7 +3494,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 /*if[MICROBLAZE_BUILD]*/
         extern Address copyObjectGraph(Address, Address, Address, Address);
 /*else[MICROBLAZE_BUILD]*/
-        static Address copyObjectGraph(Address, Address, Address, Address);
+//      static Address copyObjectGraph(Address, Address, Address, Address);
 /*end[MICROBLAZE_BUILD]*/
         static int collectGarbage(Address, Address, int);
 /*end[GC2C]*/

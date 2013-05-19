@@ -1,22 +1,22 @@
 /*
  * Copyright 2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -33,16 +33,16 @@ import com.sun.squawk.vm.*;
 
 /**
  * This class provides the ability to load an object graph created by an {@link ObjectGraphSerializer}, ie load a Squawk memory into HotSpot VM.
- * 
+ *
  * NOTES:
  * - Is it possible for an object in a suite to have an association instead of a pointer to its class ?
  *   - Does this mean there is a bug in Isolate migration ?  As how does this association get serialized ?
  *   - It is possible that the romizer ignores this, and that the object serialization that occurs at runtime is not the same
- * 
+ *
  *
  */
 public class ObjectGraphLoader {
-	
+
 	protected Map<Address, Object> addressToObjectMap = new IdentityHashMap<Address, Object>();
 	protected final Stack<Map<Address, Object>> addressToObjectMapStack = new Stack<Map<Address,Object>>();
 	protected Map<Object, Address> objectToAddressMap = new IdentityHashMap<Object, Address>();
@@ -53,11 +53,11 @@ public class ObjectGraphLoader {
 
 	public ObjectGraphLoader() {
 	}
-	
+
 	public Map<Object, Address> getObjectToAddressMap() {
 		return objectToAddressMap;
 	}
-	
+
 	protected byte[] getBytesAt(Address address) {
 		if (address.isZero()) {
 			return null;
@@ -94,7 +94,7 @@ public class ObjectGraphLoader {
         }
         return klass;
     }
-    
+
     protected void initKlassInternals(Klass klass) {
     	Address address = objectToAddressMap.get(klass);
     	MethodBody[] virtualMethodBodies = getMethodBodiesAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$virtualMethods)));
@@ -114,7 +114,7 @@ public class ObjectGraphLoader {
         byte initModifiers = (byte) NativeUnsafe.getByte(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$initModifiers));
         klass.initForObjectGraphLoader(virtualMethodBodies, staticMethodBodies, superType, interfaces, null, oopMap, oopMapWord, dataMap, dataMapWord, dataMapLength, modifiers, state, instanceSizeBytes, staticFieldsSize, refStaticFieldsSize, initModifiers);
     }
-    
+
     protected Klass[] getKlassesAt(Address address) {
 		if (address.isZero()) {
 			return null;
@@ -158,7 +158,7 @@ public class ObjectGraphLoader {
         objectToAddressMap.put(metadata, address);
         return metadata;
     }
-    
+
     protected KlassMetadata[] getKlassMetadatasAt(Address address) {
 		if (address.isZero()) {
 			return null;
@@ -241,17 +241,17 @@ public class ObjectGraphLoader {
         objectToAddressMap.put(string, address);
         return string;
 	}
-	
+
 	public Suite loadSuite(String url) throws IOException {
         String bootstrapSuiteProperty = System.getProperty(ObjectMemory.BOOTSTRAP_URI_PROPERTY);
         if (bootstrapSuiteProperty == null) {
             bootstrapSuiteProperty = "file://squawk.suite";
         }
-        
+
         if (NativeUnsafe.getMemorySize() == 0) {
             GC.initialize();
         }
-        
+
         ObjectMemory objectMemory = GC.lookupReadOnlyObjectMemoryBySourceURI(url);
         if (objectMemory == null) {
     		if (url.equals(bootstrapSuiteProperty)) {
@@ -286,7 +286,7 @@ public class ObjectGraphLoader {
                 Address end = eachObjectMemory.getStart().add(eachObjectMemory.getSize());
                 for (Address block = eachObjectMemory.getStart(); block.lo(end); ) {
                     Address object = GC.blockToOop(block);
-                    
+
                     Address classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
                     Assert.that(!classOrAssociation.isZero());
                     Address klassAddress = NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
@@ -299,6 +299,15 @@ public class ObjectGraphLoader {
                 }
         		// Load the .metadata suite
                 String metadataUrl = (suite.isBootstrap()?bootstrapSuiteProperty:eachObjectMemory.getURI()) + Suite.FILE_EXTENSION_METADATA;
+                if (false && ObjectMemoryLoader.SIGNATURE_SCHEME == ObjectMemoryLoader.CHAINED_SIGNATURE) {
+                    // we loaded the "unisgned-" version of teh suite, but the medata suite does not have that name (it is never signed), so look for correct name.
+                    int index = metadataUrl.indexOf("unsigned-");
+                    int len = "unsigned-".length();
+                    if (index > 0) {
+                        String newURL = metadataUrl.substring(0, index) + metadataUrl.substring(index + len);
+                        metadataUrl = newURL;
+                    }
+                }
             	try {
                 	int memorySizePrior = NativeUnsafe.getMemorySize();
 	            	ObjectMemory metadataObjectMemory = ObjectMemoryLoader.load(metadataUrl, false).objectMemory;
@@ -341,7 +350,7 @@ public class ObjectGraphLoader {
         Isolate isolate = new Isolate(null, null, suite);
         isolate.setTranslator(translator);
         VM.setCurrentIsolate(isolate);
-        
+
         // Force Klass init, as when in hosted mode it will load the bootstrap classes on its own
         Klass.getClass("-null-", false);
 
@@ -377,7 +386,7 @@ public class ObjectGraphLoader {
         objectToAddressMap.put(suite, address);
 		return suite;
 	}
-	
+
 	protected UWord[] getUWordsAt(Address address) {
 		if (address.isZero()) {
 			return null;
@@ -400,7 +409,7 @@ public class ObjectGraphLoader {
         addressToObjectMap = addressToObjectMapStack.pop();
         objectToAddressMap = objectToAddressMapStack.pop();
 	}
-	
+
 	// Take a copy of the object and address maps, such that none of the objects read in from metadata suite are used for follow on suites
 	protected void pushObjectMap() {
 		addressToObjectMapStack.push(addressToObjectMap);
@@ -408,5 +417,5 @@ public class ObjectGraphLoader {
 		objectToAddressMapStack.push(objectToAddressMap);
 		objectToAddressMap = new IdentityHashMap<Object, Address>(objectToAddressMap);
 	}
-	
+
 }

@@ -39,10 +39,17 @@
  */
 const char *format(const char* fmt);
 
-#include "os.c"
-
+/*if[!MICROBLAZE_BUILD]*/
 /* used by io.c...*/
 #include "io_native.h"
+/*end[MICROBLAZE_BUILD]*/
+
+#include "os.c"
+
+/*if[MICROBLAZE_BUILD]*/
+/* used by io.c...*/
+#include "io_native.h"
+/*end[MICROBLAZE_BUILD]*/
 
 #ifndef DIAGNOSTICS_ENABLED
 /* for ARM, defined in arm-library, otherwise do it here. */
@@ -514,12 +521,12 @@ void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
         }
     }
 
-#ifndef JAVA
+/*if[!MICROBLAZE_BUILD]*/
     /*
      * Zero the bytes in the buffer.
      */
     memset(buffer, 0, (int)size);
-#endif /* JAVA */
+/*end[MICROBLAZE_BUILD]*/
 
     /*
      * Register the buffer.
@@ -1161,12 +1168,12 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
     // Allocate the memory buffer
     memory = newBuffer(realMemorySize, "memory", true);
     memoryEnd = Address_add(memory, memorySize);
-#ifdef JAVA
+/*if[MICROBLAZE_BUILD]*/
     if (DEBUG_STARTUP || com_sun_squawk_GC_traceFlags != 0) {
       printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
       printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
     }
-#endif  /* JAVA */
+/*end[MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
     bootstrapSize = loadBootstrapSuiteFromFlash(bootstrapSuiteFile, &com_sun_squawk_VM_romStart, &suite, &com_sun_squawk_VM_bootstrapHash);
     com_sun_squawk_VM_bootstrapStart = com_sun_squawk_VM_romStart;
@@ -1473,9 +1480,9 @@ Address processArgs(char *argv[], const int argc) {
             } else if (equals(arg, "tnoservice")) {
                 traceServiceThread = false;
             } else if (equals(arg, "terr")) {
-#ifndef JAVA
+/*if[!MICROBLAZE_BUILD]*/
                 traceFile = stderr;
-#endif  /* JAVA */
+/*end[MICROBLAZE_BUILD]*/
             } else if (startsWith(arg, "ts:")) {
                 setTraceStart(parseQuantityLong(arg+3, wholeArg));
             } else if (startsWith(arg, "te:")) {
@@ -1746,7 +1753,7 @@ void testUnaligned() {
         #ifdef JAVA
         assertEquals8("overwrite", 0l, (tmp[1] & REMAINDER_MASK));
         #else
-        assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK~));
+        assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
         #endif  /* JAVA */
         val = getUnalignedLong(buf, 0);
         assertEquals8("getUnalignedLong", PATTERN1, val);
@@ -1815,7 +1822,9 @@ void testWordAt() {
 void fpTest() {
     float f0 = 0.0;
     float f1 = 1.0;
-    //    FILE *vmOut = streams[currentStream];
+/*if[!MICROBLAZE_BUILD]*/
+    FILE *vmOut = streams[currentStream];
+/*end[MICROBLAZE_BUILD]*/
 
 #if 0
     double d0 = 0.0;
@@ -1999,7 +2008,9 @@ fprintf(stderr, format("VM.pause called after %L branches (kernelMode %d)\n"), g
 void Squawk_continue(Globals *gp) {
     int opcode = -1;
 #if TRACE
+#ifdef OSPROF
     int opcodeCopy = opcode;
+#endif /* OSPROF */
 #endif /* TRACE */
 
 #ifdef MACROIZE
@@ -2025,8 +2036,10 @@ void Squawk_continue(Globals *gp) {
      */
    while (true) {
 #if TRACE
+#ifdef OSPROF
         const int lastOpcode = opcodeCopy;
         ByteAddress ipCopy = ip;
+#endif /* OSPROF */
 #ifdef MACROIZE
         /*
          * Copy the variable values into corresponding globals so that
@@ -2345,7 +2358,7 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
  * Some platforms have non-standard startup requirements. If so, define os_main() to handle
  * the issues.
  */
-#ifndef JAVA
+/*if[!MICROBLAZE_BUILD]*/
 #if defined(__APPLE__) || defined(VXWORKS)
 #include "os_main.c"
 #endif
@@ -2360,7 +2373,7 @@ int main(int argc, char *argv[]) {
 #endif /* !__APPLE__ */
 }
 #endif /* VXWORKS */
-#endif /* JAVA */
+/*end[MICROBLAZE_BUILD]*/
 
 /**
  * lookup a klass from the bootstrap suite

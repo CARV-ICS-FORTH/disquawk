@@ -1,5 +1,6 @@
 /*
  * Copyright 2005-2008 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 2011-2013 Oracle Corporation. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
  * This code is free software; you can redistribute it and/or modify
@@ -17,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
- * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
- * Park, CA 94025 or visit www.sun.com if you need additional
+ * Please contact Oracle Corporation, 500 Oracle Parkway, Redwood
+ * Shores, CA 94065 or visit www.oracle.com if you need additional
  * information or have any questions.
  */
 
@@ -35,9 +36,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 //import com.sun.spot.peripheral.ConfigPage;
-/*if[VERIFY_SIGNATURES]*/
+/*if[SIMPLE_VERIFY_SIGNATURES]*/
 import com.sun.squawk.security.verifier.SignatureVerifier;
-/*end[VERIFY_SIGNATURES]*/
+/*end[SIMPLE_VERIFY_SIGNATURES]*/
 
 /**
  * Suite allows suite files to be saved in a form that can execute directly from flash memory.
@@ -100,7 +101,7 @@ public class Suite {
 	public void loadFromStream(DataInputStream dis, String bootstrapFilename) throws IOException {
 		int magic = dis.readInt();
 		if (magic != 0xDEADBEEF) {
-			throw new IOException("Suite file has wrong magic word");
+			throw new IOException("Suite file has wrong magic word: " + Integer.toHexString(magic));
 		}
 		version_minor = dis.readShort();
 		version_major = dis.readShort();
@@ -152,7 +153,20 @@ public class Suite {
 		for (int i = 0; i != objectMemory.length; ++i) {
 			hash += objectMemory[i];
 		}
+
+        //logHeader("stream");
 	}
+
+    public void logHeader(String name) {
+        System.out.println("SuiteReloInfo: " + name);
+        System.out.println("canonicalStart: 0x" + Integer.toHexString(canonicalStart));
+        System.out.println("canonicalEnd: 0x" + Integer.toHexString(canonicalStart + memorySize));
+        System.out.println("parentURL: " + parentURL);
+        System.out.println("rootOffset: 0x" + Integer.toHexString(rootOffset));
+        System.out.println("size: " + memorySize);
+        System.out.println("unpadded header size: " + unpaddedHdrSize);
+        System.out.println("header size: " + ((unpaddedHdrSize + 3) / 4));
+    }
 
 	private int readParentHash(DataInputStream dis) throws IOException {
 		return dis.readInt();
@@ -164,13 +178,13 @@ public class Suite {
 	 * @throws IOException
 	 */
 	public void writeToStream(DataOutputStream dos) throws IOException {
-///*if[!VERIFY_SIGNATURES]*/
+///*if[!SIMPLE_VERIFY_SIGNATURES]*/
         DataOutputStream output = dos;
         final int MAX_HEADER_SIZE = Integer.MAX_VALUE;
-///*else[VERIFY_SIGNATURES]*/
+///*else[SIMPLE_VERIFY_SIGNATURES]*/
 //      SigningOutputStream output = new SigningOutputStream(dos);
 //      final int MAX_HEADER_SIZE = SignatureVerifier.MAXIMUM_HEADER_SIZE;
-///*end[VERIFY_SIGNATURES]*/
+///*end[SIMPLE_VERIFY_SIGNATURES]*/
 
         if (hasParent()) {
             if (VM.isVerbose()) {
@@ -206,20 +220,6 @@ public class Suite {
                         + outputHeaderSize
                         + " bytes");
             }
-
-            if (VM.isVerbose()) {
-              VM.println("[DIAG]  in writeToStream");
-              VM.println("        Minor     : "+FLASH_SUITE_MINOR_VERSION);
-              VM.println("        Major     : "+FLASH_SUITE_MAJOR_VERSION);
-              VM.println("        Attributes: "+(ObjectMemoryFile.ATTRIBUTE_32BIT | (isTargetBigEndian() ? ObjectMemoryFile.ATTRIBUTE_BIGENDIAN : 0)));
-              VM.println("        parentHash: 0x"+Integer.toHexString(getParent().getHash()));
-              VM.println("        parentURI : "+getSpotParentURL());
-              VM.println("        rootOffset: "+rootOffset);
-              VM.println("        memorySize: "+memorySize);
-              VM.println("        padding   : "+(outputHeaderSize - unpaddedHdrSize));
-              VM.println("        hash      : 0x"+Integer.toHexString(getHash()));
-            }
-
         } else {
             if (VM.isVerbose()) {
                 System.out.println("Converting boostrap suite:");
@@ -236,9 +236,9 @@ public class Suite {
         // for (int i = 0; i <300; ++i)
         //   VM.println("[HASH]O 0x"+Integer.toHexString(objectMemory[i]));
 
-///*if[!VERIFY_SIGNATURES]*/
+///*if[!SIMPLE_VERIFY_SIGNATURES]*/
         output.flush();
-///*else[VERIFY_SIGNATURES]*/
+///*else[SIMPLE_VERIFY_SIGNATURES]*/
 //		if (hasParent())
 //		// If this is not the bootstrap suite write the hash
 //		// and sign the suite.
@@ -248,7 +248,7 @@ public class Suite {
 //		}else{
 //			output.flushWithoutSignature();
 //		}
-///*end[VERIFY_SIGNATURES]*/
+///*end[SIMPLE_VERIFY_SIGNATURES]*/
 	}
 
 	/**
@@ -419,6 +419,8 @@ public class Suite {
 		FileInputStream fis = new FileInputStream(inputFile);
 		loadFromStream(new DataInputStream(fis), bootstrapFilename);
 		fis.close();
+    if (VM.isVerbose())
+      logHeader(filename);
 	}
 
 	private int calculateOopMapSizeInBytes(int size) {

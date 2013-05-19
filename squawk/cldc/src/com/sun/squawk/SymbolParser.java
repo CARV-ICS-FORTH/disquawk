@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -122,7 +122,7 @@ final class SymbolParser extends ByteBufferDecoder {
 /*if[DEBUG_CODE_ENABLED]*/
         KlassMetadata.Debug.creates++;
 /*end[DEBUG_CODE_ENABLED]*/
-        
+
         if (p1 != null && p1.buf == symbols) {
             return p1;
         }
@@ -321,7 +321,7 @@ final class SymbolParser extends ByteBufferDecoder {
          * It turns out that the TCK has .class files that use the getstatic bytecode to reference static constants, such as Double.MIN_VALUE.
          * In order to have the TCK pass, we need to keep these constants around.  Note that adding these constants seemed to add
          * 7 K to size of squawk.suite.
-         * 
+         *
          * WAIT - doesnt tanslator transform the getstatic into a constant anyway?
          * NO - it has to leave the getstatic to get the exception thrown. Could transform to error func though...
          */
@@ -377,7 +377,7 @@ final class SymbolParser extends ByteBufferDecoder {
             return false;
         }
     }
-    
+
     /**
      * Prunes the fields based on a given suite type.
      *
@@ -439,6 +439,8 @@ final class SymbolParser extends ByteBufferDecoder {
     /**
      * Prunes the methods based on a given suite type.
      *
+     * @todo Now we're keeping symbols for all methods if lnt is true. But we can strip symbols for methods that have been eliminated.
+     *
      * @param klass     the enclosing class
      * @param type      specifies a closed suite type. Must be {@link Suite#LIBRARY} or {@link Suite#EXTENDABLE_LIBRARY}.
      * @param category  specifies virtual or static methods
@@ -455,8 +457,9 @@ final class SymbolParser extends ByteBufferDecoder {
                 String name = getName();
                 if (!PragmaException.isHosted(pragmas) &&               // strip methods called only in hosted VM mode
                     !PragmaException.isInterpreterInvoked(pragmas) &&   // strip methods called from the interpreter
-                    retainMember(type, modifiers, null) &&
-                    VM.isExported(klass.getMethod(i, category == STATIC_METHODS)))
+                    (MethodMetadata.lineNumberTablesKept() ||           // if we want line numbers then we want method names too...
+                        (retainMember(type, modifiers, null) &&
+                        VM.isExported(klass.getMethod(i, category == STATIC_METHODS)))))
                 {
                     // keeping this method:
                     if (!keptAtLeastOne) {
@@ -483,7 +486,7 @@ final class SymbolParser extends ByteBufferDecoder {
                         // then there is no way to extend or implement the exported class or interface.
                         throw new IllegalStateException("Can't strip method " + name + " because it is abstract in a class exported from a suite: " + klass);
                     }
-                    
+
                     if (Klass.TRACING_ENABLED && Tracer.isTracing("stripping")) {
                         String signature = name;
                         int parameterCount = getSignatureCount() - 1;

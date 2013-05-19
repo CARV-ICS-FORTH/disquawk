@@ -288,6 +288,11 @@ public final class Isolate implements Runnable {
      */
     private SquawkHashtable properties;
 
+    /**
+     * Properties read from a JAD file. These will override any manifest properties returned by MIDlet.getAppProperty() or VM.getManifestProperty().
+     */
+    private SquawkHashtable jadProperties;
+
 /*if[!FINALIZATION]*/
 /*else[FINALIZATION]*/
 //    /**
@@ -779,6 +784,63 @@ public final class Isolate implements Runnable {
 //    }
 //    return (TranslatorInterface)klass.newInstance();
 /*end[ENABLE_DYNAMIC_CLASSLOADING]*/
+    }
+
+    /**
+     * Adds a named JAD property to this isolate.
+     *
+     * This will not replace existing properties stored as JAD properties.
+     *
+     * @param key    the name of the property
+     * @param value  the value of the property
+     */
+    public void setJADProperty(String key, String value) {
+        if (jadProperties == null) {
+            jadProperties = new SquawkHashtable();
+        }
+
+        if (value == null) {
+            throw new IllegalArgumentException();
+        }
+
+        if (jadProperties.get(key) == null) {
+            key = copyIfCurrentThreadIsExternal(key);
+            value = copyIfCurrentThreadIsExternal(value);
+            jadProperties.put(key, value);
+        }
+    }
+
+    /**
+     * Gets a named JAD property of this isolate.
+     *
+     * @param key  the name of the property to get
+     * @return the value of the property named by 'key' or null if there is no such property
+     */
+    public String getJADProperty(String key) {
+        if (jadProperties == null) {
+            return null;
+        }
+
+        return copyIfCurrentThreadIsExternal((String)jadProperties.get(key));
+    }
+
+    /**
+     * Add the properties in the hashtable to this JAD properties of this isolate, copying strings
+     * when needed to ensure isolate hygiene.
+     *
+     * This will not replace existing properties stored as JAD properties.
+     *
+     * @param properties
+     */
+    public void addJADProperties(Hashtable properties) {
+        if (properties != null) {
+            Enumeration e = properties.keys();
+            while (e.hasMoreElements()) {
+                String key = (String) e.nextElement();
+                String value = (String) properties.get(key);
+                setJADProperty(key, value);
+            }
+        }
     }
 
     /**
