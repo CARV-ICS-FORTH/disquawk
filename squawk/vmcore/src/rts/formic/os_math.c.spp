@@ -35,17 +35,26 @@
 #undef UINT64_MAX
 #define UINT64_MAX             (__UINT64_C(18446744073709551615))
 
+#include "lib/truncdfsf2.c" // if placed after adddf3.c it's not working
+#include "lib/adddf3.c"
 #include "lib/clzsi2.c"
 #include "lib/clzdi2.c"
+#include "lib/comparedf2.c"
 #include "lib/cmpdi2.c"
 #include "lib/ctzsi2.c"
+#include "lib/divdf3.c"
 #include "lib/divdi3.c"
 #include "lib/extendsfdf2.c"
 #include "lib/fixsfdi.c"
+#include "lib/fixdfdi.c"
+#include "lib/fixdfsi.c"
+#include "lib/floatdidf.c"
 #include "lib/floatdisf.c"
+#include "lib/floatsidf.c"
+#include "lib/muldf3.c"
 #include "lib/muldi3.c"
 #include "lib/moddi3.c"
-#include "lib/truncdfsf2.c"
+#include "lib/subdf3.c"
 #include "lib/udivmoddi4.c"
 #include "lib/ucmpdi2.c"
 

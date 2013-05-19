@@ -59,7 +59,7 @@ static void ioExecute(void) {
     /* case ChannelConstants_GET_PUBLIC_KEY: */
     /*   break; */
     case ChannelConstants_GET_FILE_VIRTUAL_ADDRESS:
-      res = &__linker_formic_code;
+      res = (int)&__linker_formic_code;
       // res = 0xdeaddead;
       break;
     default:
