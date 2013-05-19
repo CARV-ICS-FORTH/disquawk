@@ -2,10 +2,6 @@
 Current GVM limitations
 =======================
 
-  * doubles are actually floats
-
-    As a result there is no proper support for java.lang.Double
-
   * exit(int status) halts the system (actually a while(1)) and just
     drops the status value.  After all, since GVM is the OS doesn't
     really make sense to report a status to someone.
@@ -27,8 +23,8 @@ DRAM mapping
 Choosing a JVM
 --------------
 
-5~5~* Squawk
-    -Still active (don't think so)
+* Squawk
+    -Still active
     -~150k LOC of which 8k are C and 590 are Assembly
     -bare metal ready
 * JamVM
