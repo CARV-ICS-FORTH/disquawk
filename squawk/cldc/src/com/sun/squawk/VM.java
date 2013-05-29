@@ -2403,13 +2403,13 @@ hbp.dumpState();
     	int low  = execSyncIO(ChannelConstants.INTERNAL_LOW_RESULT, 0);
     	return makeLong(high, low);
 /*else[FLASH_MEMORY]*/
-//    	if (timeAddr.isZero()) {
-//    		timeAddr = Address.fromPrimitive(execSyncIO(ChannelConstants.GET_CURRENT_TIME_ADDR, 0));
-//    	}
-/*if[MICROBLAZE_BUILD]*/
-		return timeAddr.hashCode();
+/*if[!MICROBLAZE_BUILD]*/
+        if (timeAddr.isZero()) {
+          timeAddr = Address.fromPrimitive(execSyncIO(ChannelConstants.GET_CURRENT_TIME_ADDR, 0));
+        }
+        return NativeUnsafe.getLong(timeAddr, 0);
 /*else[MICROBLAZE_BUILD]*/
-//		return NativeUnsafe.getLong(timeAddr, 0);
+//      return makeLong(0x0, execSyncIO(ChannelConstants.GET_CURRENT_TIME_ADDR, 0));
 /*end[MICROBLAZE_BUILD]*/
 /*end[FLASH_MEMORY]*/
     }
@@ -2460,16 +2460,16 @@ hbp.dumpState();
 /*if[!FLASH_MEMORY]*/
     	// Must get high word first as it causes the value to be setup that will be accessed via the INTERNAL_LOW_RESULT call
     	int high = execSyncIO(ChannelConstants.INTERNAL_GETTIMEMILLIS_HIGH, 0);
-    	int low  = execSyncIO(ChannelConstants.INTERNAL_LOW_RESULT, 0);
-    	return makeLong(high, low);
+        int low  = execSyncIO(ChannelConstants.INTERNAL_LOW_RESULT, 0);
+        return makeLong(high, low);
 /*else[FLASH_MEMORY]*/
-//    	if (timeAddr.isZero()) {
-//    		timeAddr = Address.fromPrimitive(execSyncIO(ChannelConstants.GET_CURRENT_TIME_ADDR, 0));
-//    	}
-/*if[MICROBLAZE_BUILD]*/
-		return timeAddr.hashCode();
+/*if[!MICROBLAZE_BUILD]*/
+        if (timeAddr.isZero()) {
+          timeAddr = Address.fromPrimitive(execSyncIO(ChannelConstants.GET_CURRENT_TIME_ADDR, 0));
+        }
+        return NativeUnsafe.getLong(timeAddr, 0);
 /*else[MICROBLAZE_BUILD]*/
-	return NativeUnsafe.getLong(timeAddr, 0);
+//     return makeLong(0x0, execSyncIO(ChannelConstants.GET_CURRENT_TIME_ADDR, 0));
 /*end[MICROBLAZE_BUILD]*/
 /*end[FLASH_MEMORY]*/
     }

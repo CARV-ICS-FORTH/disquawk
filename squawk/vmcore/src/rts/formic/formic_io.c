@@ -51,7 +51,7 @@ static void ioExecute(void) {
 
     switch (op) {
     case ChannelConstants_GET_CURRENT_TIME_ADDR:
-      res = ar_timer_get_msec();
+      res = sysTimeMillis();
       break;
     case ChannelConstants_GLOBAL_GETEVENT:
       //res = getEvent();

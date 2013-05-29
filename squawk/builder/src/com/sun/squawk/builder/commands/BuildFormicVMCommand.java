@@ -34,14 +34,16 @@ import com.sun.squawk.builder.util.*;
 
 public class BuildFormicVMCommand extends FormicCommand {
 
-  public static final File VM_SRC_DIR = new File("vmcore/src/vm");
-  public static final File VM_BLD_DIR = new File("vmcore/build");
-  public static final File FP_SRC_DIR = new File("vmcore/src/vm/fp");
-  public static final File UTIL_SRC_DIR = new File("vmcore/src/vm/util");
-  public static final File VM_SRC_RTS_DIR = new File("vmcore/src/rts");
-  public static final File VM_SRC_FILE = new File(VM_SRC_DIR, "squawk.c");
-  public static final File VM2C_SRC_FILE = new File(VM_SRC_DIR, "vm2c.c.spp");
-  public static final File linkerOutputFile = new File(VM_BLD_DIR, "squawk.elf");
+  private static final File VM_SRC_DIR = new File("vmcore/src/vm");
+  private static final File VM_BLD_DIR = new File("vmcore/build");
+  private static final File FP_SRC_DIR = new File("vmcore/src/vm/fp");
+  private static final File UTIL_SRC_DIR = new File("vmcore/src/vm/util");
+  private static final File VM_SRC_RTS_DIR = new File("vmcore/src/rts");
+  private static final File VM_SRC_FILE = new File(VM_SRC_DIR, "squawk.c");
+  private static final File VM2C_SRC_FILE = new File(VM_SRC_DIR, "vm2c.c.spp");
+  private static final File linkerOutputFile = new File(VM_BLD_DIR, "squawk.elf");
+
+  private String formicApp_dir = "./";
 
   private ArrayList<String> vm2cRootClasses;
 
@@ -179,6 +181,14 @@ public class BuildFormicVMCommand extends FormicCommand {
   /**
    *
    */
+  protected void build(String app_dir) {
+    formicApp_dir = app_dir;
+    build();
+  }
+
+  /**
+   *
+   */
   protected void build() {
 
     CCompiler ccompiler = env.getCCompiler();
@@ -206,9 +216,9 @@ public class BuildFormicVMCommand extends FormicCommand {
 
     File[] includeDirs = new File[] {
       VM_SRC_DIR,
-        FP_SRC_DIR,
-        new File(VM_SRC_RTS_DIR, ccompiler.getRtsIncludeName()),
-        new File(MYRMICS_DIR, "include")
+      FP_SRC_DIR,
+      new File(VM_SRC_RTS_DIR, ccompiler.getRtsIncludeName()),
+      new File(MYRMICS_DIR, "include")
     };
 
     Build.mkdir(VM_BLD_DIR);
@@ -268,6 +278,8 @@ public class BuildFormicVMCommand extends FormicCommand {
 
     env.log(env.brief, "[compiling '" + VM_SRC_FILE + "' ...]");
     objectFiles.add(ccompiler.compile(includeDirs, VM_SRC_FILE, VM_BLD_DIR, false));
+    env.log(env.brief, "[compiling '" + formicApp_dir + "/squawk_entry_point.c' ...]");
+    objectFiles.add(ccompiler.compile(includeDirs, new File(formicApp_dir + "/squawk_entry_point.c"), VM_BLD_DIR, false));
 
     File OBJ_JAVA      = new File(MYRMICS_DIR, "obj/java");
     // TODO: Compile myrmics

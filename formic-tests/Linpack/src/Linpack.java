@@ -37,11 +37,11 @@ import java.io.*;
 import java.util.*;
 
 
-public class FormicApp {
+public class Linpack {
 
   public static void main(String[] args)
   {
-    FormicApp l = new FormicApp();
+    Linpack l = new Linpack();
     l.run_benchmark();
   }
 
@@ -66,24 +66,24 @@ public class FormicApp {
     double time_result = 0.0;
     double eps_result = 0.0;
 
-    double a[][] = new double[200][201];
-    double b[] = new double[200];
-    double x[] = new double[200];
+    double a[][] = new double[50][51];
+    double b[] = new double[50];
+    double x[] = new double[50];
     double cray,ops,total,norma,normx;
     double resid,time;
     double kf;
     int n,i,ntimes,info,lda,ldaa,kflops;
-    int ipvt[] = new int[200];
+    int ipvt[] = new int[50];
 
     //double mflops_result;
     //double residn_result;
     //double time_result;
     //double eps_result;
 
-    lda = 201;
-    ldaa = 200;
+    lda = 51;
+    ldaa = 50;
     cray = .056;
-    n = 100;
+    n = 25;
 
     ops = (2.0e0*(n*n*n))/3.0 + 2.0*(n*n);
 

@@ -5,7 +5,7 @@
 # The memory layout of the final elf is:                       #
 #                                                              #
 # +-----------------+------------------+---------------------+ #
-# |    (The VM)     |   (Bootstrap)    |    (Application)    | #
+# |    (The VM)     |   (Bootstrap)    |   (Application)     | #
 # | pure squawk.elf | squawk.suite.bin | FormicApp.suite.bin | #
 # +-----------------+------------------+---------------------+ #
 #                                                              #
@@ -17,19 +17,14 @@ ELF=${BUILD_DIR}/squawk.elf
 RTS_SRC=./vmcore/src/rts/formic
 MYRMICS_SRC=$(RTS_SRC)/myrmics/src
 AT=@
-ARCH?=formic
 BUILDER_SRC=builder/src/com/sun/squawk/builder
 BUILDER=./d -override:build-mb.properties
 #BUILDER_FLAGS=-prod -verbose #This is for debug purposes (verbose and no macroize)
-BUILDER_FLAGS=-prod -comp:$(ARCH) -cflags:-I./$(MYRMICS_SRC)/include -assume -tracing
-# Make APP point to a directory containing src/FormicApp.java with the
-# application's Main class
-#APP?=../formic-tests/HelloWorld
-APP?=../formic-tests/Linpack
+BUILDER_FLAGS=-prod -comp:formic -cflags:-I./$(MYRMICS_SRC)/include -assume -tracing
+# Make APP point to a directory containing a Makefile with Formic.suite target
+APP?=../formic-tests/HelloWorld
+#APP?=../formic-tests/Linpack
 #APP?=../formic-tests/Double2String
-APP_SRC=$(APP)/src/*.java
-APP_OBJ=$(APP_SRC:$(APP)/src/%.java=$(APP)/classes/%.class)
-APP_OBJ_VER=$(APP_SRC:$(APP)/src/%.java=$(APP)/classes/preverified/%.class)
 # The starting address of the suites in memory (this is automatically
 # calculated later)
 SUITES_ADDR:=D2428
@@ -44,9 +39,11 @@ STR_ELF = "[1m[ [36mELF [0;1m][0m"
 STR_JVC = "[1m[ [37mJVC [0;1m][0m"
 STR_MAP = "[1m[ [31mMAP [0;1m][0m"
 
-.PHONY: base hello run myrmics
+.PHONY: run myrmics
 
 all: $(ELF) map
+
+include $(APP)/Makefile
 
 run:
 	$(AT)rm -f run.log
@@ -54,28 +51,15 @@ run:
 
 map: squawk.suite.map FormicApp.suite.map
 
-$(APP)/classes/preverified/%.class: $(APP)/classes/%.class
-	$(AT)echo $(STR_VER) $@
-	$(AT)./tools/linux-x86/preverify -d $(APP)/classes/preverified -classpath $(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ FormicApp
-
-FormicApp.suite: $(APP_OBJ_VER)
-	$(AT)echo $(STR_ROM) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -arch:$(ARCH) -endian:little -o:FormicApp -cp:$(APP)/classes/preverified -parent:squawk FormicApp
-
 # Create the Application suite map (useful to translate the traces)
 FormicApp.suite.map: FormicApp.suite
 	$(AT)echo $(STR_MAP) $@
 	$(AT)$(BUILDER) map -nofielddefs -notypemap -cp:$(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ $<
 
-$(APP)/classes/%.class: $(APP)/src/%.java
-	$(AT)echo $(STR_JVC) $@
-	$(AT)mkdir -p $(dir $@)
-	$(AT)javac -source 1.4 -target 1.4 -d $(dir $@) $<
-
 # These are not all the dependencies just what i usually manipulate
 build.jar: $(BUILDER_SRC)/*.java $(BUILDER_SRC)/commands/*.java
 	$(AT)echo $(STR_BLD) $@
-	$(AT)$(BUILDER) builder
+	$(AT)./d builder
 
 $(RTS_SRC)/os.c:$(RTS_SRC)/os_math.c
 
@@ -119,14 +103,14 @@ suite_addr.txt: $(MYRMICS_SRC)/linker.java.mb.ld romizer.ts myrmics $(RTS_SRC)/o
 	$(AT)rm -f java.ld $@
 	$(AT)cp $< java.ld
 	$(AT)echo $(STR_ELF) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) -comp:formic buildFormicVM
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) -comp:formic buildFormicVM -app:$(APP)
 	$(AT)mb-objdump -d -S vmcore/build/squawk.elf | grep linker_end_code | awk '{print $$8}' | tr a-z A-Z | head -n 1 > $@
 	$(AT)rm -rf vmcore/build/squawk.elf
 
 # Create the Formic elf
 $(ELF): myrmics romizer.ts java.ld
 	$(AT)echo $(STR_ELF) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) -comp:formic buildFormicVM
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) -comp:formic buildFormicVM -app:$(APP)
 
 # Create the linker script with the embedded suites
 java.ld: $(MYRMICS_SRC)/linker.java.mb.ld squawk.suite.bin FormicApp.suite.bin

@@ -13,41 +13,43 @@ import com.sun.squawk.builder.Command;
  */
 public abstract class FormicCommand extends Command {
 
-	protected String platformName;
+  protected String platformName;
 
-	/**
-	 * @param env
-	 * @param name
-	 */
-	public FormicCommand(Build env, String name) {
-		super(env, name);
-	}
+  /**
+   * @param env
+   * @param name
+   */
+  public FormicCommand(Build env, String name) {
+    super(env, name);
+  }
 
-	public void usage(String errMsg) {
-	    PrintStream out = System.out;
+  public void usage(String errMsg) {
+    PrintStream out = System.out;
 
-	    out.println();
-	    out.println(errMsg);
-	    out.println();
-	    out.println(getDescription());
-	    out.println("usage: " + getName() + " [ -h | -clean ]");
-	}
+    out.println();
+    out.println(errMsg);
+    out.println();
+    out.println(getDescription());
+    out.println("usage: " + getName() + " [ -h | -clean | -app:<path to application>]");
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void run(String[] args) {
-	    if (args.length == 0) {
-	    	build();
-	    } else {
-	        if (args[0].equals("-clean")) {
-            clean();
-	        } else {
-	        	usage("");
-	        }
-	    }
-	}
+  /**
+   * {@inheritDoc}
+   */
+  public void run(String[] args) {
+    if (args.length == 0) {
+      build();
+    } else {
+      if (args[0].equals("-clean")) {
+        clean();
+      } else if (args[0].equals("-h")) {
+        usage("");
+      } else if (args[0].startsWith("-app:")) {
+        build(args[0].substring(5));
+      }
+    }
+  }
 
-	protected abstract void build();
-
+  protected abstract void build();
+  protected abstract void build(String app_dir);
 }

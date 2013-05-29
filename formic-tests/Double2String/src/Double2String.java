@@ -1,4 +1,4 @@
-public class FormicApp {
+public class Double2String {
 
     public static void main(String[] args) {
       double d = 13.24;

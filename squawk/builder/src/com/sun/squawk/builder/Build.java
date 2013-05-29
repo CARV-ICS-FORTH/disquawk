@@ -2265,7 +2265,7 @@ public class Build {
 
                 // Make it very clear to the user which properties in the standard properties
                 // file are potentially being overridden
-                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Using build override file: " + overideProperties.getPath() + " <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+                System.out.println(">>>>>>>>>> Using build override file: " + overideProperties.getPath() + " <<<<<<<<<<");
                 properties = loadProperties(overideProperties, properties);
             }
         } else {

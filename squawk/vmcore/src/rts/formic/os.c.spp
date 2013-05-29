@@ -40,6 +40,7 @@
 #define IODOTC "formic_io.c"
 #define sysPlatformName() "formic"
 #include "arch.h"
+#include "debug.h"
 #include "types.h"
 #include "myrmics.h"
 #include "jni.h"
@@ -54,7 +55,31 @@
 #define free kt_free
 #define malloc kt_malloc
 #define atoi kt_atoi
-#define exit(x) ar_halt()
+
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
+
+void exit(int status) {
+  int b, c;
+
+  // Get core & board ID
+  b = ar_get_board_id();
+
+  c = ar_get_core_id();
+
+  // Instruct server to kill the power
+  if ((b == AR_BOOT_MASTER_BID) && (!c)) {
+    ar_uart_flush();
+    ar_timer_busy_wait_msec(200);
+    kt_printf("%s", DBG_KILL_CONNECTION);
+  }
+
+  // Stall
+  while (1) {
+    ;
+  }
+}
+
 
 //extern int __linker_end_bss;
 extern int __linker_squawk_suite_end;
@@ -95,19 +120,24 @@ INLINE int sysGetPageSize(void) {
 }
 
 /**
- * Return the current time in milliseconds.
- */
-INLINE jlong sysTimeMillis(void) {
-  return (jlong)ar_timer_get_msec();
-}
-#define getMilliseconds sysTimeMillis
-
-/**
  * Return the current time in microseconds.
  */
 jlong sysTimeMicros() {
-  return 0;
+  // get the cycles, each cycle is 10ns
+  jlong res = (jlong)ar_free_timer_get_cycles();
+  res = res / 1000;
+  return res;
 }
+
+/**
+ * Return the current time in milliseconds.
+ */
+INLINE jlong sysTimeMillis(void) {
+  jlong res = sysTimeMicros();
+  res = res / 1000;
+  return res;
+}
+#define getMilliseconds sysTimeMillis
 
 /**
  * Sets a region of memory read-only or reverts it to read & write.

@@ -77,7 +77,7 @@ void diagnosticWithValue(char * msg, int val) {
 #endif /* DIAGNOSTICS_ENABLED */
 
 #ifndef DEBUG_STARTUP
-#define DEBUG_STARTUP 0
+#define DEBUG_STARTUP 1
 #endif
 
 // Single or user and kernel Squawk systems.
@@ -1169,7 +1169,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
     memory = newBuffer(realMemorySize, "memory", true);
     memoryEnd = Address_add(memory, memorySize);
 /*if[MICROBLAZE_BUILD]*/
-    if (DEBUG_STARTUP || com_sun_squawk_GC_traceFlags != 0) {
+    if (DEBUG_STARTUP) {
       printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
       printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
     }

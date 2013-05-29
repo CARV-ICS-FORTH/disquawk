@@ -10,7 +10,7 @@ AT=@
 BUILDER_SRC=builder/src/com/sun/squawk/builder
 BUILDER=./d -override:build-x86.properties
 BUILDER_FLAGS=-prod -assume
-# Make APP point to a directory containing src/FormicApp.java with the
+# Make APP point to a directory containing src/ZZZFormicApp.java with the
 # application's Main class
 #APP?=../formic-tests/HelloWorld
 APP?=../formic-tests/Linpack
@@ -33,21 +33,21 @@ STR_MAP = "[1m[ [31mMAP [0;1m][0m"
 
 all: run
 
-run: squawk FormicApp.suite
-	$(AT)./squawk -suite:FormicApp FormicApp
+run: squawk ZZZFormicApp.suite
+	$(AT)./squawk -suite:ZZZFormicApp ZZZFormicApp
 
-map: squawk.suite.map FormicApp.suite.map
+map: squawk.suite.map ZZZFormicApp.suite.map
 
 $(APP)/classes/preverified/%.class: $(APP)/classes/%.class
 	$(AT)echo $(STR_VER) $@
-	$(AT)./tools/linux-x86/preverify -d $(APP)/classes/preverified -classpath $(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ FormicApp
+	$(AT)./tools/linux-x86/preverify -d $(APP)/classes/preverified -classpath $(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ ZZZFormicApp
 
-FormicApp.suite: $(APP_OBJ_VER)
+ZZZFormicApp.suite: $(APP_OBJ_VER)
 	$(AT)echo $(STR_ROM) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -endian:little -o:FormicApp -cp:$(APP)/classes/preverified -parent:squawk FormicApp
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -endian:little -o:ZZZFormicApp -cp:$(APP)/classes/preverified -parent:squawk ZZZFormicApp
 
 # Create the Application suite map (useful to translate the traces)
-FormicApp.suite.map: FormicApp.suite
+ZZZFormicApp.suite.map: ZZZFormicApp.suite
 	$(AT)echo $(STR_MAP) $@
 	$(AT)$(BUILDER) map -nofielddefs -notypemap -cp:$(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ $<
 
@@ -92,7 +92,7 @@ distclean: clean
 	$(AT)echo $(STR_CLN) DIST
 	$(AT)rm -rf squawk.s*\
               squawk.jar\
-              FormicApp.*\
+              ZZZFormicApp.*\
               *.map\
               suite_addr.txt\
               vm2c/vm2c.input\
