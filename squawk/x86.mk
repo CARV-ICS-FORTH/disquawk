@@ -9,15 +9,11 @@ BUILD_DIR=./vmcore/build_x86
 AT=@
 BUILDER_SRC=builder/src/com/sun/squawk/builder
 BUILDER=./d -override:build-x86.properties
-BUILDER_FLAGS=-prod -assume
-# Make APP point to a directory containing src/ZZZFormicApp.java with the
-# application's Main class
+BUILDER_FLAGS=-prod -o3 -mac -assume
+# Make APP point to a directory containing a Makefile with Formic.suite target
 #APP?=../formic-tests/HelloWorld
 APP?=../formic-tests/Linpack
 #APP?=../formic-tests/Double2String
-APP_SRC=$(APP)/src/*.java
-APP_OBJ=$(APP_SRC:$(APP)/src/%.java=$(APP)/classes/%.class)
-APP_OBJ_VER=$(APP_SRC:$(APP)/src/%.java=$(APP)/classes/preverified/%.class)
 
 STR_CLN = "[1m[ [31mCLN [0;1m][0m"
 STR_BLD = "[1m[ [32mBLD [0;1m][0m"
@@ -29,76 +25,62 @@ STR_ELF = "[1m[ [36mELF [0;1m][0m"
 STR_JVC = "[1m[ [37mJVC [0;1m][0m"
 STR_MAP = "[1m[ [31mMAP [0;1m][0m"
 
-.PHONY: base run
+.PHONY: run
 
-all: run
+all: squawk
 
-run: squawk ZZZFormicApp.suite
-	$(AT)./squawk -suite:ZZZFormicApp ZZZFormicApp
+include $(APP)/Makefile
 
-map: squawk.suite.map ZZZFormicApp.suite.map
+run: squawk FormicApp.suite
+	$(AT)./squawk -suite:FormicApp FormicApp
 
-$(APP)/classes/preverified/%.class: $(APP)/classes/%.class
-	$(AT)echo $(STR_VER) $@
-	$(AT)./tools/linux-x86/preverify -d $(APP)/classes/preverified -classpath $(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ ZZZFormicApp
+map: squawk.suite.map FormicApp.suite.map
 
-ZZZFormicApp.suite: $(APP_OBJ_VER)
-	$(AT)echo $(STR_ROM) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -endian:little -o:ZZZFormicApp -cp:$(APP)/classes/preverified -parent:squawk ZZZFormicApp
 
 # Create the Application suite map (useful to translate the traces)
-ZZZFormicApp.suite.map: ZZZFormicApp.suite
+FormicApp.suite.map: FormicApp.suite mapper/classes.jar build.jar
 	$(AT)echo $(STR_MAP) $@
 	$(AT)$(BUILDER) map -nofielddefs -notypemap -cp:$(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ $<
 
-$(APP)/classes/%.class: $(APP)/src/%.java
-	$(AT)echo $(STR_JVC) $@
-	$(AT)mkdir -p $(dir $@)
-	$(AT)javac -source 1.4 -target 1.4 -d $(dir $@) $<
-
-# These are not all the dependencies just what i usually manipulate
-build.jar: $(BUILDER_SRC)/*.java $(BUILDER_SRC)/commands/*.java
+# Rebuild the builder if needed
+build.jar build-commands.jar: $(shell find builder/src -name "*.java")
 	$(AT)echo $(STR_BLD) $@
-	$(AT)$(BUILDER) builder
+	$(AT)cd builder; sh bld.sh;
+
 
 # builds the squawk executable for x86 platforms
-squawk: romizer.ts
+squawk: romizer/classes.jar build.jar
 	$(AT)echo $(STR_ROM) $@
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) rom cldc
 
 # Create the bootstrap suite
-squawk.suite: romizer.ts
+squawk.suite: romizer/classes.jar build.jar
 	$(AT)echo $(STR_ROM) $@
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -o:squawk -arch:Formic -endian:little -cp:./cldc/j2meclasses/:./cldc/resources/: -java5cp:./cldc/classes: ./cldc/j2meclasses ./cldc/resources
 
 # Create the bootstrap suite map (useful to translate the traces)
-squawk.suite.map: squawk.suite
+squawk.suite.map: squawk.suite mapper/classes.jar build.jar
 	$(AT)echo $(STR_MAP) $@
 	$(AT)$(BUILDER) map -notypemap $<
 
-# if the builder changed we have to rebuild everything
-romizer.ts: build.jar
-	$(AT)echo $(STR_BLD) BASE
-	$(AT)$(BUILDER) clean
-	$(AT)$(BUILDER)
-	$(AT)touch $@
 
 clean:
 	$(AT)echo $(STR_CLN)
-	$(AT)$(BUILDER) clean
-	$(AT)rm -f romizer.ts
+	-$(AT)$(BUILDER) clean
 
 distclean: clean
 	$(AT)echo $(STR_CLN) DIST
 	$(AT)rm -rf squawk.s*\
+              squawk*.jar\
+              squawk\
               squawk.jar\
-              ZZZFormicApp.*\
+              squawk.jar\
+              build*.jar\
+              FormicApp.*\
               *.map\
               suite_addr.txt\
               vm2c/vm2c.input\
               vmcore/link.map\
               ../formic-tests/*/classes\
               ../formic-apps/*/classes\
-              $(RTS_SRC)/*.c.spp.preprocessed\
-              $(RTS_SRC)/os.c\
-              $(RTS_SRC)/os_math.c
+              $(APP)/classes

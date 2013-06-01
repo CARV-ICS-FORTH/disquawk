@@ -81,6 +81,18 @@ public class Throwable {
     private final ExecutionPoint[] trace;
 
     /**
+     * The throwable that caused this throwable to get thrown, or null if this
+     * throwable was not caused by another throwable, or if the causative
+     * throwable is unknown.  If this field is equal to this throwable itself,
+     * it indicates that the cause of this throwable has not yet been
+     * initialized.
+     *
+     * @serial
+     * @since 1.4
+     */
+    private Throwable cause = this;
+
+    /**
      * Constructs a new <code>Throwable</code> with <code>null</code> as
      * its error message string.
      */
@@ -118,10 +130,80 @@ public class Throwable {
     }
 
     /**
-     * Returns a short description of this throwable object.
-     * If this <code>Throwable</code> object was
-     * {@link #Throwable(String) created} with an error message string,
-     * then the result is the concatenation of three strings:
+     * Creates a localized description of this throwable.
+     * Subclasses may override this method in order to produce a
+     * locale-specific message.  For subclasses that do not override this
+     * method, the default implementation returns the same result as
+     * <code>getMessage()</code>.
+     *
+     * @return  The localized description of this throwable.
+     * @since   JDK1.1
+     */
+    public String getLocalizedMessage() {
+        return getMessage();
+    }
+
+    /**
+     * Returns the cause of this throwable or <code>null</code> if the
+     * cause is nonexistent or unknown.  (The cause is the throwable that
+     * caused this throwable to get thrown.)
+     *
+     * <p>This implementation returns the cause that was supplied via one of
+     * the constructors requiring a <tt>Throwable</tt>, or that was set after
+     * creation with the {@link #initCause(Throwable)} method.  While it is
+     * typically unnecessary to override this method, a subclass can override
+     * it to return a cause set by some other means.  This is appropriate for
+     * a "legacy chained throwable" that predates the addition of chained
+     * exceptions to <tt>Throwable</tt>.  Note that it is <i>not</i>
+     * necessary to override any of the <tt>PrintStackTrace</tt> methods,
+     * all of which invoke the <tt>getCause</tt> method to determine the
+     * cause of a throwable.
+     *
+     * @return  the cause of this throwable or <code>null</code> if the
+     *          cause is nonexistent or unknown.
+     * @since 1.4
+     */
+    public Throwable getCause() {
+        return (cause==this ? null : cause);
+    }
+
+    /**
+     * Initializes the <i>cause</i> of this throwable to the specified value.
+     * (The cause is the throwable that caused this throwable to get thrown.)
+     *
+     * <p>This method can be called at most once.  It is generally called from
+     * within the constructor, or immediately after creating the
+     * throwable.  If this throwable was created
+     * with {@link #Throwable(Throwable)} or
+     * {@link #Throwable(String,Throwable)}, this method cannot be called
+     * even once.
+     *
+     * @param  cause the cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A <tt>null</tt> value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
+     * @return  a reference to this <code>Throwable</code> instance.
+     * @throws IllegalArgumentException if <code>cause</code> is this
+     *         throwable.  (A throwable cannot be its own cause.)
+     * @throws IllegalStateException if this throwable was
+     *         created with {@link #Throwable(Throwable)} or
+     *         {@link #Throwable(String,Throwable)}, or this method has already
+     *         been called on this throwable.
+     * @since  1.4
+     */
+    public synchronized Throwable initCause(Throwable cause) {
+        if (this.cause != this)
+            throw new IllegalStateException("Can't overwrite cause");
+        if (cause == this)
+            throw new IllegalArgumentException("Self-causation not permitted");
+        this.cause = cause;
+        return this;
+    }
+
+    /**
+     * Returns a short description of this throwable.
+     * If this <code>Throwable</code> object was created with a non-null detail
+     * message string, then the result is the concatenation of three strings:
      * <ul>
      * <li>The name of the actual class of this object
      * <li>": " (a colon and a space)

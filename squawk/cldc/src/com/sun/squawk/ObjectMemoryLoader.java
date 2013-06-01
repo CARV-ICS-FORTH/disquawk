@@ -491,15 +491,17 @@ System.out.println("filePathelements=" + filePathelements);
         // Run the collector to prevent a collection being run during relocation which
         // will screw a RAM buffer
         if (!VM.isHosted()) {
+          long start = VM.getTimeMillis();
           VM.collectGarbage(true);
+          VM.println("[DIAG] GC in loadThis took "+(VM.getTimeMillis()-start)+" ms");
         }
 
         if (VM.isVerbose()) {
-          VM.print("[DIAG]  in loadThis\n");
-          VM.print("        Read:"+reader.getBytesRead()+"\n");
-          VM.print("        rootOffset: "+root+"\n");
-          VM.print("        memorySize: "+size+"\n");
-          VM.print("        hash      : 0x"+Integer.toHexString(hash)+"\n");
+          VM.println("[DIAG]  in loadThis\n");
+          VM.println("        Read:"+reader.getBytesRead());
+          VM.println("        rootOffset: "+root);
+          VM.println("        memorySize: "+size);
+          VM.println("        hash      : 0x"+Integer.toHexString(hash));
         }
 
         // Relocate the pointers in the memory and move the buffer into read-only memory if necessary

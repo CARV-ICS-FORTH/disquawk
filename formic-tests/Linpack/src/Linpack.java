@@ -66,24 +66,24 @@ public class Linpack {
     double time_result = 0.0;
     double eps_result = 0.0;
 
-    double a[][] = new double[50][51];
-    double b[] = new double[50];
-    double x[] = new double[50];
+    double a[][] = new double[100][101];
+    double b[] = new double[100];
+    double x[] = new double[100];
     double cray,ops,total,norma,normx;
     double resid,time;
     double kf;
     int n,i,ntimes,info,lda,ldaa,kflops;
-    int ipvt[] = new int[50];
+    int ipvt[] = new int[100];
 
     //double mflops_result;
     //double residn_result;
     //double time_result;
     //double eps_result;
 
-    lda = 51;
-    ldaa = 50;
+    lda = 101;
+    ldaa = 100;
     cray = .056;
-    n = 25;
+    n = 50;
 
     ops = (2.0e0*(n*n*n))/3.0 + 2.0*(n*n);
 

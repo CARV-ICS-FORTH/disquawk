@@ -1432,40 +1432,40 @@ public class Build {
         });
 
         // Add the "copyjavacard3" command
-        addCommand(new Command(this, "copyjavacard3") {
-            public String getDescription() {
-                return "copies the source code from the javacard3 source tree into ours in order to be able to compile it to run on Squawk";
-            }
+        // addCommand(new Command(this, "copyjavacard3") {
+        //     public String getDescription() {
+        //         return "copies the source code from the javacard3 source tree into ours in order to be able to compile it to run on Squawk";
+        //     }
 
-            public void run(String[] args) {
-                File sdkSource = new File("../api/sdk-src");
-                delete(sdkSource);
-                sdkSource.mkdirs();
-                File sdkLib = new File("../api/sdk-lib");
-                delete(sdkLib);
-                sdkLib.mkdirs();
-                File cryptoLib = new File(sdkLib, "crypto");
-                cryptoLib.mkdirs();
-                String sourceRoot = "../bundles/sdk/src/";
-                copy(sourceRoot + "api", sdkSource.getPath(), "../api/src", true, "**");
-                extractJar(new File("../bundles/sdk/src/crypto.jar"), cryptoLib);
-                retroweave(sdkLib, cryptoLib);
-                boolean success = new File(sdkLib, "weaved").renameTo(new File(sdkLib, "crypto-weaved"));
-                if (!success) {
-                    throw new BuildException("Failed to rename dir");
-                }
-            }
-        });
+        //     public void run(String[] args) {
+        //         File sdkSource = new File("../api/sdk-src");
+        //         delete(sdkSource);
+        //         sdkSource.mkdirs();
+        //         File sdkLib = new File("../api/sdk-lib");
+        //         delete(sdkLib);
+        //         sdkLib.mkdirs();
+        //         File cryptoLib = new File(sdkLib, "crypto");
+        //         cryptoLib.mkdirs();
+        //         String sourceRoot = "../bundles/sdk/src/";
+        //         copy(sourceRoot + "api", sdkSource.getPath(), "../api/src", true, "**");
+        //         extractJar(new File("../bundles/sdk/src/crypto.jar"), cryptoLib);
+        //         retroweave(sdkLib, cryptoLib);
+        //         boolean success = new File(sdkLib, "weaved").renameTo(new File(sdkLib, "crypto-weaved"));
+        //         if (!success) {
+        //             throw new BuildException("Failed to rename dir");
+        //         }
+        //     }
+        // });
 
         // Add the "jvmenv" command
-        addCommand(new Command(this, "jvmenv") {
-            public String getDescription() {
-                return "displays required environment variables for running the Squawk VM";
-            }
-            public void run(String[] args) {
-                platform.showJNIEnvironmentMessage(System.out);
-            }
-        });
+        // addCommand(new Command(this, "jvmenv") {
+        //     public String getDescription() {
+        //         return "displays required environment variables for running the Squawk VM";
+        //     }
+        //     public void run(String[] args) {
+        //         platform.showJNIEnvironmentMessage(System.out);
+        //     }
+        // });
 
         // Add the "genspec" command
         addJavaCommand("genspec", "build.jar:build-commands.jar:cldc/classes", true, "", "com.sun.squawk.builder.bytecodespec.sbdocgen", "cldc").
@@ -1510,7 +1510,7 @@ public class Build {
         addCommand(new ExportCommand(this));
 
         // Add the "jam" command
-        addCommand(new JamCommand(this));
+        // addCommand(new JamCommand(this));
 
         // Add the "squawk" command
         addJavaCommand("squawk", "hosted-support/classes:cldc/classes", false, "-Djava.library.path=.", "com.sun.squawk.vm.Main", "hosted-support").
@@ -1520,7 +1520,7 @@ public class Build {
         addCommand(new MakeAPI(this));
 
         // Add the "makeueistubs" command
-        addCommand(new MakePlatformStubs(this)).dependsOn("imp");
+//        addCommand(new MakePlatformStubs(this)).dependsOn("imp");
 
         // Add the "map" command
         addJavaCommand("map", "hosted-support/classes:mapper/classes:cldc/classes:translator/classes", false, "", "com.sun.squawk.ObjectMemoryMapper", "mapper").
@@ -1535,8 +1535,8 @@ public class Build {
             setDescription("object memory file endianess converter");
 
         // Add the "sdproxy" command
-        addJavaCommand("sdproxy", "romizer/classes:hosted-support/classes:debugger/classes:debugger-proxy/classes:cldc/classes:translator/classes", false, "", "com.sun.squawk.debugger.sdp.SDP", "debugger-proxy").
-            setDescription("Debugger proxy for translating between Squawk VM and normal JDPA debuggers");
+        // addJavaCommand("sdproxy", "romizer/classes:hosted-support/classes:debugger/classes:debugger-proxy/classes:cldc/classes:translator/classes", false, "", "com.sun.squawk.debugger.sdp.SDP", "debugger-proxy").
+        //     setDescription("Debugger proxy for translating between Squawk VM and normal JDPA debuggers");
 
         // Add the "hexdump" command
         addJavaCommand("hexdump", "hosted-support/classes", false, "", "com.sun.squawk.util.HexDump", "hosted-support").
@@ -1571,64 +1571,64 @@ public class Build {
             }
         });
 
-        addCommand(new Command(this, "arm_asm_tests") {  // run JUnit tests for the ARM assembler
-            public void run(String[] args) {
-                System.out.println("Running JUnit test for the ARM assembler ");
-                exec("java -cp " + toPlatformPath("compilertests/junit-3.8.1.jar:compiler/classes:hosted-support/classes:cldc/classes:compilertests/classes ", true) +
-                     "com.sun.squawk.compiler.asm.arm.tests.ArmTests");
-            }
-        });
+        // addCommand(new Command(this, "arm_asm_tests") {  // run JUnit tests for the ARM assembler
+        //     public void run(String[] args) {
+        //         System.out.println("Running JUnit test for the ARM assembler ");
+        //         exec("java -cp " + toPlatformPath("compilertests/junit-3.8.1.jar:compiler/classes:hosted-support/classes:cldc/classes:compilertests/classes ", true) +
+        //              "com.sun.squawk.compiler.asm.arm.tests.ArmTests");
+        //     }
+        // });
 
         // Add "runvm2c" target
         addJavaCommand("runvm2c", "vm2c/classes:cldc/classes", false, "-Xbootclasspath/p:vm2c/lib/openjdk-javac-6-b12.jar", "com.sun.squawk.vm2c.Main", "vm2c").
         	setDescription("runs the VM Java source file to C converter");
 
         // Add the "user-compile" command
-        addCommand(new Command(this, "user-compile") {
-            public String getDescription() {
-                return "compile a user-project";
-            }
+        // addCommand(new Command(this, "user-compile") {
+        //     public String getDescription() {
+        //         return "compile a user-project";
+        //     }
 
-            public void usage(String errMsg) {
-                PrintStream out = System.err;
+        //     public void usage(String errMsg) {
+        //         PrintStream out = System.err;
 
-                if (errMsg != null) {
-                    out.println(errMsg);
-                }
-                out.println("Usage: user-compile [options] module ");
-                out.println("where module is directory containing a \"src\" directory, and options include:");
-                out.println();
-                out.println("    -cp:<classpath>        classes to compile against");
-                out.println("    -parent:<parentdir>    module that this module depends on");
-            }
+        //         if (errMsg != null) {
+        //             out.println(errMsg);
+        //         }
+        //         out.println("Usage: user-compile [options] module ");
+        //         out.println("where module is directory containing a \"src\" directory, and options include:");
+        //         out.println();
+        //         out.println("    -cp:<classpath>        classes to compile against");
+        //         out.println("    -parent:<parentdir>    module that this module depends on");
+        //     }
 
-            public void run(String[] args) {
-                int argi = 0;
-                String cp = "";
-                String parent = null;
-                while (args[argi].startsWith("-")) {
-                    if (args[argi].startsWith("-cp:")) {
-                        cp = args[argi].substring("-cp:".length());
-                    } else if (args[argi].startsWith("-parent:")) {
-                        parent = args[argi].substring("-parent:".length());
-                    } else {
-                    	throw new CommandException(this, "malformed option " + args[argi]);
-                    }
-                    argi++;
-                }
-                String userBaseDir = args[argi];
-                log(brief, "[compiling user project at " + userBaseDir + "...]");
+        //     public void run(String[] args) {
+        //         int argi = 0;
+        //         String cp = "";
+        //         String parent = null;
+        //         while (args[argi].startsWith("-")) {
+        //             if (args[argi].startsWith("-cp:")) {
+        //                 cp = args[argi].substring("-cp:".length());
+        //             } else if (args[argi].startsWith("-parent:")) {
+        //                 parent = args[argi].substring("-parent:".length());
+        //             } else {
+        //             	throw new CommandException(this, "malformed option " + args[argi]);
+        //             }
+        //             argi++;
+        //         }
+        //         String userBaseDir = args[argi];
+        //         log(brief, "[compiling user project at " + userBaseDir + "...]");
 
-                String dependencies =  "cldc imp";
-                if (parent != null) {
-                    dependencies = dependencies + " " + parent;
-                }
-                log(verbose, "[    dependencies=" + dependencies + " cp=" + cp +" ...]");
+        //         String dependencies =  "cldc imp";
+        //         if (parent != null) {
+        //             dependencies = dependencies + " " + parent;
+        //         }
+        //         log(verbose, "[    dependencies=" + dependencies + " cp=" + cp +" ...]");
 
-                Target compileTarget = addTarget(true, userBaseDir, dependencies, cp);
-                compileTarget.run(NO_ARGS);
-            }
-        });
+        //         Target compileTarget = addTarget(true, userBaseDir, dependencies, cp);
+        //         compileTarget.run(NO_ARGS);
+        //     }
+        // });
 
         // Add the "preprocess" command
         addCommand(new Command(this, "preprocess") {
@@ -1667,44 +1667,44 @@ public class Build {
         // Add the "JNAGen" command
         addCommand(new JNAGenCommand(this));
 
-        // Add the "user-suite" command
-        addCommand(new UserCommand(this, "user-suite", "link a user-project"));
+        //  // Add the "user-suite" command
+        // addCommand(new UserCommand(this, "user-suite", "link a user-project"));
 
-        // Add the "user-run" command
-        addCommand(new UserCommand(this, "user-run", "run a user-project"));
+        // // Add the "user-run" command
+        // addCommand(new UserCommand(this, "user-run", "run a user-project"));
 
-        // Add the "user-clean" command
-        addCommand(new Command(this, "user-clean") {
-            public String getDescription() {
-                return "clean a user-project";
-            }
+        // // Add the "user-clean" command
+        // addCommand(new Command(this, "user-clean") {
+        //     public String getDescription() {
+        //         return "clean a user-project";
+        //     }
 
-            public void usage(String errMsg) {
-                if (errMsg != null) {
-                    System.err.println(errMsg);
-                }
-                System.err.println("Usage: user-clean module ");
-                System.err.println("where module is directory containing a \"src\" directory");
-            }
+        //     public void usage(String errMsg) {
+        //         if (errMsg != null) {
+        //             System.err.println(errMsg);
+        //         }
+        //         System.err.println("Usage: user-clean module ");
+        //         System.err.println("where module is directory containing a \"src\" directory");
+        //     }
 
-            public void run(String[] args) {
-                if (args.length < 1) {
-                    throw new CommandException(this, "module not specified");
-                } else if (args[0].indexOf('-') == 0) {
-                    throw new CommandException(this, "no options allowed for user-clean");
-                }
-                String userBaseDir = args[0];
-                log(brief, "[cleaning user project at " + userBaseDir + ']');
+        //     public void run(String[] args) {
+        //         if (args.length < 1) {
+        //             throw new CommandException(this, "module not specified");
+        //         } else if (args[0].indexOf('-') == 0) {
+        //             throw new CommandException(this, "no options allowed for user-clean");
+        //         }
+        //         String userBaseDir = args[0];
+        //         log(brief, "[cleaning user project at " + userBaseDir + ']');
 
-                Target compileTarget = addTarget(true, userBaseDir, "");
-                compileTarget.clean();
-                Command cmd = addLinkTarget(userBaseDir, null, userBaseDir, null);
-                cmd.clean();
-            }
-        });
+        //         Target compileTarget = addTarget(true, userBaseDir, "");
+        //         compileTarget.clean();
+        //         Command cmd = addLinkTarget(userBaseDir, null, userBaseDir, null);
+        //         cmd.clean();
+        //     }
+        // });
 
-        // Add the "uei" command
-        addCommand(new UEICommand(this));
+        // // Add the "uei" command
+        // addCommand(new UEICommand(this));
 
     }
 
@@ -3154,8 +3154,8 @@ public class Build {
         javaCompiler.reset();
         if (!doJava5 && j2me) {
             // This is required to make the preverifier happy
-            javaCompiler.arg("-target", "1.2");
-            javaCompiler.arg("-source", "1.3");
+            javaCompiler.arg("-target", "1.4");
+            javaCompiler.arg("-source", "1.4");
         }
         if (extraArgs != null) {
             for (String arg: extraArgs) {

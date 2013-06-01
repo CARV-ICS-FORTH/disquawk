@@ -1,0 +1,1 @@
+java -jar retrotranslator-transformer-1.2.9.jar -srcjar ../gvm/formic-apps/SPECjvm2008/SPECjvm2008_orig.jar -destjar ../gvm/formic-apps/SPECjvm2008/SPECjvm2008.jar -embed com.ics.internal -target 1.4 -classpath ../gvm/squawk/cldc/classes:../gvm/squawk/cldc/j2meclasses -verify -syncvolatile
