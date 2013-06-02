@@ -561,9 +561,13 @@ public class VM implements GlobalStaticFields {
      * @param klass the klass of the instance
      * @param size  the element count
      * @return      the new array
-     * @exception OutOfMemoryException if allocation fails
+     * @exception OutOfMemoryError if allocation fails
      */
     static Object newarray(int size, Klass klass) throws InterpreterInvokedPragma {
+        return GC.newArray(klass, size);
+    }
+
+    public static Object newarray2(int size, Klass klass) throws OutOfMemoryError {
         return GC.newArray(klass, size);
     }
 
@@ -1599,7 +1603,7 @@ hbp.dumpState();
 //     * @return  the number of global integer variables
 //     */
 ///*if[JAVA5SYNTAX]*/
-//    @Vm2c(macro="GLOBAL_INT_COUNT")
+//    @Vm2c\(macro="GLOBAL_INT_COUNT")
 ///*end[JAVA5SYNTAX]*/
 //    native static int getGlobalIntCount();
 

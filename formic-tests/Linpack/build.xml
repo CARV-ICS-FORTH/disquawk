@@ -18,8 +18,8 @@
   <property name="j2me.bin"
             value="${tools.dir}/linux-x86"/>
 
-  <property name="jdk.level.src" value="1.5"/>
-  <property name="jdk.level.tgt" value="jsr14"/>
+  <property name="jdk.level.src" value="1.4"/>
+  <property name="jdk.level.tgt" value="1.4"/>
 
   <target name="init">
     <mkdir dir="${classes.dir}"/>

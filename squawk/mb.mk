@@ -151,6 +151,7 @@ distclean: clean
               suite_addr.txt\
               vm2c/vm2c.input\
               vmcore/link.map\
+              cldc/preprocessed-vm2c\
               ../formic-tests/*/classes\
               ../formic-apps/*/classes\
               $(RTS_SRC)/*.c.spp.preprocessed\

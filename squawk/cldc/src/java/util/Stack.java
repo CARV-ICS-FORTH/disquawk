@@ -1,34 +1,11 @@
 /*
- *   
+ * @(#)Stack.java	1.26 03/01/23
  *
- * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License version
- * 2 only, as published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License version 2 for more details (a copy is
- * included at /legal/license.txt).
- * 
- * You should have received a copy of the GNU General Public License
- * version 2 along with this work; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
- * 
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa
- * Clara, CA 95054 or visit www.sun.com if you need additional
- * information or have any questions.
+ * Copyright 2003 Sun Microsystems, Inc. All rights reserved.
+ * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 package java.util;
-
-/*if[JAVA5SYNTAX]*/
-import com.sun.squawk.Java5Marker;
-/*end[JAVA5SYNTAX]*/
 
 /**
  * The <code>Stack</code> class represents a last-in-first-out 
@@ -41,17 +18,12 @@ import com.sun.squawk.Java5Marker;
  * <p>
  * When a stack is first created, it contains no items. 
  *
- * @version 12/17/01 (CLDC 1.1)
- * @since   JDK1.0, CLDC 1.0
+ * @author  Jonathan Payne
+ * @version 1.26, 01/23/03
+ * @since   JDK1.0
  */
-
-/*if[JAVA5SYNTAX]*/
-@Java5Marker
-public class Stack<E> extends Vector<E> {
-/*else[JAVA5SYNTAX]*/
-//public class Stack extends Vector {
-/*end[JAVA5SYNTAX]*/
-
+public
+class Stack extends Vector {
     /**
      * Creates an empty Stack.
      */
@@ -68,13 +40,10 @@ public class Stack<E> extends Vector<E> {
      * @return  the <code>item</code> argument.
      * @see     java.util.Vector#addElement
      */
-/*if[JAVA5SYNTAX]*/
-    public E push(E item) {
-/*else[JAVA5SYNTAX]*/
-//    public Object push(Object item) {
-/*end[JAVA5SYNTAX]*/
-        addElement(item);
-        return item;
+    public Object push(Object item) {
+	addElement(item);
+
+	return item;
     }
 
     /**
@@ -85,23 +54,14 @@ public class Stack<E> extends Vector<E> {
      *             of the <tt>Vector</tt> object).
      * @exception  EmptyStackException  if this stack is empty.
      */
-/*if[JAVA5SYNTAX]*/
-    @SuppressWarnings("unchecked")
-    public synchronized E pop() {
-/*else[JAVA5SYNTAX]*/
-//    public synchronized Object pop() {
-/*end[JAVA5SYNTAX]*/
-        Object obj;
-        int    len = size();
+    public synchronized Object pop() {
+	Object	obj;
+	int	len = size();
 
-        obj = peek();
-        removeElementAt(len - 1);
+	obj = peek();
+	removeElementAt(len - 1);
 
-/*if[JAVA5SYNTAX]*/
-        return (E) obj;
-/*else[JAVA5SYNTAX]*/
-//        return obj;
-/*end[JAVA5SYNTAX]*/
+	return obj;
     }
 
     /**
@@ -113,13 +73,11 @@ public class Stack<E> extends Vector<E> {
      * @exception  EmptyStackException  if this stack is empty.
      */
     public synchronized Object peek() {
-        int len = size();
+	int	len = size();
 
-        if (len == 0) {
-            throw new EmptyStackException();
-        }
-
-        return elementAt(len - 1);
+	if (len == 0)
+	    throw new EmptyStackException();
+	return elementAt(len - 1);
     }
 
     /**
@@ -129,7 +87,7 @@ public class Stack<E> extends Vector<E> {
      *          no items; <code>false</code> otherwise.
      */
     public boolean empty() {
-        return size() == 0;
+	return size() == 0;
     }
 
     /**
@@ -147,13 +105,14 @@ public class Stack<E> extends Vector<E> {
      *          indicates that the object is not on the stack.
      */
     public synchronized int search(Object o) {
-        int i = lastIndexOf(o);
+	int i = lastIndexOf(o);
 
-        if (i >= 0) {
-            return size() - i;
-        }
-
-        return -1;
+	if (i >= 0) {
+	    return size() - i;
+	}
+	return -1;
     }
 
+    /** use serialVersionUID from JDK 1.0.2 for interoperability */
+    private static final long serialVersionUID = 1224463164541339165L;
 }

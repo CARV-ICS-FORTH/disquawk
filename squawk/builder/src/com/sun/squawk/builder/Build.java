@@ -3152,10 +3152,10 @@ public class Build {
 
         // Prepare and run the Java compiler
         javaCompiler.reset();
-        if (!doJava5 && j2me) {
+        if (/*!doJava5 &&*/ j2me) {
             // This is required to make the preverifier happy
-            javaCompiler.arg("-target", "1.4");
-            javaCompiler.arg("-source", "1.4");
+            javaCompiler.arg("-target", "jsr14");
+            javaCompiler.arg("-source", "1.5");
         }
         if (extraArgs != null) {
             for (String arg: extraArgs) {
@@ -3163,6 +3163,8 @@ public class Build {
             }
         }
 
+        javaCompiler.arg("-Xmaxerrs", "10");
+        // javaCompiler.arg("-Xlint:unchecked");
         javaCompiler.arg("-g").args(javacOptions);
         javaCompiler.compile(compileClassPath, classesDir, srcDirs, j2me);
 

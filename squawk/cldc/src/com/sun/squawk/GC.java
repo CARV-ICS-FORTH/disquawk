@@ -37,13 +37,13 @@ import java.util.Enumeration;
 
 /**
  * Pure static class that handles object creation and GC control and monitoring.
- * 
+ *
  * The particular GC implementation used is a subclass of {@link GarbageCollector}. Many of
  * the "public" methods of this class are actually "suite-private". See the file "squawk.library.properties"
  * for the list of exported methods.
  */
 public class GC implements GlobalStaticFields {
-    
+
     /**
      * Purely static class should not be instantiated.
      */
@@ -165,7 +165,7 @@ public class GC implements GlobalStaticFields {
 
     /**
      * GC tracing flag specifying basic tracing.
-     * 
+     *
      * This trace level should always be enabled (not dependent on GC_TRACING_SUPPORTED)
      */
     static final int TRACE_BASIC = 1;
@@ -363,10 +363,10 @@ public class GC implements GlobalStaticFields {
 	        System.out.println("[removed read only object memory: " + om.getURI() +"]");
         }
     }
-    
+
     /**
      * Look through the registered read-only memories and collect all of the Suites.
-     * 
+     *
      * @return array of Suites, or null if no registered suites in read-only memory
      */
     static Suite[] getSuites() {
@@ -374,14 +374,14 @@ public class GC implements GlobalStaticFields {
             return null;
         } else {
             int suiteCount = 0;
-            
+
             for (int i = 0; i != readOnlyObjectMemories.length; ++i) {
                 ObjectMemory om = readOnlyObjectMemories[i];
                 if (om.getRoot() instanceof Suite) {
                     suiteCount++;
                 }
             }
-            
+
             Suite[] result = new Suite[suiteCount];
             suiteCount = 0;
             for (int i = 0; i != readOnlyObjectMemories.length; ++i) {
@@ -558,7 +558,7 @@ public class GC implements GlobalStaticFields {
 
         readOnlyObjectMemories = new ObjectMemory[]{};
     }
-        
+
     /**
      * Initialize the memory system.
      */
@@ -601,7 +601,7 @@ public class GC implements GlobalStaticFields {
         GC.allocEnd = allocEnd;
         GC.heapEnd = heapEnd;
     }
-    
+
     static void setAllocTop(Address address)  throws HostedPragma {
     	allocTop = address;
     }
@@ -610,7 +610,7 @@ public class GC implements GlobalStaticFields {
      * Get the number of bytes allocated since the last GC.
      *
      * May be inaccurate during a copyObjectGraph operation.
-     * 
+     *
      * @return bytes
      */
     public static int getBytesAllocatedSinceLastGC() {
@@ -683,11 +683,11 @@ public class GC implements GlobalStaticFields {
             }
           return true;
     }
-    
+
     /**
      * Determines if any part of the range is in RAM.
      *
-     * @param start 
+     * @param start
      * @param end
      * @return true if any part of the range start..end overlaps with the heap
      */
@@ -709,7 +709,7 @@ public class GC implements GlobalStaticFields {
         }
         return false;
     }
-    
+
     /**
      * Enable or disable memory allocation.
      *
@@ -1097,7 +1097,7 @@ public class GC implements GlobalStaticFields {
             VM.print("object: ");
             VM.printAddress(object);
             VM.println();
-            
+
             VM.print("classOrAssociation: ");
             VM.printAddress(classOrAssociation);
             VM.println();
@@ -1144,15 +1144,14 @@ public class GC implements GlobalStaticFields {
     static Object newInstance(Klass klass) {
         Object oop = allocate((klass.getInstanceSize() * HDR.BYTES_PER_WORD) + HDR.basicHeaderSize, klass, -1);
 
-/*if[!FINALIZATION]*/
-/*else[FINALIZATION]*/
-//        /*
-//         * If the object requires finalization and it is in RAM then allocate
-//         * a Finalizer for it. (Objects in ROM or NVM cannot be finalized.)
-//         */
-//        if (!VM.isHosted() && klass.hasFinalizer() && GC.inRam(oop)) {
-//            collector.addFinalizer(new Finalizer(oop));
-//        }
+/*if[FINALIZATION]*/
+       /*
+        * If the object requires finalization and it is in RAM then allocate
+        * a Finalizer for it. (Objects in ROM or NVM cannot be finalized.)
+        */
+       if (!VM.isHosted() && klass.hasFinalizer() && GC.inRam(oop)) {
+           collector.addFinalizer(new Finalizer(oop));
+       }
 /*end[FINALIZATION]*/
         return oop;
     }
@@ -1353,7 +1352,7 @@ public class GC implements GlobalStaticFields {
         // if ownerless, make sure that we ignore activation records:
         Assert.always(NativeUnsafe.getObject(scAddress, SC.owner) != null || NativeUnsafe.getAddress(scAddress, SC.lastFP).isZero());
     }
-    
+
     /**
      * GC may temporarily encode a ptrs's value so it is not a valid ptr.
      * Try to detect this case.
@@ -1363,7 +1362,7 @@ public class GC implements GlobalStaticFields {
     static boolean isPointer(Address ptr) {
         return ptr.and(UWord.fromPrimitive(0x3)).isZero();
     }
-        
+
     static void checkSC(Object sc) {
         Assert.always(sc != null);
         Assert.always(!Address.fromObject(sc).eq(Address.fromPrimitive(0xDEADBEEF)));
@@ -1375,21 +1374,21 @@ public class GC implements GlobalStaticFields {
         Address lastFP = NativeUnsafe.getAddress(sc, SC.lastFP);
         Assert.always(owner != null || lastFP.isZero());
     }
-    
+
     static void checkSC(VMThread thr) {
         Object sc = thr.getStack();
         Object owner = NativeUnsafe.getObject(sc, SC.owner);
         Assert.always(owner == thr || thr.isServiceThread());
         checkSC(sc);
     }
-        
+
 /*else[DEBUG_CODE_ENABLED]*/
 //    static void checkSC(Address scAddress) throws ForceInlinedPragma { }
 //    static void checkSC(Object sc) throws ForceInlinedPragma { }
 //    static void checkSC(VMThread thr) throws ForceInlinedPragma { }
 /*end[DEBUG_CODE_ENABLED]*/
 
-        
+
     /**
      * Create a new method.
      *
@@ -1525,7 +1524,7 @@ public class GC implements GlobalStaticFields {
             VM.setStream(old);
         }
 /*end[FLASH_MEMORY]*/
-        
+
         /*
          * Return the method object.
          */
@@ -1571,7 +1570,7 @@ public class GC implements GlobalStaticFields {
             }
         }
     }
-    
+
     /**
      * Copy data from one string to another.
      *
@@ -1765,23 +1764,23 @@ public class GC implements GlobalStaticFields {
         if (classOrAssociation != klass) {
             return (ObjectAssociation)classOrAssociation;
         }
-        
+
         return createObjectAssociation(object, VM.asKlass(klass));
     }
-    
+
     private static ObjectAssociation lookupObjectAssociation(Object object) throws ForceInlinedPragma {
         Assert.that(GC.inRam(object));
         Object classOrAssociation = NativeUnsafe.getObject(object, HDR.klass);
         return (ObjectAssociation)classOrAssociation;
     }
-    
+
     private static ObjectAssociation createObjectAssociation(Object object, Klass klass) {
         ObjectAssociation assn = new ObjectAssociation(klass);
-        
+
         // The Lisp2Collector relies on ObjectAssociations always being at a higher address
         // than the object with which they are associated
         Assert.that(VM.isHosted() || Address.fromObject(object).lo(Address.fromObject(assn)));
-        
+
         NativeUnsafe.setObject(object, HDR.klass, assn);
         return assn;
     }
@@ -1829,7 +1828,7 @@ public class GC implements GlobalStaticFields {
     public static int getFullCount() {
         return fullCollectionCount;
     }
-    
+
     /**
      * Returns the total number of garbage collections that have been performed by the VM.
      *
@@ -1967,7 +1966,7 @@ public class GC implements GlobalStaticFields {
             for (Address block = start; block.lo(end); ) {
                 Address object = GC.blockToOop(block);
                 Klass klass = GC.getKlass(object);
-                
+
                 VM.print("  object = ");
                 VM.printAddress(object);
                 VM.print(", block = ");
@@ -1978,14 +1977,14 @@ public class GC implements GlobalStaticFields {
                 VM.printAddress(klass);
                 VM.print(" which is ");
                 VM.print(klass.getInternalName());
-                
+
                 if (toString) {
                     VM.print(" [toString=\"");
                     VM.print(object.toObject().toString());
                     VM.print("\"]");
                 }
                 VM.println();
-                
+
                 block = object.add(GC.getBodySize(GC.getKlass(object), object));
             }
         }
@@ -2021,7 +2020,7 @@ public class GC implements GlobalStaticFields {
         if (GC.GC_TRACING_SUPPORTED && VM.isVeryVerbose()) {
             VM.print("Scanning String objects from read-only memory");
         }
-        
+
         while (parent != null) {
             Address end = parent.getStart().add(parent.getSize());
             for (Address block = parent.getStart(); block.lo(end); ) {
@@ -2031,7 +2030,7 @@ public class GC implements GlobalStaticFields {
                         return (String) object.toObject();
                     }
                 }
-              
+
                 if (GC.GC_TRACING_SUPPORTED && VM.isVeryVerbose()) {
                     Address start = parent.getStart();
                     Offset size = end.diff(start);
@@ -2041,7 +2040,7 @@ public class GC implements GlobalStaticFields {
                         percent = percentNow;
                     }
                 }
-                
+
                 block = object.add(GC.getBodySize(GC.getKlass(object), object));
             }
             parent = parent.getParent();
@@ -2051,22 +2050,22 @@ public class GC implements GlobalStaticFields {
         }
         return null;
     }
-    
+
     /*---------------------------------------------------------------------------*\
      *                               Heap Statistics                             *
     \*---------------------------------------------------------------------------*/
-    
+
     private static SquawkHashtable heapstats;
-    
+
     private final static String DYNAMIC_CLASSES = "Any dynamically created class, such as array classes";
-    
+
     /**
      * Pre-create all data structures used in heap stats, so heap walking won't allocate more memory.
      */
     public static void initHeapStats() {
         if (heapstats == null) {
             SquawkHashtable table = new SquawkHashtable();
-            
+
             Suite[] suites = getSuites();
             for (int i = 0; i < suites.length; i++) {
                 Suite s = suites[i];
@@ -2079,38 +2078,38 @@ public class GC implements GlobalStaticFields {
                     }
                 }
             }
-            
+
             table.put(DYNAMIC_CLASSES, new ClassStat());
             heapstats = table;
         }
     }
-    
+
     public static class ClassStat {
         public int count;
         public int size;
-        
+
         public final void clear() {
             count = 0;
             size = 0;
         }
-        
+
         public final void update(int objSize) {
             count++;
             size += objSize;
         }
     }
-    
+
     /**
      * Enable heap statistics data structures to be GCed.
      */
     static void clearHeapStats() {
         heapstats = null;
     }
-    
+
     /**
      * Print representation of obj to VM.print stream using as little memory as possible.
      * Currently only handles strings, string buffers, and some arrays.
-     * 
+     *
      * @param obj
      */
     static void printObject(Object obj, Klass klass, int size) {
@@ -2208,11 +2207,11 @@ public class GC implements GlobalStaticFields {
         int objSize = blkSize + (klass.isArray() ? HDR.arrayHeaderSize : HDR.basicHeaderSize);
         printObject(obj, klass, objSize);
     }
-    
+
    /**
      * Get the size of this instance or array in bytes,
      * including header words.
-     * 
+     *
      * @return the size in bytes
      */
     static int getObjectBytes(Object object) {
@@ -2221,11 +2220,11 @@ public class GC implements GlobalStaticFields {
         int blkSize = GC.getBodySize(klass, Address.fromObject(object));
         return blkSize + (klass.isArray() ? HDR.arrayHeaderSize : HDR.basicHeaderSize);
     }
-    
+
    /**
      * Get the size of instances of this klass in bytes,
      * including header words.
-     * 
+     *
      * @return the size in bytes
      */
     static int getObjectBytes(Klass klass) {
@@ -2327,7 +2326,7 @@ public class GC implements GlobalStaticFields {
 //        allObjectsFromDo(null, objsBlock);
 //        return refsBlock.used;
 //    }
-    
+
     /**
      * Perform doBlock with all objects starting from startObject.
      *
@@ -2362,7 +2361,7 @@ public class GC implements GlobalStaticFields {
             block = object.add(blkSize);
         }
     }
-    
+
 //    /**
 //     * Traverses the references in the roots (single-level)
 //     *
@@ -2581,11 +2580,11 @@ public class GC implements GlobalStaticFields {
 //            word = word >>> 1;
 //        }
 //    }
-    
+
     /**
      * Do actual heap walk, from start object, or whole heap is startObj is null.
      * Collect statistics in heapstats table.
-     * 
+     *
      * @param startObj the object to start walking from , or null
      */
     static void collectHeapStats(Object startObj, Object endObject, boolean printInstances, boolean collectStats) {
@@ -2616,7 +2615,7 @@ public class GC implements GlobalStaticFields {
             Klass klass = GC.getKlass(object);
             int blkSize = GC.getBodySize(klass, object);
             int objSize = blkSize + (klass.isArray() ? HDR.arrayHeaderSize : HDR.basicHeaderSize);
-            
+
             if (collectStats) {
                 ClassStat cs = (ClassStat)heapstats.get(klass);
                 if (cs == null) {
@@ -2632,7 +2631,7 @@ public class GC implements GlobalStaticFields {
             if (printInstances) {
                 printObject(object.toObject(), klass, objSize);
             }
-            
+
             if ((oldPartialCollectionCount != partialCollectionCount) ||
                 (oldFullCollectionCount != fullCollectionCount)) {
                 throw new IllegalStateException("GC during heap walk");
@@ -2640,7 +2639,7 @@ public class GC implements GlobalStaticFields {
             block = object.add(blkSize);
         }
     }
-    
+
     private static void print1Stat(String key, int count, int size) {
         System.out.print(key);
         System.out.print(": \t");
@@ -2649,7 +2648,7 @@ public class GC implements GlobalStaticFields {
         System.out.print(size);
         System.out.println();
     }
-    
+
    /**
      * Do actual heap walk, from start object, or whole heap is startObj is null.
      * Count how many instances, and how many bytes are used, by all objects that are the same age or younger than
@@ -2661,7 +2660,7 @@ public class GC implements GlobalStaticFields {
      */
     public static void printHeapStats(Object startObj, boolean printInstances, boolean collectStats) {
         Object endObjectMarker = new Object();
-        
+
         if (collectStats) {
             initHeapStats();
 
@@ -2690,5 +2689,5 @@ public class GC implements GlobalStaticFields {
         }
         heapstats = null;
     }
-    
+
 }

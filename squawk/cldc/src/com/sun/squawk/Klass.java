@@ -2469,7 +2469,7 @@ T
 
                     // This is a restriction imposed by the way Squawk treats native methods
                     if (superMethod.isNative()) {
-                        throw new NoClassDefFoundError("cannot override native method ");
+                      throw new NoClassDefFoundError("cannot override native method \""+superMethod.getName()+"\"");
                     }
 
 /*if[FINALIZATION]*/

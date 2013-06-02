@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -64,21 +64,21 @@ public interface MethodOffsets {
     public final static int com_sun_squawk_VM$class_clinit                    = 19;
     public final static int com_sun_squawk_VM$_new                            = 20;
     public final static int com_sun_squawk_VM$newarray                        = 21;
-    public final static int com_sun_squawk_VM$newdimension                    = 22;
-    public final static int com_sun_squawk_VM$_lcmp                           = 23;
+    public final static int com_sun_squawk_VM$newarray2                       = 22;
+    public final static int com_sun_squawk_VM$newdimension                    = 23;
+    public final static int com_sun_squawk_VM$_lcmp                           = 24;
 /*if[ENABLE_SDA_DEBUGGER]*/
-    public final static int com_sun_squawk_VM$reportException                 = 24;
-    public final static int com_sun_squawk_VM$reportBreakpoint                = 25;
-    public final static int com_sun_squawk_VM$reportStepEvent                 = 26;
+    public final static int com_sun_squawk_VM$reportException                 = 25;
+    public final static int com_sun_squawk_VM$reportBreakpoint                = 26;
+    public final static int com_sun_squawk_VM$reportStepEvent                 = 27;
 /*end[ENABLE_SDA_DEBUGGER]*/
-    
+
     public final static int virtual$java_lang_Object$toString            = 8;
     public final static int virtual$java_lang_Object$abstractMethodError = 9;
     public final static int java_lang_Object$missingMethodError          = 1;
-    
+
 /*if[FINALIZATION]*/
     public final static int virtual$java_lang_Object$finalize            = 10;
 /*end[FINALIZATION]*/
 
 }
-

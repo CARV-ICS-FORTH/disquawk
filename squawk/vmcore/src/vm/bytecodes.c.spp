@@ -5859,12 +5859,15 @@ if (l != 0 && r > (java_lang_Long_MAX_VALUE/l)) {
             checkReferenceSlots();
             if (FASTALLOC) {
                 Address klass = popAddress();
+                /* if the class does not need initialization */
                 if (likely(!needsInitializing(klass))) {
-                    boolean hasFinalizer = false;
 /*if[FINALIZATION]*/
+                    boolean hasFinalizer = false;
                     hasFinalizer = (com_sun_squawk_Klass_modifiers(klass) & com_sun_squawk_Modifier_HASFINALIZER) != 0;
-/*end[FINALIZATION]*/
+                    /* if the class does not have a finalizer */
                     if (!hasFinalizer) {
+/*end[FINALIZATION]*/
+                      /* Then this inline code will do the work faster */
                         int allocSize    = roundUpToWord(com_sun_squawk_Klass_instanceSizeBytes(klass)) + HDR_basicHeaderSize;
                         Address oop      = allocateFast(allocSize, klass, -1);
                         if (oop != null) {
@@ -5872,7 +5875,9 @@ if (l != 0 && r > (java_lang_Long_MAX_VALUE/l)) {
                             updateNewHits();
                             nextbytecode();
                         }
+/*if[FINALIZATION]*/
                     }
+/*end[FINALIZATION]*/
                 }
                 pushAddress(klass);
             }

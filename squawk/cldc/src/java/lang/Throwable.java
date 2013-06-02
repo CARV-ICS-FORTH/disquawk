@@ -117,13 +117,56 @@ public class Throwable {
     }
 
     /**
-     * Returns the error message string of this throwable object.
+     * Constructs a new throwable with the specified detail message and
+     * cause.  <p>Note that the detail message associated with
+     * <code>cause</code> is <i>not</i> automatically incorporated in
+     * this throwable's detail message.
      *
-     * @return  the error message string of this <code>Throwable</code>
-     *          object if it was {@link #Throwable(String) created} with an
-     *          error message string; or <code>null</code> if it was
-     *          {@link #Throwable() created} with no error message.
+     * <p>The {@link #fillInStackTrace()} method is called to initialize
+     * the stack trace data in the newly created throwable.
      *
+     * @param  message the detail message (which is saved for later retrieval
+     *         by the {@link #getMessage()} method).
+     * @param  cause the cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A <tt>null</tt> value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
+     * @since  1.4
+     */
+    public Throwable(String message, Throwable cause) {
+        this();
+        detailMessage = message;
+        this.cause = cause;
+    }
+
+    /**
+     * Constructs a new throwable with the specified cause and a detail
+     * message of <tt>(cause==null ? null : cause.toString())</tt> (which
+     * typically contains the class and detail message of <tt>cause</tt>).
+     * This constructor is useful for throwables that are little more than
+     * wrappers for other throwables (for example, {@link
+     * java.security.PrivilegedActionException}).
+     *
+     * <p>The {@link #fillInStackTrace()} method is called to initialize
+     * the stack trace data in the newly created throwable.
+     *
+     * @param  cause the cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A <tt>null</tt> value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
+     * @since  1.4
+     */
+    public Throwable(Throwable cause) {
+        this();
+        detailMessage = (cause==null ? null : cause.toString());
+        this.cause = cause;
+    }
+
+    /**
+     * Returns the detail message string of this throwable.
+     *
+     * @return  the detail message string of this <tt>Throwable</tt> instance
+     *          (which may be <tt>null</tt>).
      */
     public String getMessage() {
         return detailMessage;
