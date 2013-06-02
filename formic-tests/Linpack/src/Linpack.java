@@ -32,7 +32,6 @@ Translated to C by Bonnie Toy 5/88
 */
 
 
-import java.net.*;
 import java.io.*;
 import java.util.*;
 
