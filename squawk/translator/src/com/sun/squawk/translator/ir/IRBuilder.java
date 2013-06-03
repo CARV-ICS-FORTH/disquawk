@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -551,7 +551,7 @@ public final class IRBuilder {
     private void processPseudoInstructions(PseudoOpcode[] pseudoOpcodes, boolean flowFromPredecessor) {
         Assert.that(pseudoOpcodes != null && pseudoOpcodes.length != 0);
         final boolean trace = Translator.TRACING_ENABLED && Tracer.isTracing("jvmverifier", method.toString());
-        
+
         for (int i = 0 ; i < pseudoOpcodes.length ; i++) {
             PseudoOpcode pseudoOpcode = pseudoOpcodes[i];
 
@@ -655,7 +655,7 @@ public final class IRBuilder {
         frame.mergeLocals(target, false);
         if (target.getAddress() <= codeParser.getLastOpcodeAddress()) {
             if (frame.containsType(Klass.UNINITIALIZED)) {
-                /* 
+                /*
                  * There are a set of TCK tests, including javasoft.sqe.tests.vm.cldc.typechecker.check.check013.check01301m1.check01301m1_wrapper,
                  * that declare some locals and stack are UNINITIALIZED, then do an infinite loop (goto itself).
                  * Squawk is very unhappy to see either UNINITIALIZED in anywhere in the frame, or any values on the stack.
@@ -861,7 +861,7 @@ public final class IRBuilder {
 
     /**
      * Make sure actualType is NOT a Squawk Primitive (Address, UWord, etc) being passed as a parameter of type Object.
-     * 
+     *
      * @param callee
      * @param actualType
      * @param expectedType
@@ -869,21 +869,21 @@ public final class IRBuilder {
     private void verifyNonSquawkPrimitive(Method callee, Klass actualType, Klass expectedType) {
         if (actualType.isSquawkPrimitive() && (actualType != expectedType)) {
             Klass definingClass = callee.getDefiningClass();
-            if (expectedType.getSystemID() == CID.OBJECT 
+            if (expectedType.getSystemID() == CID.OBJECT
                     && (definingClass.getSystemID() == CID.NATIVEUNSAFE || definingClass.getInternalName().equals("com.sun.squawk.GC"))) {
                 return; // NATIVEUNSAFE and GC methods are passed objects and addresses interchangably.
             }
-            
+
             System.err.println("name: " + definingClass.getInternalName());
             String type = actualType.getName();
             throw codeParser.verifyError("In call to " + callee + ", " + type + " values can only be passsed as parameters of type " +
                     type + " not as type " + expectedType.getName());
         }
     }
-    
+
      /**
       * Verifies that a Squawk Primitive "instance" is not being passed as an object to an unsuspecting method...
-      * 
+      *
       * @param  callee         the non-static method being invoked
       * @param  parameters         the actual parameters to the method
       */
@@ -894,13 +894,13 @@ public final class IRBuilder {
             verifyNonSquawkPrimitive(callee, parameters[0].getType(), callee.getDefiningClass());
             extra = 1;
         }
-        
+
         for (int i = 0; i < expectedTypes.length; i++) {
             Klass actualType = parameters[i + extra].getType();
             verifyNonSquawkPrimitive(callee,actualType, expectedTypes[i]);
         }
     }
-             
+
      /**
       * Verifies that type of the parameter for <code>this</code> in a
       * non-static method is correct.
@@ -919,9 +919,14 @@ public final class IRBuilder {
           *
           * IGNORE FOR NOW: The final clause handles the case where the call is coming from a subclass, even though it isna't a call to the subclass's "this".
           * This case is illegal at the source code level, but appears a leagl reading of the JVM Spec, and the TCK tests this?
-          *          if (callee.isProtected() && !method.getDefiningClass().isInSamePackageAs(callee.getDefiningClass()) && !callee.getDefiningClass().isAssignableFrom(method.getDefiningClass())) {
+          * -Zakkak: Don't ignore it, it is needed for example in Object.clone()
           */
-         if (callee.isProtected() && !method.getDefiningClass().isInSamePackageAs(callee.getDefiningClass())) {
+         if (callee.isProtected() &&
+             !method.getDefiningClass().isInSamePackageAs(callee.getDefiningClass()) &&
+             !callee.getDefiningClass().isAssignableFrom(method.getDefiningClass())) {
+         // if (callee.isProtected() && !method.getDefiningClass().isInSamePackageAs(callee.getDefiningClass())) {
+           System.out.println("METHOD: "+method.getDefiningClass());
+           System.out.println("CALLEE: "+callee.getDefiningClass());
              expectedThisType = method.getDefiningClass();
          } else {
              expectedThisType = callee.getDefiningClass();
@@ -1455,11 +1460,11 @@ public final class IRBuilder {
             case Opcode.opc_istore: opc_store(Klass.INT,       codeParser.parseLocalVariableOperand(true, false)); break;
             case Opcode.opc_lstore: opc_store(Klass.LONG,      codeParser.parseLocalVariableOperand(true, true )); break;
             case Opcode.opc_astore: opc_store(Klass.REFERENCE, codeParser.parseLocalVariableOperand(true, false)); break;
-                
+
 /*if[FLOATS]*/
             case Opcode.opc_fload:  opc_load(Klass.FLOAT,      codeParser.parseLocalVariableOperand(true, false)); break;
             case Opcode.opc_dload:  opc_load(Klass.DOUBLE,     codeParser.parseLocalVariableOperand(true, true )); break;
-                
+
             case Opcode.opc_fstore: opc_store(Klass.FLOAT,     codeParser.parseLocalVariableOperand(true, false)); break;
             case Opcode.opc_dstore: opc_store(Klass.DOUBLE,    codeParser.parseLocalVariableOperand(true, true )); break;
 /*end[FLOATS]*/
@@ -1926,9 +1931,9 @@ public final class IRBuilder {
             *    dup-n (n is zero or more)
             *     .... note that one + n dups of the new object are now on the stack...
             *
-            * Note that TCK code sometimes inserts code between the dups and the invoke, which use up the dupped values. There may 
+            * Note that TCK code sometimes inserts code between the dups and the invoke, which use up the dupped values. There may
             * not be a value on the stack after the invokeinit.
-            *    
+            *
             */
            StackOp stackOp = (StackOp)thisParameter.getNext();
            while (frame.getTopOfStack() == thisParameter) {
@@ -1950,8 +1955,8 @@ public final class IRBuilder {
             if (numRemovableDups > 0) {
                 thisParameter.cancelDuping();
             }
-        } 
-       
+        }
+
        //  Assert.always(frame.getStackSize() == 0); // dups have been removed, parameters accounted for
         verifyThisParameter(callee, thisParameter);
         InvokeStatic instruction = new InvokeStatic(callee, parameters);

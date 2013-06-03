@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -49,18 +49,18 @@ class JNAGenException extends Exception {
 
 /**
  * A tool that reads Java interfaces and classes that describe C functions, structures, and constants
- * to import from C. JNAGen then writes C code that will generate Java classes that defines Java access to the 
+ * to import from C. JNAGen then writes C code that will generate Java classes that defines Java access to the
  * C functions, structures, and constants.
- * 
+ *
  * This is part of CLDC Java Native Access
- * 
- * 
+ *
+ *
  * @TODO: Support C++ better by:
  *    - handling name mangling
  *    - handle calling C++ methods by creating "pointer to member" values?
- *       - We'd need these at runtime on the target though. Serialize the data at JNAGen-time into a Java array, then 
+ *       - We'd need these at runtime on the target though. Serialize the data at JNAGen-time into a Java array, then
  *         at runtime recreate the "pointer to member" from Java data?
- * 
+ *
  * @see com.sun.cldc.jna
  */
 public class JNAGen extends Command {
@@ -72,28 +72,28 @@ public class JNAGen extends Command {
      * The dir containing the declaration src files, class files. and C build files. Optionally the generated Java files.
      */
     File baseDir;
-    
+
     /**
      * The dir containing the generated Java files.
      */
     File dstDir;
     String classpath;
-    
+
     PrintWriter out;
-    
+
     public JNAGen(Build env, File baseDir, File dstDir, String classpath) {
         super(env, "JNAGen");
         this.baseDir = baseDir;
         this.dstDir = dstDir;
         this.classpath = classpath;
-    } 
-    
+    }
+
     void indent(int n) {
         for (int i = 0; i < n; i++) {
             out.print(' ');
         }
     }
-    
+
     /**
      * Print a line with "indent" containing a "printf" of the String "line"
      * @param indent spaces to indent in the "printf"
@@ -105,7 +105,7 @@ public class JNAGen extends Command {
         indent(indent * TAB);
         out.println(line + "\");");
     }
-    
+
     /**
      * Print a line with "indent" containing a "printf" of the String "line"
      * @param indent spaces to indent in the "printf"
@@ -117,7 +117,7 @@ public class JNAGen extends Command {
         indent(indent * TAB);
         out.println(line + "\\n\");");
     }
-    
+
     /**
      * Print a line with "indent" containing a "printf" of the String "line", with additional printf arguments.
      * @param indent spaces to indent before the "printf"
@@ -134,7 +134,7 @@ public class JNAGen extends Command {
             }
             out.println(");");
     }
-    
+
     /**
      * Print a line with "indent" containing a "printf" of the String "line", with additional printf arguments.
      * @param indent spaces to indent before the "printf"
@@ -151,19 +151,19 @@ public class JNAGen extends Command {
             }
             out.println(");");
     }
-    
-    
+
+
     void metaPrintln(int indent, String[] lines) {
         for (int i = 0; i < lines.length; i++) {
             metaPrintln(indent, lines[i]);
         }
     }
-    
+
     /**
      * Prints code to generate the the standard Squawk VM copyright message from C.
-     * 
+     *
      * This is the viral nature of the GPL enshrined in C!
-     * 
+     *
      * @param out  where to print the message
      */
     final void printCopyright(InterfaceDecl interfaceDecl) {
@@ -193,7 +193,7 @@ public class JNAGen extends Command {
         metaPrintln(level, "}");
         metaPrintln(level, "");
     }
-    
+
     private void printIncludes(InterfaceDecl interfaceDecl) {
         out.println("#include <stddef.h>");
         out.println("#include <stdlib.h>");
@@ -205,7 +205,7 @@ public class JNAGen extends Command {
         }
         out.println("");
     }
-    
+
     private void printPackages(InterfaceDecl interfaceDecl) {
         metaPrintln(0, "package " + interfaceDecl.interfaceClass.getPackage().getName() + ";");
         metaPrintln(0, "");
@@ -215,9 +215,9 @@ public class JNAGen extends Command {
         metaPrintln(0, "");
         out.println();
     }
-    
+
     /* only supprto top-level libraryName defn */
-    private void printLibraryDefinition(InterfaceDecl interfaceDecl) {        
+    private void printLibraryDefinition(InterfaceDecl interfaceDecl) {
 //        if (interfaceDecl.libraryName == null) {
 //            //out.println("    /* used default library */");
 //            metaPrintln(1, "public final static NativeLibrary NATIVE_LIBRARY = NativeLibrary.getDefaultInstance();");
@@ -227,15 +227,15 @@ public class JNAGen extends Command {
 //        metaPrintln(0, "");
 //        out.println();
     }
-    
+
     /*------------------------- DEFINES --------------------------*/
-    
+
     private void printADefine(Field f, String format, int level) {
         String[] args = new String[1];
         args[0] = f.getName();
         metaPrintln(level, "public final static " + f.getType().getSimpleName() + " " + f.getName() + " = " + format + ";", args);
     }
-    
+
      private void printAnIfDefDefine(Field f, int level) {
          out.println("#ifdef " + f.getName());
          metaPrintln(level, "public final static " + f.getType().getSimpleName() + " " + f.getName() + " = true;");
@@ -254,15 +254,15 @@ public class JNAGen extends Command {
         args[0] = "sizeof(" + fieldName + ")";
         metaPrintln(level, "public final static " + f.getType().getSimpleName() + " " + f.getName() + " = " + format + ";", args);
     }
-        
+
     private void printDefines(InterfaceDecl interfaceDecl, int level) throws JNAGenException {
         if (interfaceDecl.defines.size() == 0) {
             return;
         }
-        
+
         metaPrintln(level, "/*----------------------------- defines -----------------------------*/");
         metaPrintln(0, "");
-        
+
         // Field[] fields = interfaceClass.getDeclaredFields();
         for (Field f : interfaceDecl.defines) {
             try {
@@ -297,7 +297,7 @@ public class JNAGen extends Command {
         metaPrintln(0, "");
         out.println();
     }
-   
+
     /*------------------------- GLOBAL VARIABLES --------------------------*/
     Vector<String> fieldInitializers = new Vector<String>();
 
@@ -313,7 +313,7 @@ public class JNAGen extends Command {
         metaPrintln(level, varDeclStr);
         metaPrintln(level, "");
     }
-    
+
     /**
      * Return a string containing the Java code to get a value of type "valtype" from the
      * pointer "ptrName" using offset.
@@ -335,11 +335,11 @@ public class JNAGen extends Command {
             throw new JNAGenException("JNAGEn cannot get values of type " + valType);
         }
     }
-    
+
     /**
      * Return a string containing the Java code to get a value of type "valtype" from the
      * pointer "ptrName" using offset.
-     * 
+     *
      * @param valtype Class of the value
      * @param ptrName name of the pointer
      * @param valName the name of the value to set
@@ -365,7 +365,7 @@ public class JNAGen extends Command {
             m.getReturnType() == Void.class) {
             throw new JNAGenException("JNAGEn cannot handle setters of the form " + m);
         }
-        
+
         printMethodDecl(m, level);
         metaPrintln(level + 1, "return " + getValue(m.getReturnType(), getPtrName(nativeName), 0) + ";");
         metaPrintln(level, "}");
@@ -377,13 +377,13 @@ public class JNAGen extends Command {
             m.getReturnType() != Void.class) {
             throw new JNAGenException("JNAGEn cannot handle setters of the form " + m);
         }
-        
+
         printMethodDecl(m, level);
         metaPrintln(level + 1, setValue(m.getParameterTypes()[0], getPtrName(nativeName), "arg0", 0) + ";");
         metaPrintln(level, "}");
         metaPrintln(0, "");
     }
-    
+
     /*
      * Given that a getter and/or a setter is declared, rteurn the type of the value
      */
@@ -396,7 +396,7 @@ public class JNAGen extends Command {
             throw new JNAGenException("getter or setter expected.");
         }
     }
-    
+
     private int getVariableSize(Class c) throws JNAGenException {
           if (c.equals(Integer.TYPE)) {
             return 4;
@@ -418,7 +418,7 @@ public class JNAGen extends Command {
 
         metaPrintln(level, "/*----------------------------- variables -----------------------------*/");
         metaPrintln(0, "");
-        
+
         for (String varname : interfaceDecl.globals) {
             Method getter = interfaceDecl.getters.get(varname);
             Method setter = interfaceDecl.setters.get(varname);
@@ -436,13 +436,13 @@ public class JNAGen extends Command {
         metaPrintln(0, "");
         out.println();
     }
-    
+
     /*------------------------- METHODS --------------------------*/
-    
+
     private static String getPtrName(Member m) {
         return m.getName() + "Ptr";
     }
-        
+
     private void printFunctionPtr(InterfaceDecl interfaceDecl, String nativeName, Method m, int level) {
         if (!functionPointers.contains(nativeName)) {
             String varDeclStr = "private final Function " + getPtrName(m) + ";";
@@ -456,7 +456,7 @@ public class JNAGen extends Command {
             metaPrintln(level, "");
         }
     }
-        
+
     /**
      * Print any declarations and initializations to create the native parameter, and return the name of the native parameter
      * @param type
@@ -500,7 +500,7 @@ public class JNAGen extends Command {
             throw new JNAGenException("Can't translate arguments of type " + type);
         }
     }
-    
+
     private void cleanupNativeParam(Class type, int i, int level) throws JNAGenException {
         if (type.equals(String.class)) {
             metaPrintln(level,              "var" + i + ".free();");
@@ -516,7 +516,7 @@ public class JNAGen extends Command {
             throw new JNAGenException("Can't translate arguments of type " + type);
         }
     }
-    
+
     private void convertReturn(Class type, int level) throws JNAGenException {
         if (type.equals(String.class)) {
             metaPrintln(level,          type.getSimpleName() + " result = Function.returnString(result0);");
@@ -546,13 +546,13 @@ public class JNAGen extends Command {
             throw new JNAGenException("Can't translate return values of type " + type);
         }
     }
-    
+
     /**
      * The fastest way to get Java array data into C is to "pin" the object and pass a pointer.
-     * Given that we should never call a C routine that blocks then this should be OK - GC should 
+     * Given that we should never call a C routine that blocks then this should be OK - GC should
      * never be callable anyway. To be paranoid though, disable GC around all calls that need to "pin"
      * an object.
-     * 
+     *
      * @param m method being called
      * @return true if the method will pin one or more objects over eth call to the C function.
      */
@@ -566,7 +566,7 @@ public class JNAGen extends Command {
         }
         return false;
     }
-    
+
     /***
      * Given a method, print code to do any translation of Java->C parameters, and return an array of strings naming the native parameter variables.
      * @param parameterTypes
@@ -583,7 +583,7 @@ public class JNAGen extends Command {
                 numNativeParamss++;
             }
         }
-        
+
         String[] result = new String[numNativeParamss];
         int j = 0;
         for (int i = 0; i < parameterTypes.length; i++) {
@@ -596,7 +596,7 @@ public class JNAGen extends Command {
         }
         return result;
     }
-    
+
     private void cleanUpNativeParams(Method m, int level) throws JNAGenException {
         Class[] parameterTypes = m.getParameterTypes();
         for (int i = 0; i < parameterTypes.length; i++) {
@@ -616,7 +616,7 @@ public class JNAGen extends Command {
         argsStr = argsStr.append(") {");
         metaPrintln(level, argsStr.toString());
     }
-     
+
 //    private void printGlobalGetter(InterfaceDecl interfaceDecl, Method m, String nativeName, int level) throws JNAGenException {
 //            metaPrint(level + 1, "int result0 = ");
 //            metaPrint(0, getPtrName(m) + ".call" + numParams + "(");
@@ -637,7 +637,7 @@ public class JNAGen extends Command {
 //            throw ex;
 //        }
 //    }
-//    
+//
 //        private void printGlobalSetter(InterfaceDecl interfaceDecl, Method m, int level) throws JNAGenException {
 //        try {
 //            printFunctionPtr(interfaceDecl, m, level);
@@ -665,7 +665,7 @@ public class JNAGen extends Command {
 //            throw ex;
 //        }
 //    }
-            
+
     /**
      * Create a method that calls out to C code.
      * @param interfaceDecl
@@ -680,9 +680,9 @@ public class JNAGen extends Command {
 
             printFunctionPtr(interfaceDecl, nativeName, m, level);
             printMethodDecl(m, level);
-            
+
             level++;
-                        
+
             if (disableGC) {
                 metaPrintln(level, "boolean oldState = PrivatePointer.setUpArrayBufferState();");
                 metaPrintln(level, "/*------------------- DISABLE GC: ---------------------------*/");
@@ -707,7 +707,7 @@ public class JNAGen extends Command {
             metaPrintln(level, callStr.append(");").toString());
             convertReturn(m.getReturnType(), level);
             cleanUpNativeParams(m, level);
-            
+
             if (disableGC) {
 //              level--;
 //              metaPrintln(level, "} finally {");
@@ -728,19 +728,19 @@ public class JNAGen extends Command {
             throw ex;
         }
     }
-    
+
     /**
      * Create the methods that call out to C code for the given class.
-     * 
+     *
      * @param interfaceDecl
      * @param level nesting level
      * @throws com.sun.cldc.jna.JNAGenException
      */
-    private void printMethods(InterfaceDecl interfaceDecl, int level) throws JNAGenException {   
+    private void printMethods(InterfaceDecl interfaceDecl, int level) throws JNAGenException {
         if (interfaceDecl.methods.size() == 0) {
             return;
         }
-        
+
         metaPrintln(level, "/*----------------------------- methods -----------------------------*/");
         for (Method m : interfaceDecl.methods.keySet()) {
             String nativeName = interfaceDecl.methods.get(m);
@@ -748,18 +748,18 @@ public class JNAGen extends Command {
         }
         out.println();
     }
-        
+
     /*------------------------- Structures  --------------------------*/
-    
+
     private static String getNativeTypeName(Class c) {
         // TODO: Allow type name mappings....
         return "struct " + c.getSimpleName();
     }
-    
+
     private static String getNativeTypeName(Field f) {
         return getNativeTypeName(f.getDeclaringClass());
     }
-    
+
     /**
      * @param f field
      * @return a String that C will evaluate as the byte offset of this field
@@ -775,7 +775,7 @@ public class JNAGen extends Command {
     private static String getSizeStr(Field f) {
         return "SIZEOF(" + getNativeTypeName(f) + ", " + f.getName() + ")";
     }
-    
+
     /**
      * @param c  class that describes a C struct
      * @return a String that C will evaluate as the size of a struct in bytes
@@ -783,11 +783,11 @@ public class JNAGen extends Command {
     private static String getSizeofStr(Class c) {
         return "sizeof(" + getNativeTypeName(c) + ")";
     }
-    
+
     private void printFieldDecl(Field f, int level) {
         metaPrintln(level, "public " + f.getType().getSimpleName() + " " + f.getName() + ";");
     }
-    
+
     void startIfDefField(Field f) {
         IfDef ifdef = f.getAnnotation(IfDef.class);
         IfNDef ifndef = f.getAnnotation(IfNDef.class);
@@ -818,7 +818,7 @@ public class JNAGen extends Command {
 
     private void printFieldReader(Field f, int level) {
         Class type = f.getType();
-        
+
         //String getter = "UNKNOWN";
         if (type.isPrimitive()) {
             if (type.equals(Integer.TYPE)) {
@@ -841,7 +841,7 @@ public class JNAGen extends Command {
         metaPrintln(level + 1, "o." + f.getName() + " = p.%s(%d);", new String[]{getter, getOffsetStr(f)});
         endIfDefField(f);
     }
-   
+
     private void printFieldWriter(Field f, int level) {
         Class type = f.getType();
         //String setter = "UNKNOWN";
@@ -866,7 +866,7 @@ public class JNAGen extends Command {
         metaPrintln(level + 1, "p.%s(%d, (%s)o." + f.getName() + ");", new String[]{setter, getOffsetStr(f), cast});
         endIfDefField(f);
     }
-        
+
     private void printStructSupport(StructureDecl structDecl, int level) throws JNAGenException {
         String structName = structDecl.interfaceClass.getSimpleName();
         String structImplName = structName + "Impl";
@@ -907,7 +907,7 @@ public class JNAGen extends Command {
         }
 
     }
-               
+
     /*------------------------- CLASSES --------------------------*/
 
     private void printClassHeader(InterfaceDecl interfaceDecl, int level) {
@@ -925,13 +925,13 @@ public class JNAGen extends Command {
         metaPrintln(level - 1, "");
         out.println();
     }
-    
+
     private void printClassFooter(InterfaceDecl interfaceDecl, int level) {
         metaPrintln(level - 1, "}");
         metaPrintln(level - 1, "\\n");
         out.println();
     }
-    
+
     private void printInnerClasses(InterfaceDecl interfaceDecl, int level) throws JNAGenException {
         for (Class innerClass : interfaceDecl.interfaceClass.getDeclaredClasses()) {
             if (innerClass.isInterface()) {
@@ -945,10 +945,10 @@ public class JNAGen extends Command {
             }
         }
     }
-        
+
     /**
      * Print all of the code for a class and it's inner classes
-     * 
+     *
      * @param interfaceDecl
      * @param level 1 stands for top-level class.
      */
@@ -973,7 +973,7 @@ public class JNAGen extends Command {
 
         printClassFooter(interfaceDecl, level);
     }
-    
+
         /*------------------------- MAIN --------------------------*/
    private void printUtils() throws JNAGenException {
         out.println("char* getGetter(int size) {");
@@ -1028,10 +1028,10 @@ public class JNAGen extends Command {
         out.println("");
         out.println("    printCopyright();");
         out.println("");
-        
+
         printPackages(interfaceDecl);
         printClass(interfaceDecl, 1);
-        
+
         out.println("    fclose(out);");
         out.println("    chmod(argv[1], 0444);");
 
@@ -1054,7 +1054,7 @@ public class JNAGen extends Command {
             System.err.println("While importing library defined by " + interfaceClass);
         }
     }
-    
+
     URL[] filesToURLs(File[] files) {
         URL[] result = new URL[files.length];
         for (int i = 0; i < files.length; i++) {
@@ -1066,12 +1066,12 @@ public class JNAGen extends Command {
         }
         return result;
     }
-    
+
     private String stripSuffix(String filename) {
         int index = filename.lastIndexOf('.');
         return filename.substring(0, index);
     }
-    
+
     /**
      * Preprocess a given set of Java source files.
      *
@@ -1083,7 +1083,7 @@ public class JNAGen extends Command {
     public File generate(File baseDir, File dstDir, File[] classDirs) {
         // Get the output directory
         final File buildDir = Build.mkdir(baseDir, "build");
-        
+
         System.out.println("    Generating intermediate JNA files...");
 
         ClassLoader parent = this.getClass().getClassLoader(); // we need to load com.sun.cldc.jn.Library, which is in the same jar as this class...
@@ -1115,8 +1115,6 @@ public class JNAGen extends Command {
                         ex.printStackTrace();
                     } catch (ClassNotFoundException ex) {
                         ex.printStackTrace();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
                     } finally {
                         if (out != null) {
                             out.close();
@@ -1129,7 +1127,7 @@ public class JNAGen extends Command {
         }
         return buildDir;
     }
-    
+
     @Override
     public void run(String[] args) throws BuildException {
         generate(baseDir, dstDir, new File[] {new File(baseDir, "classes")});

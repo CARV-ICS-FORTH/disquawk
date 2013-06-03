@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -115,7 +115,7 @@ public final class Target extends Command {
     public Target(String extraClassPath, boolean j2me, String baseDir, File[] srcDirs, boolean preprocess, Build env) {
     	this(extraClassPath, j2me, baseDir, srcDirs, preprocess, env, new File(baseDir).getName());
     }
-    
+
     /**
      * Creates a new compilation command.
      *
@@ -143,7 +143,7 @@ public final class Target extends Command {
         }
         extraArgs.add(extraArg);
     }
-    
+
     protected String getClassPathString(String childDir, List<String> targetExceptions) {
         StringBuffer classPathBuffer = new StringBuffer();
         List<File> dependencies = getDependencyDirectories(childDir, targetExceptions);
@@ -211,23 +211,23 @@ public final class Target extends Command {
     public String getCompileClassPath(List<String> targetExceptions) {
         return getClassPathString(getCompiledDirectoryName(), targetExceptions);
     }
-    
+
     public String getCompiledDirectoryName() {
         return "classes";
     }
-    
+
     public String getPreverifiedClassPath(List<String> targetExceptions) {
         return getClassPathString(getPreverifiedDirectoryName(), targetExceptions);
     }
-    
+
     public String getPreverifiedDirectoryName() {
         return "j2meclasses";
     }
-    
+
     public String getResourcesDirectoryName() {
         return "resources";
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -255,14 +255,14 @@ public final class Target extends Command {
             Build.clear(new File(baseDir, "preprocessed"), true);
         }
         if (j2me) {
-            Build.clear(new File(baseDir, "weaved"), true);
+            Build.clear(new File(baseDir, "retro"), true);
             Build.clear(new File(baseDir, getPreverifiedDirectoryName()), true);
         }
         Build.clear(new File(baseDir, "javadoc"), true);
         Build.clear(new File(baseDir, "doccheck"), true);
         Build.clear(new File(baseDir, "native"), true);
     }
-    
+
     public void addCopyJ2meDirs(String dirsString) {
         if (dirsString == null) {
             return;
@@ -273,5 +273,5 @@ public final class Target extends Command {
             copyJ2meDirs.add(new File(baseDir, token));
         }
     }
-    
+
 }

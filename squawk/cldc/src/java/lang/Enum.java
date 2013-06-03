@@ -23,7 +23,7 @@ public class Enum<E extends Enum<E>> {
     this.ordinal_ = ordinal;
   }
 
-  // Call weaved in by retroweaver
+  // Call weaved in by retroweaver/retrotranslator
   protected static final void setEnumValues(final Object[] values, final Class<?> c) {
     synchronized(enumValues) {
       enumValues.put(c, values);

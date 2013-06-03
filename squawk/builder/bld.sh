@@ -43,13 +43,10 @@ JAR=$JAVA_HOME/bin/jar
 #----------------------------------------------------------#
 rm -rf classes
 mkdir classes
-$JAVAC -target 1.5 -source 1.5 -d classes -g src/com/sun/squawk/builder/launcher/*.java
+$JAVAC -d classes -g src/com/sun/squawk/builder/launcher/*.java
 $JAR cfm ../build.jar build-manifest.mf -C classes .
 rm -fr classes
 mkdir classes
-cd classes
-$JAR xf ../../tools/retroweaver-all-squawk.jar
-cd ..
-$JAVAC -cp classes:../vm2c/lib/openjdk-javac-6-b12.jar:$JAVA_HOME/lib/tools.jar -target 1.5 -source 1.5 -d classes -g `find src -name '*.java'`
+$JAVAC -cp classes:../vm2c/lib/openjdk-javac-6-b12.jar:$JAVA_HOME/lib/tools.jar -d classes -g `find src -name '*.java'`
 $JAR cfm ../build-commands.jar build-commands-manifest.mf -C classes .
 rm -fr classes

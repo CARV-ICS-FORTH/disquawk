@@ -397,9 +397,9 @@ NOINLINE jlong float2ll_slow(float f) {
 
     if (f != f)
       r = 0;
-    else if ( f < *((float *) &LongMin_f))
+    else if ( f < *((float *)(unsigned long*) &LongMin_f))
       r = 0x8000000000000000LL;
-    else if ( f >= *((float *) &LongMax_f))
+    else if ( f >= *((float *)(unsigned long*) &LongMax_f))
       r = 0x7fffffffffffffffLL;
     else
       r = (jlong) f;
@@ -423,9 +423,9 @@ NOINLINE jlong double2ll_slow(double d) {
 
     if (d != d)
         r = 0;
-    else if ( d < *((double *) &LongMin_d))
+    else if ( d < *((double *)(ujlong*) &LongMin_d))
         r = 0x8000000000000000LL;
-    else if ( d >= *((double *) &LongMax_d))
+    else if ( d >= *((double *)(ujlong*) &LongMax_d))
         r = 0x7fffffffffffffffLL;
     else
         r = (jlong) d;
@@ -443,9 +443,9 @@ NOINLINE int float2l_slow(float f) {
 
     if (f != f)
       r = 0;
-    else if ( f < *((float *) &IntegerMin_f))
+    else if ( f < *((float *)(unsigned int*) &IntegerMin_f))
       r = 0x80000000U;
-    else if ( f >= *((float *) &IntegerMax_f))
+    else if ( f >= *((float *)(unsigned long*) &IntegerMax_f))
       r = 0x7fffffff;
     else
       r = (int) f;
@@ -466,9 +466,9 @@ NOINLINE int double2l_slow(double d) {
 
     if (d != d)
       r = 0;
-    else if ( d < *((double *) &IntegerMin_d))
+    else if ( d < *((double *)(ujlong*) &IntegerMin_d))
       r = 0x80000000U;
-    else if ( d >= *((double *) &IntegerMax_d))
+    else if ( d >= *((double *)(ujlong*) &IntegerMax_d))
       r = 0x7fffffff;
     else
       r = (int) d;

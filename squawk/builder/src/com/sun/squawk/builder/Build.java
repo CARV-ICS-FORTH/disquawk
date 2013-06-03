@@ -24,7 +24,6 @@
 
 package com.sun.squawk.builder;
 
-import com.sun.squawk.SquawkRetroWeaver;
 import com.sun.squawk.builder.ccompiler.*;
 import com.sun.squawk.builder.ccompiler.CCompiler.Options;
 import com.sun.squawk.builder.commands.*;
@@ -57,8 +56,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import net.sourceforge.retroweaver.event.WeaveListener;
 
 /**
  * This is the launcher for building parts (or all) of the Squawk VM as well as launching commands.
@@ -1520,6 +1517,8 @@ public class Build {
         addCommand(new MakeAPI(this));
 
         // Add the "makeueistubs" command
+        // If you want this back you have to revert commands/MakePlatformStubs.java
+        // from git commit d1c34c851baea11380886ecad857b1e973775ceb
 //        addCommand(new MakePlatformStubs(this)).dependsOn("imp");
 
         // Add the "map" command
@@ -3152,11 +3151,11 @@ public class Build {
 
         // Prepare and run the Java compiler
         javaCompiler.reset();
-        if (/*!doJava5 &&*/ j2me) {
-            // This is required to make the preverifier happy
-            javaCompiler.arg("-target", "jsr14");
-            javaCompiler.arg("-source", "1.5");
-        }
+        // if (!doJava5 && j2me) {
+        //     // This is required to make the preverifier happy
+        //     javaCompiler.arg("-target", "jsr14");
+        //     javaCompiler.arg("-source", "1.5");
+        // }
         if (extraArgs != null) {
             for (String arg: extraArgs) {
                 javaCompiler.arg(arg);
@@ -3169,7 +3168,7 @@ public class Build {
         javaCompiler.compile(compileClassPath, classesDir, srcDirs, j2me);
 
         if (doJava5 && j2me) {
-            classesDir = retroweave(baseDir, classesDir);
+            classesDir = retrotranslate(baseDir, classesDir);
         }
 
         // Run the doccheck and javadoc utils
@@ -3179,36 +3178,41 @@ public class Build {
 
         // Run the preverifier for a J2ME compilation
         if (j2me) {
-            preverify(preverifyClassPath, baseDir);
+            //classesDir = isJava5SyntaxSupported()?new File(baseDir, "weaved"):new File(baseDir, "classes");
+            File j2meclassesDir = mkdir(baseDir, "j2meclasses");
+            preverify(preverifyClassPath, classesDir, j2meclassesDir);
         }
     }
 
     /**
-     * Retroweave a given set of Java class files.
+     * Retrotranslate a given set of Java class files.
      *
-     * @param   baseDir       the directory under which the "weaved" directory will be created
-     * @param   classesDir    the set of directories that are searched recursively for the .class files that will be weaved
-     * @return the retroweaved output directory
+     * @param  baseDir    the directory under which the "retro" directory
+     *                    will be created
+     * @param  classesDir the set of directories that are searched
+     *                    recursively for the .class files that will be
+     *                    transformed
+     * @return the retrotranslate output directory
      */
-    public File retroweave(File baseDir, File classesDir) {
-        final File retroweavedDir = mkdir(baseDir, "weaved");
-        log(info, "[running 'retroweave " + classesDir + " into " + retroweavedDir + "...]");
-        SquawkRetroWeaver weaver = new SquawkRetroWeaver();
-        weaver.retroweave(classesDir, retroweavedDir, new WeaveListener() {
-            public void weavingStarted(String msg) {
-                log(verbose, "  " + msg);
-            }
-            public void weavingCompleted(String msg) {
-                log(verbose, "  " + msg);
-            }
-            public void weavingError(String msg) {
-                throw new BuildException("Weaving Error: " + msg);
-            }
-            public void weavingPath(String sourcePath) {
-                log(verbose, sourcePath);
-            }
-        });
-        return retroweavedDir;
+    public File retrotranslate(File baseDir, File classesDir) {
+        final File retrotranslatedDir = mkdir(baseDir, "retro");
+        String cmdString = "java -jar ";
+        cmdString += toPlatformPath("tools/Retrotranslator-1.2.9-bin/retrotranslator-transformer-1.2.9.jar ", false);
+        cmdString += "-target 1.4 ";
+        cmdString += "-destdir "+toPlatformPath("cldc/"+retrotranslatedDir.getName(), false)+" ";
+        cmdString += "-srcdir "+toPlatformPath("cldc/"+classesDir.getName(), false)+" ";
+        cmdString += "-smart ";
+        cmdString += "-syncvolatile ";
+        cmdString += "-retainapi ";
+        cmdString += "-stripsign ";
+        cmdString += "-stripannot ";
+        cmdString += "-reflection safe ";
+        cmdString += "-verify ";
+        cmdString += "-classpath cldc/classes ";
+//        cmdString += "-embed ics.forth.gr";
+        log(info, "[running 'retrotranslate " + classesDir + " into " + retrotranslatedDir + "...]");
+        exec(cmdString);
+        return retrotranslatedDir;
     }
 
     /**
@@ -3291,12 +3295,12 @@ public class Build {
      * @param   classPath  directories in which to look for classes
      * @param   baseDir    the directory under which the "j2meclasses" and "classes" directories
      */
-    public void preverify(String classPath, File baseDir) {
+  public void preverify(String classPath, File classesDir, File j2meclassesDir) {
 
 
         // Get the preverifier input and output directories
-        File classesDir = isJava5SyntaxSupported()?new File(baseDir, "weaved"):new File(baseDir, "classes");
-        File j2meclassesDir = mkdir(baseDir, "j2meclasses");
+        // File classesDir = isJava5SyntaxSupported()?new File(baseDir, "weaved"):new File(baseDir, "classes");
+        // File j2meclassesDir = mkdir(baseDir, "j2meclasses");
 
         // See if any of the classes actually need re-preverifying
         FileSet.Selector outOfDate = new FileSet.DependSelector(new FileSet.SourceDestDirMapper(classesDir, j2meclassesDir));
