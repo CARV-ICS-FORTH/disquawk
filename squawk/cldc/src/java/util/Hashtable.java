@@ -1,22 +1,22 @@
 /*
  * Copyright 1995-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -35,14 +35,14 @@ import com.sun.squawk.Java5Marker;
  * To successfully store and retrieve objects from a hashtable, the
  * objects used as keys must implement the <code>hashCode</code>
  * method and the <code>equals</code> method.
- * 
+ *
  * <p>
  * An instance of <code>Hashtable</code> has two parameters that
  * affect its efficiency: its <i>capacity</i> and its <i>load
  * factor</i>. The load factor in the CLDC implementation of
  * the hashtable class is always 75 percent.  When the number
  * of entries in the hashtable exceeds the product of the
- * load factor and the current capacity, the capacity is increased 
+ * load factor and the current capacity, the capacity is increased
  * by calling the <code>rehash</code> method.
  * <p>
  * If many entries are to be made into a <code>Hashtable</code>,
@@ -122,7 +122,7 @@ public class Hashtable<K, V> {
 
     /**
      * Returns an enumeration of the keys in this hashtable.
-     * 
+     *
      * @return an enumeration of the keys in this hashtable.
      * @see java.util.Enumeration
      * @see     java.util.Hashtable#elements()

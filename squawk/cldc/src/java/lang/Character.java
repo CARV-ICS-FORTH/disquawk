@@ -1,24 +1,24 @@
 /*
- *   
+ *
  *
  * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
  * 2 only, as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included at /legal/license.txt).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa
  * Clara, CA 95054 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -51,10 +51,10 @@ import com.sun.squawk.Java5Marker;
 
 /*
  * Implementation note:
- * 
- * The character property and case conversion facilities 
+ *
+ * The character property and case conversion facilities
  * provided by this CLDC implementation can be
- * extended by overriding an implementation class called 
+ * extended by overriding an implementation class called
  * DefaultCaseConverter.  Refer to the end of this file
  * for details.
  */
@@ -158,7 +158,7 @@ public final class Character extends Object {
    /**
      * Determines if the specified character is a lowercase character.
      * <p>
-     * Note that by default CLDC only supports 
+     * Note that by default CLDC only supports
      * the ISO Latin-1 range of characters.
      * <p>
      * Of the ISO Latin-1 characters (character codes 0x0000 through 0x00FF),
@@ -184,7 +184,7 @@ public final class Character extends Object {
    /**
      * Determines if the specified character is an uppercase character.
      * <p>
-     * Note that by default CLDC only supports 
+     * Note that by default CLDC only supports
      * the ISO Latin-1 range of characters.
      * <p>
      * Of the ISO Latin-1 characters (character codes 0x0000 through 0x00FF),
@@ -210,6 +210,27 @@ public final class Character extends Object {
     }
 
     /**
+     * Determines the number of <code>char</code> values needed to
+     * represent the specified character (Unicode code point). If the
+     * specified character is equal to or greater than 0x10000, then
+     * the method returns 2. Otherwise, the method returns 1.
+     *
+     * <p>This method doesn't validate the specified character to be a
+     * valid Unicode code point. The caller must validate the
+     * character value using {@link #isValidCodePoint(int) isValidCodePoint}
+     * if necessary.
+     *
+     * @param   codePoint the character (Unicode code point) to be tested.
+     * @return  2 if the character is a valid supplementary character; 1 otherwise.
+     * @see     #isSupplementaryCodePoint(int)
+     * @since   1.5
+     */
+    public static int charCount(int codePoint)
+    {
+      return codePoint >= 0x10000 ? 2 : 1;
+    }
+
+    /**
      * Determines if the specified character is a digit.
      *
      * This is currently only supported for ISO Latin-1 digits: "0" through "9".
@@ -228,7 +249,7 @@ public final class Character extends Object {
      * character has no lowercase equivalent, the character itself is
      * returned.
      * <p>
-     * Note that by default CLDC only supports 
+     * Note that by default CLDC only supports
      * the ISO Latin-1 range of characters.
      *
      * @param   ch   the character to be converted.
@@ -256,7 +277,7 @@ public final class Character extends Object {
      * character has no uppercase equivalent, the character itself is
      * returned.
      * <p>
-     * Note that by default CLDC only supports 
+     * Note that by default CLDC only supports
      * the ISO Latin-1 range of characters.
      *
      * @param   ch   the character to be converted.
@@ -284,7 +305,7 @@ public final class Character extends Object {
      * specified radix.
      *
      * This is only supported for ISO Latin-1 characters.
-     * 
+     *
      * @param   ch      the character to be converted.
      * @param   radix   the radix.
      * @return  the numeric value represented by the character in the

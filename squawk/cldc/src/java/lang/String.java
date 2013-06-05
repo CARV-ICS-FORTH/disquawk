@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -151,7 +151,7 @@ public final class String {
         if (offset > GC.getArrayLength(src) - count) {
             throw new StringIndexOutOfBoundsException(offset + count);
         }
-        
+
         if (isEightBit) {
             byte[] buf = new byte[count];
             stringcopy(src, offset, buf, 0, count);
@@ -162,7 +162,7 @@ public final class String {
             return GC.makeSixteenBitString(buf);
         }
     }
-    
+
     /**
      * Allocates a new <code>String</code> that contains characters from
      * a subarray of the character array argument. The <code>offset</code>
@@ -421,6 +421,36 @@ public final class String {
             throw new StringIndexOutOfBoundsException(index);
         }
         return NativeUnsafe.charAt(this, index);
+    }
+
+    /**
+     * Returns the character (Unicode code point) at the specified
+     * index. The index refers to <code>char</code> values
+     * (Unicode code units) and ranges from <code>0</code> to
+     * {@link #length()}<code> - 1</code>.
+     *
+     * <p> If the <code>char</code> value specified at the given index
+     * is in the high-surrogate range, the following index is less
+     * than the length of this <code>String</code>, and the
+     * <code>char</code> value at the following index is in the
+     * low-surrogate range, then the supplementary code point
+     * corresponding to this surrogate pair is returned. Otherwise,
+     * the <code>char</code> value at the given index is returned.
+     *
+     * @param      index the index to the <code>char</code> values
+     * @return     the code point value of the character at the
+     *             <code>index</code>
+     * @exception  IndexOutOfBoundsException  if the <code>index</code>
+     *             argument is negative or not less than the length of this
+     *             string.
+     * @since      1.5
+     */
+    public int codePointAt(int index) {
+        if ((index < 0) || (index >= length())) {
+            throw new StringIndexOutOfBoundsException(index);
+        }
+        return NativeUnsafe.getByte(this, index);
+//        return Character.codePointAtImpl(value, index, length());
     }
 
     /**
