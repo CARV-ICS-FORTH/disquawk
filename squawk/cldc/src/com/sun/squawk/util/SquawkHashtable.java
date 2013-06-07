@@ -1,22 +1,22 @@
 /*
  * Copyright 1995-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -36,7 +36,7 @@ import java.util.NoSuchElementException;
  * To successfully store and retrieve objects from a hashtable, the
  * objects used as keys must implement the <code>hashCode</code>
  * method and the <code>equals</code> method.
- * 
+ *
  * <p>
  * An instance of <code>SquawkHashtable</code> has two parameters that
  * affect its efficiency: its <i>capacity</i> and its <i>load
@@ -71,7 +71,7 @@ import java.util.NoSuchElementException;
  * <p>
  * Note: To conserve space, the CLDC implementation
  * is based on JDK 1.1.8, not JDK 1.3.
- * 
+ *
  * @version 1.42, 07/01/98 (CLDC 1.0, Spring 2000)
  * @see java.lang.Object#equals(java.lang.Object)
  * @see java.lang.Object#hashCode()
@@ -80,9 +80,9 @@ import java.util.NoSuchElementException;
  * @since JDK1.0, CLDC 1.0
  */
 /*if[JAVA5SYNTAX]*/
-public class SquawkHashtable<K, V> {
+public class SquawkHashtable<K, V> implements Cloneable {
 /*else[JAVA5SYNTAX]*/
-//public class SquawkHashtable {
+//public class SquawkHashtable implements Cloneable {
 /*end[JAVA5SYNTAX]*/
 
     public static interface Rehasher {
@@ -194,6 +194,30 @@ public class SquawkHashtable<K, V> {
     }
 
     /**
+     * Creates a shallow copy of this hashtable. All the structure of the
+     * hashtable itself is copied, but the keys and values are not cloned.
+     * This is a relatively expensive operation.
+     *
+     * @return  a clone of the hashtable
+     */
+    public synchronized Object clone() {
+        /*if[JAVA5SYNTAX]*/
+        SquawkHashtable<K,V> t = new SquawkHashtable(entryTable.length);
+        /*else[JAVA5SYNTAX]*/
+        //  SquawkHashtable t = new SquawkHashtable(entryTable.length);
+        /*end[JAVA5SYNTAX]*/
+        for (int i = entryTable.length ; i-- > 0 ; ) {
+          t.entryTable[i] = (entryTable[i] != null)
+            /*if[JAVA5SYNTAX]*/
+            ? (HashtableEntry<K,V>) entryTable[i].clone() : null;
+            /*else[JAVA5SYNTAX]*/
+            //? (HashtableEntry) entryTable[i].clone() : null;
+            /*end[JAVA5SYNTAX]*/
+        }
+        return t;
+      }
+
+    /**
      * Returns the number of keys in this hashtable.
      *
      * @return  the number of keys in this hashtable.
@@ -214,7 +238,7 @@ public class SquawkHashtable<K, V> {
 
     /**
      * Returns an enumeration of the keys in this hashtable.
-     * 
+     *
      * @return an enumeration of the keys in this hashtable.
      * @see java.util.Enumeration
      * @see #elements()
@@ -232,7 +256,7 @@ public class SquawkHashtable<K, V> {
      * Returns an enumeration of the values in this hashtable.
      * Use the Enumeration methods on the returned object to fetch the elements
      * sequentially.
-     * 
+     *
      * @return an enumeration of the values in this hashtable.
      * @see java.util.Enumeration
      * @see #keys()
@@ -250,7 +274,7 @@ public class SquawkHashtable<K, V> {
      * Tests if some key maps into the specified value in this hashtable.
      * This operation is more expensive than the <code>containsKey</code>
      * method.
-     * 
+     *
      * @param value   a value to search for.
      * @return <code>true</code> if some key maps to the
      *             <code>value</code> argument in this hashtable;
@@ -284,7 +308,7 @@ public class SquawkHashtable<K, V> {
 
     /**
      * Tests if the specified object is a key in this hashtable.
-     * 
+     *
      * @param key   possible key.
      * @return <code>true</code> if the specified object is a key in this
      *          hashtable; <code>false</code> otherwise.
@@ -299,7 +323,7 @@ public class SquawkHashtable<K, V> {
 
     /**
      * Returns the value to which the specified key is mapped in this hashtable.
-     * 
+     *
      * @param key   a key in the hashtable.
      * @return the value to which the key is mapped in this hashtable;
      *          <code>null</code> if the key is not mapped to any value in
@@ -331,9 +355,9 @@ public class SquawkHashtable<K, V> {
      * larger capacity. This method is called automatically when the
      * number of keys in the hashtable exceeds this hashtable's capacity
      * and load factor.
-     * 
+     *
      * This is not a public method, made it public to enable the com.sun.squawk.util.SquawkHashtable.rehash to delegate to this one.
-     * 
+     *
      */
     public void rehash() {
 /*if[JAVA5SYNTAX]*/
@@ -388,7 +412,7 @@ public class SquawkHashtable<K, V> {
      * <p>
      * The value can be retrieved by calling the <code>get</code> method
      * with a key that is equal to the original key.
-     * 
+     *
      * @param key     the hashtable key.
      * @param value   the value.
      * @return the previous value of the specified key in this hashtable,
@@ -517,7 +541,7 @@ public class SquawkHashtable<K, V> {
     public String toString() {
         return SquawkHashtable.enumerationsToString(keys(), elements(), size());
     }
-    
+
     /**
      * Return the current capacity of the hashtable.
      * @return the current capacity
@@ -525,12 +549,12 @@ public class SquawkHashtable<K, V> {
     public final int capacity() {
         return entryTable.length;
     }
-    
+
     /**
      * Return the internal table. Used by GC for bookkeeping.
-     * 
+     *
      * THIS IS PRIVATE TO THE BOOTSTRAP SUITE
-     * 
+     *
      * @return the internal table
      */
 /*if[JAVA5SYNTAX]*/
@@ -544,9 +568,9 @@ public class SquawkHashtable<K, V> {
     /**
      * Utility class to get a rather long string representation of any kind of hashtable.
      *
-     * @param keys 
-     * @param elements 
-     * @param size 
+     * @param keys
+     * @param elements
+     * @param size
      * @return  a string representation of this hashtable.
      */
 /*if[JAVA5SYNTAX]*/
@@ -583,7 +607,7 @@ public class SquawkHashtable<K, V> {
 //      HashtableEntry[] table;
 //      HashtableEntry entry;
 /*end[JAVA5SYNTAX]*/
-        
+
         boolean keys;
         int index;
 
@@ -634,7 +658,7 @@ public class SquawkHashtable<K, V> {
             throw new NoSuchElementException();
         }
     }
-    
+
     public static void printTable(SquawkHashtable table) {
         HashtableEntry[] array = table.entryTable;
         for (int i = 0; i < array.length; i++) {
@@ -661,16 +685,47 @@ public class SquawkHashtable<K, V> {
  * SquawkHashtable collision list.
  */
 /*if[JAVA5SYNTAX]*/
-class HashtableEntry<K, V> {
+class HashtableEntry<K, V> implements Cloneable {
     int hash;
     K key;
     V value;
     HashtableEntry<K, V> next;
+
+    /**
+     * Creates a shallow copy of this hashtable. All the structure of the
+     * hashtable itself is copied, but the keys and values are not cloned.
+     * This is a relatively expensive operation.
+     *
+     * @return  a clone of the hashtable
+     */
+    public synchronized Object clone() {
+        HashtableEntry<K,V> e = new HashtableEntry();
+        e.hash = hash;
+        e.key = key;
+        e.value = value;
+        e.next = next;
+        return e;
+    }
 /*else[JAVA5SYNTAX]*/
-//class HashtableEntry {
+//class HashtableEntry implements Cloneable {
 //    int hash;
 //    Object key;
 //    Object value;
 //    HashtableEntry next;
+    // /**
+    //  * Creates a shallow copy of this hashtable. All the structure of the
+    //  * hashtable itself is copied, but the keys and values are not cloned.
+    //  * This is a relatively expensive operation.
+    //  *
+    //  * @return  a clone of the hashtable
+    //  */
+    // public synchronized Object clone() {
+    //       HashtableEntry e = new HashtableEntry();
+    //       e.hash = hash;
+    //       e.key = key;
+    //       e.value = value;
+    //       e.next = next;
+    //       return e;
+    // }
 /*end[JAVA5SYNTAX]*/
 }

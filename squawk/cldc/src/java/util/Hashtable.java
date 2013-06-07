@@ -74,9 +74,9 @@ import com.sun.squawk.Java5Marker;
  * @since   JDK1.0, CLDC 1.0
  */
 /*if[JAVA5SYNTAX]*/
-public class Hashtable<K, V> {
+public class Hashtable<K, V> implements Cloneable {
 /*else[JAVA5SYNTAX]*/
-//public class Hashtable {
+//public class Hashtable implements Cloneable {
 /*end[JAVA5SYNTAX]*/
 
     /**
@@ -87,6 +87,16 @@ public class Hashtable<K, V> {
 /*else[JAVA5SYNTAX]*/
 //  final com.sun.squawk.util.SquawkHashtable delegate;
 /*end[JAVA5SYNTAX]*/
+
+    /**
+     * Returns a shallow copy of this <tt>HashSet</tt> instance: the elements
+     * themselves are not cloned.
+     *
+     * @return a shallow copy of this hashtable
+     */
+    public Object clone() {
+      return delegate.clone();
+    }
 
     /**
      * Constructs a new, empty hashtable with the specified initial
