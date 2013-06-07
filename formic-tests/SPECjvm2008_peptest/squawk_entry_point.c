@@ -19,17 +19,13 @@
 void squawk_entry_point(void)
 {
   extern int __linker_squawk_suite_start;
-  char          *fakeArgv[5];
-  char          arg1[256];
+  char          *fakeArgv[3];
   int           fakeArgc, i;
 
-  kt_sprintf(arg1, "-Xboot:0x%p", &__linker_squawk_suite_start);
   fakeArgv[0] = "dummy";
-  fakeArgv[1] = arg1;
-  fakeArgv[2] = "-Xtr:0";
-  fakeArgv[3] = "-spotsuite:FormicApp";
-  fakeArgv[4] = "spec.benchmarks.check.PepTest";
-  fakeArgc    = 5;
+  fakeArgv[1] = "-spotsuite:FormicApp";
+  fakeArgv[2] = "spec.benchmarks.check.PepTest";
+  fakeArgc    = 3;
 
   kt_printf("Invoking squawk with:");
   for(i=0; i<fakeArgc; ++i)

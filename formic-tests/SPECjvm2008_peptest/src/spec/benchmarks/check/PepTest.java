@@ -1021,7 +1021,7 @@ End of temporarily commented out section
         boolean ok = (res == a % b);
         if (!ok) {
             System.out.print("Failed: " + a + " % " + b + " = " + (a % b));
-            System.out.println("   (should be: " + res);
+            System.out.println("   (should be: " + res +")");
         }
         return ok;
     }
@@ -1030,7 +1030,7 @@ End of temporarily commented out section
         boolean ok = (res == a % b);
         if (!ok) {
             System.out.print("Failed: " + a + " % " + b + " = " + (a % b));
-            System.out.println("   (should be: " + res);
+            System.out.println("   (should be: " + res +")");
         }
         return ok;
     }
@@ -1048,13 +1048,14 @@ End of temporarily commented out section
         if (!checkRemL( 10L, -7L, 3L))  ok = false;
         if (!checkRemL(-10L,  7L, -3L)) ok = false;
         if (!checkRemL(-10L, -7L, -3L)) ok = false;
-
+        if (!ok) return "remainders failed";
+        ok = true;
+        System.out.print("double ");
         if (!checkRemD( 10.5,  7.0, 3.5))  ok = false;
         if (!checkRemD( 10.5, -7.0, 3.5))  ok = false;
         if (!checkRemD(-10.5,  7.0, -3.5)) ok = false;
         if (!checkRemD(-10.5, -7.0, -3.5)) ok = false;
         if (!ok) return "remainders failed";
-        System.out.print("double ");
         return null;
     }
 

@@ -87,10 +87,12 @@ public class Linpack {
     ops = (2.0e0*(n*n*n))/3.0 + 2.0*(n*n);
 
     norma = matgen(a,lda,n,b);
+    System.out.println("Linpack starting...");
     time = second();
     info = dgefa(a,lda,n,ipvt);
     dgesl(a,lda,n,ipvt,b,0);
     total = second() - time;
+    System.out.println("Linpack end...");
 
     for (i = 0; i < n; i++) {
       x[i] = b[i];

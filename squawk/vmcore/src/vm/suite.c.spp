@@ -43,7 +43,12 @@ UWord loadBootstrapSuiteFromFlash(
                         Address *suite,
                         int     *hash) {
 	 // ROM starts at the flash address set on command line
-    Address javabytecodesbase = (Address) atoi(bootstrapSuiteFile);
+/*if[MICROBLAZE_BUILD]*/
+  extern int __linker_squawk_suite_start;
+    Address javabytecodesbase = (Address) &__linker_squawk_suite_start;
+/*else[MICROBLAZE_BUILD]*/
+//  Address javabytecodesbase = (Address) atoi(bootstrapSuiteFile);
+/*end[MICROBLAZE_BUILD]*/
     *suite = (void *)(getUWord(javabytecodesbase, 0) + javabytecodesbase);
     *hash = (int)getUWord(javabytecodesbase, 1);
     UWord size=getUWord(javabytecodesbase, 2);

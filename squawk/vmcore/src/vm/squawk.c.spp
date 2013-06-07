@@ -1462,15 +1462,19 @@ Address processArgs(char *argv[], const int argc) {
                 nvmSize = parseQuantity(arg+6, wholeArg);
             } else
 #endif
+/*if[!MICROBLAZE_BUILD]*/
             if (startsWith(arg, "mx:")) {
                 ramSize = roundDownToWord(parseQuantity(arg+3, wholeArg));
             } else if (startsWith(arg, "boot:")) {
                 bootstrapSuiteFile = arg + 5;
+            } else
+/*end[MICROBLAZE_BUILD]*/
 #if (com_sun_squawk_GC_GC_TRACING_SUPPORTED | com_sun_squawk_GarbageCollector_HEAP_TRACE)
-            } else if (startsWith(arg, "tgca:")) {
+            if (startsWith(arg, "tgca:")) {
                 com_sun_squawk_GC_traceThreshold = parseQuantity(arg+5, wholeArg);
+            } else
 #endif
-            } else if (startsWith(arg, "tgc:")) {
+            if (startsWith(arg, "tgc:")) {
                 com_sun_squawk_GC_traceFlags = parseQuantity(arg+4, wholeArg);
 #ifndef FLASH_MEMORY
             } else if (equals(arg, "notrap")) {
@@ -1479,10 +1483,9 @@ Address processArgs(char *argv[], const int argc) {
 #if TRACE
             } else if (equals(arg, "tnoservice")) {
                 traceServiceThread = false;
-            } else if (equals(arg, "terr")) {
 /*if[!MICROBLAZE_BUILD]*/
+            } else if (equals(arg, "terr")) {
                 traceFile = stderr;
-/*end[MICROBLAZE_BUILD]*/
             } else if (startsWith(arg, "ts:")) {
                 setTraceStart(parseQuantityLong(arg+3, wholeArg));
             } else if (startsWith(arg, "te:")) {
@@ -1491,6 +1494,7 @@ Address processArgs(char *argv[], const int argc) {
                 jlong start = parseQuantityLong(arg+3, wholeArg);
                 setTraceStart(start);
                 setTraceEnd(start + 1000);
+/*end[MICROBLAZE_BUILD]*/
             } else if (startsWith(arg, "stats:")) {
                 statsFrequency = parseQuantity(arg+6, wholeArg);
                 if (statsFrequency == 0) {
