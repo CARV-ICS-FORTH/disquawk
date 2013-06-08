@@ -42,7 +42,7 @@ extern "C" {
 #endif
 
 #ifndef fmod
-# define fmod(x, y) ar_float_mod((x),(y))
+# define fmod(x, y) ar_double_mod((x),(y))
 #endif
 
 #ifdef	__cplusplus
@@ -50,4 +50,3 @@ extern "C" {
 #endif
 
 #endif	/* _OS_MATH_H */
-
