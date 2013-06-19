@@ -141,9 +141,13 @@ Modify the build.properties file
 
 Notes:
 ------
-  The VM is started from squawk.c[.spp]
-  Bootstrap suite is loaded by loadBootstrapSuiteFromFlash in
-  vmcore/src/vm/suite.c
+  * The VM is started from squawk.c[.spp]
+  * Bootstrap suite is loaded by loadBootstrapSuiteFromFlash in
+    vmcore/src/vm/suite.c
+  * To add a native method one must change:
+    1. vmcore/src/vm/bytecodes.c.spp
+    2. translator/ir/verifier/NativeVerifierHelper.java
+    3. cldc/src/com/sun/squawk/vm/Native.java
 
 To build the builder:
 ---------------------

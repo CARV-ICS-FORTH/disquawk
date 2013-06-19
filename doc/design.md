@@ -1,17 +1,3 @@
-
-Current GVM limitations
-=======================
-
-  * exit(int status) halts the system (actually a while(1)) and just
-    drops the status value.  After all, since GVM is the OS doesn't
-    really make sense to report a status to someone.
-
-  * errno is NOT implemented
-
-  * GC=com.sun.squawk.Lisp2GenerationalCollector breaks it
-  * GC=com.sun.squawk.Lisp2Collector also breaks it
-  * GC=com.sun.squawk.CheneyCollector
-
 Design decisions
 ================
 
