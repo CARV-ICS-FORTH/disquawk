@@ -521,7 +521,9 @@ public final class Suite {
      * @param metadata  the metadata to install
      */
     void installMetadata(KlassMetadata metadata) {
-        installMetadata0(metadata, metadata.getDefinedClass(), false);
+      if (this.getType() == Suite.METADATA && this.getClassCount() != 0)
+        throw new RuntimeException("Metadata suites should not have any classes. This has " + this.getClassCount());
+      installMetadata0(metadata, metadata.getDefinedClass(), false);
     }
 
     public void setUnusedClasses(Klass[] klasses) {

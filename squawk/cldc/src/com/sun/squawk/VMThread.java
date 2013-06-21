@@ -36,7 +36,7 @@ import java.util.Enumeration;
 
 /**
  * The Squawk implementation of threads.
- * 
+ *
  * @see Monitor
  */
 public final class VMThread implements GlobalStaticFields {
@@ -56,7 +56,7 @@ public final class VMThread implements GlobalStaticFields {
     private final static int INITIAL_STACK_SIZE = 168;
 
     /**
-     * Limit stack size growth when stack would be 1/MAX_STACK_GROWTH_FRACTION of the heap. 
+     * Limit stack size growth when stack would be 1/MAX_STACK_GROWTH_FRACTION of the heap.
      */
     private final static int MAX_STACK_GROWTH_FRACTION = 8;
 
@@ -115,36 +115,36 @@ public final class VMThread implements GlobalStaticFields {
      * Hashtable of threads waiting for an event.
      */
     private static EventHashtable events;
-    
+
     /**
      * Hashtable of threads waiting for an OS event.
      */
     private static EventHashtable osevents;
-    
+
     /**
      * Count of contended monitorEnters
      */
     private static int contendedEnterCount;
-    
+
     /**
      * Count of monitors allocated
      */
     static int monitorsAllocatedCount;
-    
+
     /**
      * Count of thread context switching.
      *
      * This does not include system-level switches that occur for GC, exception throwing, etc.
      */
     static int threadSwitchCount;
-    
+
     /**
      * Time that system spent waiting - this covers idle as well as some system time.
      * Stored as two ints instead of longs, since GlobalStaticFields can't handle long values.
      */
     static int waitTimeHi32;
     static int waitTimeLo32;
-    
+
     /**
      * Handler for OS events...
      */
@@ -158,7 +158,7 @@ public final class VMThread implements GlobalStaticFields {
      * and other values as 1..Int.MAX_VALUE.
      */
     private static int max_wait; // initialized to -1 in initializeThreading().
-    
+
     /**
      * If true, only schedule threads with system priority.
      */
@@ -183,13 +183,13 @@ public final class VMThread implements GlobalStaticFields {
      * The maximum priority that a user thread can have.
      */
     public final static int MAX_PRIORITY = 10;
-    
+
     /**
      * The maximum priority that a system thread can have.
      */
     public final static int MAX_SYS_PRIORITY = 12;
     public final static int REAL_MAX_SYS_PRIORITY = 14;
-    
+
     /**
      * Return the number of Thread objects allocated during the lifetime of this JVM.
      * @return threads allocated
@@ -197,7 +197,7 @@ public final class VMThread implements GlobalStaticFields {
     public static int getThreadsAllocatedCount() {
         return nextThreadNumber;
     }
-    
+
     /**
      * Return the number of times that a thread was blocked trying to synchronize on an object.
      *
@@ -209,20 +209,20 @@ public final class VMThread implements GlobalStaticFields {
     public static int getContendedMontorEnterCount() {
         return contendedEnterCount;
     }
-    
+
     /**
      * Return the number of monitors allocated.
      *
-     * Often, uncontended locking is handled by the interpreter in the pendingMonitors cache. But if the 
-     * cache is full, or there is contention, or Object.wait() is used, or a thread is switched out while 
-     * holding a virtual monitor, then a real monitor has to be allocated for an object. It is possible for 
+     * Often, uncontended locking is handled by the interpreter in the pendingMonitors cache. But if the
+     * cache is full, or there is contention, or Object.wait() is used, or a thread is switched out while
+     * holding a virtual monitor, then a real monitor has to be allocated for an object. It is possible for
      * the monitor for an object to come and go, so there is the possibility of "monitor object thrashing".
      * @return  number of monitors allocated
      */
     public static int getMonitorsAllocatedCount() {
         return monitorsAllocatedCount;
     }
-    
+
     /**
      * Return count of thread context switching.
      *
@@ -290,7 +290,7 @@ public final class VMThread implements GlobalStaticFields {
         } else {
             priority = NORM_PRIORITY;
         }
-        
+
         if (name != null) {
             this.name = name;
         } else {
@@ -314,7 +314,7 @@ public final class VMThread implements GlobalStaticFields {
     /**
      * Sets the daemon state of the thread.
      * If this thread is alive, an IllegalThreadStateException is thrown.
-     * 
+     *
      * @param value if true, set thread as a daemon
      */
     public void setDaemon(boolean value) {
@@ -324,7 +324,7 @@ public final class VMThread implements GlobalStaticFields {
         if (state != NEW) {
             throw new IllegalThreadStateException();
         }
-        
+
         isDaemon = value;
     }
 
@@ -335,7 +335,7 @@ public final class VMThread implements GlobalStaticFields {
     public boolean isDaemon() {
         return isDaemon;
     }
-    
+
     /**
      * Adds a given thread to the timer queue.
      *
@@ -386,40 +386,40 @@ public final class VMThread implements GlobalStaticFields {
     /**
      * Adjust the target times of waiting threads to account for changes to the system clock.
      * Only adjust when time has moved backwards (e.i. only make threads wake up earlier, not later).
-     * 
+     *
      * EXAMPLE:
-     * A SPOT needs to do something at an absolute time, like launch a missile from Kwajalein Island at 15:24, as well as 
+     * A SPOT needs to do something at an absolute time, like launch a missile from Kwajalein Island at 15:24, as well as
      * periodically sensor for turtles in the launch area every two minutes.
      * Then the SPOT's clock is updated to a more correct value from GPS. What should happen?
-     * 
+     *
      * Look at a few cases with these assumptions:
      * - Initially SPOT thinks the time is 15:21.
      * - The periodic timer has already waited one minute, so there's 1 minute left to wait.
      * - Initial thread wait states:
      *      - Periodic task (PT) should fire in 1 minute. PT target time = 15:22
      *      - Absolute task (AT) should fire in 3 minutes. AT target time = 15:24
-     * 
+     *
      * A) Clock gets adjusted - it's really it's 15:22. deltaT = + 1
      *  - Goal:
      *      - Periodic task should fire in 1 minute (from new time).  Perfect PT target time = 15:23
      *      - Absolute task should fire in 2 minutes (from new time). Perfect AT target time = 15:24
-     * 
+     *
      * - Solution 1*: Do nothing. PT = 15:22, AT = 15:24. Low-level sleep for periodic task will complete early, but utility class can reschedule. Absolute task will be on time.
      * - Solution 2: Add deltaT to target times. PT = 15:23, AT = 15:25. Periodic task will not fire early, but absolute task will be late.
-     * 
+     *
      * B) Clock gets adjusted - it's really it's 15:20. deltaT = - 1
      * Goal:
      *      - Periodic task should fire in 1 minute (from new time).  Perfect PT target time = 15:21
      *      - Absolute task should fire in 4 minutes (from new time). Perfect AT target time = 15:24
-     * 
+     *
      * - Solution 1: Do nothing. PT = 15:22, AT = 15:24. Low-level sleep for periodic task will fire late. Absolute task will be on time.
      * - Solution 2*: Add deltaT to target times. PT = 15:21, AT = 15:23. Periodic task will fire on time. Absolute task will fire early, but utility class can reschedule.
-     * 
-     * In order to preserve sanity we should adjust the wait times when the time moves backwards (new clock < old clock), 
-     * and do nothing if time moves forward. This will allow some sleep() and wait() methods to complete sooner than asked, 
-     * but the sleep/wait can rescheduled by the caller. In no case will a thread wake up 
+     *
+     * In order to preserve sanity we should adjust the wait times when the time moves backwards (new clock < old clock),
+     * and do nothing if time moves forward. This will allow some sleep() and wait() methods to complete sooner than asked,
+     * but the sleep/wait can rescheduled by the caller. In no case will a thread wake up
      * later than if the clock had not changed.
-     * 
+     *
      * @param deltaT change in time in ms. Must be negative.
      */
     static void adjustWaits(long deltaT) {
@@ -511,7 +511,7 @@ public final class VMThread implements GlobalStaticFields {
         }
         priority = (byte)newPriority;
     }
-    
+
     /**
      * Changes the priority of this thread. Allows setting priority to "system" levels.
      *
@@ -533,7 +533,7 @@ public final class VMThread implements GlobalStaticFields {
 
     /**
      * If true, only schedule threads with system priority. Can only be set by a thread with system priority.
-     * @param systemOnly 
+     * @param systemOnly
      */
     public static void setSystemThreadsOnly(boolean systemOnly) {
         if (currentThread.priority > MAX_PRIORITY) {
@@ -610,10 +610,10 @@ public final class VMThread implements GlobalStaticFields {
         }
     }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
 /*if[ENABLE_MULTI_ISOLATE]*/
     /**
-     * Handle case where thread of one isolate is waiting for monitor owned by other isolate, while 
+     * Handle case where thread of one isolate is waiting for monitor owned by other isolate, while
      * isolate is is being hibernated.
      *
      * Actually check both ways.
@@ -656,7 +656,7 @@ public final class VMThread implements GlobalStaticFields {
 /*end[DEBUG_CODE_ENABLED]*/
     }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * Hibernate all the threads in the isolate.
      *
@@ -770,7 +770,7 @@ public final class VMThread implements GlobalStaticFields {
         }
     }
 /*end[ENABLE_MULTI_ISOLATE]*/
-    
+
     /**
      * Gets the name of this thread. If {@link #setName} has never been called for this
      * thread, the return value will be of the from "Thread-<n>" where 'n' is a unique numeric
@@ -912,7 +912,7 @@ public final class VMThread implements GlobalStaticFields {
      */
     private SingleStep step;
 /*end[ENABLE_SDA_DEBUGGER]*/
-    
+
     /**
      * The monitor when the thread is in the condvar queue.
      */
@@ -964,7 +964,7 @@ public final class VMThread implements GlobalStaticFields {
         if (stack != null) {
             GC.checkSC(this);
         }
-/*end[DEBUG_CODE_ENABLED]*/ 
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
 /*if[ENABLE_SDA_DEBUGGER]*/
@@ -1281,7 +1281,7 @@ VM.println();
          * proper object of type Klass.LOCAL_ARRAY.
          */
         GC.setHeaderClass(serviceStack, Klass.LOCAL_ARRAY);
-        
+
         /*
          * NOTE: The service stack has no backpointer to the service thread, and
          * is not GC.registerStackChunks(). It is allocated by C code, and isn't really in the heap?
@@ -1289,7 +1289,7 @@ VM.println();
         //NativeUnsafe.setObject(serviceStack, SC.owner, serviceThread);
         serviceThread.stack = serviceStack.toObject();
     }
-    
+
     /**
      * Initialize the threading system.
      */
@@ -1393,7 +1393,7 @@ VM.println("creating stack:");
         isolate.addThread(this);
         addToRunnableThreadsQueue(this);
 
-/*if[ENABLE_SDA_DEBUGGER]*/        
+/*if[ENABLE_SDA_DEBUGGER]*/
         if (VM.isThreadingInitialized()) {
             Debugger debugger = VM.getCurrentIsolate().getDebugger();
             if (debugger != null) {
@@ -1426,9 +1426,9 @@ VM.println("creating stack:");
             }
         }
 /*end[DEBUG_CODE_ENABLED]*/
- 
+
         Assert.always(state == ALIVE);
-        
+
 /*if[ENABLE_SDA_DEBUGGER]*/
         // do notification before setting state = dead, otherwise sync code gets confused...
         if (VM.isThreadingInitialized()) {
@@ -1438,25 +1438,25 @@ VM.println("creating stack:");
             }
         }
 /*end[ENABLE_SDA_DEBUGGER]*/
-        
+
 //VM.print("Thread::killThread - owner of stack chunk "); VM.printAddress(stack); VM.print(" = "); VM.printAddress(NativeUnsafe.getObject(stack, SC.owner)); VM.println();
         boolean exitIsolate = false;
         if (nicely) {
             // this can trigger shutdown hooks, and might certainly yield
             exitIsolate = isolate.removeThread(this);
         }
-        
+
         VMThread list = joiners;
         joiners = null;
         startJoiners(list, VMThread.Q_JOIN);
-        
+
         if (exitIsolate) {
             isolate.exit(uncaughtException ? 1 : 0);
         }
-        
+
         state = DEAD;
-        
-        // Can't zero stack here - Must zero atomically with other stack-reelated backpointers, 
+
+        // Can't zero stack here - Must zero atomically with other stack-reelated backpointers,
         // in same method as VM.threadSwitch() call. Otherwise a poorly-timed extendStack could occur
         // and cause a threadSwitch in the middle of killing the thread.
         abandonThread();
@@ -1531,11 +1531,11 @@ VM.println("creating stack:");
 
     private static int stacksAllocatedCount;
     private static int maxStackSize;
-    
+
     /**
      * Return the number of stacks allocated.
      *
-     * Stacks are allocated for each thread, and as more frames are needed, new stacks 
+     * Stacks are allocated for each thread, and as more frames are needed, new stacks
      * are created to replace the original stacks (typically at 2x the size of the original stack).
      * The default stack size is about 160 words.
      *
@@ -1544,7 +1544,7 @@ VM.println("creating stack:");
     public static int getStacksAllocatedCount() {
         return stacksAllocatedCount;
     }
-    
+
     /**
      * Return size of the largest stack ever allocated, in words.
      * @return largest stack size ever allocated
@@ -1552,8 +1552,8 @@ VM.println("creating stack:");
     public static int getMaxStackSize() {
         return maxStackSize;
     }
-    
-    
+
+
     private static void threadGC(boolean userThread, boolean fullGC) {
         if (userThread) {
             VM.collectGarbage(fullGC);
@@ -1561,7 +1561,7 @@ VM.println("creating stack:");
             GC.collectGarbage(fullGC);
         }
     }
-    
+
     /**
      * Allocates a new stack.
      *
@@ -1611,7 +1611,7 @@ VM.println("creating stack:");
         final int oldSize = GC.getArrayLength(otherThread.stack);
         final int minSize = oldSize + overflow;
         int newSize;
-        
+
         // don't double in size when approaching fraction of heap
         int fraction = (int)((GC.totalMemory() / (HDR.BYTES_PER_WORD * MAX_STACK_GROWTH_FRACTION)));
         if (minSize > fraction) {
@@ -1625,7 +1625,7 @@ VM.println("creating stack:");
                 newSize = minSize * 2;
             }
         }
-        
+
         /*
          * Allocate a new stack and copy the contents of the old stack.
          */
@@ -1785,7 +1785,7 @@ VM.println("creating stack:");
                 waitTimeLo32 = VM.getLo(oldWaitTimeTotal);
             }
         }
-        
+
 //VM.println("scheduling thread " + thread);
 
         /*
@@ -1795,19 +1795,19 @@ VM.println("creating stack:");
         thread.checkInQueue(Q_NONE);
         otherThread = thread;
     }
-    
+
     public static long getTotalWaitTime() {
         return VM.makeLong(waitTimeHi32, waitTimeLo32);
     }
-    
+
     /**
      * Print thread state one one line.
-     * 
+     *
      * Will print on the stream <code>out</code> unless an error occurs while printing on that stream,
      * such as a null stream, or IO error on the stream.
-     * 
+     *
      * If a printing error occurs, this falls back on printing via VM.print(), etc.
-     * 
+     *
      * @param out the stream to print on.
      */
     public void printState(PrintStream out) {
@@ -1830,7 +1830,7 @@ VM.println("creating stack:");
                 stateStr = "DEAD";
                 break;
         }
-        
+
         switch (inqueue) {
             case Q_MONITOR:
                 waitingStr = "MONITOR";
@@ -1857,12 +1857,12 @@ VM.println("creating stack:");
                 waitingStr = "TIMER";
                 break;
         }
-        
+
         VM.outPrint(out, " state: ");
         VM.outPrint(out, stateStr);
         VM.outPrint(out, " queue: ");
         VM.outPrint(out, waitingStr);
-        
+
         switch (inqueue) {
             case Q_MONITOR:
                 VM.outPrint(out, " waiting to lock object in ");
@@ -1911,11 +1911,11 @@ VM.println("creating stack:");
 //        VM.outPrint(out, " queue: ");
 //        VM.outPrint(out, inqueue);
 /*end[DEBUG_CODE_ENABLED]*/
-        
+
         VM.outPrintln(out);
     }
-    
-    
+
+
 /*if[DEBUG_CODE_ENABLED]*/
     /**
      * This is a (SLOW) method to try to find the monitor that a thread is trying to lock.
@@ -1941,10 +1941,10 @@ VM.println("creating stack:");
 
     /**
      * Print a stack trace for this thread.<p>
-     * 
+     *
      * Will print on the stream <code>out</code> unless an error occurs while printing on that stream,
      * such as a null stream, or IO error on the stream.
-     * 
+     *
      * If a printing error occurs, this falls back on printing via VM.print(), etc.
      *
      * @param stream
@@ -1981,7 +1981,7 @@ VM.println("creating stack:");
 
         rescheduleNext();        // Select the next thread
         VM.threadSwitch();       // and switch
-        
+
         currentThread.checkInQueue(Q_NONE);
         currentThread.checkInvarients();
     }
@@ -2000,10 +2000,10 @@ VM.println("creating stack:");
         // @todo: actually shouldn't have any pending monitors when exiting a thread
         fixupPendingMonitors();  // Convert any pending monitors to real ones
         rescheduleNext();        // Select the next thread
-        
+
         // Set the state related to the stack cunk atomically as ar as GC is concerned.
-        // This means that we can't extend the stack. But considering that we are being called 
-        // after the Thread.run() method has run and returned, there should be enough stack to 
+        // This means that we can't extend the stack. But considering that we are being called
+        // after the Thread.run() method has run and returned, there should be enough stack to
         // complete the deregisterStackChunk() call.
         boolean oldState = GC.setAllocationEnabled(false);
         // Remove the connection between the stack chunk and this thread which will
@@ -2188,7 +2188,7 @@ VM.println("creating stack:");
 //        VM.println();
 //        Assert.always(object == monitor.object);
 //    }
-    
+
     /**
      * Throws an IllegalMonitorStateException.
      *
@@ -2217,7 +2217,7 @@ VM.println("creating stack:");
          */
         monitor.owner = null;
         monitor.depth = 0;
-        
+
         /*
         * Try and remove a thread from the wait queue.
         */
@@ -2277,11 +2277,11 @@ VM.println("creating stack:");
 
     /**
      * After a thread fails to get a monitor, or ends a monitorWait, it must try to aquire the monitor.
-     * On exit, the currentThread will be the owner of the monitor. Note that the monitor may have 
+     * On exit, the currentThread will be the owner of the monitor. Note that the monitor may have
      * been been deleted and replaced since we came back from a reschedule, so get the monitor
      * from the object again.
      *
-     * Only two methods actually claim ownership of a monitor. 
+     * Only two methods actually claim ownership of a monitor.
      *  1) monitorEnter() if monitor is un-owned
      *  2) retryMonitor() after contention in monitorEnter(), and waking up after a monitorWait().
      *
@@ -2303,7 +2303,7 @@ VM.println("creating stack:");
         }
 
 //traceMonitor("retryMonitor: Now has the lock: ", monitor, object);
-        
+
         Assert.that(monitor.owner == null);
         Assert.that(monitor.depth == 0);
        /*
@@ -2312,12 +2312,12 @@ VM.println("creating stack:");
         monitor.owner = currentThread;
         monitor.depth = currentThread.monitorDepth;
         Assert.that(currentThread.monitorDepth > 0);
-        
+
         currentThread.monitor = null;
         currentThread.monitorDepth = 0;
         return monitor;
     }
-    
+
     /**
      * Enters a monitor.
      *
@@ -2350,7 +2350,7 @@ VM.println("creating stack:");
         } else {
 //traceMonitor("monitorEnter: Must wait for lock: ", monitor, object);
 
-/* 
+/*
 //   if (!monitor.owner.isAlive()) {
 //        VM.println("Error in monitorEnter by " + currentThread);
 //        VM.println("The owner of monitor " + monitor + " is not alive " + monitor.owner);
@@ -2367,14 +2367,14 @@ VM.println("creating stack:");
             currentThread.monitorDepth = 1;
             monitor.addMonitorWait(currentThread);
             reschedule();
-            
+
             // Can we actually get the monitor? Try and try again.
             // Note that the Monitor may have been replaced while we were rescheduled
             monitor = retryMonitor(object);
- 
+
  // TODO: Why need an explicit monitor? If we could get a virtual monitor now, that would be fine.
-     
-//traceMonitor("monitorEnter: Got lock after waiting: ", monitor, object);        
+
+//traceMonitor("monitorEnter: Got lock after waiting: ", monitor, object);
 
             /*
              * Safety.
@@ -2517,15 +2517,15 @@ VM.println("creating stack:");
         Assert.that(monitor.condvarQueue != null);
         Assert.that(theCurrentThread.monitor == monitor);
         reschedule();
-        
+
         // OK, wait has been notified or timed out.
         // Can we actually get the monitor? Try and try again.
         // Note that the Monitor may have been replaced while we were rescheduled
         monitor = retryMonitor(object);
-        
-        
+
+
  // TODO: Why need an explicit monitor? If monitorDepth==1, and we could get a virtual monitor now, that would be fine.
-        
+
 //traceMonitor("monitorWait: woke up and re-locked: ", monitor, object);
 
         // Was the thread interrupted?
@@ -2592,10 +2592,10 @@ VM.println("creating stack:");
          * Loop if it this is a notifyAll operation.
          */
         } while (notifyAll);
-        
+
         /*
          * Don't reschedule yet. We still have the lock.
-         * This current thread will eventually do a final monitorExit(), and select 
+         * This current thread will eventually do a final monitorExit(), and select
          * a waiting thread to be runnable.
          */
     }
@@ -2708,7 +2708,7 @@ VM.println("creating stack:");
                 timerQueue.remove(this);
 
                 thisMonitor.removeCondvarWait(this);
-                
+
                 // allow waiter to be runnable,
                 // the waiter will have to contend for the lock.
                 addToRunnableThreadsQueue(this);
@@ -2722,14 +2722,14 @@ VM.println("creating stack:");
             pendingInterrupt = true;
         }
     }
-    
+
     /**
      * Answer the time in millis until another thread is runnable. Will return
      * zero if another thread is already runnable, otherwise the delta until the
-     * first thread on the timer queue becomes runnable, otherwise Long.MAX_VALUE 
+     * first thread on the timer queue becomes runnable, otherwise Long.MAX_VALUE
      * if there are no threads on the timer queue. This method takes no account of
-     * events. 
-     * 
+     * events.
+     *
      * @return time in millis
      */
     static long getTimeBeforeAnotherThreadIsRunnable() {
@@ -2750,12 +2750,12 @@ VM.println("creating stack:");
 		}
 		return result;
 	}
-    
+
 //    /** debug code */
 //    public static void main(String[] args) {
 //        final Object lock = new Object();
 //        final String lock2 = "LOCK2";
-//        
+//
 //        Thread t1 = new Thread(new Runnable() {
 //            public void run() {
 //                synchronized (lock) {
@@ -2769,7 +2769,7 @@ VM.println("creating stack:");
 //                }
 //            }
 //        }, "foo-1");
-//        
+//
 //        Thread t2 = new Thread(new Runnable() {
 //            public void run() {
 //                synchronized (lock) {
@@ -2782,7 +2782,7 @@ VM.println("creating stack:");
 //                }
 //            }
 //        }, "foo-2");
-//        
+//
 //        Thread t3 = new Thread(new Runnable() {
 //            public void run() {
 //                synchronized (lock) {
@@ -2822,7 +2822,7 @@ VM.println("creating stack:");
 //            Isolate.printAllIsolateStates(System.err);
 //        }
 //    }
-    
+
 } /* VMThread */
 
 /*=======================================================================*\
@@ -2892,7 +2892,7 @@ final class ThreadQueue {
 
 /*if[ENABLE_SDA_DEBUGGER]*/
         VMThread skipped = null;
-        
+
         // Skip over threads suspended by the debugger
         while (thread != null && thread.getDebuggerSuspendCount() != 0) {
             skipped = thread;
@@ -2901,7 +2901,7 @@ final class ThreadQueue {
 /*else[ENABLE_SDA_DEBUGGER]*/
 //      final VMThread skipped = null;
 /*end[ENABLE_SDA_DEBUGGER]*/
-        
+
         if (VMThread.systemThreadsOnly && thread.priority <= VMThread.MAX_PRIORITY) {
             return null;
         }
@@ -3147,7 +3147,7 @@ final class EventHashtable extends IntHashtable implements IntHashtableVisitor {
             isolate.addToHibernatedRunThread(t);
         }
     }
-    
+
     /**
      * Finds and removes a thread blocked on an event.
      *

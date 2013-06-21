@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -118,6 +118,18 @@ public class Thread implements Runnable {
     public final static int MAX_PRIORITY = VMThread.MAX_PRIORITY;
 
     /**
+     * ThreadLocal values pertaining to this thread. This map is maintained
+     * by the ThreadLocal class.
+     */
+    ThreadLocal.ThreadLocalMap threadLocals = null;
+
+    /**
+     * InheritableThreadLocal values pertaining to this thread. This map is
+     * maintained by the InheritableThreadLocal class.
+     */
+    ThreadLocal.ThreadLocalMap inheritableThreadLocals = null;
+
+    /**
      * Returns a reference to the currently executing thread object.
      *
      * @return  the currently executing thread.
@@ -159,6 +171,8 @@ public class Thread implements Runnable {
      */
     public Thread() {
         vmThread = new VMThread(this, null);
+        this.threadLocals = null;
+        this.inheritableThreadLocals = null;
     }
 
     /**
@@ -171,6 +185,8 @@ public class Thread implements Runnable {
     public Thread(Runnable target) {
         this.target = target;
         vmThread = new VMThread(this, null);
+        this.threadLocals = null;
+        this.inheritableThreadLocals = null;
     }
 
     /**
@@ -183,6 +199,8 @@ public class Thread implements Runnable {
     public Thread(Runnable target, String name) {
         this.target = target;
         vmThread = new VMThread(this, name);
+        this.threadLocals = null;
+        this.inheritableThreadLocals = null;
     }
 
     /**
@@ -196,6 +214,8 @@ public class Thread implements Runnable {
      */
     public Thread(String name) {
         vmThread = new VMThread(this, name);
+        this.threadLocals = null;
+        this.inheritableThreadLocals = null;
     }
 
     /**

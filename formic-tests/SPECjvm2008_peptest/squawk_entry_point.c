@@ -18,7 +18,6 @@
 
 void squawk_entry_point(void)
 {
-  extern int __linker_squawk_suite_start;
   char          *fakeArgv[3];
   int           fakeArgc, i;
 

@@ -888,6 +888,10 @@ public class Romizer {
             String metadataUrl = "file://" + suiteFileName + Suite.FILE_EXTENSION_METADATA;
             DataOutputStream metadataDos = Connector.openDataOutputStream(metadataUrl);
             Suite metadataSuite = suite.strip(Suite.METADATA, suiteFileName + Suite.FILE_EXTENSION_METADATA, strippedSuite);
+            if (metadataSuite.getClassCount() != 0) {
+              throw new RuntimeException("Metadata suites should not have any classes. " + metadataSuite + " has " + metadataSuite.getClassCount());
+            }
+
             metadataSuite.close();
             int memorySizePrior = NativeUnsafe.getMemorySize();
             ObjectMemory objectMemory;

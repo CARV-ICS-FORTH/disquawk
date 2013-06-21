@@ -896,9 +896,10 @@ class NativeVerifierHelper {
             return;
         }
 
-        case Native.com_sun_squawk_VM$addToClassStateCache: {
+        case Native.com_sun_squawk_NativeUnsafe$compareAndSwapInt: {
             frame.pop(OOP); // java.lang.Object
-            frame.pop(KLASS); // com.sun.squawk.Klass
+            frame.pop(INT); // int
+            frame.pop(INT); // int
             Assert.that(frame.isStackEmpty());
             return;
         }

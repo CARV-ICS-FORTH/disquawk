@@ -4330,6 +4330,15 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                 }
 /*end[TYPEMAP]*/
 
+                case Native_com_sun_squawk_NativeUnsafe_compareAndSwapInt: {
+                    Address obj = popAddress();
+                    int expected = popInt();
+                    int value = popInt();
+                    int res = ar_compare_and_swap(obj, expected, value);
+                    pushInt(res);
+                    break;
+                }
+
                 case Native_com_sun_squawk_VM_allocate: {
                     int     alth   = popInt();
                     Address klass  = popAddress();

@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -48,7 +48,7 @@ import com.sun.squawk.*;
  * field (with '.'s replaced by '_'s) and the name of the field with a '$' separating them.
  */
 public class FieldOffsets {
-    
+
     private FieldOffsets() {}
 
     private final static int  CIDSHIFT = 32;
@@ -177,7 +177,7 @@ public class FieldOffsets {
     public final static long java_lang_Thread$target = 1 | OOP;
 
     /**
-     * The offset of the 'vmThread' field in java.lang.Thread.
+     * The offset of the 'klass' field in java.lang.Class.
      */
     public final static long java_lang_Class$klass = 0 | OOP;
 
@@ -203,7 +203,7 @@ public class FieldOffsets {
 //     */
 //    public final static long com_sun_squawk_Isolate$savedStackChunks = (/*VAL*/false/*SQUAWK_64*/ ? 0 : 0) | OOP;
 /*end[ENABLE_ISOLATE_MIGRATION]*/
-    
+
     /**
      * The offset of the 'trace' field in java.lang.Throwable. Used by VM.printVMStackTrace()..
      */
@@ -228,7 +228,7 @@ public class FieldOffsets {
      * The offset of the 'type' field in com.sun.squawk.Suite. Used by com.sun.squawk.ObjectGraphLoader of the Romizer.
      */
     public final static long com_sun_squawk_Suite$type = 3 | INT;
-    
+
     /**
      * The offset of the 'definedClass' field in com.sun.squawk.KlassMetadata. Used by com.sun.squawk.ObjectGraphLoader of the Romizer.
      */
@@ -264,4 +264,3 @@ public class FieldOffsets {
         return (int)fieldDesc;
     }
 }
-

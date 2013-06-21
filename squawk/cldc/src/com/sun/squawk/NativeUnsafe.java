@@ -48,6 +48,17 @@ public final class NativeUnsafe {
     private NativeUnsafe() {}
 
     /*-----------------------------------------------------------------------*\
+     *                            Compare and swap                           *
+    \*-----------------------------------------------------------------------*/
+
+/*if[JAVA5SYNTAX]*/
+    @Vm2c(proxy="")
+/*end[JAVA5SYNTAX]*/
+    public static boolean compareAndSwapInt(Object base, int expect, int value) throws NativePragma {
+      return true;
+    }
+
+    /*-----------------------------------------------------------------------*\
      *                      Storing to/loading from memory                   *
     \*-----------------------------------------------------------------------*/
 
@@ -293,7 +304,7 @@ public final class NativeUnsafe {
         checkAddress(index);
         return memory[index];
     }
-    
+
     /**
      * @see Unsafe#getUByte
      *
@@ -500,55 +511,55 @@ public final class NativeUnsafe {
     /*-----------------------------------------------------------------------*\
      *                        Function Ptr Support                            *
     \*-----------------------------------------------------------------------*/
-    
+
     /**
      * Call a function pointer with no arguments
-     * 
+     *
      * @vm2c code( funcPtr0 f0 = (funcPtr0)address; return (*f0)(); )
      */
     public static int call0(Address fptr) throws NativePragma {
          throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
-    
+
     /**
      * Call a function pointer with one arguments
-     * 
+     *
      * @vm2c code( funcPtr1 f1 = (funcPtr1)address; return (*f1)(i1)); )
      */
     public static int call1(Address fptr, int i1) throws NativePragma {
          throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
-    
+
     /**
      * Call a function pointer with two arguments
-     * 
+     *
      * @vm2c code( funcPtr2 f2 = (funcPtr2)address; return (*f2)(i1, i2)); )
      */
     public static int call2(Address fptr, int i1, int i2) throws NativePragma {
          throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
-    
+
     /**
      * Call a function pointer with three arguments
-     * 
+     *
      * @vm2c code( funcPtr3 f3 = (funcPtr3)address; return (*f3)(i1, i2, i3)); )
      */
     public static int call3(Address fptr, int i1, int i2, int i3) throws NativePragma {
          throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
-    
+
     /**
      * Call a function pointer with four arguments
-     * 
+     *
      * @vm2c  code( funcPtr4 f4 = (funcPtr4)address; return (*f4)(i1, i2, i3, i4)); )
      */
     public static int call4(Address fptr, int i1, int i2, int i3, int i4) throws NativePragma {
          throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
-    
+
     /**
      * Call a function pointer with five arguments
-     * 
+     *
      * @vm2c code( funcPtr5 f5 = (funcPtr5)address; return (*f5)(i1, i2, i3, i4, i5)); )
      */
     public static int call5(Address fptr, int i1, int i2, int i3, int i4, int i5) throws NativePragma {
@@ -642,20 +653,20 @@ System.err.println("deleteNativeTask failed");
         }
         return result;
     }
-    
+
 /*end[PLATFORM_TYPE_BARE_METAL]*/
 
     /*-----------------------------------------------------------------------*\
      *               Raw (byte-orietened) memory support                     *
     \*-----------------------------------------------------------------------*/
-    
+
     /**
      * Allocate a block of memory outside of the Java heap.<p>
-     * 
-     * Memory may be be very restricted on some platforms. Callers shouldn't rely on 
+     *
+     * Memory may be be very restricted on some platforms. Callers shouldn't rely on
      * this memory unless they have a good understanding of the memory resvered for malloc
      * on a particular platform.
-     * 
+     *
      * @param size
      * @return address of memory block, or zero
      * @throws com.sun.squawk.pragma.NativePragma
@@ -663,11 +674,11 @@ System.err.println("deleteNativeTask failed");
     public static Address malloc(UWord size) throws NativePragma {
          throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
-    
+
     public static void free(Address ptr) throws NativePragma {
          Assert.shouldNotReachHere("unimplemented when hosted");
     }
- 
+
    /**
      * Gets the <code>short</code> at the given <b>byte</b> offset in the memory, starting from base.
      *  If the short is aligned on a "natural"
@@ -725,7 +736,7 @@ System.err.println("deleteNativeTask failed");
      *
      * @param base address of to region of memory
      * @param boffset The offset in bytes from base to the location to be stored
-     * @param value 
+     * @param value
      */
     public static void setUnalignedShort(Address base, int boffset, int value) throws NativePragma {
         Assert.shouldNotReachHere("unimplemented when hosted");
@@ -740,7 +751,7 @@ System.err.println("deleteNativeTask failed");
      *
      * @param base address of to region of memory
      * @param boffset The offset in bytes from base to the location to be stored
-     * @param value 
+     * @param value
      */
     public static void setUnalignedInt(Address base, int boffset, int value) throws NativePragma {
         Assert.shouldNotReachHere("unimplemented when hosted");
@@ -755,12 +766,12 @@ System.err.println("deleteNativeTask failed");
      *
      * @param base address of to region of memory
      * @param boffset The offset in bytes from base to the location to be stored
-     * @param value 
+     * @param value
      */
     public static void setUnalignedLong(Address base, int boffset, long value) throws NativePragma {
         Assert.shouldNotReachHere("unimplemented when hosted");
     }
-    
+
     /*-----------------------------------------------------------------------*\
      *                      Endianess swapping                               *
     \*-----------------------------------------------------------------------*/
@@ -951,7 +962,7 @@ System.err.println("deleteNativeTask failed");
      * The oop map describing where the pointers in memory are.
      */
     private static BitSet oopMap;
-    
+
     /**
      * Do this little dance to avoid initializing static variables only used in a hosted environment.
      * Also used for testing.

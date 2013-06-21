@@ -86,6 +86,8 @@ public class ObjectGraphLoader {
 		}
         Address nameAddress = NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$name));
         String name = getStringAt(nameAddress);
+      if (suite.getType() == Suite.METADATA)
+        System.out.println("INSTALLING 2 "+name);
         Klass klass = Klass.getClass(name, false);
         addressToObjectMap.put(address, klass);
         objectToAddressMap.put(klass, address);
@@ -172,6 +174,8 @@ public class ObjectGraphLoader {
         for (int i=0; i < metadatas.length; i++) {
         	Address metadataAddress = NativeUnsafe.getAddress(address, i);
         	KlassMetadata metadata = getKlassMetadataAt(metadataAddress);
+      if (suite.getType() == Suite.METADATA && suite.getClassCount() != 0)
+        throw new RuntimeException("Metadata suites should not have any classes. This has " + suite.getClassCount());
         	metadatas[i] = metadata;
         }
         addressToObjectMap.put(address, metadatas);
@@ -366,6 +370,7 @@ public class ObjectGraphLoader {
                     System.err.println("    suite.getKlass(i): " + suite.getKlass(i));
                     System.err.println("    klass: " + klass);
                 }
+
                 Assert.that(suite.getKlass(i) == klass);
             }
 		}

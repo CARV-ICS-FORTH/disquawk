@@ -84,65 +84,65 @@ public final class Native {
      * by a space character. The index of the entry is the native method identifier and the name of the native
      * method is constructed from the first 'n' characters of the name of the previous method concatenated with 'chars'.
      */
-    public final static String LINKABLE_NATIVE_METHODS = 
+    public final static String LINKABLE_NATIVE_METHODS =
 
-        /*   0 */"0" + "com.sun.squawk.Address.add " + 
-        /*   1 */"J" +                           "Offset " + 
-        /*   2 */"H" +                         "nd " + 
-        /*   3 */"G" +                        "diff " + 
-        /*   4 */"G" +                        "eq " + 
-        /*   5 */"G" +                        "fromObject " + 
-        /*   6 */"K" +                            "Primitive " + 
-        /*   7 */"G" +                        "hi " + 
-        /*   8 */"I" +                          "eq " + 
-        /*   9 */"G" +                        "isMax " + 
-        /*  10 */"I" +                          "Zero " + 
-        /*  11 */"G" +                        "lo " + 
-        /*  12 */"I" +                          "eq " + 
-        /*  13 */"G" +                        "max " + 
-        /*  14 */"G" +                        "ne " + 
-        /*  15 */"G" +                        "or " + 
-        /*  16 */"G" +                        "roundDown " + 
-        /*  17 */"P" +                                 "ToWord " + 
-        /*  18 */"L" +                             "Up " + 
-        /*  19 */"N" +                               "ToWord " + 
-        /*  20 */"G" +                        "sub " + 
-        /*  21 */"J" +                           "Offset " + 
-        /*  22 */"G" +                        "toObject " + 
-        /*  23 */"I" +                          "UWord " + 
-        /*  24 */"G" +                        "zero " + 
-        /*  25 */"?" +                "UWord.and " + 
-        /*  26 */"E" +                      "eq " + 
-        /*  27 */"E" +                      "fromPrimitive " + 
-        /*  28 */"E" +                      "hi " + 
-        /*  29 */"G" +                        "eq " + 
-        /*  30 */"E" +                      "isMax " + 
-        /*  31 */"G" +                        "Zero " + 
-        /*  32 */"E" +                      "lo " + 
-        /*  33 */"G" +                        "eq " + 
-        /*  34 */"E" +                      "max " + 
-        /*  35 */"E" +                      "ne " + 
-        /*  36 */"E" +                      "or " + 
-        /*  37 */"E" +                      "toInt " + 
-        /*  38 */"G" +                        "Offset " + 
-        /*  39 */"G" +                        "Primitive " + 
-        /*  40 */"E" +                      "zero " + 
-        /*  41 */"?" +                "Offset.add " + 
-        /*  42 */"F" +                       "bytesToWords " + 
-        /*  43 */"F" +                       "eq " + 
-        /*  44 */"F" +                       "fromPrimitive " + 
-        /*  45 */"F" +                       "ge " + 
-        /*  46 */"G" +                        "t " + 
-        /*  47 */"F" +                       "isZero " + 
-        /*  48 */"F" +                       "le " + 
-        /*  49 */"G" +                        "t " + 
-        /*  50 */"F" +                       "ne " + 
-        /*  51 */"F" +                       "sub " + 
-        /*  52 */"F" +                       "toInt " + 
-        /*  53 */"H" +                         "Primitive " + 
-        /*  54 */"H" +                         "UWord " + 
-        /*  55 */"F" +                       "wordsToBytes " + 
-        /*  56 */"F" +                       "zero " + 
+        /*   0 */"0" + "com.sun.squawk.Address.add " +
+        /*   1 */"J" +                           "Offset " +
+        /*   2 */"H" +                         "nd " +
+        /*   3 */"G" +                        "diff " +
+        /*   4 */"G" +                        "eq " +
+        /*   5 */"G" +                        "fromObject " +
+        /*   6 */"K" +                            "Primitive " +
+        /*   7 */"G" +                        "hi " +
+        /*   8 */"I" +                          "eq " +
+        /*   9 */"G" +                        "isMax " +
+        /*  10 */"I" +                          "Zero " +
+        /*  11 */"G" +                        "lo " +
+        /*  12 */"I" +                          "eq " +
+        /*  13 */"G" +                        "max " +
+        /*  14 */"G" +                        "ne " +
+        /*  15 */"G" +                        "or " +
+        /*  16 */"G" +                        "roundDown " +
+        /*  17 */"P" +                                 "ToWord " +
+        /*  18 */"L" +                             "Up " +
+        /*  19 */"N" +                               "ToWord " +
+        /*  20 */"G" +                        "sub " +
+        /*  21 */"J" +                           "Offset " +
+        /*  22 */"G" +                        "toObject " +
+        /*  23 */"I" +                          "UWord " +
+        /*  24 */"G" +                        "zero " +
+        /*  25 */"?" +                "UWord.and " +
+        /*  26 */"E" +                      "eq " +
+        /*  27 */"E" +                      "fromPrimitive " +
+        /*  28 */"E" +                      "hi " +
+        /*  29 */"G" +                        "eq " +
+        /*  30 */"E" +                      "isMax " +
+        /*  31 */"G" +                        "Zero " +
+        /*  32 */"E" +                      "lo " +
+        /*  33 */"G" +                        "eq " +
+        /*  34 */"E" +                      "max " +
+        /*  35 */"E" +                      "ne " +
+        /*  36 */"E" +                      "or " +
+        /*  37 */"E" +                      "toInt " +
+        /*  38 */"G" +                        "Offset " +
+        /*  39 */"G" +                        "Primitive " +
+        /*  40 */"E" +                      "zero " +
+        /*  41 */"?" +                "Offset.add " +
+        /*  42 */"F" +                       "bytesToWords " +
+        /*  43 */"F" +                       "eq " +
+        /*  44 */"F" +                       "fromPrimitive " +
+        /*  45 */"F" +                       "ge " +
+        /*  46 */"G" +                        "t " +
+        /*  47 */"F" +                       "isZero " +
+        /*  48 */"F" +                       "le " +
+        /*  49 */"G" +                        "t " +
+        /*  50 */"F" +                       "ne " +
+        /*  51 */"F" +                       "sub " +
+        /*  52 */"F" +                       "toInt " +
+        /*  53 */"H" +                         "Primitive " +
+        /*  54 */"H" +                         "UWord " +
+        /*  55 */"F" +                       "wordsToBytes " +
+        /*  56 */"F" +                       "zero " +
         "";
 
     public final static int com_sun_squawk_NativeUnsafe$call0             = 57;
@@ -254,5 +254,6 @@ public final class Native {
     public final static int com_sun_squawk_Lisp2Bitmap$testAndSetBitFor   = 163;
     public final static int com_sun_squawk_Lisp2Bitmap$testBitFor         = 164;
     public final static int com_sun_squawk_VM$lcmp                        = 165;
-    public final static int ENTRY_COUNT                                   = 166;
+    public final static int com_sun_squawk_NativeUnsafe$compareAndSwapInt = 166;
+    public final static int ENTRY_COUNT                                   = 167;
 }

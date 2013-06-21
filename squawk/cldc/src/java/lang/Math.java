@@ -1,28 +1,31 @@
 /*
  * Copyright 1994-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
  */
 
 package java.lang;
+
+import java.util.Random;
+
 import com.sun.squawk.vm.MathOpcodes;
 import com.sun.squawk.*;
 import com.sun.squawk.util.Assert;
@@ -58,10 +61,10 @@ public final strictfp class Math {
 
     /**
      * Returns the trigonometric sine of an angle.  Special cases:
-     * <ul><li>If the argument is NaN or an infinity, then the 
+     * <ul><li>If the argument is NaN or an infinity, then the
      * result is NaN.
-     * <li>If the argument is positive zero, then the result is 
-     * positive zero; if the argument is negative zero, then the 
+     * <li>If the argument is positive zero, then the result is
+     * positive zero; if the argument is negative zero, then the
      * result is negative zero.</ul>
      *
      * @param   a   an angle, in radians.
@@ -69,10 +72,10 @@ public final strictfp class Math {
      * @since   CLDC 1.1
      */
     public static double sin(double a)                       { return VM.math(MathOpcodes.SIN, a, 0);          }
-    
+
     /**
      * Returns the trigonometric cosine of an angle. Special case:
-     * <ul><li>If the argument is NaN or an infinity, then the 
+     * <ul><li>If the argument is NaN or an infinity, then the
      * result is NaN.</ul>
      *
      * @param   a   an angle, in radians.
@@ -80,13 +83,13 @@ public final strictfp class Math {
      * @since   CLDC 1.1
      */
     public static double cos(double a)                       { return VM.math(MathOpcodes.COS, a, 0);          }
-    
+
     /**
      * Returns the trigonometric tangent of an angle.  Special cases:
-     * <ul><li>If the argument is NaN or an infinity, then the result 
+     * <ul><li>If the argument is NaN or an infinity, then the result
      * is NaN.
-     * <li>If the argument is positive zero, then the result is 
-     * positive zero; if the argument is negative zero, then the 
+     * <li>If the argument is positive zero, then the result is
+     * positive zero; if the argument is negative zero, then the
      * result is negative zero</ul>
      *
      * @param   a   an angle, in radians.
@@ -122,23 +125,23 @@ public final strictfp class Math {
     }
 
     /**
-     * Returns the correctly rounded positive square root of a 
+     * Returns the correctly rounded positive square root of a
      * <code>double</code> value.
      * Special cases:
-     * <ul><li>If the argument is NaN or less than zero, then the result 
-     * is NaN. 
-     * <li>If the argument is positive infinity, then the result is positive 
-     * infinity. 
-     * <li>If the argument is positive zero or negative zero, then the 
+     * <ul><li>If the argument is NaN or less than zero, then the result
+     * is NaN.
+     * <li>If the argument is positive infinity, then the result is positive
+     * infinity.
+     * <li>If the argument is positive zero or negative zero, then the
      * result is the same as the argument.</ul>
-     * 
+     *
      * @param   a   a <code>double</code> value.
      * @return  the positive square root of <code>a</code>.
      *          If the argument is NaN or less than zero, the result is NaN.
      * @since   CLDC 1.1
      */
     public static double sqrt(double a)                      { return VM.math(MathOpcodes.SQRT, a, 0);         }
-    
+
     /**
      * Returns the smallest (closest to negative infinity)
      * <code>double</code> value that is not less than the argument and is
@@ -154,13 +157,13 @@ public final strictfp class Math {
      *
      * @param   a   a <code>double</code> value.
      * <!--@return  the value &lceil;&nbsp;<code>a</code>&nbsp;&rceil;.-->
-     * @return  the smallest (closest to negative infinity) 
+     * @return  the smallest (closest to negative infinity)
      *          <code>double</code> value that is not less than the argument
      *          and is equal to a mathematical integer.
      * @since   CLDC 1.1
      */
     public static double ceil(double a)                      { return VM.math(MathOpcodes.CEIL, a, 0);         }
-    
+
     /**
      * Returns the largest (closest to positive infinity)
      * <code>double</code> value that is not greater than the argument and
@@ -437,6 +440,39 @@ public final strictfp class Math {
         Assert.that(Double.doubleToLongBits(-0.0d) == negativeZeroDoubleBits);
     }
 /*end[DEBUG_CODE_ENABLED]*/
+
+  private static Random randomNumberGenerator;
+
+  private static synchronized void initRNG() {
+    if (randomNumberGenerator == null)
+      randomNumberGenerator = new Random();
+  }
+
+  /**
+   * Returns a {@code double} value with a positive sign, greater
+   * than or equal to {@code 0.0} and less than {@code 1.0}.
+   * Returned values are chosen pseudorandomly with (approximately)
+   * uniform distribution from that range.
+   *
+   * <p>When this method is first called, it creates a single new
+   * pseudorandom-number generator, exactly as if by the expression
+   * <blockquote>{@code new java.util.Random}</blockquote> This
+   * new pseudorandom-number generator is used thereafter for all
+   * calls to this method and is used nowhere else.
+   *
+   * <p>This method is properly synchronized to allow correct use by
+   * more than one thread. However, if many threads need to generate
+   * pseudorandom numbers at a great rate, it may reduce contention
+   * for each thread to have its own pseudorandom-number generator.
+   *
+   * @return  a pseudorandom {@code double} greater than or equal
+   * to {@code 0.0} and less than {@code 1.0}.
+   * @see     java.util.Random#nextDouble()
+   */
+  public static double random() {
+    if (randomNumberGenerator == null) initRNG();
+    return randomNumberGenerator.nextDouble();
+  }
 
 /*end[FLOATS]*/
 
