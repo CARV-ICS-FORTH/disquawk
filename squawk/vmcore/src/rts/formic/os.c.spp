@@ -123,9 +123,9 @@ INLINE int sysGetPageSize(void) {
  * Return the current time in microseconds.
  */
 jlong sysTimeMicros() {
-  // get the cycles, each cycle is 10ns
+  // get the cycles, each cycle is 100ns
   jlong res = (jlong)ar_free_timer_get_cycles();
-  res = res / 1000;
+  res = res / 10;
   return res;
 }
 

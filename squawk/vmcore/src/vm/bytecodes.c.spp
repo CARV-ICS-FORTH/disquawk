@@ -4331,9 +4331,9 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 /*end[TYPEMAP]*/
 
                 case Native_com_sun_squawk_NativeUnsafe_compareAndSwapInt: {
-                    Address obj = popAddress();
-                    int expected = popInt();
                     int value = popInt();
+                    int expected = popInt();
+                    Address obj = popAddress();
                     int res = ar_compare_and_swap(obj, expected, value);
                     pushInt(res);
                     break;
