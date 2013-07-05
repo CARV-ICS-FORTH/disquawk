@@ -7,7 +7,6 @@
 
 BUILD_DIR=./vmcore/build_x86
 AT=@
-BUILDER_SRC=builder/src/com/sun/squawk/builder
 BUILDER=./d -override:build-x86.properties
 BUILDER_FLAGS=-prod -o3 -mac -assume
 # Make APP point to a directory containing a Makefile with Formic.suite target
@@ -49,9 +48,17 @@ build.jar build-commands.jar: $(shell find builder/src -name "*.java")
 
 
 # builds the squawk executable for x86 platforms
-squawk: romizer/classes.jar build.jar
+squawk: romizer/classes.jar vm2c/classes.jar build.jar
 	$(AT)echo $(STR_ROM) $@
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) rom cldc
+
+romizer/classes.jar: $(shell find romizer/src -name "*.java") build.jar
+	$(AT)echo $(STR_BLD) romizer
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) romizer
+
+vm2c/classes.jar: $(shell find vm2c/src -name "*.java") build.jar
+	$(AT)echo $(STR_BLD) vm2c
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) vm2c
 
 # Create the bootstrap suite
 squawk.suite: romizer/classes.jar build.jar

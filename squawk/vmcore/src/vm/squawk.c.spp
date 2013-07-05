@@ -885,6 +885,9 @@ fprintf(stderr, "VM is in a blocking system call!!! WILL CRASH????");
         }
 #endif
         fprintf(stderr, "\n");
+/*if[MICROBLAZE_BUILD]*/
+        fprintf(stderr, format("End: %L ms\n"), getMilliseconds());
+/*end[MICROBLAZE_BUILD]*/
         fflush(stderr);
 /*else[EMULATOR_LAUNCHER]*/
 /*end[EMULATOR_LAUNCHER]*/

@@ -712,20 +712,20 @@ class HashtableEntry<K, V> implements Cloneable {
 //    Object key;
 //    Object value;
 //    HashtableEntry next;
-    // /**
-    //  * Creates a shallow copy of this hashtable. All the structure of the
-    //  * hashtable itself is copied, but the keys and values are not cloned.
-    //  * This is a relatively expensive operation.
-    //  *
-    //  * @return  a clone of the hashtable
-    //  */
-    // public synchronized Object clone() {
-    //       HashtableEntry e = new HashtableEntry();
-    //       e.hash = hash;
-    //       e.key = key;
-    //       e.value = value;
-    //       e.next = next;
-    //       return e;
-    // }
+//     /**
+//      * Creates a shallow copy of this hashtable. All the structure of the
+//      * hashtable itself is copied, but the keys and values are not cloned.
+//      * This is a relatively expensive operation.
+//      *
+//      * @return  a clone of the hashtable
+//      */
+//     public synchronized Object clone() {
+//           HashtableEntry e = new HashtableEntry();
+//           e.hash = hash;
+//           e.key = key;
+//           e.value = value;
+//           e.next = next;
+//           return e;
+//     }
 /*end[JAVA5SYNTAX]*/
 }
