@@ -81,9 +81,6 @@ In order to build Squawk you need
   * Float autoboxing in throwException (breaks preverify)
   * errno is **NOT** implemented
 
-  * GC=com.sun.squawk.Lisp2GenerationalCollector is not working on Formic
-  * GC=com.sun.squawk.Lisp2Collector is not working on Formic
-
 # Design #
 
 ## Formic ##
@@ -97,3 +94,15 @@ In order to build Squawk you need
   We modified Squawk's toolchain to use
   [retrotranslator](http://retrotranslator.sourceforge.net/) to be
   able to compile 1.5 source code to valid 1.4 classes.
+
+### Garbage Collection ###
+
+  There are three garbage collectors available in Squawk.
+    * Cheney
+    * Lisp2
+    * Lisp2Generational
+  However at the moment only Cheney is working properly.
+  
+  To change the Garbage collector you have to modify the
+  build.properties file **and** build-*.properties file the of the
+  architecture you want to target.

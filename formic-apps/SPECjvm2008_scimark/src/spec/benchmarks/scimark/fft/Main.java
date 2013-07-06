@@ -21,9 +21,10 @@ public class Main {
     static void runBenchmark() {
         //return new FFT().inst_main(args);
         // Loop a few times, to create some more work in each ops.
-        for (int i = kernel.FFT_LOOPS; i > 0; i --) {
-            FFT.main(i);
-        }
+        //for (int i = kernel.FFT_LOOPS; i > 0; i --) {
+            // FFT.main(i);
+            //}
+            FFT.main(0);
     }
 
     public static void Main() {
@@ -44,6 +45,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         // runSimple( Main.class, args );
+        setupBenchmark();
         runBenchmark();
     }
 }

@@ -18,7 +18,7 @@ RTS_SRC=./vmcore/src/rts/formic
 MYRMICS_SRC=$(RTS_SRC)/myrmics/src
 AT=@
 BUILDER=./d -override:build-mb.properties
-#BUILDER_FLAGS=-prod -verbose #This is for debug purposes (verbose and no macroize)
+#BUILDER_FLAGS=-prod -verbose -assume #This is for debug purposes (verbose and no macroize)
 BUILDER_FLAGS=-prod -comp:formic -o3 -mac -cflags:-I./$(MYRMICS_SRC)/include -assume -tracing
 # Make APP point to a directory containing a Makefile with Formic.suite target
 #APP?=../formic-tests/HelloWorld

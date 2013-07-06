@@ -86,8 +86,6 @@ public class ObjectGraphLoader {
 		}
         Address nameAddress = NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$name));
         String name = getStringAt(nameAddress);
-      if (suite.getType() == Suite.METADATA)
-        System.out.println("INSTALLING 2 "+name);
         Klass klass = Klass.getClass(name, false);
         addressToObjectMap.put(address, klass);
         objectToAddressMap.put(klass, address);

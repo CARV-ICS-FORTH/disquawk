@@ -401,6 +401,22 @@
             fork="true"/>
     </target>
 
+    <target name="run_scimark_lu"
+            depends="init, compile"
+            description="Run FFT">
+      <java classpath="${classes.dir}"
+            classname="spec.benchmarks.scimark.lu.Main"
+            fork="true"/>
+    </target>
+
+    <target name="run_scimark_sor"
+            depends="init, compile"
+            description="Run FFT">
+      <java classpath="${classes.dir}"
+            classname="spec.benchmarks.scimark.sor.Main"
+            fork="true"/>
+    </target>
+
     <target name="run_peptest"
             depends="init, compile"
             description="Run peptest">

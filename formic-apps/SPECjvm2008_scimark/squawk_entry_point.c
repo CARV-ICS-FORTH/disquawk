@@ -18,25 +18,26 @@
 
 void squawk_entry_point(void)
 {
-  char          *fakeArgv[3];
+  char          *fakeArgv[4];
   int           fakeArgc, i;
 
   fakeArgv[0] = "dummy";
-  fakeArgv[1] = "-spotsuite:FormicApp";
-// Must also vhange the MAKEFILE
+  fakeArgv[1] = "-Xtgc:1";
+  fakeArgv[2] = "-spotsuite:FormicApp";
+// Must also change the MAKEFILE
+#if 0
+  fakeArgv[3] = "spec.benchmarks.scimark.lu.Main";
+#endif
 #if 1
-  fakeArgv[2] = "spec.benchmarks.scimark.lu.Main";
+  fakeArgv[3] = "spec.benchmarks.scimark.fft.Main";
 #endif
 #if 0
-  fakeArgv[2] = "spec.benchmarks.scimark.fft.Main";
+  fakeArgv[3] = "spec.benchmarks.scimark.sor.Main";
 #endif
 #if 0
-  fakeArgv[2] = "spec.benchmarks.scimark.sor.Main";
+  fakeArgv[3] = "spec.benchmarks.scimark.sparse.Main";
 #endif
-#if 0
-  fakeArgv[2] = "spec.benchmarks.scimark.sparse.Main";
-#endif
-  fakeArgc    = 3;
+  fakeArgc    = 4;
 
   kt_printf("Invoking squawk with:");
   for(i=0; i<fakeArgc; ++i)

@@ -26,27 +26,21 @@ import spec.benchmarks.scimark.utils.Stopwatch;
    */
 
 public class FFT {
-    int id;
-    
-    public FFT(int id) {
-        this.id = id;
-    }
-    
     public  final double num_flops(int N) {
         double Nd = (double) N;
         double logN = (double) log2(N);
-        
+
         return (5.0*Nd-2)*logN + 2*(Nd+1);
     }
     public long inst_main(String[] argv) {
         run();
         return 0;
     }
-    
+
     /** Compute Fast Fourier Transform of (complex) data, in place.*/
     public   void transform(double data[]) {
         transform_internal(data, -1); }
-    
+
     /** Compute Inverse Fast Fourier Transform of (complex) data, in place.*/
     public   void inverse(double data[]) {
         transform_internal(data, +1);
@@ -57,7 +51,7 @@ public class FFT {
         for(int i=0; i<nd; i++)
             data[i] *= norm;
     }
-    
+
     /** Accuracy check on FFT of data. Make a copy of data, Compute the FFT, then
      * the inverse and compare to the original.  Returns the rms difference.*/
     public   double test(double data[]){
@@ -74,7 +68,7 @@ public class FFT {
             double d = data[i]-copy[i];
             diff += d*d; }
         return Math.sqrt(diff/nd); }
-    
+
     /** Make a random array of n (complex) elements. */
     public   double[] makeRandom(int n){
         int nd = 2*n;
@@ -82,55 +76,56 @@ public class FFT {
         for(int i=0; i<nd; i++)
             data[i]= Math.random();
         return data; }
-    
+
     /** Simple Test routine. */
     public static void main(int id){
-        FFT fft = new FFT(id);
+        FFT fft = new FFT();
         fft.run();
     }
     /* ______________________________________________________________________ */
-    
+
     protected   int log2(int n){
         int log = 0;
         for(int k=1; k < n; k *= 2, log++);
         if (n != (1 << log))
             throw new Error("FFT: Data length is not a power of 2!: "+n);
         return log; }
-    
+
     protected   void transform_internal(double data[], int direction) {
         if (data.length == 0) return;
         int n = data.length/2;
         if (n == 1) return;         // Identity operation!
         int logn = log2(n);
-        
+
         /* bit reverse the input data for decimation in time algorithm */
         bitreverse(data) ;
-        
+
         /* apply fft recursion */
         /* this loop executed log2(N) times */
         for (int bit = 0, dual = 1; bit < logn; bit++, dual *= 2) {
             double w_real = 1.0;
             double w_imag = 0.0;
-            
+
             double theta = 2.0 * direction * Math.PI / (2.0 * (double) dual);
             double s = Math.sin(theta);
             double t = Math.sin(theta / 2.0);
             double s2 = 2.0 * t * t;
-            
+
+            System.out.println("Transform "+bit);
             /* a = 0 */
             for (int b = 0; b < n; b += 2 * dual) {
                 int i = 2*b ;
                 int j = 2*(b + dual);
-                
+
                 double wd_real = data[j] ;
                 double wd_imag = data[j+1] ;
-                
+
                 data[j]   = data[i]   - wd_real;
                 data[j+1] = data[i+1] - wd_imag;
                 data[i]  += wd_real;
                 data[i+1]+= wd_imag;
             }
-            
+
             /* a = 1 .. (dual-1) */
             for (int a = 1; a < dual; a++) {
                 /* trignometric recurrence for w-> exp(i theta) w */
@@ -143,13 +138,13 @@ public class FFT {
                 for (int b = 0; b < n; b += 2 * dual) {
                     int i = 2*(b + a);
                     int j = 2*(b + a + dual);
-                    
+
                     double z1_real = data[j];
                     double z1_imag = data[j+1];
-                    
+
                     double wd_real = w_real * z1_real - w_imag * z1_imag;
                     double wd_imag = w_real * z1_imag + w_imag * z1_real;
-                    
+
                     data[j]   = data[i]   - wd_real;
                     data[j+1] = data[i+1] - wd_imag;
                     data[i]  += wd_real;
@@ -158,8 +153,8 @@ public class FFT {
             }
         }
     }
-    
-    
+
+
     protected   void bitreverse(double data[]) {
         /* This is the Goldrader bit-reversal algorithm */
         int n=data.length/2;
@@ -167,16 +162,16 @@ public class FFT {
         int i=0;
         int j=0;
         for (; i < nm1; i++) {
-            
+
             //int ii = 2*i;
             int ii = i << 1;
-            
+
             //int jj = 2*j;
             int jj = j << 1;
-            
+
             //int k = n / 2 ;
             int k = n >> 1;
-            
+
             if (i < j) {
                 double tmp_real    = data[ii];
                 double tmp_imag    = data[ii+1];
@@ -184,52 +179,66 @@ public class FFT {
                 data[ii+1] = data[jj+1];
                 data[jj]   = tmp_real;
                 data[jj+1] = tmp_imag; }
-            
+
             while (k <= j) {
                 //j = j - k ;
                 j -= k;
-                
+
                 //k = k / 2 ;
                 k >>= 1 ;
             }
             j += k ;
         }
     }
-    
+
     // ThreadLocal for StringBuilder used to create toString()s
     private static final ThreadLocal <double[]> threadLocalVector =
-            new ThreadLocal<double[]> () {
-        @Override protected double[] initialValue() {
-            return new double[kernel.CURRENT_FFT_SIZE];
-        }
-    };
-    
+      new ThreadLocal<double[]> ();
+ // {
+ //      protected double[] initialValue() {
+ //        System.out.println("initialValue");
+ //        return new double[kernel.CURRENT_FFT_SIZE];
+ //      }
+ //    };
+
     public  double measureFFT(int N, double mintime, Random R) {
-        
+
         // use a ThreadLocal for double array x[]
         double x[];
+        x = new double[kernel.CURRENT_FFT_SIZE];
+        threadLocalVector.set(x);
         x = threadLocalVector.get();
+        // System.out.println("N="+N);
+        // System.out.println("X="+x);
+        // System.out.println("L="+x.length);
+        // System.out.println("N="+N);
         if(x.length != N){
             x = new double[N];
             threadLocalVector.set(x);
         }
         // initialize FFT data as complex (N real/img pairs
         //double x[] = kernel.RandomVector(N * 2, R);
+        long start = System.currentTimeMillis();
         x = kernel.RandomizeVector(x, R);
+        System.out.println("[DIAG] Randomization took "+(System.currentTimeMillis()-start)+" ms");
         // oldx no longer used
         //double oldx[] = kernel.NewVectorCopy(x);
-        
+
         long cycles = 1;
         Stopwatch Q = new Stopwatch();
         //FFT fft = new FFT();
         Q.start();
+        start = System.currentTimeMillis();
         transform(x);	// forward transform
+        System.out.println("[DIAG] transform took "+(System.currentTimeMillis()-start)+" ms");
+        start = System.currentTimeMillis();
         inverse(x);		// backward transform
+        System.out.println("[DIAG] inverse took "+(System.currentTimeMillis()-start)+" ms");
         Q.stop();
-        
+
         final double EPS = 1.0e-10;
         double fftTest = test(x);
-        kernel.checkResults(kernel.CURRENT_FFT_RESULT, "" + fftTest, id);
+        kernel.checkResults(kernel.CURRENT_FFT_RESULT, "" + fftTest, 0);
         if ( fftTest / N > EPS )
             return 0.0;
         x = null;
@@ -247,17 +256,9 @@ public class FFT {
         } catch(Exception e){
             e.printStackTrace();
         }
-        
-        
-        
-        
+
+
+
+
     }
 }
-
-
-
-
-
-
-
-

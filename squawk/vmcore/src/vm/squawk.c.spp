@@ -2147,7 +2147,11 @@ void printStrSafely(Address value, char* valueName, Address low, Address high, c
     if (value == 0) {
         fprintf(stderr, "NULL.\n");
     } else if (result) {
+/*if[MICROBLAZE_BUILD]*/
+        printJavaString(value);
+/*else[MICROBLAZE_BUILD]*/
         printJavaString(value, stderr);
+/*end[MICROBLAZE_BUILD]*/
         fprintf(stderr, "\n");
     } else {
         fprintf(stderr, "%p is NOT in %s range %p .. %p\n", value, rangeName, low, high);

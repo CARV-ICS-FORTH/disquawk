@@ -997,9 +997,6 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
  * handle Strings with non-ascii characters.
  */
 //#define UNICODE true
-/*if[MICROBLAZE_BUILD]*/
-#define printJavaString(a, b) printJavaString(a)
-/*end[MICROBLAZE_BUILD]*/
 
         /**
          * Prints the contents of a Java String object to a given stream.
@@ -1009,7 +1006,11 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
          * @param out  where to print the string's contents
          * @return the number of characters printed
          */
-    int printJavaString(Address str, FILE* out) {
+/*if[MICROBLAZE_BUILD]*/
+    int printJavaString(Address str) {
+/*else[MICROBLAZE_BUILD]*/
+//  int printJavaString(Address str, FILE* out) {
+/*end[MICROBLAZE_BUILD]*/
 #ifdef UNICODE
             int i;
 #endif

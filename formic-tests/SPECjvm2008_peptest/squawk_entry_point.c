@@ -23,7 +23,7 @@ void squawk_entry_point(void)
 
   fakeArgv[0] = "dummy";
   fakeArgv[1] = "-spotsuite:FormicApp";
-  fakeArgv[2] = "spec.benchmarks.check.PepTest";
+  fakeArgv[2] = "spec.benchmarks.check.Main";
   fakeArgc    = 3;
 
   kt_printf("Invoking squawk with:");

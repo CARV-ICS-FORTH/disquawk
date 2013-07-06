@@ -91,7 +91,10 @@ public class Main {
 
   public static void main(String[] args)
     {
+      long start = System.currentTimeMillis();
       runBenchmark();
+      long total = System.currentTimeMillis()-start;
+      System.out.println("time: "+total+" ms");
     }
 
 }
