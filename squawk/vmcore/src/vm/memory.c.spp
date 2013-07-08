@@ -96,6 +96,7 @@ INLINE boolean setArrayLength(Address _oop, int _size);
 
 /*MAC*/ int inROM(Address $ea) {
             Address addr = $ea;
+
 	    return addr >= com_sun_squawk_VM_romStart && addr < com_sun_squawk_VM_romEnd;
         }
 

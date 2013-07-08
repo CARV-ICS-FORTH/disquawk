@@ -278,7 +278,11 @@ public class JavaApplicationManager {
      */
     private static void showVersion(PrintStream out) {
         out.println((Klass.SQUAWK_64 ? "64" : "32") + " bit squawk:");
-        out.println("    debug code " + (Klass.DEBUG_CODE_ENABLED ? "enabled" : "disabled"));
+/*if[DEBUG_CODE_ENABLED]*/
+        out.println("    debug code enabled");
+/*else[DEBUG_CODE_ENABLED]*/
+//      out.println("    debug code disabled");
+/*end[DEBUG_CODE_ENABLED]*/
         out.println("    assertions " + (Klass.ASSERTIONS_ENABLED ? "enabled" : "disabled"));
         out.println("    tracing " + (Klass.TRACING_ENABLED ? "enabled" : "disabled"));
 /*if[FLOATS]*/

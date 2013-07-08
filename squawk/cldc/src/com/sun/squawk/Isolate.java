@@ -116,8 +116,6 @@ import com.sun.squawk.vm.*;
  */
 public final class Isolate implements Runnable {
 
-    private final static boolean DEBUG_CODE_ENABLED = /*VAL*/false/*DEBUG_CODE_ENABLED*/;
-
     public final static boolean ENABLE_MULTI_ISOLATE = /*VAL*/false/*ENABLE_MULTI_ISOLATE*/;
 
     /**
@@ -486,11 +484,11 @@ public final class Isolate implements Runnable {
            updateLeafSuite(true); // TO DO: Also updated in run, but that is too late to find the main class
         } catch (Error e) {
             // note errors releated to loading the suites
-            if (DEBUG_CODE_ENABLED) {
-                System.err.println("Error constructing " + isolateInfoStr());
-            } else {
-                System.err.println("Error constructing suite");
-            }
+/*if[DEBUG_CODE_ENABLED]*/
+            System.err.println("Error constructing " + isolateInfoStr());
+/*else[DEBUG_CODE_ENABLED]*/
+//          System.err.println("Error constructing suite");
+/*end[DEBUG_CODE_ENABLED]*/
             throw e;
         }
 
@@ -1317,8 +1315,10 @@ public final class Isolate implements Runnable {
             VM.extendsEnabled = true; //----------------------------------------------------------------------
 
             if (res != null) {
+/*if[DEBUG_CODE_ENABLED]*/
                 CS.check(res);
                 CS.check(classStateQueue);
+/*end[DEBUG_CODE_ENABLED]*/
                 VM.addToClassStateCache(klass, res);
             }
 
@@ -1378,7 +1378,9 @@ public final class Isolate implements Runnable {
      * @param ks the class state to add
      */
     void addClassState(Object ks) {
+/*if[DEBUG_CODE_ENABLED]*/
         CS.check(ks);
+/*end[DEBUG_CODE_ENABLED]*/
         VM.extendsEnabled = false; //------------------------ NO CALL ZONE ---------------------------
         Object first = classStateQueue;
         NativeUnsafe.setObject(ks, CS.next, first);
@@ -1673,7 +1675,8 @@ public final class Isolate implements Runnable {
         String initializerClassName = VM.getIsolateInitializerClassName();
 
         // Verbose trace.
-        if (DEBUG_CODE_ENABLED && VM.isVeryVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (VM.isVeryVerbose()) {
             System.out.print("[Starting " + isolateInfoStr() + " with args");
             if (args != null) {
                 for (int i = 0; i != args.length; ++i) {
@@ -1687,6 +1690,7 @@ public final class Isolate implements Runnable {
 
             System.out.println("]");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
 /*if[ENABLE_MULTI_ISOLATE]*/
         addVMShutdownHook();
@@ -1848,19 +1852,23 @@ public final class Isolate implements Runnable {
 
 /*if[ENABLE_MULTI_ISOLATE]*/
     private void runHooks(CallbackManager cbm, String label) {
-        if (DEBUG_CODE_ENABLED && VM.isVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (VM.isVerbose()) {
             System.out.print("Running isolate");
             System.out.print(label);
             System.out.print(" hooks for ");
             System.out.println(this);
         }
+/*end[DEBUG_CODE_ENABLED]*/
         cbm.runHooks();
-        if (DEBUG_CODE_ENABLED && VM.isVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (VM.isVerbose()) {
             System.out.print("Done with isolate");
             System.out.print(label);
             System.out.print(" hooks for ");
             System.out.println(this);
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /**
@@ -1872,9 +1880,11 @@ public final class Isolate implements Runnable {
             shutdownHooks.removeAll();
             shutdownHooks = null;
         } else {
-            if (DEBUG_CODE_ENABLED && VM.isVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (VM.isVerbose()) {
                 System.out.println("No isolate SHUTDOWN_EVENT hooks for " + this);
             }
+/*end[DEBUG_CODE_ENABLED]*/
         }
     }
 /*end[ENABLE_MULTI_ISOLATE]*/
@@ -2038,9 +2048,11 @@ public final class Isolate implements Runnable {
         }
 /*end[ENABLE_SDA_DEBUGGER]*/
 
-        if (DEBUG_CODE_ENABLED && VM.isVeryVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (VM.isVeryVerbose()) {
             System.out.println("[Hibernating " + isolateInfoStr() + "]");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         hibernate(HIBERNATED, true);
     }

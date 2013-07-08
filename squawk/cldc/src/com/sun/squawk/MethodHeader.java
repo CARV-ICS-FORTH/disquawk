@@ -99,18 +99,13 @@ public class MethodHeader {
     public static final boolean ENABLE_SPECIFIC_TYPE_TABLES = Klass.ASSERTIONS_ENABLED;
 
     /**
-     * Debug LARGE format.
-     */
-    public static final boolean FORCE_LARGE_FORMAT = /*VAL*/false/*DEBUG_CODE_ENABLED*/;
-
-    /**
      * Minfo format encodings.
      */
     protected final static int FMT_LARGE   = 0x80,   // specifies a large minfo section
                                FMT_E       = 0x01,   // specifies that there is an exception table
                                FMT_T       = 0x02,   // specifies that there is a type table
                                FMT_I       = 0x04;   // specifies that the method is only invoked by the interpreter
- 
+
     private MethodHeader() {    }
 
 

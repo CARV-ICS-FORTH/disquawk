@@ -1602,11 +1602,6 @@ T
     /**
      * A flag that controls conditional features (mainly assertions).
      */
-    public static final boolean DEBUG_CODE_ENABLED = /*VAL*/false/*DEBUG_CODE_ENABLED*/;
-
-    /**
-     * A flag that controls conditional features (mainly assertions).
-     */
     public static final boolean ASSERTIONS_ENABLED = /*VAL*/false/*ASSERTIONS_ENABLED*/;
 
     /**

@@ -60,8 +60,6 @@ public class FormicCompiler extends CCompiler {
         if (options.typemap)            { buf.append("-DTYPEMAP ");         }
         if (options.kernel)             { buf.append("-DKERNEL_SQUAWK=true ");     }
 
-        if (options.nativeVerification) { buf.append("-DNATIVE_VERIFICATION=true ");          }
-
         // Required for definition of RTLD_DEFAULT handle sent to dlsym
         buf.append("-D_GNU_SOURCE ");
         buf.append("-DFLASH_MEMORY ");

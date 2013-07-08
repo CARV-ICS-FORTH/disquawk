@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -87,7 +87,7 @@ public class Preprocessor {
      * The default value is <code>false</code>.
      */
     public boolean assertionsEnabled;
-    
+
     /**
      * If <code>true</code> then assertion failure messages contain the file and line number.
      * <p>
@@ -121,7 +121,7 @@ public class Preprocessor {
             System.out.println(entry.getValue());
         }
     }
-    
+
     /**
      * A per-file flag indicating if assertions are to be made fatal.
      */
@@ -245,10 +245,11 @@ public class Preprocessor {
      */
     static class ConditionalScope {
 
-        ConditionalScope(String name, boolean value, ConditionalScope outer) {
-            this.name = name;
-            this.value = value;
-            this.outer = outer;
+        ConditionalScope(String name, boolean value, ConditionalScope outer, int line_no) {
+            this.name    = name;
+            this.value   = value;
+            this.outer   = outer;
+            this.line_no = line_no;
         }
 
         /**
@@ -265,6 +266,11 @@ public class Preprocessor {
          * The conditional in which this conditional is nested.
          */
         final ConditionalScope outer;
+
+        /**
+         * The line number where the conditional started.
+         */
+        final int line_no;
 
         /**
          * Specifies if processing of this conditional is in the 'else' clause.
@@ -368,14 +374,14 @@ public class Preprocessor {
                 } else {
                     value = getBooleanProperty(name);
                 }
-                ConditionalScope inner = new ConditionalScope(name, value, conditional);
+                ConditionalScope inner = new ConditionalScope(name, value, conditional, in.getLastLineNumber());
                 out.println();  // Replace the directive with an empty line
                 process(in, out, inner);
             } else if (line.startsWith("/*else[")) {
                 // Process /*else[...]*/ directive
                 String name = matchConditionalDirective(ELSE_DIRECTIVE, line);
                 if (conditional == null || !conditional.name.equals(name)) {
-                    throw new BuildException("'else' directive does not match a preceeding 'if' directive");
+                    throw new BuildException("'else' directive does not match a preceeding 'if' directive "+in.getContext());
                 }
                 conditional.elseClause = true;
                 outputEnabled = conditional.enabled();
@@ -384,7 +390,7 @@ public class Preprocessor {
                 // Process /*end[...]*/ directive
                 String name = matchConditionalDirective(END_DIRECTIVE, line);
                 if (conditional == null || !conditional.name.equals(name)) {
-                    throw new BuildException("'end' directive does not match a preceeding 'if' directive");
+                    throw new BuildException("'end' directive does not match a preceeding 'if' directive "+in.getContext());
                 }
                 out.println();  // Replace the directive with an empty line
                 return;
@@ -426,7 +432,7 @@ public class Preprocessor {
         }
 
         if (conditional != null) {
-            throw new PreprocessorException("incomplete 'if' directive");
+            throw new PreprocessorException("incomplete 'if["+conditional.name+"]' directive at line "+conditional.line_no);
         }
     }
 

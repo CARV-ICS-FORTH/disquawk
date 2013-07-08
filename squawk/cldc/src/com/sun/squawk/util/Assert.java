@@ -67,13 +67,13 @@ public class Assert {
      */
     protected static void throwAssertFailedException(String message)  throws NotInlinedPragma {
       // HACK: Skip new in exception
-      /*if[!MICROBLAZE_BUILD]*/
+/*if[!MICROBLAZE_BUILD]*/
         if (System.err != null) {
             System.err.flush();
             System.out.flush();
             throw new RuntimeException("Assertion failed: " + message);
         } else
-      /*end[MICROBLAZE_BUILD]*/
+/*end[MICROBLAZE_BUILD]*/
         {
             VM.print("Assertion failed: ");
             VM.println(message);
@@ -90,11 +90,11 @@ public class Assert {
      */
     private static void throwAssertFailedException(String systemMessage, String message)  throws NotInlinedPragma {
       // HACK: Skip new in exception
-      /*if[MICROBLAZE_BUILD]*/
+/*if[MICROBLAZE_BUILD]*/
         throwAssertFailedException(message);
-      /*else[MICROBLAZE_BUILD]*/
-        throwAssertFailedException(systemMessage + message);
-      /*end[MICROBLAZE_BUILD]*/
+/*else[MICROBLAZE_BUILD]*/
+//      throwAssertFailedException(systemMessage + message);
+/*end[MICROBLAZE_BUILD]*/
     }
 
     /**

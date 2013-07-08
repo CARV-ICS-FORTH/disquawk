@@ -952,12 +952,14 @@ class NativeVerifierHelper {
             return;
         }
 
+/*if[DEBUG_CODE_ENABLED]*/
         case Native.com_sun_squawk_VM$deadbeef: {
             frame.pop(REF); // com.sun.squawk.Address
             frame.pop(REF); // com.sun.squawk.Address
             Assert.that(frame.isStackEmpty());
             return;
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         case Native.com_sun_squawk_VM$doubleToLongBits: {
             frame.pop(DOUBLE); // double

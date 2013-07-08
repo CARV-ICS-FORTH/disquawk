@@ -509,27 +509,27 @@ public class VM implements GlobalStaticFields {
      */
     static void checkcastException(Object obj, Klass klass) throws InterpreterInvokedPragma {
         Assert.that(obj != null);
-        if (Klass.DEBUG_CODE_ENABLED) {
-            println("=== temp extra debugging info ===");
-            print("target class: ");
-            printAddress(klass);
+/*if[DEBUG_CODE_ENABLED]*/
+        println("=== temp extra debugging info ===");
+        print("target class: ");
+        printAddress(klass);
+        println();
+        Klass srcKlass = GC.getKlass(obj);
+        print("source class: ");
+        printAddress(srcKlass);
+        println();
+        Klass[] interfaces = srcKlass.getInterfaces();
+        if (interfaces != null) {
+          println("implements interfaces:");
+          for (int i = 0; i < interfaces.length; i++) {
+            print("    ");
+            print(interfaces[i].toString());
+            print("    ");
+            printAddress(interfaces[i]);
             println();
-            Klass srcKlass = GC.getKlass(obj);
-            print("source class: ");
-            printAddress(srcKlass);
-            println();
-            Klass[] interfaces = srcKlass.getInterfaces();
-            if (interfaces != null) {
-                println("implements interfaces:");
-                for (int i = 0; i < interfaces.length; i++) {
-                    print("    ");
-                    print(interfaces[i].toString());
-                    print("    ");
-                    printAddress(interfaces[i]);
-                    println();
-                }
-            }
+          }
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         throw new ClassCastException("Expected object of type " + klass + " but got object of type " + GC.getKlass(obj));
     }
@@ -3225,6 +3225,7 @@ hbp.dumpState();
      */
     native static void zeroWords(Address start, Address end);
 
+/*if[DEBUG_CODE_ENABLED]*/
     /**
      * Fill a block of memory with the 0xDEADBEEF pattern.
      *
@@ -3235,6 +3236,7 @@ hbp.dumpState();
     @Vm2c(code="if (ASSUME || TYPEMAP) { while (start < end) { if (ASSUME) { *((UWord *)start) = DEADBEEF; } setType(start, AddressType_UNDEFINED, HDR_BYTES_PER_WORD); start = (UWord *)start + 1; } }")
 /*end[JAVA5SYNTAX]*/
     native static void deadbeef(Address start, Address end);
+/*end[DEBUG_CODE_ENABLED]*/
 
     /**
      * Perform a shallow copy of the original object, without calling a constructor

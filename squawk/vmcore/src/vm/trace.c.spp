@@ -577,4 +577,15 @@ void printStackTrace(const char *msg) {
     printStackTracePrim(-1, lastIP, lastFP, msg, null);
 }
 
+#else /* not TRACE */
+
+/**
+ * Prints nothing.
+ *
+ * @param msg the trace message
+ */
+void printStackTrace(const char *msg) {
+  fprintf("Use -tracing to enable stacktrace here\n\t%s\n", msg);
+}
+
 #endif /* TRACE */

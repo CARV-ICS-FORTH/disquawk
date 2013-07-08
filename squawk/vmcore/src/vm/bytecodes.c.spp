@@ -3250,7 +3250,8 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
             } else {
                 int overflow = (sl + FP_FIXED_FRAME_SIZE) - (fp - nlocals - nstack);
                 assumeInterp(getUWord(ss, SC_guard) == 0);
-                if (com_sun_squawk_GC_GC_TRACING_SUPPORTED && com_sun_squawk_GC_traceFlags > 1) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (com_sun_squawk_GC_traceFlags > 1) {
                     fprintf(stderr, format(
                                             "*** Extending stack *** (stack size=%d, remaining stack=%d, nlocals=%d, nstack=%d, slotsToClear=%d, mp=0x%x)\n"),
                                             getArrayLength(ss),
@@ -3261,6 +3262,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                                             (int)mp
                                           );
                 }
+/*end[DEBUG_CODE_ENABLED]*/
                 if (usingServiceStack()) {
                     fatalInterpreterError("cannot extend service stack");
                 }

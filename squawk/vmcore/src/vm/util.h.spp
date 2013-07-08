@@ -23,12 +23,6 @@
  * information or have any questions.
  */
 
-#if (DEBUG_STARTUP || (defined(ASSUME) && ASSUME != 0))
-#define RUN_UNIT_TESTS 1
-#else
-#define RUN_UNIT_TESTS 0
-#endif
-
 /*---------------------------------------------------------------------------*\
  *                               Debugger                                    *
 \*---------------------------------------------------------------------------*/
@@ -107,9 +101,8 @@ NORETURN void fatalVMError0(char *msg, boolean cleanup) {
 #if TRACE
         printStackTrace(msg);
 #endif
-/*if[MACROIZE]*/
-/*else[MACROIZE]*/
-//      fatalInterpreterError0("Last interpreter values:\n", -1, iparm, ip, fp, sp, "-", -1);
+/*if[!MACROIZE]*/
+        fatalInterpreterError0("Last interpreter values:\n", -1, iparm, ip, fp, sp, "-", -1);
 /*end[MACROIZE]*/
     }
     stopVM0(-1, false);
@@ -147,12 +140,6 @@ NORETURN void fatalVMError(char *msg) {
 //#define fatalInterpreterError(_msg) \
 //  fatalInterpreterError0(_msg,      0, iparm, ip, fp, sp, __FILE__, __LINE__)
 /*end[MACROIZE]*/
-
-/*if[DEBUG_CODE_ENABLED]*/
-#define DEBUG_CODE_ENABLED 1
-/*else[DEBUG_CODE_ENABLED]*/
-//#define DEBUG_CODE_ENABLED 0
-/*end[DEBUG_CODE_ENABLED]*/
 
 void printJavaStrSafely(Address value, char* valueName);
 

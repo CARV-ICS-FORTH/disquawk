@@ -161,7 +161,7 @@ public class GC implements GlobalStaticFields {
     /**
      * Used for conditionally compiling trace code.
      */
-    final static boolean GC_TRACING_SUPPORTED = Klass.DEBUG_CODE_ENABLED;
+    final static boolean GC_TRACING_SUPPORTED = /*VAL*/false/*DEBUG_CODE_ENABLED*/;
 
     /**
      * GC tracing flag specifying basic tracing.
@@ -816,11 +816,12 @@ public class GC implements GlobalStaticFields {
 
         Object oop = VM.allocate(size, klass, arrayLength);
 
+/*if[DEBUG_CODE_ENABLED]*/
         /*
          * Trace.
          */
         if (oop != null) {
-            if (GC.GC_TRACING_SUPPORTED && isTracing(TRACE_ALLOCATION)) {
+            if (isTracing(TRACE_ALLOCATION)) {
                 VM.print("[Allocated object: block = ");
                 VM.printUWord(GC.oopToBlock(VM.asKlass(klass), Address.fromObject(oop)).toUWord());
                 VM.print(" oop = ");
@@ -834,7 +835,7 @@ public class GC implements GlobalStaticFields {
                 VM.println("]");
             }
         } else {
-            if (GC.GC_TRACING_SUPPORTED && isTracing(TRACE_ALLOCATION)) {
+            if (isTracing(TRACE_ALLOCATION)) {
                 VM.print("[Failed allocation of ");
                 VM.print(size);
                 VM.print(" bytes, klass = ");
@@ -848,6 +849,7 @@ public class GC implements GlobalStaticFields {
                 VM.println(" in total)]");
             }
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         return oop;
     }
@@ -878,21 +880,21 @@ public class GC implements GlobalStaticFields {
                 VM.println("ALLOCATION WHILE GC is DISABLED!");
             }
             if (oop == null) {
-                if (GC.GC_TRACING_SUPPORTED) {
-                    VM.print("allocate size: ");
-                    VM.print(size);
-                    VM.print(", klass: ");
-                    VM.print(((Klass) klass).getInternalName());
-                    VM.print(", arrayLength: ");
-                    VM.print(arrayLength);
-                    VM.println();
-                    VM.print("bytes free: ");
-                    VM.printOffset(allocEnd.diff(allocTop));
-                    VM.print(" in alloc space, ");
-                    VM.printOffset(heapEnd.diff(allocTop));
-                    VM.println(" in total");
-                }
-                throw VM.getOutOfMemoryError();
+/*if[DEBUG_CODE_ENABLED]*/
+              VM.print("allocate size: ");
+              VM.print(size);
+              VM.print(", klass: ");
+              VM.print(((Klass) klass).getInternalName());
+              VM.print(", arrayLength: ");
+              VM.print(arrayLength);
+              VM.println();
+              VM.print("bytes free: ");
+              VM.printOffset(allocEnd.diff(allocTop));
+              VM.print(" in alloc space, ");
+              VM.printOffset(heapEnd.diff(allocTop));
+              VM.println(" in total");
+/*end[DEBUG_CODE_ENABLED]*/
+              throw VM.getOutOfMemoryError();
             }
         }
         // The Lisp2Collector relies on instances always being at a higher address
@@ -947,13 +949,15 @@ public class GC implements GlobalStaticFields {
                 VM.print("[GC ");
             }
 
-            if (GC.GC_TRACING_SUPPORTED && isTracing(TRACE_COLLECTION)) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (isTracing(TRACE_COLLECTION)) {
                 VM.print("[count : ");
                 VM.print(getTotalCount());
                 VM.print(", backward branch count: ");
                 VM.print(VM.getBranchCount());
                 VM.print("] ");
             }
+/*end[DEBUG_CODE_ENABLED]*/
             VM.print(free);
             VM.print("->");
             VM.print(afterFree);
@@ -989,44 +993,45 @@ public class GC implements GlobalStaticFields {
         return ((size / HDR.BYTES_PER_WORD) + 7) / 8;
     }
 
-/*if[!ENABLE_ISOLATE_MIGRATION]*/
-/*else[ENABLE_ISOLATE_MIGRATION]*/
-//    /**
-//     * @see VM#copyObjectGraph(Object)
-//     */
-//    static void copyObjectGraph(Address object, ObjectMemorySerializer.ControlBlock cb) {
-//        /*
-//         * Trace.
-//         */
-//        if (GC.GC_TRACING_SUPPORTED && isTracing(TRACE_OBJECT_GRAPH_COPYING)) {
-//            VM.print("** Copying object graph rooted by ");
-//            VM.print(GC.getKlass(object).getName());
-//            VM.print(" instance @ ");
-//            VM.printAddress(object);
-//            VM.print(" ** (collection count: ");
-//            VM.print(getTotalCount());
-//            VM.print(", backward branch count:");
-//            VM.print(VM.getBranchCount());
-//            VM.println(")");
-//        }
-//
-//        /*
-//         * Set the collector re-entry guard.
-//         */
-//        Assert.always(!collecting);
-//        collecting = true;
-//
-//        Address copiedObjects = collector.copyObjectGraph(object, cb, allocTop);
-//
-//        /*
-//         * Unset the collector re-entry guard.
-//         */
-//        collecting = false;
-//
-//        // Update the fields of the control block that weren't updated by the collector
-//        Assert.always(copiedObjects.isZero() || !cb.start.isZero(), "collector must have recorded base address for internal pointers in copied object graph");
-//        cb.memory = (byte[])copiedObjects.toObject();
-//    }
+/*if[ENABLE_ISOLATE_MIGRATION]*/
+    /**
+     * @see VM#copyObjectGraph(Object)
+     */
+    static void copyObjectGraph(Address object, ObjectMemorySerializer.ControlBlock cb) {
+/*if[DEBUG_CODE_ENABLED]*/
+        /*
+         * Trace.
+         */
+        if (isTracing(TRACE_OBJECT_GRAPH_COPYING)) {
+            VM.print("** Copying object graph rooted by ");
+            VM.print(GC.getKlass(object).getName());
+            VM.print(" instance @ ");
+            VM.printAddress(object);
+            VM.print(" ** (collection count: ");
+            VM.print(getTotalCount());
+            VM.print(", backward branch count:");
+            VM.print(VM.getBranchCount());
+            VM.println(")");
+        }
+/*end[DEBUG_CODE_ENABLED]*/
+
+        /*
+         * Set the collector re-entry guard.
+         */
+        Assert.always(!collecting);
+        collecting = true;
+
+        Address copiedObjects = collector.copyObjectGraph(object, cb, allocTop);
+
+        /*
+         * Unset the collector re-entry guard.
+         */
+        collecting = false;
+
+        // Update the fields of the control block that weren't updated by the collector
+        Assert.always(copiedObjects.isZero() || !cb.start.isZero(), "collector must have recorded base address for internal pointers in copied object graph");
+        cb.memory = (byte[])copiedObjects.toObject();
+   }
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
     private static void encodeLengthWordError() throws NotInlinedPragma {
@@ -1259,13 +1264,15 @@ public class GC implements GlobalStaticFields {
      */
      static void stackCopy(Object srcChunk, Object dstChunk) {
 
-         if (GC.GC_TRACING_SUPPORTED && isTracing(TRACE_ALLOCATION)) {
+/*if[DEBUG_CODE_ENABLED]*/
+         if (isTracing(TRACE_ALLOCATION)) {
              VM.print("GC::stackCopy - srcChunk = ");
              VM.printAddress(srcChunk);
              VM.print(" dstChunk = ");
              VM.printAddress(dstChunk);
              VM.println();
          }
+/*end[DEBUG_CODE_ENABLED]*/
 
          Address src = Address.fromObject(srcChunk);
          Address dst = Address.fromObject(dstChunk);
@@ -1850,7 +1857,9 @@ public class GC implements GlobalStaticFields {
     static Object newClassState(Klass klass, Klass klassGlobalArray) {
         Object res = newArray(klassGlobalArray, CS.firstVariable + klass.getStaticFieldsSize(), HDR.BYTES_PER_WORD);
         NativeUnsafe.setObject(res, CS.klass, klass);
+/*if[DEBUG_CODE_ENABLED]*/
         CS.check(res);
+/*end[DEBUG_CODE_ENABLED]*/
 //VM.print(VM.getCurrentIsolate().getMainClassName());
 //VM.print(": created class state for ");
 //VM.print(Klass.getInternalName(klass));
@@ -2017,9 +2026,11 @@ public class GC implements GlobalStaticFields {
         }
 
         int percent = 0;
-        if (GC.GC_TRACING_SUPPORTED && VM.isVeryVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (VM.isVeryVerbose()) {
             VM.print("Scanning String objects from read-only memory");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         while (parent != null) {
             Address end = parent.getStart().add(parent.getSize());
@@ -2031,7 +2042,8 @@ public class GC implements GlobalStaticFields {
                     }
                 }
 
-                if (GC.GC_TRACING_SUPPORTED && VM.isVeryVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (VM.isVeryVerbose()) {
                     Address start = parent.getStart();
                     Offset size = end.diff(start);
                     int percentNow = (block.diff(start).toPrimitive() * 100) / size.toPrimitive();
@@ -2040,14 +2052,17 @@ public class GC implements GlobalStaticFields {
                         percent = percentNow;
                     }
                 }
+/*end[DEBUG_CODE_ENABLED]*/
 
                 block = object.add(GC.getBodySize(GC.getKlass(object), object));
             }
             parent = parent.getParent();
         }
-        if (GC.GC_TRACING_SUPPORTED && VM.isVeryVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (VM.isVeryVerbose()) {
             VM.println(" done");
         }
+/*end[DEBUG_CODE_ENABLED]*/
         return null;
     }
 

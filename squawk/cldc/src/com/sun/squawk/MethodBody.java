@@ -71,7 +71,7 @@ public final class MethodBody {
      * The Squawk bytecode.
      */
     private final byte[] code;
-    
+
     /**
      * Record if this is a constructor that inlined it call to a super constructor.
      */
@@ -99,7 +99,7 @@ public final class MethodBody {
         this.typeMap = null;
 /*end[TYPEMAP]*/
     }
-    
+
     /**
      * Creates a <code>MethodBody</code> representing the implementation details
      * of a method.
@@ -119,7 +119,7 @@ public final class MethodBody {
      * @param typeMap           the type map describing the type of the value (if any) written
      *                          to memory by each instruction in 'code'
      * @param reverseParameters true if the parameters are pushed right-to-left
-     * @param inlinedSuperConstructor True IFF this is a constructor that inlined java.lang.Object.<init>. 
+     * @param inlinedSuperConstructor True IFF this is a constructor that inlined java.lang.Object.<init>.
      */
     public MethodBody(
                        Method                definingMethod,
@@ -255,7 +255,7 @@ public final class MethodBody {
     public MethodMetadata getMetadata() {
         return metadata;
     }
-    
+
     /**
      * True IFF this is a constructor that inlined java.lang.Object.<init>. Used by squawk verifier.
      * @return
@@ -269,7 +269,7 @@ public final class MethodBody {
     \*-----------------------------------------------------------------------*/
 
     /**
-     * Encode the method header. 
+     * Encode the method header.
      *
      * @param enc encoder
      */
@@ -352,8 +352,8 @@ public final class MethodBody {
          * parameters, and stack are all less than 32 words, and there is a large format where the only
          * limits are that none of these values may exceed 32767.
          */
-        if (!MethodHeader.FORCE_LARGE_FORMAT     &&
-            localsCount        < 32 &&
+/*if[DEBUG_CODE_ENABLED]*/
+        if (localsCount        < 32 &&
             parametersCount    < 32 &&
             maxStack           < 32 &&
             typeTableSize      == 0 &&
@@ -365,7 +365,9 @@ public final class MethodBody {
              */
             enc.addUnencodedByte((localsCount<<5)     | (maxStack));         // byte 1 - lllsssss
             enc.addUnencodedByte((parametersCount<<2) | (localsCount>>3));   // byte 0 - 0pppppll
-        } else {
+        } else
+/*end[DEBUG_CODE_ENABLED]*/
+        {
             /*
              * Large Minfo
              */
@@ -440,7 +442,7 @@ public final class MethodBody {
     }
 /*end[TYPEMAP]*/
 
-  
+
 
 
 /*if[DEBUG_CODE_ENABLED]*/

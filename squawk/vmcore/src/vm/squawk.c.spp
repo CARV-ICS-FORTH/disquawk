@@ -76,8 +76,10 @@ void diagnosticWithValue(char * msg, int val) {
 #endif /* no assume */
 #endif /* DIAGNOSTICS_ENABLED */
 
-#ifndef DEBUG_STARTUP
-#define DEBUG_STARTUP 1
+#if ((defined(ASSUME) && ASSUME != 0))
+#define RUN_UNIT_TESTS 1
+#else
+#define RUN_UNIT_TESTS 0
 #endif
 
 // Single or user and kernel Squawk systems.
@@ -134,7 +136,7 @@ void printProfileStackTrace(ByteAddress traceIP, UWordAddress traceFP, int lastO
 void printStackTracePrim(int opcode, ByteAddress traceIP, UWordAddress traceFP, const char* msg, const char* mnemonic);
 #else
 #define openTraceFile() true
-#define printStackTrace(msg)
+//#define printStackTrace(msg)
 #define printStackTraceOpcode(code)
 #define printProfileStackTrace( traceIP, traceFP, lastOpcode)
 #define printStackTracePrim(opcode, traceIP, traceFP, msg, mnemonic)
@@ -1172,10 +1174,10 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
     memory = newBuffer(realMemorySize, "memory", true);
     memoryEnd = Address_add(memory, memorySize);
 /*if[MICROBLAZE_BUILD]*/
-    if (DEBUG_STARTUP) {
-      printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
-      printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
-    }
+/*if[DEBUG_CODE_ENABLED]*/
+    printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
+    printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
+/*end[DEBUG_CODE_ENABLED]*/
 /*end[MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
     bootstrapSize = loadBootstrapSuiteFromFlash(bootstrapSuiteFile, &com_sun_squawk_VM_romStart, &suite, &com_sun_squawk_VM_bootstrapHash);
@@ -1239,22 +1241,20 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
     assume(isWordAligned((UWord)com_sun_squawk_GC_ramStart));
     assume(isWordAligned((UWord)com_sun_squawk_VMThread_serviceStack));
 
-    if (DEBUG_STARTUP || com_sun_squawk_GC_traceFlags != 0) {
-        printRange("ROM       ", (char*)com_sun_squawk_VM_romStart, (char*)com_sun_squawk_VM_romEnd);
-        printRange("Suite     ", (char*)suite, (char*)((char*) suite + bootstrapSize));
-        printRange("Memory    ", (char*)memory, (char*)memoryEnd);
+/*if[DEBUG_CODE_ENABLED]*/
+    printRange("ROM       ", (char*)com_sun_squawk_VM_romStart, (char*)com_sun_squawk_VM_romEnd);
+    printRange("Suite     ", (char*)suite, (char*)((char*) suite + bootstrapSize));
+    printRange("Memory    ", (char*)memory, (char*)memoryEnd);
 #if TYPEMAP
-        printRange("Type map  ", (char*)getTypePointer(memory), (char*)getTypePointer(memoryEnd));
+    printRange("Type map  ", (char*)getTypePointer(memory), (char*)getTypePointer(memoryEnd));
 #endif /* TYPEMAP */
 #if DEFAULT_NVM_SIZE
-        printRange("NVM       ", (char*)com_sun_squawk_GC_nvmStart, (char*)com_sun_squawk_GC_nvmEnd);
+    printRange("NVM       ", (char*)com_sun_squawk_GC_nvmStart, (char*)com_sun_squawk_GC_nvmEnd);
 #endif
-        printRange("RAM       ", (char*)com_sun_squawk_GC_ramStart, (char*)com_sun_squawk_GC_ramEnd);
-        printRange("ServiceStk", (char*)com_sun_squawk_VMThread_serviceStack, (char*)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS));
-#if DEBUG_STARTUP
-        printRange("argv      ", (char*)com_sun_squawk_VM_argv, (char*)Address_add(memory, offset));
-#endif
-    }
+    printRange("RAM       ", (char*)com_sun_squawk_GC_ramStart, (char*)com_sun_squawk_GC_ramEnd);
+    printRange("ServiceStk", (char*)com_sun_squawk_VMThread_serviceStack, (char*)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS));
+    printRange("argv      ", (char*)com_sun_squawk_VM_argv, (char*)Address_add(memory, offset));
+/*end[DEBUG_CODE_ENABLED]*/
 
     return suite;
 }
@@ -2172,11 +2172,11 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
 
     fprintf(stderr, "fatalInterpreterError %s -- %s:%d\n", msg, file, line);
     fprintf(stderr, "    opcode: 0x%x\n", opcode);
-#if com_sun_squawk_Klass_DEBUG_CODE_ENABLED
+/*if[DEBUG_CODE_ENABLED]*/
     if (opcode != (opcode & 0xFF)) {
            fprintf(stderr, "    opcode overflowed!\n");
     }
-#endif
+/*end[DEBUG_CODE_ENABLED]*/
     fprintf(stderr, "    iparm: 0x%x\n", _iparm);
 
     if (com_sun_squawk_GC_collecting) {

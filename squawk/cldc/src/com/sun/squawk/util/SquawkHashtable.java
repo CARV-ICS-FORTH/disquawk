@@ -201,18 +201,18 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @return  a clone of the hashtable
      */
     public synchronized Object clone() {
-        /*if[JAVA5SYNTAX]*/
+/*if[JAVA5SYNTAX]*/
         SquawkHashtable<K,V> t = new SquawkHashtable(entryTable.length);
-        /*else[JAVA5SYNTAX]*/
-        //  SquawkHashtable t = new SquawkHashtable(entryTable.length);
-        /*end[JAVA5SYNTAX]*/
+/*else[JAVA5SYNTAX]*/
+//      SquawkHashtable t = new SquawkHashtable(entryTable.length);
+/*end[JAVA5SYNTAX]*/
         for (int i = entryTable.length ; i-- > 0 ; ) {
           t.entryTable[i] = (entryTable[i] != null)
-            /*if[JAVA5SYNTAX]*/
+/*if[JAVA5SYNTAX]*/
             ? (HashtableEntry<K,V>) entryTable[i].clone() : null;
-            /*else[JAVA5SYNTAX]*/
-            //? (HashtableEntry) entryTable[i].clone() : null;
-            /*end[JAVA5SYNTAX]*/
+/*else[JAVA5SYNTAX]*/
+//          ? (HashtableEntry) entryTable[i].clone() : null;
+/*end[JAVA5SYNTAX]*/
         }
         return t;
       }

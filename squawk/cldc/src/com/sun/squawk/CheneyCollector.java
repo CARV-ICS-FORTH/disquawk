@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -152,7 +152,11 @@ public final class CheneyCollector extends GarbageCollector {
             traceHeapInitialize(ramStart, ramEnd);
         }
 
-        decoder = Klass.DEBUG_CODE_ENABLED ? new VMBufferDecoder() : null;
+/*if[DEBUG_CODE_ENABLED]*/
+        decoder = new VMBufferDecoder();
+/*else[DEBUG_CODE_ENABLED]*/
+//      decoder = null;
+/*end[DEBUG_CODE_ENABLED]*/
         collectionTimings = new Timings();
         copyTimings = new Timings();
     }
@@ -262,13 +266,15 @@ public final class CheneyCollector extends GarbageCollector {
 
         toSpaceAllocationPointer = toSpaceStartPointer;
 
+/*if[DEBUG_CODE_ENABLED]*/
         /*
          * Output trace information.
          */
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+        if (tracing()) {
             VM.println("CheneyCollector::toggleSpaces");
             traceVariables();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
     }
 
@@ -397,21 +403,25 @@ public final class CheneyCollector extends GarbageCollector {
          */
         Assert.that(object.roundUpToWord().eq(object), "cannot copy unaligned object");
 
+/*if[DEBUG_CODE_ENABLED]*/
         /*
          * Trace.
          */
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+        if (tracing()) {
             VM.print("CheneyCollector::copyObject - object = ");
             VM.printAddress(object);
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         /*
          * Deal with null pointers.
          */
         if (object.isZero()) {
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.println(" is null");
             }
+/*end[DEBUG_CODE_ENABLED]*/
             return null;
         }
 
@@ -419,11 +429,13 @@ public final class CheneyCollector extends GarbageCollector {
          * Check to see if the pointer is in the space we are collecting.
          */
         if (!isInFromSpace(object)) {
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print(" klass = ");
                 VM.print(getKlass(object).getInternalName());
                 VM.println(" Not in from space ");
             }
+/*end[DEBUG_CODE_ENABLED]*/
             return object;
         }
 
@@ -437,13 +449,15 @@ public final class CheneyCollector extends GarbageCollector {
          */
         if (isForwarded(object)) {
             Address forwardPointer = getForwardedObject(object);
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print(" klass = ");
                 VM.print(getKlass(forwardPointer).getInternalName());
                 VM.print(" already forwarded to ");
                 VM.printAddress(forwardPointer);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
             Assert.that(forwardPointer.roundUpToWord().eq(forwardPointer), "unaligned forward pointer");
             return forwardPointer;
         }
@@ -470,7 +484,8 @@ public final class CheneyCollector extends GarbageCollector {
          * Trace.
          */
         Klass klass = getKlass(copiedObject);
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.print(" blockSize = ");
             VM.print(blockSize);
             VM.print(" klass = ");
@@ -479,6 +494,7 @@ public final class CheneyCollector extends GarbageCollector {
             VM.printAddress(copiedObject);
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         /*
          * If the object is a stack chunk then update all the frame pointers.
@@ -514,7 +530,7 @@ public final class CheneyCollector extends GarbageCollector {
             }
             VM.setStream(old);
         }
-/*end[FLASH_MEMORY]*/        
+/*end[FLASH_MEMORY]*/
 
         /*
          * Return the new object pointer.
@@ -572,7 +588,8 @@ public final class CheneyCollector extends GarbageCollector {
     private Address updateReference(Address base, int offset) {
         Assert.that(base.roundUpToWord().eq(base), "unaligned base address");
         Address oldObject = NativeUnsafe.getAddress(base, offset);
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.print("CheneyCollector::updateReference - [");
             VM.printAddress(base);
             VM.print("%");
@@ -581,6 +598,7 @@ public final class CheneyCollector extends GarbageCollector {
             VM.printAddress(oldObject);
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
         Address newObject = copyObject(oldObject);
         if (newObject.ne(oldObject)) {
             NativeUnsafe.setAddress(base, offset, newObject);
@@ -603,9 +621,11 @@ public final class CheneyCollector extends GarbageCollector {
      * @param newChunk the new stack chunk
      */
     private void updateStackChunkInternalPointers(Address oldChunk, Address newChunk) {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("CheneyCollector::updateStackChunkInternalPointers");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         /*
          * Update the frame pointers.
@@ -621,7 +641,8 @@ public final class CheneyCollector extends GarbageCollector {
                 recordPointer(newPointerAddress);
             }
 
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print("CheneyCollector::updateStackChunkInternalPointers offset = ");
                 VM.printOffset(offsetToPointer);
                 VM.print(" oldFP = ");
@@ -630,6 +651,7 @@ public final class CheneyCollector extends GarbageCollector {
                 VM.printAddress(newFP);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             offsetToPointer = delta.add(FP.returnFP * HDR.BYTES_PER_WORD);
             oldFP = NativeUnsafe.getAddress(oldChunk.addOffset(offsetToPointer), 0);
@@ -649,24 +671,28 @@ public final class CheneyCollector extends GarbageCollector {
         Address previousFP = VM.getPreviousFP(fp);
         Address previousIP = VM.getPreviousIP(fp);
 
+/*if[DEBUG_CODE_ENABLED]*/
         /*
          * Trace.
          */
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+        if (tracing()) {
             VM.print("CheneyCollector::updateActivation fp = ");
             VM.printAddress(fp);
             VM.print(" mp = ");
             VM.printAddress(mp);
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         /*
          * Adjust the previous IP and MP.
          */
         if (!previousIP.isZero()) {
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.println("CheneyCollector::updateActivation -- change previous MP");
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             /*
              * Adjust the MP
@@ -680,7 +706,8 @@ public final class CheneyCollector extends GarbageCollector {
              * Adjust the IP
              */
             Offset delta = newPreviousMP.diff(oldPreviousMP);
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.println("CheneyCollector::updateActivation -- change previous IP");
                 VM.print("        oldPreviousMP = ");
                 VM.printAddress(oldPreviousMP);
@@ -694,6 +721,7 @@ public final class CheneyCollector extends GarbageCollector {
                 VM.printAddress(previousIP.addOffset(delta));
                 VM.println("");
             }
+/*end[DEBUG_CODE_ENABLED]*/
             previousIP = previousIP.addOffset(delta);
             VM.setPreviousIP(fp, previousIP);
 
@@ -731,11 +759,13 @@ public final class CheneyCollector extends GarbageCollector {
             int bite = NativeUnsafe.getByte(mp, mapOffset+byteOffset);
             boolean isOop = ((bite>>bitOffset)&1) != 0;
             if (isOop) {
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     VM.print("CheneyCollector::updateActivation -- update parm at offset ");
                     VM.print(varOffset);
                     VM.println();
                 }
+/*end[DEBUG_CODE_ENABLED]*/
                 updateReference(fp, varOffset);
             }
             varOffset++; // Parameters go upwards
@@ -754,11 +784,13 @@ public final class CheneyCollector extends GarbageCollector {
             int bite = NativeUnsafe.getByte(mp, mapOffset + byteOffset);
             boolean isOop = ((bite >> bitOffset) & 1) != 0;
             if (isOop) {
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     VM.print("CheneyCollector::updateActivation -- update local at offset ");
                     VM.print(varOffset);
                     VM.println();
                 }
+/*end[DEBUG_CODE_ENABLED]*/
                 updateReference(fp, varOffset);
             }
             varOffset--; // Locals go downwards
@@ -776,16 +808,18 @@ public final class CheneyCollector extends GarbageCollector {
     private void checkActivationForAddresses(Address fp, boolean isInnerMostActivation) {
         Address mp  = NativeUnsafe.getAddress(fp, FP.method);
 
+/*if[DEBUG_CODE_ENABLED]*/
         /*
          * Trace.
          */
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+        if (tracing()) {
             VM.print("CheneyCollector::checkActivationForAddresses fp = ");
             VM.printAddress(fp);
             VM.print(" mp = ");
             VM.printAddress(mp);
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         /*
          * Get the method pointer and setup to go through the parameters and locals.
@@ -839,15 +873,17 @@ public final class CheneyCollector extends GarbageCollector {
     private void updateStackChunk(Address chunk) {
         Address fp = NativeUnsafe.getAddress(chunk, SC.lastFP);
 
+/*if[DEBUG_CODE_ENABLED]*/
         /*
          * Trace.
          */
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+        if (tracing()) {
             VM.println();
             VM.print("CheneyCollector::updateStackChunk chunk = ");
             VM.printAddress(chunk);
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         /*
          * Update the pointers in the header part of the stack chunk
@@ -874,26 +910,32 @@ public final class CheneyCollector extends GarbageCollector {
      * from 'from' space to 'to' space as necessary.
      */
     private void copyRootObjects() {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("CheneyCollector::copyRootObjects --------------- Start");
         }
+/*end[DEBUG_CODE_ENABLED]*/
         for (int i = 0 ; i < VM.getGlobalOopCount() ; i++) {
             Address oldObject = Address.fromObject(VM.getGlobalOop(i));
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print("CheneyCollector::copyRootObjects index = ");
                 VM.print(i);
                 VM.print(" object = ");
                 VM.printAddress(oldObject);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
             Address newObject = copyObject(oldObject);
             if (newObject.ne(oldObject)) {
                 VM.setGlobalOop(newObject.toObject(), i);
             }
         }
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("CheneyCollector::copyRootObjects --------------- End");
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /**
@@ -905,12 +947,14 @@ public final class CheneyCollector extends GarbageCollector {
     private void updateOops(Address object) {
         Address associationOrKlass = updateReference(object, HDR.klass);
         Klass klass = VM.asKlass(updateReference(associationOrKlass, (int)FieldOffsets.com_sun_squawk_Klass$self));
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.print("CheneyCollector::updateOops object = ");
             VM.printAddress(object);
             VM.print(" klass = ");
             VM.println(Klass.getInternalName(klass));
         }
+/*end[DEBUG_CODE_ENABLED]*/
         if (Klass.isSquawkArray(klass)) {
             switch (Klass.getSystemID(klass)) {
                 case CID.BOOLEAN_ARRAY:
@@ -935,14 +979,18 @@ public final class CheneyCollector extends GarbageCollector {
                     Klass gaklass = VM.asKlass(NativeUnsafe.getObject(object, CS.klass));
                     if (gaklass == null) { // This can occur if a GC occurs when a class state is being allocated
                         Assert.that(NativeUnsafe.getObject(object, CS.next) == null); // The 'next' pointer should not yet be set either
-                        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                        if (tracing()) {
                             VM.println("CheneyCollector::updateOops GLOBAL_ARRAY with null CS.klass not scanned");
                         }
+/*end[DEBUG_CODE_ENABLED]*/
                     } else {
-                        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                        if (tracing()) {
                             VM.print("CheneyCollector::updateOops globals for ");
                             VM.println(Klass.getInternalName(gaklass));
                         }
+/*end[DEBUG_CODE_ENABLED]*/
                         int end = CS.firstVariable + Klass.getRefStaticFieldsSize(gaklass);
                         for (int i = 0 ; i < end ; i++) {
                             Assert.that(i < GC.getArrayLength(object), "class state index out of bounds");
@@ -994,12 +1042,15 @@ public final class CheneyCollector extends GarbageCollector {
      * @return  the address in 'to' space at which the next call to this method should start processing
      */
     private Address copyNonRootObjects(Address toSpaceUpdatePointer) {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("CheneyCollector::copyNonRootObjects --------------- Start");
         }
+/*end[DEBUG_CODE_ENABLED]*/
         while (toSpaceUpdatePointer.lo(toSpaceAllocationPointer)) {
             Address object = GC.blockToOop(toSpaceUpdatePointer);
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.println();
                 VM.print("CheneyCollector::copyNonRootObjects block = ");
                 VM.printAddress(toSpaceUpdatePointer);
@@ -1008,14 +1059,17 @@ public final class CheneyCollector extends GarbageCollector {
                 VM.print(" klass = ");
                 VM.println(Klass.getInternalName(getKlass(object)));
             }
+/*end[DEBUG_CODE_ENABLED]*/
             Klass klass = getKlass(object);
             Assert.that(GC.oopToBlock(klass, object).eq(toSpaceUpdatePointer), "bad size for copied object");
             updateOops(object);
             toSpaceUpdatePointer = object.add(GC.getBodySize(klass, object));
         }
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("CheneyCollector::copyNonRootObjects --------------- End");
         }
+/*end[DEBUG_CODE_ENABLED]*/
         return toSpaceUpdatePointer;
     }
 
@@ -1034,9 +1088,11 @@ public final class CheneyCollector extends GarbageCollector {
         finalizers = null;
 
         while (entry != null) {
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.println("CheneyCollector::processFinalizerQueue -- processing finalizer ");
             }
+/*end[DEBUG_CODE_ENABLED]*/
             Assert.that(!isInToSpace(getPossiblyForwardedObject(Address.fromObject(entry))), "finalizer for object copied prematurely");
             Finalizer next = entry.getNext();
             Address object = Address.fromObject(entry.getObject());
@@ -1047,16 +1103,19 @@ public final class CheneyCollector extends GarbageCollector {
             toSpaceUpdatePointer = copyNonRootObjects(toSpaceUpdatePointer);
 
             if (referenced) {
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     VM.print("CheneyCollector::processFinalizerQueue -- requeue ");
                     VM.printAddress(entry);
                     VM.print(" klass ");
                     VM.print(getKlass(Address.fromObject(entry.getObject())).getInternalName());
                     VM.println();
                 }
+/*end[DEBUG_CODE_ENABLED]*/
                 addFinalizer(entry);        // Requeue the finalizer back on the collecor.
             } else {
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     VM.print("CheneyCollector::processFinalizerQueue -- release ");
                     VM.printAddress(entry);
                     VM.print(" klass ");
@@ -1065,6 +1124,7 @@ public final class CheneyCollector extends GarbageCollector {
                     VM.print(entry.getIsolate().getMainClassName());
                     VM.println();
                 }
+/*end[DEBUG_CODE_ENABLED]*/
                 entry.queueToIsolate();     // Queue for execution when the isolate is next preempted.
             }
             entry = next;
@@ -1084,19 +1144,23 @@ public final class CheneyCollector extends GarbageCollector {
         Ref ref = references;
         references = null;
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("CheneyCollector::processWeakReferenceQueue -- start ");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         while (ref != null) {
 
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print("CheneyCollector::processWeakReferenceQueue -- processing weak reference @ ");
                 VM.printAddress(ref);
                 VM.print(" to ");
                 VM.printAddress(ref.referent);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             Address refAddress = Address.fromObject(ref);
             Assert.that(isInFromSpace(refAddress));
@@ -1118,43 +1182,53 @@ public final class CheneyCollector extends GarbageCollector {
                         ref.referent = referent;
                         addWeakReference(ref);
 
-                        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                        if (tracing()) {
                             VM.print("CheneyCollector::processWeakReferenceQueue -- kept weak reference and updated referent to ");
                             VM.printAddress(referent);
                             VM.println();
                         }
+/*end[DEBUG_CODE_ENABLED]*/
                     } else {
                         // The referent is unreachable
                         ref.referent = Address.zero();
 
-                        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                        if (tracing()) {
                             VM.println("CheneyCollector::processWeakReferenceQueue -- discarded weak reference and cleared referent");
                         }
+/*end[DEBUG_CODE_ENABLED]*/
                     }
                 }
             } else {
                 // The Ref object is unreachable
 
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     VM.println("CheneyCollector::processWeakReferenceQueue -- discarded weak reference");
                 }
+/*end[DEBUG_CODE_ENABLED]*/
             }
             memoryProtect(fromSpaceStartPointer, fromSpaceEndPointer);
 
             ref = next;
         }
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("CheneyCollector::processWeakReferenceQueue -- end");
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
+/*if[DEBUG_CODE_ENABLED]*/
     /**
      * Debuging aid. Fill from space with the 0xDEADBEEF pattern.
      */
     private void clearFromSpace() {
         VM.deadbeef(fromSpaceStartPointer, fromSpaceEndPointer);
     }
+/*end[DEBUG_CODE_ENABLED]*/
 
 /*if[JAVA5SYNTAX]*/
     @Vm2c(root="collectGarbage")
@@ -1168,7 +1242,7 @@ public final class CheneyCollector extends GarbageCollector {
             traceHeap("Before collection", allocTop);
         }
         this.numBytesLastScanned = allocTop.diff(toSpaceStartPointer).toPrimitive();
-        
+
         // Switch semi-spaces
         toggleSpaces();
 
@@ -1200,8 +1274,10 @@ public final class CheneyCollector extends GarbageCollector {
         // Set the from space to be read-write
         memoryProtect(Address.zero(), Address.zero());
 
+/*if[DEBUG_CODE_ENABLED]*/
         // Fill from space with the 0xDEADBEEF pattern.
         clearFromSpace();
+/*end[DEBUG_CODE_ENABLED]*/
 
         // Set the main RAM allocator to the 'to' space.
         GC.setAllocationParameters(toSpaceStartPointer, toSpaceAllocationPointer, toSpaceEndPointer, toSpaceEndPointer);
@@ -1345,7 +1421,8 @@ public final class CheneyCollector extends GarbageCollector {
             allocTop = graphCopy.add(graphSize);
             GC.setAllocationParameters(toSpaceStartPointer, allocTop, toSpaceEndPointer, toSpaceEndPointer);
 
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.println();
                 VM.print("CheneyCollector::copyObjectGraph - graph = ");
                 VM.printAddress(graph);
@@ -1355,6 +1432,7 @@ public final class CheneyCollector extends GarbageCollector {
                 VM.print(cb.memory.length);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
         } else {
             start = now();
@@ -1430,11 +1508,13 @@ public final class CheneyCollector extends GarbageCollector {
         if (isInToSpace(pointerAddress)) {
             int word = (pointerAddress.diff(toSpaceStartPointer).toInt() / HDR.BYTES_PER_WORD);
             oopMap.set(word);
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print("CheneyCollector::recordPointer - set bit in oop map for pointer at ");
                 VM.printAddress(pointerAddress);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
         }
     }
 
@@ -1442,21 +1522,20 @@ public final class CheneyCollector extends GarbageCollector {
      *                                 Tracing                                   *
     \*---------------------------------------------------------------------------*/
 
+/*if[DEBUG_CODE_ENABLED]*/
     /**
      * Tests to see if tracing is enabled.
      *
      * @return true if it is
      */
     private boolean tracing() {
-        if (GC.GC_TRACING_SUPPORTED) {
-            if (!copyingObjectGraph) {
-                return GC.isTracing(GC.TRACE_COLLECTION);
-            } else {
-                return GC.isTracing(GC.TRACE_OBJECT_GRAPH_COPYING);
-            }
-        }
-        return false;
+         if (!copyingObjectGraph) {
+             return GC.isTracing(GC.TRACE_COLLECTION);
+         } else {
+             return GC.isTracing(GC.TRACE_OBJECT_GRAPH_COPYING);
+         }
     }
+/*end[DEBUG_CODE_ENABLED]*/
 
     /**
      * Trace the collector variables.

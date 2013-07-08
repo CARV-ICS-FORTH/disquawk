@@ -25,9 +25,9 @@
 
 //#define UNICODE true
 
-#if NATIVE_VERIFICATION
+/*if[NATIVE_VERIFICATION]*/
 #include "util/sha.h"
-#endif /* NATIVE_VERIFICATION */
+/*end[NATIVE_VERIFICATION]*/
 
 /**
  * Sets up the global used to pass an int result from an INTERNAL IO operation back to the VM.
@@ -49,11 +49,11 @@ INLINE void returnIntResult(int value) {
  */
 INLINE void returnLongResult(jlong value) {
     internalLowResult = (int)value;
-#ifdef JAVA
+/*if[MICROBLAZE_BUILD]*/
     com_sun_squawk_ServiceOperation_result = 0;
-#else
+/*else[MICROBLAZE_BUILD]*/
     com_sun_squawk_ServiceOperation_result = (int)(value >> 32);
-#endif  /* JAVA */
+/*end[MICROBLAZE_BUILD]*/
 }
 
 /**
@@ -102,26 +102,26 @@ void cioExecute(void) {
   */
     Address o1      = com_sun_squawk_ServiceOperation_o1;
 /*  Address o2      = com_sun_squawk_ServiceOperation_o2; */
-#ifndef JAVA
+/*if[!MICROBLAZE_BUILD]*/
     FILE   *vmOut   = streams[currentStream];
-#endif /* JAVA */
+/*end[MICROBLAZE_BUILD]*/
 
     switch (op) {
 
         case ChannelConstants_INTERNAL_SETSTREAM: {
-#ifndef JAVA
+/*if[!MICROBLAZE_BUILD]*/
             com_sun_squawk_ServiceOperation_result = setStream(i1);
             assume(streams[currentStream] != null);
-#endif
+/*end[MICROBLAZE_BUILD]*/
             break;
         }
 
         case ChannelConstants_INTERNAL_PRINTSTRING: {
-#ifdef JAVA
+/*if[MICROBLAZE_BUILD]*/
             printJavaString(o1);
-#else /* JAVA */
+/*else[MICROBLAZE_BUILD]*/
             printJavaString(o1, vmOut);
-#endif /* JAVA */
+/*end[MICROBLAZE_BUILD]*/
             break;
         }
 
@@ -204,7 +204,7 @@ void cioExecute(void) {
             break;
         }
 
-#if DEBUG_CODE_ENABLED
+/*if[DEBUG_CODE_ENABLED]*/
         case ChannelConstants_INTERNAL_PRINTGLOBALS: {
             printGlobals();
             fflush(vmOut);
@@ -220,7 +220,7 @@ void cioExecute(void) {
             fflush(vmOut);
             break;
         }
-#endif /* DEBUG_CODE_ENABLED */
+/*end[DEBUG_CODE_ENABLED]*/
 
         case ChannelConstants_INTERNAL_GETPATHSEPARATORCHAR: {
             com_sun_squawk_ServiceOperation_result = pathSeparatorChar;
@@ -269,7 +269,7 @@ void cioExecute(void) {
 
         case ChannelConstants_INTERNAL_SEND_MESSAGE_TO_SERVER: {
             sendMessage(o1, o2, i1, &toServerMessages, &toServerWaiters);
-#if KERNEL_SQUAWK
+/*if[KERNEL_SQUAWK]*/
             /*
              * We could use a special _TO_KERNEL type for messages
              * to the driver's request url but this is simpler.
@@ -278,7 +278,7 @@ void cioExecute(void) {
                 void Squawk_enterKernel();
                 Squawk_enterKernel();
             }
-#endif /* KERNEL_SQUAWK */
+/*end[KERNEL_SQUAWK]*/
             break;
         }
 
@@ -323,7 +323,7 @@ void cioExecute(void) {
             break;
         }
 
-#if NATIVE_VERIFICATION
+/*if[NATIVE_VERIFICATION]*/
         case ChannelConstants_INTERNAL_COMPUTE_SHA1_FOR_MEMORY_REGION:{
             int address=i1;
             int numberOfBytes=i2;
@@ -331,7 +331,7 @@ void cioExecute(void) {
             sha_for_memory_region(buffer_to_write_sha_hash_into,address,numberOfBytes);
             break;
         }
-#endif
+/*end[NATIVE_VERIFICATION]*/
         default: {
             ioExecute();
         }
@@ -342,7 +342,7 @@ void cioExecute(void) {
  * Post an event to the channelIO subsystem to wake up any waiters.
  */
 static void cioPostEvent(void) {
-#if KERNEL_SQUAWK
+/*if[KERNEL_SQUAWK]*/
     ioPostEvent();
-#endif
+/*end[KERNEL_SQUAWK]*/
 }

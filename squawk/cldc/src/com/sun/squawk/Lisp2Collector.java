@@ -42,7 +42,7 @@ import com.sun.squawk.pragma.NotInlinedPragma;
  * ('00' if not) and if so, where is the class located ('01' in the heap, '11' in NVM and '10'
  * in ROM). The forwarding offset is relative to the start of a "slice" with the absolute
  * offset of the slice stored in a fixed size "slice offset table".
- * 
+ *
  * <p><blockquote><pre>
  *       <-------------- (W-C-2) ---------> <------ C ------> <-2->
  *      +----------------------------------+-----------------+-----+
@@ -54,7 +54,7 @@ import com.sun.squawk.pragma.NotInlinedPragma;
  *
  * <h3>Heap Layout</h3>
  * <blockquote><pre>
- 
+
                       memoryEnd ->
                                     Slice table
 
@@ -235,7 +235,7 @@ public final class Lisp2Collector extends GarbageCollector {
     /**
      * Assume there's only a single slice in the slice table. Slice index will always be zero.
      */
-    private final static boolean ASSUME_SIMPLE_SLICE_TABLE = /*VAL*/false/*ASSUME_SIMPLE_SLICE_TABLE*/;
+    // private final static boolean ASSUME_SIMPLE_SLICE_TABLE = /*VAL*/false/*ASSUME_SIMPLE_SLICE_TABLE*/;
 
     /**
      * The address at which the slice table starts.
@@ -294,7 +294,7 @@ public final class Lisp2Collector extends GarbageCollector {
      * Count of the number of classes whose oop map moved during the last collection.
      */
     private int movedOopMaps;
-/*end[ENABLE_DYNAMIC_CLASSLOADING]*/    
+/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
 
     /**
      * Creates a Lisp2Collector.
@@ -409,10 +409,12 @@ public final class Lisp2Collector extends GarbageCollector {
         GC.setAllocationParameters(heapStart, heapStart, heapEnd, heapEnd);
 
         // Output trace information.
-        if (GC.GC_TRACING_SUPPORTED && GC.isTracing(GC.TRACE_BASIC)) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (GC.isTracing(GC.TRACE_BASIC)) {
             markingStack.setup(heapEnd, Lisp2Bitmap.getStart());
             traceVariables();
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /**
@@ -505,9 +507,9 @@ public final class Lisp2Collector extends GarbageCollector {
 
         Lisp2Bitmap.initialize(bitmap, bitmapSize, permanentMemoryStart);
 
-        if (ASSUME_SIMPLE_SLICE_TABLE) {
-            Assert.always(sliceCount == 1); // "ASSUME_SIMPLE_SLICE_TABLE failed"
-        }
+/*if[ASSUME_SIMPLE_SLICE_TABLE]*/
+        Assert.always(sliceCount == 1); // "ASSUME_SIMPLE_SLICE_TABLE failed"
+/*end[ASSUME_SIMPLE_SLICE_TABLE]*/
 
         Assert.always(sliceTable.add(sliceTableSize).loeq(alignedMemoryEnd)); // "slice table overflows memory boundary"
         Assert.always(sliceOffsetBits < 32); // "slice size overflows 32 bit address space"
@@ -562,31 +564,31 @@ public final class Lisp2Collector extends GarbageCollector {
         if (count != 0) {
             out.println("Collection: [average time per collection = " + (total / count) + timerUnitSuffix() + "]");
             out.println("    collection count: " + count);
-            if (GC.GC_TRACING_SUPPORTED) {
-                dumpTiming(out, "    total time:       ", total, total);
-                dumpTiming(out, "    setup:            ", timings.setup, total);
-                dumpTiming(out, "    mark:             ", timings.mark, total);
-                dumpTiming(out, "    computeAddresses: ", timings.computeAddresses, total);
-                dumpTiming(out, "    updatePointers:   ", timings.updatePointers, total);
-                dumpTiming(out, "    fixupOopMaps:     ", timings.fixupOopMaps, total);
-                dumpTiming(out, "    finalize:         ", timings.finalize, total);
-                dumpTiming(out, "    post:             ", timings.post, total);
-            }
+/*if[DEBUG_CODE_ENABLED]*/
+            dumpTiming(out, "    total time:       ", total, total);
+            dumpTiming(out, "    setup:            ", timings.setup, total);
+            dumpTiming(out, "    mark:             ", timings.mark, total);
+            dumpTiming(out, "    computeAddresses: ", timings.computeAddresses, total);
+            dumpTiming(out, "    updatePointers:   ", timings.updatePointers, total);
+            dumpTiming(out, "    fixupOopMaps:     ", timings.fixupOopMaps, total);
+            dumpTiming(out, "    finalize:         ", timings.finalize, total);
+            dumpTiming(out, "    post:             ", timings.post, total);
+/*end[DEBUG_CODE_ENABLED]*/
         }
 
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
 /*else[ENABLE_ISOLATE_MIGRATION]*/
-//        if (GC.GC_TRACING_SUPPORTED) {
-//        timings = copyTimings;
-//        total = timings.getTotal();
-//        out.println("Copying:");
-//        dumpTiming(out, "    setup:            ", timings.setup, total);
-//        dumpTiming(out, "    mark:             ", timings.mark, total);
-//        dumpTiming(out, "    computeAddresses: ", timings.computeAddresses, total);
-//        dumpTiming(out, "    updatePointers:   ", timings.updatePointers, total);
-//        dumpTiming(out, "    unforward:        ", timings.unforward, total);
-//        dumpTiming(out, "    finalize:         ", timings.finalize, total);
-//        }
+///*if[DEBUG_CODE_ENABLED]*/
+//      timings = copyTimings;
+//      total = timings.getTotal();
+//      out.println("Copying:");
+//      dumpTiming(out, "    setup:            ", timings.setup, total);
+//      dumpTiming(out, "    mark:             ", timings.mark, total);
+//      dumpTiming(out, "    computeAddresses: ", timings.computeAddresses, total);
+//      dumpTiming(out, "    updatePointers:   ", timings.updatePointers, total);
+//      dumpTiming(out, "    unforward:        ", timings.unforward, total);
+//      dumpTiming(out, "    finalize:         ", timings.finalize, total);
+///*end[DEBUG_CODE_ENABLED]*/
 /*end[ENABLE_ISOLATE_MIGRATION]*/
     }
 
@@ -618,9 +620,11 @@ public final class Lisp2Collector extends GarbageCollector {
         markingRecursionLevel = MAX_MARKING_RECURSION;
 
         // Output trace information.
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             traceVariables();
         }
+/*end[DEBUG_CODE_ENABLED]*/
         if ((HEAP_TRACE || GC.GC_TRACING_SUPPORTED) && GC.isTracing(GC.TRACE_HEAP_BEFORE_GC)) {
             traceHeap("Before collection", allocTop);
         }
@@ -656,16 +660,20 @@ public final class Lisp2Collector extends GarbageCollector {
 
         start = now();
 
+/*if[DEBUG_CODE_ENABLED]*/
         // Zap the free space with deadbeefs
         VM.deadbeef(allocTop, heapEnd);
+/*end[DEBUG_CODE_ENABLED]*/
 
         // Set the main RAM allocator to the young generation.
         GC.setAllocationParameters(heapStart, allocTop, heapEnd, heapEnd);
 
         // Output trace information.
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             traceVariables();
         }
+/*end[DEBUG_CODE_ENABLED]*/
         if ((HEAP_TRACE || GC.GC_TRACING_SUPPORTED) && GC.isTracing(GC.TRACE_HEAP_AFTER_GC)) {
             traceHeap("After collection", allocTop);
         }
@@ -695,9 +703,11 @@ public final class Lisp2Collector extends GarbageCollector {
 
         long begin = now();
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::fixupOopMaps --------------- Start");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         Address block;
         for (block = start; block.lo(end) && movedOopMaps != 0; ) {
@@ -706,10 +716,12 @@ public final class Lisp2Collector extends GarbageCollector {
                 Klass klass = VM.asKlass(object);
                 if (!klass.isInterface() && !klass.isArray() && !klass.isSynthetic() && klass.getInstanceSize() > HDR.BITS_PER_WORD) {
                     if (NativeUnsafe.getUWord(klass, (int)FieldOffsets.com_sun_squawk_Klass$oopMapWord).ne(UWord.zero())) {
-                        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                        if (tracing()) {
                             VM.print("Lisp2Collector::fixupOopMaps - resetting 'oopMapWord' field in ");
                             VM.println(klass.getInternalName());
                         }
+/*end[DEBUG_CODE_ENABLED]*/
                         NativeUnsafe.setUWord(klass, (int)FieldOffsets.com_sun_squawk_Klass$oopMapWord, UWord.zero());
                         movedOopMaps--;
                     }
@@ -718,9 +730,11 @@ public final class Lisp2Collector extends GarbageCollector {
             block = object.add(GC.getBodySize(GC.getKlass(object), object));
         }
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::fixupOopMaps --------------- End");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
         collectionTimings.fixupOopMaps += now() - begin;
@@ -729,7 +743,7 @@ public final class Lisp2Collector extends GarbageCollector {
 /*end[ENABLE_ISOLATE_MIGRATION]*/
     }
 /*end[ENABLE_DYNAMIC_CLASSLOADING]*/
-    
+
     /**
      * {@inheritDoc}
      */
@@ -750,9 +764,11 @@ public final class Lisp2Collector extends GarbageCollector {
 //     * objects that were determined to be unreferenced during the collection.
 //     */
 //    private void postProcessFinalizers() {
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//        if (tracing()) {
 //            VM.println("Lisp2Collector::postProcessFinalizers --------------- Start");
 //        }
+///*end[DEBUG_CODE_ENABLED]*/
 //
 //        Finalizer entry = finalizers;
 //        finalizers = null;
@@ -768,7 +784,8 @@ public final class Lisp2Collector extends GarbageCollector {
 //                entry.queueToIsolate();
 //            }
 //
-//            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//            if (tracing()) {
 //                VM.print("Lisp2Collector::postProcessFinalizers -- finalizer = ");
 //                VM.printAddress(entry);
 //                VM.print(" object = ");
@@ -779,12 +796,15 @@ public final class Lisp2Collector extends GarbageCollector {
 //                VM.print(referenced);
 //                VM.println();
 //            }
+///*END[DEBUG_CODE_ENABLED]*/
 //            entry = next;
 //        }
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//        if (tracing()) {
 //            VM.println("Lisp2Collector::postProcessFinalizers --------------- End");
 //            VM.println();
 //        }
+///*END[DEBUG_CODE_ENABLED]*/
 //    }
 /*end[FINALIZATION]*/
 
@@ -792,43 +812,53 @@ public final class Lisp2Collector extends GarbageCollector {
      * Rebuilds the global list of weak references.
      */
     private void postProcessWeakReferences() {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+         if (tracing()) {
              VM.println("Lisp2Collector::postProcessWeakReferences --------------- Start");
          }
+/*end[DEBUG_CODE_ENABLED]*/
 
          Ref ref = references;
          references = null;
 
          while (ref != null) {
-             if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+             if (tracing()) {
                  VM.println("Lisp2Collector::postProcessWeakReferences -- processing weak reference ");
              }
+/*end[DEBUG_CODE_ENABLED]*/
 
              Ref next = ref.next;
 
              // Remove entries where the referent is null
              if (!ref.referent.isZero()) {
 
-                 if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                 if (tracing()) {
                      VM.print("Lisp2Collector::postProcessWeakReferences -- kept weak reference @ ");
                      VM.printAddress(ref);
                      VM.println(" in queue");
                  }
+/*end[DEBUG_CODE_ENABLED]*/
                  addWeakReference(ref);
              } else {
-                 if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                 if (tracing()) {
                      VM.print("Lisp2Collector::postProcessWeakReferences -- removed weak reference @ ");
                      VM.printAddress(ref);
                      VM.println(" from queue");
                  }
+/*end[DEBUG_CODE_ENABLED]*/
              }
 
              ref = next;
          }
-         if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+         if (tracing()) {
              VM.println("Lisp2Collector::postProcessWeakReferences --------------- End");
              VM.println();
-        }
+         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /*---------------------------------------------------------------------------*\
@@ -865,7 +895,7 @@ public final class Lisp2Collector extends GarbageCollector {
     {
         Address object;
         Assert.that(GC.inRam(base, base));
-        
+
         switch (visitor) {
             case MARK_VISITOR: {
                 markOop(base, offset);
@@ -878,7 +908,7 @@ public final class Lisp2Collector extends GarbageCollector {
 /*if[DEBUG_CODE_ENABLED]*/
             case VERIFY_VISITOR: {
                 object = NativeUnsafe.getAddress(base, offset);
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                if (tracing()) {
                     VM.print("ObjectMemoryVerificationVisitor::visitOop - ");
                     VM.printAddress(base);
                     VM.print(" @ ");
@@ -892,14 +922,14 @@ public final class Lisp2Collector extends GarbageCollector {
                     Klass klass = GC.getKlass(object);
                     Assert.always(GC.getKlass(klass).getSystemID() == CID.KLASS, "class of referenced object is invalid");
 
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                    if (tracing()) {
                         VM.print(" (");
                         VM.print(klass.getInternalName());
                         VM.print(")");
                     }
                 }
 
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                if (tracing()) {
                     VM.println();
                 }
                 return;
@@ -938,7 +968,7 @@ public final class Lisp2Collector extends GarbageCollector {
             case VERIFY_VISITOR: {
                 for (int i = 0; i < len; i++) {
                     object = NativeUnsafe.getAddress(base, i);
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                    if (tracing()) {
                         VM.print("ObjectMemoryVerificationVisitor::visitOops - ");
                         VM.printAddress(base);
                         VM.print(" @ ");
@@ -952,14 +982,14 @@ public final class Lisp2Collector extends GarbageCollector {
                         Klass klass = GC.getKlass(object);
                         Assert.always(GC.getKlass(klass).getSystemID() == CID.KLASS, "class of referenced object is invalid");
 
-                        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                        if (tracing()) {
                             VM.print(" (");
                             VM.print(klass.getInternalName());
                             VM.print(")");
                         }
                     }
 
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                    if (tracing()) {
                         VM.println();
                     }
                 }
@@ -989,13 +1019,15 @@ public final class Lisp2Collector extends GarbageCollector {
                 break;
             }
             case UPDATE_VISITOR: {
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     indentTrace();
                     VM.print("Lisp2Collector::UpdateVisitor::visitInternalPointer - object = ");
                     VM.printAddress(object);
                     VM.print(" ipointer = ");
                     VM.printAddress(NativeUnsafe.getAddress(base, offset));
                 }
+/*end[DEBUG_CODE_ENABLED]*/
 
                 if (isForwarded(object)) {
                     destination = getForwardedObject(object);
@@ -1004,17 +1036,21 @@ public final class Lisp2Collector extends GarbageCollector {
                     ipointer = ipointer.subOffset(delta);
                     NativeUnsafe.setAddress(base, offset, ipointer);
 
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                    if (tracing()) {
                         VM.print(" -> ");
                         VM.printAddress(ipointer);
                         VM.print(", delta = ");
                         VM.printOffset(delta);
                         VM.println();
                     }
+/*end[DEBUG_CODE_ENABLED]*/
                 } else {
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                    if (tracing()) {
                         VM.println(" [no update]");
                     }
+/*end[DEBUG_CODE_ENABLED]*/
                 }
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
 /*else[ENABLE_ISOLATE_MIGRATION]*/
@@ -1033,7 +1069,7 @@ public final class Lisp2Collector extends GarbageCollector {
                 Klass klass = GC.getKlass(object);
                 int size = GC.getBodySize(klass, object);
 
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                if (tracing()) {
                     VM.print("ObjectMemoryVerificationVisitor::visitInternalPointer - ");
                     VM.printAddress(base);
                     VM.print(" @ ");
@@ -1079,7 +1115,8 @@ public final class Lisp2Collector extends GarbageCollector {
      */
     private void traverseOopsInObject(Address object, Address klass, int visitor) {
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             indentTrace();
             VM.print("Lisp2Collector::traverseOopsInObject - object = ");
             VM.printAddress(object);
@@ -1087,6 +1124,7 @@ public final class Lisp2Collector extends GarbageCollector {
             printKlassName(klass.toObject());
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         // The class/ObjectAssociation pointer is handled specially
         if (visitor == MARK_VISITOR) {
@@ -1138,7 +1176,7 @@ public final class Lisp2Collector extends GarbageCollector {
             case CID.STRING_OF_BYTES: {
                 break;
             }
-            
+
 /*if[ENABLE_DYNAMIC_CLASSLOADING]*/
             case CID.BYTECODE_ARRAY: {
                 visitOop(visitor, object, HDR.methodDefiningClass); // this won't happen if not ENABLE_DYNAMIC_CLASSLOADING
@@ -1149,16 +1187,20 @@ public final class Lisp2Collector extends GarbageCollector {
                 Klass gaklass = VM.asKlass(NativeUnsafe.getObject(object, CS.klass));
                 if (gaklass == null) { // This can occur if a GC occurs when a class state is being allocated
                     Assert.that(NativeUnsafe.getObject(object, CS.next) == null); // The 'next' pointer should not yet be set either
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                    if (tracing()) {
                         VM.println("Lisp2Collector::updateOops GLOBAL_ARRAY with null CS.klass not scanned");
                     }
+/*end[DEBUG_CODE_ENABLED]*/
                 } else {
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                    if (tracing()) {
                         indentTrace();
                         VM.print("Lisp2Collector::traverseOopsInObject - globals for ");
                         printKlassName(gaklass);
                         VM.println();
                     }
+/*end[DEBUG_CODE_ENABLED]*/
                     // All the pointer static fields precede the non-pointer fields
                     int end = CS.firstVariable + Klass.getRefStaticFieldsSize(gaklass);
                     Assert.that(GC.inRam(object, object));
@@ -1338,13 +1380,15 @@ public final class Lisp2Collector extends GarbageCollector {
         Address fp = NativeUnsafe.getAddress(chunk, SC.lastFP);
 
         // Trace.
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println();
             indentTrace();
             VM.print("Lisp2Collector::traverseOopsInStackChunk - chunk = ");
             VM.printAddress(chunk);
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         /*
          * Traverse the pointers in the header part of the stack chunk
@@ -1365,9 +1409,11 @@ public final class Lisp2Collector extends GarbageCollector {
         }
 
         // Trace.
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /**
@@ -1387,7 +1433,8 @@ public final class Lisp2Collector extends GarbageCollector {
         /*
          * Trace.
          */
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             indentTrace();
             VM.print("Lisp2Collector::traverseOopsInActivation - fp = ");
             VM.printAddress(fp);
@@ -1395,18 +1442,21 @@ public final class Lisp2Collector extends GarbageCollector {
             VM.printAddress(mp);
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         /*
          * Visit the return IP.
          */
         if (!returnIP.isZero()) {
 
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 indentTrace();
                 VM.print("Lisp2Collector::traverseOopsInActivation -- returnIP = ");
                 VM.printAddress(returnIP);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
             Assert.that(!returnFP.isZero(), "activation frame has null returnFP");
             Address returnMP = NativeUnsafe.getAddress(returnFP, FP.method);
 /*if[ENABLE_DYNAMIC_CLASSLOADING]*/
@@ -1441,12 +1491,14 @@ public final class Lisp2Collector extends GarbageCollector {
             int bite = NativeUnsafe.getByte(mp, mapOffset+byteOffset);
             boolean isOop = ((bite >>> bitOffset)&1) != 0;
             if (isOop) {
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     indentTrace();
                     VM.print("Lisp2Collector::traverseOopsInActivation -- parm at offset ");
                     VM.print(varOffset);
                     VM.println();
                 }
+/*end[DEBUG_CODE_ENABLED]*/
                 visitOop(visitor, fp, varOffset);
             }
             varOffset++; // Parameters go upwards
@@ -1465,12 +1517,14 @@ public final class Lisp2Collector extends GarbageCollector {
             int bite = NativeUnsafe.getByte(mp, mapOffset + byteOffset);
             boolean isOop = ((bite >>> bitOffset) & 1) != 0;
             if (isOop) {
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     indentTrace();
                     VM.print("Lisp2Collector::traverseOopsInActivation -- local at offset ");
                     VM.print(varOffset);
                     VM.println();
                 }
+/*end[DEBUG_CODE_ENABLED]*/
                 visitOop(visitor, fp, varOffset);
             }
             varOffset--; // Locals go downwards
@@ -1489,9 +1543,11 @@ public final class Lisp2Collector extends GarbageCollector {
         Assert.that(!copyingObjectGraph);
 
         long start = now();
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("********** Start Lisp2Collector::mark **********");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         // Mark the objects reachable from the GC roots
         markRoots();
@@ -1528,10 +1584,12 @@ public final class Lisp2Collector extends GarbageCollector {
             markCollectionSpace();
         }
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("********** End Lisp2Collector::mark **********");
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
         collectionTimings.mark += now() - start;
@@ -1546,9 +1604,11 @@ public final class Lisp2Collector extends GarbageCollector {
      */
     private void markCollectionSpace() throws NotInlinedPragma {
         while (markingStack.hasOverflowed()) {
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.println("Lisp2Collector::mark - remarking from marked objects after marking stack overflow");
             }
+/*end[DEBUG_CODE_ENABLED]*/
             markingStack.resetOverflow();
             Address object;
             Lisp2Bitmap.Iterator.start(collectionStart, collectionEnd, true);
@@ -1565,26 +1625,32 @@ public final class Lisp2Collector extends GarbageCollector {
      * Marks all the objects in the collection space reachable from the GC roots.
      */
     private void markRoots() {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::markRoots --------------- Start");
         }
+/*end[DEBUG_CODE_ENABLED]*/
         for (int i = 0 ; i < VM.getGlobalOopCount() ; i++) {
             Address object = Address.fromObject(VM.getGlobalOop(i));
             if (!object.isZero()) {
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     VM.print("Lisp2Collector::markRoots - [");
                     VM.print(i);
                     VM.print("] = ");
                     VM.printAddress(object);
                     VM.println();
                 }
+/*end[DEBUG_CODE_ENABLED]*/
                 markObject(object);
             }
         }
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::markRoots --------------- End");
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
 /*if[!FINALIZATION]*/
@@ -1596,15 +1662,19 @@ public final class Lisp2Collector extends GarbageCollector {
 //     * per-isolate queue of finalizers.
 //     */
 //    private void processFinalizers() {
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//        if (tracing()) {
 //            VM.println("Lisp2Collector::markFinalizers --------------- Start");
 //        }
+///*end[DEBUG_CODE_ENABLED]*/
 //
 //        Finalizer entry = finalizers;
 //        while (entry != null) {
-//            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//            if (tracing()) {
 //                VM.println("Lisp2Collector::markFinalizers -- processing finalizer ");
 //            }
+///*end[DEBUG_CODE_ENABLED]*/
 //
 //            Address entryAddress = Address.fromObject(entry);
 //            Assert.that(!inCollectionSpace(entryAddress) || !Lisp2Bitmap.testBitFor(entryAddress), "finalizer for object marked prematurely");
@@ -1614,7 +1684,8 @@ public final class Lisp2Collector extends GarbageCollector {
 //            boolean referenced = !inCollectionSpace(object) || Lisp2Bitmap.testBitFor(object);
 //            entry.setReferenced(referenced);
 //
-//            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//            if (tracing()) {
 //                VM.print("Lisp2Collector::markFinalizers -- finalizer = ");
 //                VM.printAddress(entry);
 //                VM.print(" object = ");
@@ -1625,12 +1696,15 @@ public final class Lisp2Collector extends GarbageCollector {
 //                VM.print(referenced);
 //                VM.println();
 //            }
+///*end[DEBUG_CODE_ENABLED]*/
 //            entry = next;
 //        }
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//        if (tracing()) {
 //            VM.println("Lisp2Collector::markFinalizers --------------- End");
 //            VM.println();
 //        }
+///*end[DEBUG_CODE_ENABLED]*/
 //    }
 /*end[FINALIZATION]*/
 
@@ -1639,15 +1713,19 @@ public final class Lisp2Collector extends GarbageCollector {
      * no longer live, clear the reference.  The global list will be updated post collection.
      */
     private void processWeakReferences() throws NotInlinedPragma {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::processWeakReferences --------------- Start");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         Ref ref = references;
         while (ref != null) {
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.println("Lisp2Collector::processWeakReferences -- processing weak reference ");
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             boolean keep = false;
             Address referent = ref.referent;
@@ -1661,7 +1739,8 @@ public final class Lisp2Collector extends GarbageCollector {
                 }
             }
 
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print("Lisp2Collector::processWeakReferences -- weak reference @ ");
                 VM.printAddress(ref);
                 VM.print(" to ");
@@ -1673,6 +1752,7 @@ public final class Lisp2Collector extends GarbageCollector {
                     VM.println(" will be removed");
                 }
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             // Clear the referent to denote to postProcessWeakReferences() that the
             // Ref object should be removed from the global list of Ref objects
@@ -1683,10 +1763,12 @@ public final class Lisp2Collector extends GarbageCollector {
             // Move on to next object
             ref = ref.next;
         }
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::processWeakReferences --------------- End");
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /**
@@ -1715,7 +1797,8 @@ public final class Lisp2Collector extends GarbageCollector {
         if (inCollectionSpace(object)) {
             if (!Lisp2Bitmap.testAndSetBitFor(object)) {
                 if (markingRecursionLevel == 0) {
-                    if (VERBOSE_MARK_OBJECT_TRACE && GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                    if (VERBOSE_MARK_OBJECT_TRACE && tracing()) {
                         indentTrace();
                         VM.print("Lisp2Collector::markObject - object = ");
                         VM.printAddress(object);
@@ -1725,25 +1808,26 @@ public final class Lisp2Collector extends GarbageCollector {
                         VM.print(VM.branchCount());
                         VM.println();
                     }
+/*end[DEBUG_CODE_ENABLED]*/
                     markingStack.push(object);
-                    if (GC.GC_TRACING_SUPPORTED && tracing() && markingStack.hasOverflowed()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                    if (tracing() && markingStack.hasOverflowed()) {
                         indentTrace();
                         VM.println("Lisp2Collector::markObject - marking stack overflowed ");
                     }
+/*end[DEBUG_CODE_ENABLED]*/
                 } else {
                     Klass klass = GC.getKlass(object);
 
 /*if[DEBUG_CODE_ENABLED]*/
-/*if[!ENABLE_ISOLATE_MIGRATION]*/
-/*else[ENABLE_ISOLATE_MIGRATION]*/
-//                    // Run some assertions that will hopefully ensure isolation
-//                    if (copyingObjectGraph) {
-//                        assertIsolation(object, klass);
-//                    }
+/*if[ENABLE_ISOLATE_MIGRATION]*/
+                    // Run some assertions that will hopefully ensure isolation
+                    if (copyingObjectGraph) {
+                        assertIsolation(object, klass);
+                    }
 /*end[ENABLE_ISOLATE_MIGRATION]*/
-/*end[DEBUG_CODE_ENABLED]*/
 
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                    if (tracing()) {
                         indentTrace();
                         VM.print("Lisp2Collector::markObject - object = ");
                         VM.printAddress(object);
@@ -1751,6 +1835,7 @@ public final class Lisp2Collector extends GarbageCollector {
                         printKlassName(klass);
                         VM.println();
                     }
+/*end[DEBUG_CODE_ENABLED]*/
                     markingRecursionLevel = markingRecursionLevel - 1;
                     traverseOopsInObject(object, Address.fromObject(klass), MARK_VISITOR);
                     while (!(object = markingStack.pop()).isZero()) {
@@ -1759,8 +1844,10 @@ public final class Lisp2Collector extends GarbageCollector {
                     }
                     markingRecursionLevel = markingRecursionLevel + 1;
                 }
-            } else {
-                if (VERBOSE_MARK_OBJECT_TRACE && GC.GC_TRACING_SUPPORTED && tracing()) {
+            }
+/*if[DEBUG_CODE_ENABLED]*/
+            else {
+                if (VERBOSE_MARK_OBJECT_TRACE && tracing()) {
                     indentTrace();
                     VM.print("Lisp2Collector::markObject - object = ");
                     VM.printAddress(object);
@@ -1769,8 +1856,11 @@ public final class Lisp2Collector extends GarbageCollector {
                     VM.println(" {already marked}");
                 }
             }
-        } else {
-            if (VERBOSE_MARK_OBJECT_TRACE && GC.GC_TRACING_SUPPORTED && tracing()) {
+/*end[DEBUG_CODE_ENABLED]*/
+        }
+/*if[DEBUG_CODE_ENABLED]*/
+        else {
+            if (VERBOSE_MARK_OBJECT_TRACE && tracing()) {
                 indentTrace();
                 VM.print("Lisp2Collector::markObject - object = ");
                 VM.printAddress(object);
@@ -1779,6 +1869,7 @@ public final class Lisp2Collector extends GarbageCollector {
                 VM.println(" {not in collection space}");
             }
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /*-----------------------------------------------------------------------*\
@@ -1802,7 +1893,8 @@ public final class Lisp2Collector extends GarbageCollector {
 
         long start = now();
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("********** Start Lisp2Collector::computeAddresses **********");
             VM.print("Lisp2Collector::computeAddresses - collectionStart = ");
             VM.printAddress(collectionStart);
@@ -1810,6 +1902,7 @@ public final class Lisp2Collector extends GarbageCollector {
             VM.printAddress(collectionEnd);
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
         Address free = collectionStart;
@@ -1874,15 +1967,18 @@ public final class Lisp2Collector extends GarbageCollector {
 //                }
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     VM.print("Lisp2Collector::computeAddresses - object = ");
                     VM.printAddress(object);
                 }
+/*end[DEBUG_CODE_ENABLED]*/
 
                 forwardObject(object, objectDestination);
                 Assert.that(getForwardedObject(object).eq(objectDestination));
 
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                if (tracing()) {
                     VM.print(" destination = ");
                     VM.printAddress(objectDestination);
                     VM.print(" class = ");
@@ -1895,6 +1991,7 @@ public final class Lisp2Collector extends GarbageCollector {
                     VM.print(headerSize);
                     VM.println();
                 }
+/*end[DEBUG_CODE_ENABLED]*/
 
                 if (!copyingObjectGraph) {
                     if (firstDeadBlock.isZero()) {
@@ -1902,9 +1999,11 @@ public final class Lisp2Collector extends GarbageCollector {
                         firstMovingBlock = object.sub(headerSize);
                     }
                 }
-            } else {
+            }
+/*if[DEBUG_CODE_ENABLED]*/
+            else {
                 Assert.that(!copyingObjectGraph, "copied object cannot have 0 delta");
-                if (GC.GC_TRACING_SUPPORTED && tracing()) {
+                if (tracing()) {
                     VM.print("Lisp2Collector::computeAddresses - object = ");
                     VM.printAddress(object);
                     VM.print(" class = ");
@@ -1912,6 +2011,7 @@ public final class Lisp2Collector extends GarbageCollector {
                     VM.println(" [doesn't move]");
                 }
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             free = objectDestination.add(size);
         }
@@ -1927,10 +2027,12 @@ public final class Lisp2Collector extends GarbageCollector {
             updateWeakReferenceList();
         }
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("********** End Lisp2Collector::computeAddresses **********");
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
         collectionTimings.computeAddresses += now() - start;
@@ -1944,45 +2046,56 @@ public final class Lisp2Collector extends GarbageCollector {
      * Update the object address contained within each Weak Reference.
      */
     private void updateWeakReferenceList() throws NotInlinedPragma {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+         if (tracing()) {
              VM.println("Lisp2Collector::updateWeakReferenceList --------------- Start");
          }
+/*end[DEBUG_CODE_ENABLED]*/
 
          Ref ref = references;
 
          while (ref != null) {
-             if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+             if (tracing()) {
                  VM.println("Lisp2Collector::updateWeakReferenceList -- processing weak reference ");
              }
+/*end[DEBUG_CODE_ENABLED]*/
 
              // Non-zero means the object is live
              if(!ref.referent.isZero()) {
                  Address newAddress = getPossiblyForwardedObject(ref.referent);
 
-                 if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                 if (tracing()) {
                      VM.print("Lisp2Collector::updateWeakReferenceList -- update referent ");
                      VM.printAddress(ref.referent);
                      VM.print(" to ");
                      VM.printAddress(newAddress);
                      VM.println();
                  }
+/*end[DEBUG_CODE_ENABLED]*/
 
                  ref.referent = newAddress;
-             } else {
-                 if (GC.GC_TRACING_SUPPORTED && tracing()) {
+             }
+/*if[DEBUG_CODE_ENABLED]*/
+             else {
+                 if (tracing()) {
                      VM.print("Lisp2Collector::updateWeakReferenceList -- update referent ");
                      VM.printAddress(ref);
                      VM.println(" is marked for removal.");
                  }
              }
+/*end[DEBUG_CODE_ENABLED]*/
 
              // Move on to next object
              ref = ref.next;
          }
-         if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+         if (tracing()) {
              VM.println("Lisp2Collector::updateWeakReferenceList --------------- End");
              VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
@@ -2064,7 +2177,8 @@ public final class Lisp2Collector extends GarbageCollector {
 //
 //        size = dstEnd.diff(dst).toInt();
 //
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//        if (tracing()) {
 //            VM.print("Lisp2Collector::copyStackChunk - src = ");
 //            VM.printAddress(src);
 //            VM.print(" srcEnd = ");
@@ -2083,6 +2197,7 @@ public final class Lisp2Collector extends GarbageCollector {
 //            VM.printAddress(dstFP);
 //            VM.println();
 //        }
+///*end[DEBUG_CODE_ENABLED]*/
 //
 //        if (dstEnd.hi(heapEnd)) {
 //            return -1;
@@ -2422,9 +2537,11 @@ public final class Lisp2Collector extends GarbageCollector {
 
         long start = now();
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("********** Start Lisp2Collector::updatePointers **********");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         // Update the pointers in the roots
         updateRoots();
@@ -2435,9 +2552,11 @@ public final class Lisp2Collector extends GarbageCollector {
         // Update any pointers in this collector object to heap objects that move
         traverseOopsInNonArrayObject(Address.fromObject(this), getKlass(Address.fromObject(this)), UPDATE_VISITOR);
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("********** End Lisp2Collector::updatePointers **********");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
         collectionTimings.updatePointers += now() - start;
@@ -2450,35 +2569,42 @@ public final class Lisp2Collector extends GarbageCollector {
      * Updates the pointers in the collection space.
      */
     private void updateCollectionSpacePointers() throws NotInlinedPragma {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::updateCollectionSpacePointers --------------- Start");
         }
+/*end[DEBUG_CODE_ENABLED]*/
         Lisp2Bitmap.Iterator.start(collectionStart, collectionEnd, true);
         Address object;
         while (!(object = Lisp2Bitmap.Iterator.getNext()).isZero()) {
             Address klass = getKlass(object);
             traverseOopsInObject(object, klass, UPDATE_VISITOR);
         }
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::updateCollectionSpacePointers --------------- End");
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /**
      * Updates all the root pointers to objects that have been forwarded.
      */
     private void updateRoots() throws NotInlinedPragma {
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::updateRoots --------------- Start");
         }
+/*end[DEBUG_CODE_ENABLED]*/
         for (int i = 0 ; i < VM.getGlobalOopCount() ; i++) {
             Address object = Address.fromObject(VM.getGlobalOop(i));
             if (!object.isZero()) {
                 if (isForwarded(object)) {
                     Address destination = getForwardedObject(object);
 
-                    if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                    if (tracing()) {
                         VM.print("Lisp2Collector::updateRoots - [");
                         VM.print(i);
                         VM.print("] = ");
@@ -2487,15 +2613,18 @@ public final class Lisp2Collector extends GarbageCollector {
                         VM.printAddress(destination);
                         VM.println();
                     }
+/*end[DEBUG_CODE_ENABLED]*/
 
                     VM.setGlobalOop(destination.toObject(), i);
                 }
             }
         }
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("Lisp2Collector::updateRoots --------------- End");
             VM.println();
         }
+/*end[DEBUG_CODE_ENABLED]*/
     }
 
     /**
@@ -2511,7 +2640,8 @@ public final class Lisp2Collector extends GarbageCollector {
 
         Address destination = getPossiblyForwardedObject(object);
         if (object.ne(destination)) {
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print("Lisp2Collector::updateOop - [");
                 VM.printAddress(base);
                 VM.print("%");
@@ -2522,6 +2652,7 @@ public final class Lisp2Collector extends GarbageCollector {
                 VM.printAddress(destination);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             NativeUnsafe.setAddress(base, offset, destination);
         }
@@ -2552,7 +2683,8 @@ public final class Lisp2Collector extends GarbageCollector {
             Address newFP = destination.addOffset(delta);
             NativeUnsafe.setAddress(pointerAddress, 0, newFP);
 
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print("Lisp2Collector::updateInternalStackChunkPointers - [");
                 VM.printAddress(chunk);
                 VM.print(" + ");
@@ -2563,6 +2695,7 @@ public final class Lisp2Collector extends GarbageCollector {
                 VM.printAddress(newFP);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             offset = delta.add(FP.returnFP * HDR.BYTES_PER_WORD);
             oldFP = NativeUnsafe.getAddress(chunk.addOffset(offset), 0);
@@ -2586,7 +2719,7 @@ public final class Lisp2Collector extends GarbageCollector {
         Address object;
         Address klassAddress;
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+        if (tracing()) {
             VM.println("Lisp2Collector::verifyObjectMemory --------------- Start");
         }
 
@@ -2595,7 +2728,7 @@ public final class Lisp2Collector extends GarbageCollector {
             Klass klass = GC.getKlass(object);
             klassAddress = Address.fromObject(klass);
 
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+            if (tracing()) {
                 VM.print("Lisp2Collector::verifyObjectMemory - object = ");
                 VM.printAddress(object);
                 VM.print(" class = ");
@@ -2620,7 +2753,7 @@ public final class Lisp2Collector extends GarbageCollector {
 
             block = object.add(GC.getBodySize(klass, object));
         }
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+        if (tracing()) {
             VM.println("Lisp2Collector::verifyObjectMemory --------------- End");
             VM.println();
         }
@@ -2687,34 +2820,35 @@ public final class Lisp2Collector extends GarbageCollector {
 //    private final Timings copyTimings;
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
-/*if[!ENABLE_ISOLATE_MIGRATION]*/
-/*else[ENABLE_ISOLATE_MIGRATION]*/
-//    /**
-//     * Marks all the objects reachable from a given root.
-//     *
-//     * @param object  the root of the graph of objects to mark
-//     */
-//    private void markObjectGraph(Address object) {
-//
-//        long start = now();
-//
-//        markObject(object);
-//        while (markingStack.hasOverflowed()) {
-//            if (GC.GC_TRACING_SUPPORTED && tracing()) {
-//                VM.println("Lisp2Collector::markObjectGraph - remarking from marked objects after marking stack overflow");
-//            }
-//            markingStack.resetOverflow();
-//            Lisp2Bitmap.Iterator.start(collectionStart, collectionEnd, true);
-//            while (!(object = Lisp2Bitmap.Iterator.getNext()).isZero()) {
-//                traverseOopsInObject(object, Address.fromObject(GC.getKlass(object)), MARK_VISITOR);
-//                while (!(object = markingStack.pop()).isZero()) {
-//                    traverseOopsInObject(object, Address.fromObject(GC.getKlass(object)), MARK_VISITOR);
-//                }
-//            }
-//        }
-//
-//        copyTimings.mark += (now() - start);
-//    }
+/*if[ENABLE_ISOLATE_MIGRATION]*/
+   /**
+    * Marks all the objects reachable from a given root.
+    *
+    * @param object  the root of the graph of objects to mark
+    */
+   private void markObjectGraph(Address object) {
+
+       long start = now();
+
+       markObject(object);
+       while (markingStack.hasOverflowed()) {
+/*if[DEBUG_CODE_ENABLED]*/
+           if (tracing()) {
+               VM.println("Lisp2Collector::markObjectGraph - remarking from marked objects after marking stack overflow");
+           }
+/*end[DEBUG_CODE_ENABLED]*/
+           markingStack.resetOverflow();
+           Lisp2Bitmap.Iterator.start(collectionStart, collectionEnd, true);
+           while (!(object = Lisp2Bitmap.Iterator.getNext()).isZero()) {
+               traverseOopsInObject(object, Address.fromObject(GC.getKlass(object)), MARK_VISITOR);
+               while (!(object = markingStack.pop()).isZero()) {
+                   traverseOopsInObject(object, Address.fromObject(GC.getKlass(object)), MARK_VISITOR);
+               }
+           }
+       }
+
+       copyTimings.mark += (now() - start);
+   }
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
 /*if[ENABLE_ISOLATE_MIGRATION]*/   // weird way to deal with no nesting in else clause
@@ -2762,12 +2896,14 @@ public final class Lisp2Collector extends GarbageCollector {
 //        markingRecursionLevel = MAX_MARKING_RECURSION;
 //
 //        // Output trace information.
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//        if (tracing()) {
 //            VM.print("Lisp2Collector::copyObjectGraph - object = ");
 //            VM.printAddress(object);
 //            VM.println();
 //            traceVariables();
 //        }
+///*end[DEBUG_CODE_ENABLED]*/
 //
 //        // Clears the bitmap corresponding to the collection area. Must clear one past the
 //        // end of the collection area as there can be an object there that has a zero length body.
@@ -2810,7 +2946,8 @@ public final class Lisp2Collector extends GarbageCollector {
 //            allocTop = copiedObjectsEnd;
 //            GC.setAllocationParameters(heapStart, allocTop, heapEnd, heapEnd);
 //
-//            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//            if (tracing()) {
 //                VM.println();
 //                VM.print("Lisp2Collector::copyObjectGraph - objectMemory = ");
 //                VM.printAddress(copiedObjects);
@@ -2820,6 +2957,7 @@ public final class Lisp2Collector extends GarbageCollector {
 //                VM.print(graphSize);
 //                VM.println();
 //            }
+///*end[DEBUG_CODE_ENABLED]*/
 //        } else {
 //            // Unforward the class header word of all objects that have been copied
 //            unforwardCopiedObjects(collectionStart, allocTop);
@@ -2828,10 +2966,12 @@ public final class Lisp2Collector extends GarbageCollector {
 //            copiedObjects = Address.zero();
 //        }
 //
+///*if[DEBUG_CODE_ENABLED]*/
 //        // Output trace information.
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+//        if (tracing()) {
 //            traceVariables();
 //        }
+///*end[DEBUG_CODE_ENABLED]*/
 //
 //        // Reset the re-entry guard.
 //        copyingObjectGraph = false;
@@ -2935,9 +3075,11 @@ public final class Lisp2Collector extends GarbageCollector {
 //        Address object;
 //        Address klassAddress;
 //
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//        if (tracing()) {
 //            VM.println("Lisp2Collector::updatePointersInObjectMemory --------------- Start");
 //        }
+///*end[DEBUG_CODE_ENABLED]*/
 //
 //        for (Address block = start; block.lo(end); ) {
 //            object = GC.blockToOop(block);
@@ -2955,10 +3097,13 @@ public final class Lisp2Collector extends GarbageCollector {
 //
 //            block = object.add(GC.getBodySize(klass, object));
 //        }
-//        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+//
+///*if[DEBUG_CODE_ENABLED]*/
+//        if (tracing()) {
 //            VM.println("Lisp2Collector::updatePointersInObjectMemory --------------- End");
 //            VM.println();
 //        }
+///*end[DEBUG_CODE_ENABLED]*/
 //
 //        copyTimings.updatePointers += (now() - begin);
 //    }
@@ -2973,7 +3118,8 @@ public final class Lisp2Collector extends GarbageCollector {
 //        if (inHeap(pointerAddress)) {
 //            int word = (pointerAddress.diff(copiedObjects).toInt() / HDR.BYTES_PER_WORD);
 //            oopMap.set(word);
-//            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+///*if[DEBUG_CODE_ENABLED]*/
+//            if (tracing()) {
 //                VM.print("Lisp2Collector::recordPointer - set bit in oop map for pointer at ");
 //                VM.printAddress(pointerAddress);
 //                VM.print(" [");
@@ -2981,6 +3127,7 @@ public final class Lisp2Collector extends GarbageCollector {
 //                VM.print("]");
 //                VM.println();
 //            }
+///*end[DEBUG_CODE_ENABLED]*/
 //        }
 //    }
 /*end[ENABLE_ISOLATE_MIGRATION]*/
@@ -3004,8 +3151,9 @@ public final class Lisp2Collector extends GarbageCollector {
         Address object;
         Assert.that(!firstMovingBlock.isZero());
 
+/*if[DEBUG_CODE_ENABLED]*/
         // Trace all the non-moving objects in the collection space
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+        if (tracing()) {
             VM.println("********** Start Lisp2Collector::compactObjects **********");
             Lisp2Bitmap.Iterator.start(collectionStart, firstMovingBlock, true);
             while (!(object = Lisp2Bitmap.Iterator.getNext()).isZero()) {
@@ -3014,6 +3162,7 @@ public final class Lisp2Collector extends GarbageCollector {
                 VM.println(" [doesn't move]");
             }
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
         // Iterate over all the moving objects in the collection space
         Lisp2Bitmap.Iterator.start(firstMovingBlock, collectionEnd, true);
@@ -3059,7 +3208,8 @@ public final class Lisp2Collector extends GarbageCollector {
             }
 /*end[TYPEMAP]*/
 
-            if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
                 VM.print("Lisp2Collector::compactObjects - object = ");
                 VM.printAddress(object);
                 VM.print(" destination = ");
@@ -3068,14 +3218,17 @@ public final class Lisp2Collector extends GarbageCollector {
                 printKlassName(klass);
                 VM.println();
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             free = destinationBlock.add(blockSize);
             Assert.that(!isForwarded(objectDestination));
         }
 
-        if (GC.GC_TRACING_SUPPORTED && tracing()) {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
             VM.println("********** End Lisp2Collector::compactObjects **********");
         }
+/*end[DEBUG_CODE_ENABLED]*/
 
 /*if[!ENABLE_ISOLATE_MIGRATION]*/
         collectionTimings.compactObjects += now() - start;
@@ -3220,20 +3373,18 @@ public final class Lisp2Collector extends GarbageCollector {
      *                                 Tracing                                   *
     \*---------------------------------------------------------------------------*/
 
+/*if[DEBUG_CODE_ENABLED]*/
     /**
      * Tests to see if tracing is enabled.
      *
      * @return true if it is
      */
     private boolean tracing() {
-        if (GC.GC_TRACING_SUPPORTED) {
-            if (!copyingObjectGraph) {
-                return GC.isTracing(GC.TRACE_COLLECTION);
-            } else {
-                return GC.isTracing(GC.TRACE_OBJECT_GRAPH_COPYING);
-            }
-        }
-        return false;
+      if (!copyingObjectGraph) {
+        return GC.isTracing(GC.TRACE_COLLECTION);
+      } else {
+        return GC.isTracing(GC.TRACE_OBJECT_GRAPH_COPYING);
+      }
     }
 
     /**
@@ -3277,6 +3428,7 @@ public final class Lisp2Collector extends GarbageCollector {
         int overhead = 100 - ((heapSize * 100) / (memoryEnd.diff(memoryStart).toInt()));
         traceVariable("overhead(%)", overhead);
     }
+/*end[DEBUG_CODE_ENABLED]*/
 
 
     /**

@@ -50,27 +50,25 @@ public class CS {
      * The index of the first static variable.
      */
     public final static int firstVariable = 2;
-    
-    private final static boolean DEBUG =  /*VAL*/false/*DEBUG_CODE_ENABLED*/;
-    
+
     private CS() {}
-    
+
+/*if[DEBUG_CODE_ENABLED]*/
     /**
      * Give error if cs is not really global array.
      */
     public static void check(Object cs) throws AllowInlinedPragma {
-        if (DEBUG) {
-            Assert.always(cs != null);
-            if (GC.isSafeToSwitchThreads()) {
-                Assert.always(GC.getKlass(cs).getSystemID() == CID.GLOBAL_ARRAY);
-                if  (NativeUnsafe.getObject(cs, CS.klass) != null) {
-                    Assert.always(GC.getKlass(NativeUnsafe.getObject(cs, CS.klass) ).getSystemID() == CID.KLASS);
-                }
-                if  (NativeUnsafe.getObject(cs, CS.next) != null) {
-                    Assert.always(GC.getKlass(NativeUnsafe.getObject(cs, CS.next) ).getSystemID() == CID.GLOBAL_ARRAY);
-                }
-            }
+      Assert.always(cs != null);
+      if (GC.isSafeToSwitchThreads()) {
+        Assert.always(GC.getKlass(cs).getSystemID() == CID.GLOBAL_ARRAY);
+        if  (NativeUnsafe.getObject(cs, CS.klass) != null) {
+          Assert.always(GC.getKlass(NativeUnsafe.getObject(cs, CS.klass) ).getSystemID() == CID.KLASS);
         }
+        if  (NativeUnsafe.getObject(cs, CS.next) != null) {
+          Assert.always(GC.getKlass(NativeUnsafe.getObject(cs, CS.next) ).getSystemID() == CID.GLOBAL_ARRAY);
+        }
+      }
     }
+/*end[DEBUG_CODE_ENABLED]*/
 
 }

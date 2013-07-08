@@ -1264,9 +1264,11 @@ public final class Suite {
                 for (int i = 0; i < copy.classes.length; i++) {
                     Klass klass = classes[i];
                     if (klass != null && deadClasses.contains(klass)) {
-                        if (Klass.DEBUG_CODE_ENABLED && VM.isVerbose()) {
+/*if[DEBUG_CODE_ENABLED]*/
+                        if (VM.isVerbose()) {
                             System.out.println("Removing from suite: " + klass);
                         }
+/*end[DEBUG_CODE_ENABLED]*/
                         copy.classes[i] = null;
                     } else {
                         copy.classes[i] = klass;
