@@ -111,7 +111,6 @@ public class FFT {
             double t = Math.sin(theta / 2.0);
             double s2 = 2.0 * t * t;
 
-            System.out.println("Transform "+bit);
             /* a = 0 */
             for (int b = 0; b < n; b += 2 * dual) {
                 int i = 2*b ;
@@ -238,7 +237,7 @@ public class FFT {
 
         final double EPS = 1.0e-10;
         double fftTest = test(x);
-        kernel.checkResults(kernel.CURRENT_FFT_RESULT, "" + fftTest, 0);
+        kernel.checkResults(kernel.CURRENT_FFT_RESULT, "" + fftTest, 1);
         if ( fftTest / N > EPS )
             return 0.0;
         x = null;

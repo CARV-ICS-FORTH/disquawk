@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -41,10 +41,18 @@
 
 #include "os_posix.c"
 
-/** 
+/**
+ * Compare and swap.
+ * Returns 1 if succeeded, 0 otherwise
+ */
+INLINE int sys_compare_and_swap(void* ptr, int old, int new) {
+  return __sync_bool_compare_and_swap((int*)ptr, old, new);
+}
+
+/**
  * Return another path to find the bootstrap suite with the given name.
  * On some platforms the suite might be stored in an odd location
- * 
+ *
  * @param bootstrapSuiteName the name of the boostrap suite
  * @return full or partial path to alternate location, or null
  */

@@ -44,7 +44,7 @@ public final class ObjectGraphSerializer {
      */
     private static int entryPointCounter = 0;
 
-    /*
+    /**
      * Speeds up Class -> Klass conversion
      */
     private static final Map<Class<?>, Klass> classKlassMap = new HashMap<Class<?>, Klass>();
@@ -55,7 +55,9 @@ public final class ObjectGraphSerializer {
     private static ArrayHashtable objectMap = new ArrayHashtable();
 
     /**
-     * Support pushing and popping of the objectMap.  This is done to support the serialization of a Suite which should not have anything shared with any future Suites that are serialized.
+     * Support pushing and popping of the objectMap.  This is done to
+     * support the serialization of a Suite which should not have
+     * anything shared with any future Suites that are serialized.
      */
     private static final Stack<ArrayHashtable> objectMapStack = new Stack<ArrayHashtable>();
 
@@ -129,12 +131,12 @@ public final class ObjectGraphSerializer {
     }
 
     public static void popObjectMap() {
-    	objectMap = objectMapStack.pop();
+        objectMap = objectMapStack.pop();
     }
 
     public static void pushObjectMap() {
-    	objectMapStack.push(objectMap);
-    	objectMap = new ArrayHashtable(objectMap);
+        objectMapStack.push(objectMap);
+        objectMap = new ArrayHashtable(objectMap);
     }
 
     /**
@@ -444,7 +446,7 @@ public final class ObjectGraphSerializer {
                     }
                 }
             } else {
-            	saveDepth++;
+                saveDepth++;
                 /*
                  * Allocate the object
                  */
@@ -485,10 +487,10 @@ public final class ObjectGraphSerializer {
         for (int i = 0 ; i < count ; i++) {
             Field field = klass.getField(i, false);
             if (VERBOSE) {
-            	System.out.println(saveDepth + ":" + klass.getName() + "." + field.getName() + "[" + NativeUnsafe.getMemorySize() + "]");
-            	if (klass.getName().equals("com.sun.squawk.Klass") && field.getName().equals("name")) {
-            		System.out.println("   name:" + ((Klass) object).getName());
-            	}
+                System.out.println(saveDepth + ":" + klass.getName() + "." + field.getName() + "[" + NativeUnsafe.getMemorySize() + "]");
+                if (klass.getName().equals("com.sun.squawk.Klass") && field.getName().equals("name")) {
+                    System.out.println("   name:" + ((Klass) object).getName());
+                }
             }
             Klass type = field.getType();
             switch (type.getSystemID()) {

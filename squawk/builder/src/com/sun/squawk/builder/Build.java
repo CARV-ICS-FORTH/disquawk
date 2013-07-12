@@ -2534,7 +2534,7 @@ public class Build {
             ccompiler = new MscCompiler(this, platform);
         } else if (name.equals("gcc")) {
             ccompiler = new GccCompiler(this, platform);
-        } else if (name.equals("formic")) {
+        } else if (name.equals("mb-gcc")) {
             ccompiler = new FormicCompiler(this, platform);
         } else if (name.equals("gcc-macox")) {
             ccompiler = new GccMacOSXCompiler(this, platform);

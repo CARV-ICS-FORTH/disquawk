@@ -91,6 +91,8 @@ In order to build Squawk you need
 
 ## Squawk ##
 
+### Java 1.5 support ###
+
   We modified Squawk's toolchain to use
   [retrotranslator](http://retrotranslator.sourceforge.net/) to be
   able to compile 1.5 source code to valid 1.4 classes.
@@ -101,8 +103,14 @@ In order to build Squawk you need
     * Cheney
     * Lisp2
     * Lisp2Generational
-  However at the moment only Cheney is working properly.
   
   To change the Garbage collector you have to modify the
-  build.properties file **and** build-*.properties file the of the
+  build.properties file **and** build-*.properties file of the
   architecture you want to target.
+
+### Romizing programs (a.k.a. creating *.suite files) ###
+
+  First compile the *.java files as usual. Then using retrotranslator
+  transform them to 1.4 classes. Next, preverify them using the
+  preverify tool. Finally, invoke the romized (through the builder) to
+  produce the final suite file out of the *.class files.

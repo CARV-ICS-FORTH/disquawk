@@ -585,7 +585,7 @@ void printStackTrace(const char *msg) {
  * @param msg the trace message
  */
 void printStackTrace(const char *msg) {
-  fprintf("Use -tracing to enable stacktrace here\n\t%s\n", msg);
+  fprintf(stderr, "Use -tracing to enable stacktrace here\n\t%s\n", msg);
 }
 
 #endif /* TRACE */

@@ -521,8 +521,11 @@ public final class Suite {
      * @param metadata  the metadata to install
      */
     void installMetadata(KlassMetadata metadata) {
-      if (this.getType() == Suite.METADATA && this.getClassCount() != 0)
-        throw new RuntimeException("Metadata suites should not have any classes. This has " + this.getClassCount());
+      if (this.getType() == Suite.METADATA && this.getClassCount() != 0) {
+        throw new RuntimeException(
+          "Metadata suites should not have any classes. This ("+
+          this.getName() + ") has " + this.getClassCount());
+      }
       installMetadata0(metadata, metadata.getDefinedClass(), false);
     }
 
@@ -531,9 +534,12 @@ public final class Suite {
     }
 
     /**
-     * Installs the metadatas found in metadataSuite directly into my metadatas.  This is done by the Romizer
-     * as it saves all of the original metadata into a separate suite, but on loading, these need to be put back
-     * into the original Suite.  This original suite turns out to be the parent of the suite containing the metadata
+     * Installs the metadatas found in metadataSuite directly into my
+     * metadatas.  This is done by the Romizer as it saves all of the
+     * original metadata into a separate suite, but on loading, these
+     * need to be put back into the original Suite.  This original
+     * suite turns out to be the parent of the suite containing the
+     * metadata
      *
      * @param metadataSuite
      */

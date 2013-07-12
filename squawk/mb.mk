@@ -17,9 +17,10 @@ ELF=${BUILD_DIR}/squawk.elf
 RTS_SRC=./vmcore/src/rts/formic
 MYRMICS_SRC=$(RTS_SRC)/myrmics/src
 AT=@
+ARCH=formic
 BUILDER=./d -override:build-mb.properties
 #BUILDER_FLAGS=-verbose -assume -tracing #This is for debug purposes
-BUILDER_FLAGS=-comp:formic -o3 -mac -cflags:-I./$(MYRMICS_SRC)/include
+BUILDER_FLAGS=-comp:mb-gcc -o3 -cflags:-I./$(MYRMICS_SRC)/include
 # Make APP point to a directory containing a Makefile with Formic.suite target
 #APP?=../formic-tests/HelloWorld
 APP?=../formic-tests/Linpack

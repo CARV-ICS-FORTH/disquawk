@@ -52,7 +52,7 @@ INLINE void returnLongResult(jlong value) {
 /*if[MICROBLAZE_BUILD]*/
     com_sun_squawk_ServiceOperation_result = 0;
 /*else[MICROBLAZE_BUILD]*/
-    com_sun_squawk_ServiceOperation_result = (int)(value >> 32);
+//  com_sun_squawk_ServiceOperation_result = (int)(value >> 32);
 /*end[MICROBLAZE_BUILD]*/
 }
 
@@ -120,7 +120,7 @@ void cioExecute(void) {
 /*if[MICROBLAZE_BUILD]*/
             printJavaString(o1);
 /*else[MICROBLAZE_BUILD]*/
-            printJavaString(o1, vmOut);
+//          printJavaString(o1, vmOut);
 /*end[MICROBLAZE_BUILD]*/
             break;
         }

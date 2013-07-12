@@ -7,8 +7,9 @@
 
 BUILD_DIR=./vmcore/build_x86
 AT=@
+ARCH=X86
 BUILDER=./d -override:build-x86.properties
-BUILDER_FLAGS=-prod -o3 -mac -assume
+BUILDER_FLAGS=-comp:gcc -o3
 # Make APP point to a directory containing a Makefile with Formic.suite target
 #APP?=../formic-tests/HelloWorld
 APP?=../formic-tests/Linpack
@@ -24,14 +25,14 @@ STR_ELF = "[1m[ [36mELF [0;1m][0m"
 STR_JVC = "[1m[ [37mJVC [0;1m][0m"
 STR_MAP = "[1m[ [31mMAP [0;1m][0m"
 
-.PHONY: run
+.PHONY: run FormicApp.suite
 
 all: squawk
 
 include $(APP)/Makefile
 
 run: squawk FormicApp.suite
-	$(AT)./squawk -suite:FormicApp FormicApp
+	$(AT)./squawk -suite:FormicApp $(MAIN)
 
 map: squawk.suite.map FormicApp.suite.map
 

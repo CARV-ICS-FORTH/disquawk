@@ -1,6 +1,7 @@
 # This file is included by the Makefiles in the ../squawk directory
 # APP is defined to be the current folder
 
+## Must also change the squawk_entry_point.c
 #MAIN=spec.benchmarks.scimark.lu.Main
 MAIN=spec.benchmarks.scimark.fft.Main
 #MAIN=spec.benchmarks.scimark.sor.Main

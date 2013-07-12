@@ -2150,7 +2150,7 @@ void printStrSafely(Address value, char* valueName, Address low, Address high, c
 /*if[MICROBLAZE_BUILD]*/
         printJavaString(value);
 /*else[MICROBLAZE_BUILD]*/
-        printJavaString(value, stderr);
+//      printJavaString(value, stderr);
 /*end[MICROBLAZE_BUILD]*/
         fprintf(stderr, "\n");
     } else {

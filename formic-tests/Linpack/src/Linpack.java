@@ -41,7 +41,9 @@ public class Linpack {
   public static void main(String[] args)
   {
     Linpack l = new Linpack();
+    long start = System.currentTimeMillis();
     l.run_benchmark();
+    System.out.println("time: "+(System.currentTimeMillis()-start)+" ms");
   }
 
   final double abs (double d) {

@@ -4076,7 +4076,8 @@ T
                 int suiteID = (systemID == -1 ? suite.getNextAvailableClassNumber() : systemID);
                 klass = new Klass(name, null, suiteID, systemID != -1);
             }
-            suite.installClass(klass);
+            if (suite.getType() != Suite.METADATA)
+              suite.installClass(klass);
         }
         return klass;
     }

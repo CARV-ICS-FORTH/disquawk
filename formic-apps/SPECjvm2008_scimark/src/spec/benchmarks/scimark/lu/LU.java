@@ -23,12 +23,6 @@ import spec.benchmarks.scimark.utils.kernel;
  *
  */
 public class LU {
-    int id;
-    
-    public LU(int id) {
-        this.id = id;
-    }
-    
     /**
      * Returns a <em>copy</em> of the compact LU factorization.
      * (useful mainly for debugging.)
@@ -39,19 +33,19 @@ public class LU {
      * The main diagonal of L consists (by convention) of
      * ones, and is not explicitly stored.
      */
-    public static void main(int id) {
-        LU lu = new LU(id);
+    public static void main() {
+        LU lu = new LU();
         lu.run();
     }
-    
+
     public static final double num_flops(int N) {
         // rougly 2/3*N^3
-        
+
         double Nd = (double) N;
-        
+
         return (2.0 * Nd *Nd *Nd/ 3.0);
     }
-    
+
     protected static double[] new_copy(double x[]) {
         int N = x.length;
         double T[] = new double[N];
@@ -59,26 +53,26 @@ public class LU {
             T[i] = x[i];
         return T;
     }
-    
-    
+
+
     protected static double[][] new_copy(double A[][]) {
         int M = A.length;
         int N = A[0].length;
-        
+
         double T[][] = new double[M][N];
-        
+
         for (int i=0; i<M; i++) {
             double Ti[] = T[i];
             double Ai[] = A[i];
             for (int j=0; j<N; j++)
                 Ti[j] = Ai[j];
         }
-        
+
         return T;
     }
-    
-    
-    
+
+
+
     public static int[] new_copy(int x[]) {
         int N = x.length;
         int T[] = new int[N];
@@ -86,13 +80,13 @@ public class LU {
             T[i] = x[i];
         return T;
     }
-    
+
     protected static final void insert_copy(double B[][], double A[][]) {
         int M = A.length;
         int N = A[0].length;
-        
+
         int remainder = N & 3;		 // N mod 4;
-        
+
         for (int i=0; i<M; i++) {
             double Bi[] = B[i];
             double Ai[] = A[i];
@@ -105,12 +99,12 @@ public class LU {
                 Bi[j+3] = Ai[j+3];
             }
         }
-        
+
     }
     public double[][] getLU() {
         return new_copy(LU_);
     }
-    
+
     /**
      * Returns a <em>copy</em> of the pivot vector.
      *
@@ -122,7 +116,7 @@ public class LU {
     public int[] getPivot() {
         return new_copy(pivot_);
     }
-    
+
     /**
      * Initalize LU factorization from matrix.
      *
@@ -133,18 +127,18 @@ public class LU {
     {
         int M = A.length;
         int N = A[0].length;
-    
+
         //if ( LU_ == null || LU_.length != M || LU_[0].length != N)
             LU_ = new double[M][N];
-    
+
         insert_copy(LU_, A);
-    
+
         //if (pivot_.length != M)
             pivot_ = new int[M];
-    
+
         factor(LU_, pivot_);
     }*/
-    
+
     /**
      * Solve a linear system, with pre-computed factorization.
      *
@@ -153,12 +147,12 @@ public class LU {
      */
     public double[] solve(double b[]) {
         double x[] = new_copy(b);
-        
+
         solve(LU_, pivot_, x);
         return x;
     }
-    
-    
+
+
     /**
      * LU factorization (in place).
      *
@@ -171,17 +165,16 @@ public class LU {
      * @return 0, if OK, nozero value, othewise.
      */
     public int factor(double A[][],  int pivot[]) {
-        
+
         int N = A.length;
         int M = A[0].length;
-        
+
         int minMN = Math.min(M,N);
-        
+
         for (int j=0; j<minMN; j++) {
             // find pivot in column j and  test for singularity.
-            
             int jp=j;
-            
+
             double t = Math.abs(A[j][j]);
             for (int i=j+1; i<M; i++) {
                 double ab = Math.abs(A[i][j]);
@@ -190,58 +183,58 @@ public class LU {
                     t = ab;
                 }
             }
-            
+
             pivot[j] = jp;
-            
+
             // jp now has the index of maximum element
             // of column j, below the diagonal
-            
+
             if ( A[jp][j] == 0 )
                 return 1;       // factorization failed because of zero pivot
-            
-            
+
+
             if (jp != j) {
                 // swap rows j and jp
                 double tA[] = A[j];
                 A[j] = A[jp];
                 A[jp] = tA;
             }
-            
+
             if (j<M-1)                // compute elements j+1:M of jth column
             {
                 // note A(j,j), was A(jp,p) previously which was
                 // guarranteed not to be zero (Label #1)
                 //
                 double recp =  1.0 / A[j][j];
-                
+
                 for (int k=j+1; k<M; k++)
                     A[k][j] *= recp;
             }
-            
-            
+
+
             if (j < minMN-1) {
                 // rank-1 update to trailing submatrix:   E = E - x*y;
                 //
                 // E is the region A(j+1:M, j+1:N)
                 // x is the column vector A(j+1:M,j)
                 // y is row vector A(j,j+1:N)
-                
-                
+
+
                 for (int ii=j+1; ii<M; ii++) {
                     double Aii[] = A[ii];
                     double Aj[] = A[j];
                     double AiiJ = Aii[j];
                     for (int jj=j+1; jj<N; jj++)
                         Aii[jj] -= AiiJ * Aj[jj];
-                    
+
                 }
             }
         }
-        
+
         return 0;
     }
-    
-    
+
+
     /**
      * Solve a linear system, using a prefactored matrix
      * in LU form.
@@ -257,11 +250,11 @@ public class LU {
         int M = LU.length;
         int N = LU[0].length;
         int ii=0;
-        
+
         for (int i=0; i<M; i++) {
             int ip = pvt[i];
             double sum = b[ip];
-            
+
             b[ip] = b[i];
             if (ii==0)
                 for (int j=ii; j<i; j++)
@@ -271,7 +264,7 @@ public class LU {
                     ii = i;
             b[i] = sum;
         }
-        
+
         for (int i=N-1; i>=0; i--) {
             double sum = b[i];
             for (int j=i+1; j<N; j++)
@@ -279,56 +272,60 @@ public class LU {
             b[i] = sum / LU[i][i];
         }
     }
-    
-    
+
+
     private double LU_[][];
     private int pivot_[];
-    
+
     public double measureLU(int N, double min_time, Random R) {
         // compute approx Mlfops, or O if LU yields large errors
         double A[][] = kernel.RandomMatrix(N, N,  R);
         double lu[][] = new double[N][N];
         int pivot[] = new int[N];
-        
+
         Stopwatch Q = new Stopwatch();
-        
+
         int cycles=2;
         //while(true)
         //{
+        long start = System.currentTimeMillis();
         Q.start();
         for (int i=0; i<cycles; i++) {
             kernel.CopyMatrix(lu, A);
             factor(lu, pivot);
         }
         Q.stop();
+        System.out.println("[DIAG] Copy and factor took "+(System.currentTimeMillis()-start)+" ms");
         //	if (Q.read() >= min_time) break;
-        
-        
+
+
         // verify that LU is correct
         double b[] = kernel.RandomVector(N, R);
         double x[] = kernel.NewVectorCopy(b);
-        
+
+        start = System.currentTimeMillis();
         solve(lu, pivot, x);
-        
+        System.out.println("[DIAG] solve took "+(System.currentTimeMillis()-start)+" ms");
+
         final double EPS = 1.0e-12;
         kernel.checkResults(kernel.CURRENT_LU_RESULT,
-                "" +  kernel.normabs(b, kernel.matvec(A,x)), id);
-        
+                "" +  kernel.normabs(b, kernel.matvec(A,x)), 1);
+
         if ( kernel.normabs(b, kernel.matvec(A,x)) / N > EPS )
             return 0.0;
-        
-        
+
+
         // else return approx Mflops
         //
         return LU.num_flops(N) * cycles / Q.read() * 1.0e-6;
     }
-    
+
     public void run() {
-        
+
         double min_time = Constants.RESOLUTION_DEFAULT;
         int LU_size = kernel.CURRENT_LU_SIZE;
         // run the benchmark
-        
+
         double res = 0.0;
         Random R = new Random(Constants.RANDOM_SEED);
         res = measureLU( LU_size, min_time, R);

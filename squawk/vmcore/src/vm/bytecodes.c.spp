@@ -4333,16 +4333,14 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                 }
 /*end[TYPEMAP]*/
 
-/*if[MICROBLAZE_BUILD]*/
                 case Native_com_sun_squawk_NativeUnsafe_compareAndSwapInt: {
                     int value = popInt();
                     int expected = popInt();
                     Address obj = popAddress();
-                    int res = ar_compare_and_swap(obj, expected, value);
+                    int res = sys_compare_and_swap(obj, expected, value);
                     pushInt(res);
                     break;
                 }
-/*end[MICROBLAZE_BUILD]*/
 
                 case Native_com_sun_squawk_VM_allocate: {
                     int     alth   = popInt();

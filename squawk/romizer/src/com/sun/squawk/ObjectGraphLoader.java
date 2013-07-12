@@ -43,62 +43,62 @@ import com.sun.squawk.vm.*;
  */
 public class ObjectGraphLoader {
 
-	protected Map<Address, Object> addressToObjectMap = new IdentityHashMap<Address, Object>();
-	protected final Stack<Map<Address, Object>> addressToObjectMapStack = new Stack<Map<Address,Object>>();
-	protected Map<Object, Address> objectToAddressMap = new IdentityHashMap<Object, Address>();
-	protected final Stack<Map<Object, Address>> objectToAddressMapStack = new Stack<Map<Object, Address>>();
-	protected ObjectGraphLoaderTranslator translator = new ObjectGraphLoaderTranslator();
-	protected boolean skipKlassInternals;
+    protected Map<Address, Object> addressToObjectMap = new IdentityHashMap<Address, Object>();
+    protected final Stack<Map<Address, Object>> addressToObjectMapStack = new Stack<Map<Address,Object>>();
+    protected Map<Object, Address> objectToAddressMap = new IdentityHashMap<Object, Address>();
+    protected final Stack<Map<Object, Address>> objectToAddressMapStack = new Stack<Map<Object, Address>>();
+    protected ObjectGraphLoaderTranslator translator = new ObjectGraphLoaderTranslator();
+    protected boolean skipKlassInternals;
     protected Suite suite;
 
-	public ObjectGraphLoader() {
-	}
+    public ObjectGraphLoader() {
+    }
 
-	public Map<Object, Address> getObjectToAddressMap() {
-		return objectToAddressMap;
-	}
+    public Map<Object, Address> getObjectToAddressMap() {
+        return objectToAddressMap;
+    }
 
-	protected byte[] getBytesAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
-		Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (byte[]) object;
-		}
+    protected byte[] getBytesAt(Address address) {
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (byte[]) object;
+        }
         int length = GC.getArrayLengthNoCheck(address);
         byte[] bytes = new byte[length];
         for (int i = 0 ; i < length; i++) {
-        	bytes[i] = (byte) (NativeUnsafe.getByte(address, i) & 0xFF);
+            bytes[i] = (byte) (NativeUnsafe.getByte(address, i) & 0xFF);
         }
         addressToObjectMap.put(address, bytes);
         objectToAddressMap.put(bytes, address);
         return bytes;
-	}
+    }
 
     protected Klass getKlassAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
-    	Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (Klass) object;
-		}
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (Klass) object;
+        }
         Address nameAddress = NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$name));
         String name = getStringAt(nameAddress);
         Klass klass = Klass.getClass(name, false);
         addressToObjectMap.put(address, klass);
         objectToAddressMap.put(klass, address);
         if (!skipKlassInternals) {
-        	initKlassInternals(klass);
+            initKlassInternals(klass);
         }
         return klass;
     }
 
     protected void initKlassInternals(Klass klass) {
-    	Address address = objectToAddressMap.get(klass);
-    	MethodBody[] virtualMethodBodies = getMethodBodiesAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$virtualMethods)));
-    	MethodBody[] staticMethodBodies = getMethodBodiesAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$staticMethods)));
+        Address address = objectToAddressMap.get(klass);
+        MethodBody[] virtualMethodBodies = getMethodBodiesAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$virtualMethods)));
+        MethodBody[] staticMethodBodies = getMethodBodiesAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$staticMethods)));
         Klass superType = getKlassAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$superType)));
         Klass[] interfaces = getKlassesAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$interfaces)));
         UWord[] oopMap = getUWordsAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Klass$oopMap)));
@@ -116,20 +116,20 @@ public class ObjectGraphLoader {
     }
 
     protected Klass[] getKlassesAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
+        if (address.isZero()) {
+            return null;
+        }
         Klass[] klasses;
-    	Object object = addressToObjectMap.get(address);
-		if (object != null) {
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
             klasses = (Klass[]) object;
-			return klasses;
-		}
+            return klasses;
+        }
         int length = GC.getArrayLengthNoCheck(address);
         klasses = new Klass[length];
         for (int i=0; i < klasses.length; i++) {
-        	klasses[i] = getKlassAt(NativeUnsafe.getAddress(address, i));
-            if (klasses[i] == null) {
+            klasses[i] = getKlassAt(NativeUnsafe.getAddress(address, i));
+            if (klasses[i] == null && suite.getType() != Suite.METADATA) {
                 suite.installFillerClass();
             }
         }
@@ -139,13 +139,13 @@ public class ObjectGraphLoader {
     }
 
     protected KlassMetadata getKlassMetadataAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
-    	Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (KlassMetadata) object;
-		}
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (KlassMetadata) object;
+        }
         Address definedKlassAddress = NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_KlassMetadata$definedClass));
         Klass definedClass = getKlassAt(definedKlassAddress);
         Address symbolsAddress = NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_KlassMetadata$symbols));
@@ -160,21 +160,24 @@ public class ObjectGraphLoader {
     }
 
     protected KlassMetadata[] getKlassMetadatasAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
-    	Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (KlassMetadata[]) object;
-		}
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (KlassMetadata[]) object;
+        }
         int length = GC.getArrayLengthNoCheck(address);
         KlassMetadata[] metadatas = new KlassMetadata[length];
         for (int i=0; i < metadatas.length; i++) {
-        	Address metadataAddress = NativeUnsafe.getAddress(address, i);
-        	KlassMetadata metadata = getKlassMetadataAt(metadataAddress);
-      if (suite.getType() == Suite.METADATA && suite.getClassCount() != 0)
-        throw new RuntimeException("Metadata suites should not have any classes. This has " + suite.getClassCount());
-        	metadatas[i] = metadata;
+            Address metadataAddress = NativeUnsafe.getAddress(address, i);
+            KlassMetadata metadata = getKlassMetadataAt(metadataAddress);
+            if (suite.getType() == Suite.METADATA && suite.getClassCount() != 0) {
+                throw new RuntimeException(
+                  "Metadata suites should not have any classes. This ("+
+                  suite.getName()+ ") has " + suite.getClassCount());
+            }
+            metadatas[i] = metadata;
         }
         addressToObjectMap.put(address, metadatas);
         objectToAddressMap.put(metadatas, address);
@@ -182,46 +185,46 @@ public class ObjectGraphLoader {
     }
 
     protected MethodBody getMethodBodyAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
-    	Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (MethodBody) object;
-		}
-		MethodBody methodBody = new MethodBody();
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (MethodBody) object;
+        }
+        MethodBody methodBody = new MethodBody();
         addressToObjectMap.put(address, methodBody);
         objectToAddressMap.put(methodBody, address);
         return methodBody;
     }
 
     protected MethodBody[] getMethodBodiesAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
-    	Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (MethodBody[]) object;
-		}
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (MethodBody[]) object;
+        }
         int length = GC.getArrayLengthNoCheck(address);
         MethodBody[] methodBodies = new MethodBody[length];
         for (int i=0; i < methodBodies.length; i++) {
             Address methodBodyAddress = NativeUnsafe.getAddress(address, i);
-        	methodBodies[i] = getMethodBodyAt(methodBodyAddress);
+            methodBodies[i] = getMethodBodyAt(methodBodyAddress);
         }
         addressToObjectMap.put(address, methodBodies);
         objectToAddressMap.put(methodBodies, address);
         return methodBodies;
     }
 
-	protected String getStringAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
-		Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (String) object;
-		}
+    protected String getStringAt(Address address) {
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (String) object;
+        }
         int length = GC.getArrayLengthNoCheck(address);
         // get the class ID of the string
         Address klassAddress = NativeUnsafe.getAddress(address, HDR.klass);
@@ -242,9 +245,9 @@ public class ObjectGraphLoader {
         addressToObjectMap.put(address, string);
         objectToAddressMap.put(string, address);
         return string;
-	}
+    }
 
-	public Suite loadSuite(String url) throws IOException {
+    public Suite loadSuite(String url) throws IOException {
         String bootstrapSuiteProperty = System.getProperty(ObjectMemory.BOOTSTRAP_URI_PROPERTY);
         if (bootstrapSuiteProperty == null) {
             bootstrapSuiteProperty = "file://squawk.suite";
@@ -256,18 +259,18 @@ public class ObjectGraphLoader {
 
         ObjectMemory objectMemory = GC.lookupReadOnlyObjectMemoryBySourceURI(url);
         if (objectMemory == null) {
-    		if (url.equals(bootstrapSuiteProperty)) {
-    			objectMemory = GC.lookupReadOnlyObjectMemoryBySourceURI(ObjectMemory.BOOTSTRAP_URI);
-    		}
+            if (url.equals(bootstrapSuiteProperty)) {
+                objectMemory = GC.lookupReadOnlyObjectMemoryBySourceURI(ObjectMemory.BOOTSTRAP_URI);
+            }
         }
         if (objectMemory != null) {
-        	Assert.that(objectMemory.getRoot() instanceof Suite);
-        	return (Suite) objectMemory.getRoot();
+            Assert.that(objectMemory.getRoot() instanceof Suite);
+            return (Suite) objectMemory.getRoot();
         }
 
         objectMemory = ObjectMemoryLoader.load(url, false).objectMemory;
         if (objectMemory == null) {
-        	throw new IOException("No object memories found with URL: " + url);
+            throw new IOException("No object memories found with URL: " + url);
         }
         ArrayList<ObjectMemory> objectMemories = new ArrayList<ObjectMemory>();
         while (objectMemory != null) {
@@ -279,12 +282,12 @@ public class ObjectGraphLoader {
         for (ObjectMemory eachObjectMemory : objectMemories) {
             Object root = eachObjectMemory.getRoot();
             if (root instanceof Address) {
-            	Suite suite = getSuiteAt((Address) root, parentSuite);
-            	eachObjectMemory.setRoot(suite);
-            	parentSuite = suite;
+                Suite suite = getSuiteAt((Address) root, parentSuite);
+                eachObjectMemory.setRoot(suite);
+                parentSuite = suite;
                 GC.registerReadOnlyObjectMemory(eachObjectMemory);
                 allocTop = allocTop.add(NativeUnsafe.getMemorySize());
-            	// Get all String objects, I should really go through and get all objects, but lets do this for now.
+                // Get all String objects, I should really go through and get all objects, but lets do this for now.
                 Address end = eachObjectMemory.getStart().add(eachObjectMemory.getSize());
                 for (Address block = eachObjectMemory.getStart(); block.lo(end); ) {
                     Address object = GC.blockToOop(block);
@@ -295,14 +298,20 @@ public class ObjectGraphLoader {
                     Assert.that(!klassAddress.isZero());
                     Klass klass = getKlassAt(klassAddress);
                     if (Klass.STRING.isAssignableFrom(klass)) {
-                    	getStringAt(object);
+                        getStringAt(object);
                     }
                     block = object.add(GC.getBodySize(klass, object));
                 }
-        		// Load the .metadata suite
-                String metadataUrl = (suite.isBootstrap()?bootstrapSuiteProperty:eachObjectMemory.getURI()) + Suite.FILE_EXTENSION_METADATA;
+                // Load the .metadata suite
+                String metadataUrl =
+                  ( suite.isBootstrap() ? bootstrapSuiteProperty : eachObjectMemory.getURI() )
+                  + Suite.FILE_EXTENSION_METADATA;
+
+/*if[!ICS_OPTIMIZE]*/
                 if (false && ObjectMemoryLoader.SIGNATURE_SCHEME == ObjectMemoryLoader.CHAINED_SIGNATURE) {
-                    // we loaded the "unisgned-" version of teh suite, but the medata suite does not have that name (it is never signed), so look for correct name.
+                    // we loaded the "unsigned-" version of the suite,
+                    // but the medata suite does not have that name
+                    // (it is never signed), so look for correct name.
                     int index = metadataUrl.indexOf("unsigned-");
                     int len = "unsigned-".length();
                     if (index > 0) {
@@ -310,45 +319,46 @@ public class ObjectGraphLoader {
                         metadataUrl = newURL;
                     }
                 }
-            	try {
-                	int memorySizePrior = NativeUnsafe.getMemorySize();
-	            	ObjectMemory metadataObjectMemory = ObjectMemoryLoader.load(metadataUrl, false).objectMemory;
-	            	Suite metadataSuite;
-	            	pushObjectMap();
-	            	try {
-	            		metadataSuite = getSuiteAt((Address) metadataObjectMemory.getRoot(), suite);
-	            	} finally {
-		            	popObjectMap();
-	            	}
-            		metadataSuite.pushUpMetadatas();
-            		NativeUnsafe.setMemorySize(memorySizePrior);
-            	} catch (IOException e) {
-            	    throw new UnexpectedException("Unable to find metadata suite: " + metadataUrl, e);
-            	}
+/*end[ICS_OPTIMIZE]*/
+                try {
+                    int memorySizePrior = NativeUnsafe.getMemorySize();
+                    ObjectMemory metadataObjectMemory = ObjectMemoryLoader.load(metadataUrl, false).objectMemory;
+                    Suite metadataSuite;
+                    pushObjectMap();
+                    try {
+                        metadataSuite = getSuiteAt((Address) metadataObjectMemory.getRoot(), suite);
+                    } finally {
+                        popObjectMap();
+                    }
+                    metadataSuite.pushUpMetadatas();
+                    NativeUnsafe.setMemorySize(memorySizePrior);
+                } catch (IOException e) {
+                    throw new UnexpectedException("Unable to find metadata suite: " + metadataUrl, e);
+                }
             } else if (root instanceof Suite) {
-            	parentSuite = (Suite) root;
+                parentSuite = (Suite) root;
             } else {
-            	Assert.shouldNotReachHere();
+                Assert.shouldNotReachHere();
             }
             GC.setAllocTop(allocTop);
         }
         ObjectGraphSerializer.addObjectsToAddress(getObjectToAddressMap());
         parentSuite.checkSuite();
         return parentSuite;
-	}
+    }
 
-	protected Suite getSuiteAt(Address address, Suite parent) {
-		if (address.isZero()) {
-			return null;
-		}
-    	Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (Suite) object;
-		}
-		String name = getStringAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Suite$name)));
-		suite = new Suite(name, parent, NativeUnsafe.getInt(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Suite$type)));
+    protected Suite getSuiteAt(Address address, Suite parent) {
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (Suite) object;
+        }
+        String name = getStringAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Suite$name)));
+        suite = new Suite(name, parent, NativeUnsafe.getInt(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Suite$type)));
 
-		VM.setCurrentIsolate(null);
+        VM.setCurrentIsolate(null);
         Isolate isolate = new Isolate(null, null, suite);
         isolate.setTranslator(translator);
         VM.setCurrentIsolate(isolate);
@@ -358,9 +368,13 @@ public class ObjectGraphLoader {
 
         skipKlassInternals = true;
         Klass[] klasses = getKlassesAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Suite$classes)));
+
+        // Make sure there are no class definitions in metadata files
+        Assert.that(suite.getType() != Suite.METADATA || klasses.length == 0);
+
         skipKlassInternals = false;
         for (int i=0; i < klasses.length; i++) {
-        	Klass klass = klasses[i];
+            Klass klass = klasses[i];
             if (klass != null) {
                 initKlassInternals(klass);
                 if (suite.getKlass(i) != klass) {
@@ -371,7 +385,7 @@ public class ObjectGraphLoader {
 
                 Assert.that(suite.getKlass(i) == klass);
             }
-		}
+        }
 
         KlassMetadata[] metadatas = getKlassMetadatasAt(NativeUnsafe.getAddress(address, FieldOffsets.decodeOffset(FieldOffsets.com_sun_squawk_Suite$metadatas)));
         if (metadatas != null) {
@@ -387,38 +401,40 @@ public class ObjectGraphLoader {
         }
         addressToObjectMap.put(address, suite);
         objectToAddressMap.put(suite, address);
-		return suite;
-	}
+        return suite;
+    }
 
-	protected UWord[] getUWordsAt(Address address) {
-		if (address.isZero()) {
-			return null;
-		}
-		Object object = addressToObjectMap.get(address);
-		if (object != null) {
-			return (UWord[]) object;
-		}
+    protected UWord[] getUWordsAt(Address address) {
+        if (address.isZero()) {
+            return null;
+        }
+        Object object = addressToObjectMap.get(address);
+        if (object != null) {
+            return (UWord[]) object;
+        }
         int length = GC.getArrayLengthNoCheck(address);
         UWord[] uwords = new UWord[length];
         for (int i = 0 ; i < length; i++) {
-        	uwords[i] = NativeUnsafe.getUWord(address, i);
+            uwords[i] = NativeUnsafe.getUWord(address, i);
         }
         addressToObjectMap.put(address, uwords);
         objectToAddressMap.put(uwords, address);
         return uwords;
-	}
+    }
 
-	protected void popObjectMap() {
+    protected void popObjectMap() {
         addressToObjectMap = addressToObjectMapStack.pop();
         objectToAddressMap = objectToAddressMapStack.pop();
-	}
+    }
 
-	// Take a copy of the object and address maps, such that none of the objects read in from metadata suite are used for follow on suites
-	protected void pushObjectMap() {
-		addressToObjectMapStack.push(addressToObjectMap);
-		addressToObjectMap = new IdentityHashMap<Address, Object>(addressToObjectMap);
-		objectToAddressMapStack.push(objectToAddressMap);
-		objectToAddressMap = new IdentityHashMap<Object, Address>(objectToAddressMap);
-	}
+    // Take a copy of the object and address maps, such that none of
+    // the objects read in from metadata suite are used for follow on
+    // suites
+    protected void pushObjectMap() {
+        addressToObjectMapStack.push(addressToObjectMap);
+        addressToObjectMap = new IdentityHashMap<Address, Object>(addressToObjectMap);
+        objectToAddressMapStack.push(objectToAddressMap);
+        objectToAddressMap = new IdentityHashMap<Object, Address>(objectToAddressMap);
+    }
 
 }

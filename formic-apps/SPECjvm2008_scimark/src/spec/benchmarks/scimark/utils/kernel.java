@@ -196,9 +196,7 @@ public class kernel {
 
     public static final void checkResults(String expectedValue, String gottenValue, int loop) {
         if (expectedValue.equals(gottenValue)) {
-            if (loop == 1) {
-                System.out.println(Constants.VERIFICATION_PASSED_MESSAGE);
-            }
+            System.out.println(Constants.VERIFICATION_PASSED_MESSAGE);
         } else {
             System.out.println(Constants.VERIFICATION_FAILED_MESSAGE
                     + "The result is "  + gottenValue + "  instead of " + expectedValue);

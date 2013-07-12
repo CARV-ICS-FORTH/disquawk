@@ -130,6 +130,14 @@ jlong sysTimeMicros() {
 }
 
 /**
+ * Compare and swap.
+ * Returns 1 if succeeded, 0 otherwise
+ */
+INLINE int sys_compare_and_swap(void* ptr, int old, int new) {
+  return ar_compare_and_swap(ptr, old, new);
+}
+
+/**
  * Return the current time in milliseconds.
  */
 INLINE jlong sysTimeMillis(void) {

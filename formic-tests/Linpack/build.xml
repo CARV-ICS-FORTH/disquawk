@@ -83,4 +83,11 @@
     <echo message="Preverifying done..."/>
   </target>
 
+  <target name="run"
+          depends="init, compile"
+          description="Run the benchmark">
+    <java classpath="${classes.dir}"
+          classname="Linpack"
+          fork="true"/>
+  </target>
 </project>

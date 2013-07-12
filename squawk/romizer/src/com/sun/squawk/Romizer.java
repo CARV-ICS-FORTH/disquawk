@@ -331,7 +331,7 @@ public class Romizer {
                 }
             }
             excludes.addElement(line);
-		}
+        }
         return excludes;
     }
 
@@ -354,24 +354,24 @@ public class Romizer {
         List<String> classNames = new ArrayList<String>();
         String[] argsLeft = args;
         while (true) {
-	        try {
-	            String[] newArgsLeft = new String[argsLeft.length + classNames.size()];
-	            System.arraycopy(argsLeft, 0, newArgsLeft, classNames.size(), argsLeft.length);
-	            argsLeft = newArgsLeft;
-	            int i = 0;
-	            for (String className: classNames) {
-	            	argsLeft[i++] = "-noclassdeffounderrorclass:" + className;
-	            }
+            try {
+                String[] newArgsLeft = new String[argsLeft.length + classNames.size()];
+                System.arraycopy(argsLeft, 0, newArgsLeft, classNames.size(), argsLeft.length);
+                argsLeft = newArgsLeft;
+                int i = 0;
+                for (String className: classNames) {
+                    argsLeft[i++] = "-noclassdeffounderrorclass:" + className;
+                }
                 classNames.clear();
-		        while (argsLeft != null) {
-		            romizer = new Romizer(romizer);
+                while (argsLeft != null) {
+                    romizer = new Romizer(romizer);
                     //traceRomize(argsLeft);
-		            argsLeft = romizer.run(argsLeft);
-		        }
-		        return;
-	        } catch (NoClassDefFoundError e) {
+                    argsLeft = romizer.run(argsLeft);
+                }
+                return;
+            } catch (NoClassDefFoundError e) {
                 if (romizer != null && romizer.getLastClassName() != null) {
-	            	classNames.add(romizer.getLastClassName());
+                    classNames.add(romizer.getLastClassName());
                     System.err.flush();
                     System.out.flush();
                     System.err.println("WARNING: Deferring Errors:");
@@ -381,7 +381,7 @@ public class Romizer {
                     buildProperties = null; // reset properties for next run...
                     // TODO Deal with fact that for TCK this must continue
                     e.printStackTrace();
-	                continue;
+                    continue;
                 }
                 throw e;
             }
@@ -423,8 +423,8 @@ public class Romizer {
             }
             // Install the jad properties passed on the command line
             for (String key: jadProperties.keySet()) {
-            	String value = jadProperties.get(key);
-            	suite.setProperty(key, value);
+                String value = jadProperties.get(key);
+                suite.setProperty(key, value);
             }
 
             // Create the image file for the suite
@@ -627,15 +627,15 @@ public class Romizer {
                 if (buildProperties != null) {
                     throw new RuntimeException("Can't specify both -nobuildproperties and -override:");
                 }
-	        	buildDotOverrideFileName = arg.substring("-override:".length());
+                buildDotOverrideFileName = arg.substring("-override:".length());
             } else if (arg.startsWith("-key:")) {
-            	key = arg.substring("-key:".length());
+                key = arg.substring("-key:".length());
             } else if (arg.startsWith("-value:")) {
-            	if (key == null) {
-            		throw new RuntimeException("Did not specify a key for " + arg);
-            	}
-            	String value = arg.substring("-key:".length());
-            	jadProperties.put(key, value);
+                if (key == null) {
+                    throw new RuntimeException("Did not specify a key for " + arg);
+                }
+                String value = arg.substring("-key:".length());
+                jadProperties.put(key, value);
             } else if (!protoTranslator.processOption(arg)) {
                 usage("Unknown option "+arg);
                 throw new RuntimeException("Unknown option "+arg);
@@ -690,9 +690,9 @@ public class Romizer {
             }
             suite = new Suite(new File(suiteName).getName(), parentSuite, suiteType);
             for (String className: noClassDefFoundErrorClasses) {
-            	if (suite.shouldThrowNoClassDefFoundErrorFor(className)) {
-            		noClassDefFoundErrorClasses.remove(className);
-            	}
+                if (suite.shouldThrowNoClassDefFoundErrorFor(className)) {
+                    noClassDefFoundErrorClasses.remove(className);
+                }
             }
             suite.addNoClassDefFoundErrorClassNames(noClassDefFoundErrorClasses.toArray(new String[noClassDefFoundErrorClasses.size()]));
         } else {
@@ -738,12 +738,12 @@ public class Romizer {
                     include = false;
                     break;
                 }
-			}
+            }
             if (include) {
                 filteredClassNames.addElement(className);
             }
             firstLoop = false;
-		}
+        }
 
         classNames.removeAllElements();
         classNames.addAll(filteredClassNames);
@@ -791,33 +791,33 @@ public class Romizer {
         isolate.setTranslator(new Translator());
         TranslatorInterface translator = isolate.getTranslator();
         try {
-	        translator.open(suite, classPath);
-        	suite.addNoClassDefFoundErrorClassNames(noClassDefFoundErrorClasses.toArray(new String[noClassDefFoundErrorClasses.size()]));
+            translator.open(suite, classPath);
+            suite.addNoClassDefFoundErrorClassNames(noClassDefFoundErrorClasses.toArray(new String[noClassDefFoundErrorClasses.size()]));
 
             if (suite.isBootstrap() && (previous != null)) {
                 // Trying to create bootstrap suite, but previous romize failed. Need to copy over the previous boot classes to new bootstrap suite
                 suite.reinstallBootClasses(previous.suite);
             }
 
-	        // Sort the classes in order to make sure that regardless of what platform we are on
-	        // the order of the classes will be the same
-	        String[] sortedClassNames = createSortedClassList(classNames);
-	        // Create classes for each class name
-	        for (String className: sortedClassNames) {
-	        	if (noClassDefFoundErrorClasses.indexOf(className) == -1) {
-	        		Klass.getClass(className, false);
-	        	}
-	        }
+            // Sort the classes in order to make sure that regardless of what platform we are on
+            // the order of the classes will be the same
+            String[] sortedClassNames = createSortedClassList(classNames);
+            // Create classes for each class name
+            for (String className: sortedClassNames) {
+                if (noClassDefFoundErrorClasses.indexOf(className) == -1) {
+                    Klass.getClass(className, false);
+                }
+            }
 
-	        // Compute the complete class closure.
-	        translator.close(suiteType);
+            // Compute the complete class closure.
+            translator.close(suiteType);
         } catch (com.sun.squawk.translator.VerifyError t) {
             System.err.println(t);
-    		lastClassName = translator.getLastClassName();
-        	throw t;
+            lastClassName = translator.getLastClassName();
+            throw t;
         } catch (NoClassDefFoundError t) {
-    		lastClassName = translator.getLastClassName();
-        	throw t;
+            lastClassName = translator.getLastClassName();
+            throw t;
         }
 
         // Ensure no classes that were meant to be excluded have been included
@@ -844,7 +844,7 @@ public class Romizer {
                     if (spec.endsWith("*") ? className.startsWith(spec.substring(0, spec.length() - 1)) : className.equals(spec)) {
                         System.err.println("**WARNING**: suite includes class '" + className + "' that is matched by exclusion spec '" + spec + "'");
                     }
-				}
+                }
             }
         }
     }
@@ -856,7 +856,7 @@ public class Romizer {
     /**
      * Creates the serialized object memory representing the classes in the translated suite.
      */
-	private void createImage() throws IOException {
+    private void createImage() throws IOException {
 
         // Open the map file.
         File file = new File(suiteName + ".sym");
@@ -888,18 +888,22 @@ public class Romizer {
             String metadataUrl = "file://" + suiteFileName + Suite.FILE_EXTENSION_METADATA;
             DataOutputStream metadataDos = Connector.openDataOutputStream(metadataUrl);
             Suite metadataSuite = suite.strip(Suite.METADATA, suiteFileName + Suite.FILE_EXTENSION_METADATA, strippedSuite);
+/*if[DEBUG_CODE_ENABLED]*/
             if (metadataSuite.getClassCount() != 0) {
-              throw new RuntimeException("Metadata suites should not have any classes. " + metadataSuite + " has " + metadataSuite.getClassCount());
+              throw new RuntimeException(
+                "Metadata suites should not have any classes. This (" +
+                metadataSuite.getName() + ") has " + metadataSuite.getClassCount());
             }
+/*end[DEBUG_CODE_ENABLED]*/
 
             metadataSuite.close();
             int memorySizePrior = NativeUnsafe.getMemorySize();
             ObjectMemory objectMemory;
             ObjectGraphSerializer.pushObjectMap();
             try {
-            	objectMemory = metadataSuite.save(metadataDos, metadataUrl, VM.isBigEndian());
+                objectMemory = metadataSuite.save(metadataDos, metadataUrl, VM.isBigEndian());
             } finally {
-            	ObjectGraphSerializer.popObjectMap();
+                ObjectGraphSerializer.popObjectMap();
             }
             GC.unRegisterReadOnlyObjectMemory(objectMemory);
             NativeUnsafe.setMemorySize(memorySizePrior);
@@ -945,43 +949,43 @@ public class Romizer {
         symbols.close();
     }
 
-	@SuppressWarnings("unchecked")
-	private void printGlobalAddresses(PrintStream symbols) {
+    @SuppressWarnings("unchecked")
+    private void printGlobalAddresses(PrintStream symbols) {
         Hashtable<String, Integer> globalAddrs = (Hashtable<String, Integer>) InstructionEmitter.getGlobalAddrVariables();
         symbols.println("ROM.GLOBAL.ADDR.COUNT="+globalAddrs.size());
         for (Map.Entry<String, Integer> entry : globalAddrs.entrySet()) {
             symbols.println("ROM.GLOBAL.ADDR." + entry.getValue() + "=" + entry.getKey());
         }
-	}
+    }
 
 
     @SuppressWarnings("unchecked")
-	private void printGlobalOops(PrintStream symbols) {
+    private void printGlobalOops(PrintStream symbols) {
         Hashtable<String, Integer> globalOops = (Hashtable<String, Integer>) InstructionEmitter.getGlobalOopVariables();
         symbols.println("ROM.GLOBAL.OOP.COUNT="+globalOops.size());
         for (Map.Entry<String, Integer> entry : globalOops.entrySet()) {
             symbols.println("ROM.GLOBAL.OOP." + entry.getValue() + "=" + entry.getKey());
         }
-	}
+    }
 
 
-	@SuppressWarnings("unchecked")
-	private void printGlobalVariables(PrintStream symbols) {
+    @SuppressWarnings("unchecked")
+    private void printGlobalVariables(PrintStream symbols) {
         Hashtable<String, Integer> globalInts = (Hashtable<String, Integer>) InstructionEmitter.getGlobalIntVariables();
         symbols.println("ROM.GLOBAL.INT.COUNT="+globalInts.size());
         for (Map.Entry<String, Integer> entry : globalInts.entrySet()) {
             symbols.println("ROM.GLOBAL.INT." + entry.getValue() + "=" + entry.getKey());
         }
-	}
+    }
 
-	/**
+    /**
      * Return the name of the class that caused the last NoClassDefFoundError.
-	 */
-	protected String getLastClassName() {
-		return lastClassName;
-	}
+     */
+    protected String getLastClassName() {
+        return lastClassName;
+    }
 
-	/**
+    /**
      * Creates a jar file of all the class files from which a given suite was built.
      *
      * @param file   the jar file to create

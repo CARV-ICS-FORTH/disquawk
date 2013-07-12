@@ -17,9 +17,9 @@ public class Main {
     // }
     static void runBenchmark() {
         // Loop a few times, to create some more work in each ops.
-        for (int i = kernel.LU_LOOPS; i > 0; i --) {
-            LU.main(i);
-        }
+        //for (int i = kernel.LU_LOOPS; i > 0; i --) {
+            LU.main();
+            //}
     }
 
     public static void Main() {
