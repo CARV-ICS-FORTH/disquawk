@@ -27,6 +27,9 @@
  * symbols needed for the floating point functions defined in this directory.
  */
 
+#ifndef _FP_GLOBAL_H_
+#define _FP_GLOBAL_H_
+
 #ifndef true
 #warning "must include platform .h before global.h"
 #endif
@@ -37,6 +40,9 @@
 #endif /* JAVA */
 
 #include "os_math.h" /* add platform specific method definitions */
+
+
+
 
 /* Macros for NaN (Not-A-Number) and Infinity for floats and doubles */
 #define F_POS_INFINITY    0x7F800000L
@@ -122,3 +128,4 @@ INLINE float   JFP_lib_remf(float x, float y)         { return fmodf(x, y);}
 
 #endif
 
+#endif /* _FP_GLOBAL_H_ */

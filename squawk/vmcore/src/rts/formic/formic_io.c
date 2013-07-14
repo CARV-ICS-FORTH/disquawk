@@ -30,6 +30,7 @@
 void doShallowSleep(long long targetMillis) { return; }
 
 extern int __linker_formic_code;
+void printStackTrace(const char *msg);
 
 /**
  * Execute an IO operation for a Squawk isolate.

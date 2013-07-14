@@ -45,6 +45,14 @@ extern "C" {
 # define fmod(x, y) ar_double_mod((x),(y))
 #endif
 
+#ifndef powf
+# define powf ar_float_pow
+#endif
+
+#ifndef sqrtf
+# define sqrtf ar_float_sqrt
+#endif
+
 #ifdef	__cplusplus
 }
 #endif

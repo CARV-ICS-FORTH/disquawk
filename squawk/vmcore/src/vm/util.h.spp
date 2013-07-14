@@ -292,6 +292,7 @@ INLINE int    l2i(jlong l)                 { return (int)l;                   }
 /*if[FLOATS]*/
 
 #include "fp/global.h"
+#include "fp/fdlibm.h"
 
 #ifndef C_FP_CONVERSIONS_OK // defualt to safe unless told otherwise
 #define C_FP_CONVERSIONS_OK 0
@@ -376,23 +377,33 @@ jlong math(int op, jlong rs1_l, jlong rs2_l) {
     double rs2 __attribute__((unused)) = lb2d(rs2_l);
     double res = 0.0;
     switch (op) {
-        case MathOpcodes_SIN:            res = JFP_lib_sin(rs1);                       break;
-        case MathOpcodes_COS:            res = JFP_lib_cos(rs1);                       break;
-        case MathOpcodes_TAN:            res = JFP_lib_tan(rs1);                       break;
-        case MathOpcodes_SQRT:           res = JFP_lib_sqrt(rs1);                      break;
-        case MathOpcodes_CEIL:           res = JFP_lib_ceil(rs1);                      break;
-        case MathOpcodes_FLOOR:          res = JFP_lib_floor(rs1);                     break;
+        case MathOpcodes_SIN:      res = JFP_lib_sin(rs1);               break;
+        case MathOpcodes_COS:      res = JFP_lib_cos(rs1);               break;
+        case MathOpcodes_TAN:      res = JFP_lib_tan(rs1);               break;
+        case MathOpcodes_SQRT:     res = JFP_lib_sqrt(rs1);              break;
+        case MathOpcodes_CEIL:     res = JFP_lib_ceil(rs1);              break;
+        case MathOpcodes_FLOOR:    res = JFP_lib_floor(rs1);             break;
 /*if[JDK1.0]*/
-        case MathOpcodes_ASIN:           res = asin(rs1);                      break;
-        case MathOpcodes_ACOS:           res = acos(rs1);                      break;
-        case MathOpcodes_ATAN:           res = atan(rs1);                      break;
-        case MathOpcodes_EXP:            res = exp(rs1);                       break;
-        case MathOpcodes_LOG:            res = log(rs1);                       break;
-        case MathOpcodes_ATAN2:          res = atan2(rs1, rs2);                break;
-        case MathOpcodes_POW:            res = pow(rs1, rs2);                  break;
+/*if[MICROBLAZE_BUILD]*/
+        case MathOpcodes_ASIN:     res = __ieee754_asin(rs1);            break;
+        case MathOpcodes_ACOS:     res = __ieee754_acos(rs1);            break;
+        case MathOpcodes_ATAN:     res = atan(rs1);                      break;
+        case MathOpcodes_EXP:      res = __ieee754_exp(rs1);             break;
+        case MathOpcodes_LOG:      res = __ieee754_log(rs1);             break;
+        case MathOpcodes_ATAN2:    res = __ieee754_atan2(rs1, rs2);      break;
+        case MathOpcodes_POW:      res = __ieee754_pow(rs1, rs2);        break;
+/*else[MICROBLAZE_BUILD]*/
+//      case MathOpcodes_ASIN:     res = asin(rs1);                      break;
+//      case MathOpcodes_ACOS:     res = acos(rs1);                      break;
+//      case MathOpcodes_ATAN:     res = atan(rs1);                      break;
+//      case MathOpcodes_EXP:      res = exp(rs1);                       break;
+//      case MathOpcodes_LOG:      res = log(rs1);                       break;
+//      case MathOpcodes_ATAN2:    res = atan2(rs1, rs2);                break;
+//      case MathOpcodes_POW:      res = pow(rs1, rs2);                  break;
+/*end[MICROBLAZE_BUILD]*/
         case MathOpcodes_IEEE_REMAINDER: {
             double q = fmod(rs1, rs2);
-            double d = fabs(rs2);
+            double d = JFP_lib_fabs(rs2);
             if (q < 0) {
                 if (-q > d / 2) {
                     q += d;

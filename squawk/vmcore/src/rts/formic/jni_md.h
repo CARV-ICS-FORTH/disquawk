@@ -58,32 +58,42 @@ __extension__
 typedef unsigned long long int uint64_t;
 #endif
 
-
-#define GET_FLOAT_WORD(i,d)                                      \
-  do {                                                           \
-   ieee_float_shape_type gf_u;                                   \
-   gf_u.value = (d);                                             \
-   (i) = gf_u.word;                                              \
-  } while (0)
-
-/* Set a float from a 32 bit int.  */
-
-#define SET_FLOAT_WORD(d,i)                                      \
-  do {                                                           \
-   ieee_float_shape_type sf_u;                                   \
-   sf_u.word = (i);                                              \
-   (d) = sf_u } }ue;                                             \
-  } while (0) }}
+#ifndef __int8_t
+#define __int8_t  int8_t
+#endif
+#ifndef __int16_t
+#define __int16_t int16_t
+#endif
+#ifndef __int32_t
+#define __int32_t int32_t
+#endif
+#ifndef __int64_t
+#define __int64_t int64_t
+#endif
+#ifndef __uint8_t
+#define __uint8_t  uint8_t
+#endif
+#ifndef __uint16_t
+#define __uint16_t uint16_t
+#endif
+#ifndef __uint32_t
+#define __uint32_t uint32_t
+#endif
+#ifndef __uint64_t
+#define __uint64_t uint64_t
+#endif
 
 typedef long jint;
 typedef signed char jbyte;
 
 #define jlong int64_t
 /* #define jlong int32_t */
-#ifdef ujlong
-#undef ujlong
-#endif  /* ujlong */
-#define ujlong uint64_t
+
+/* This is done in platform.h.spp */
+/* #ifdef ujlong */
+/* #undef ujlong */
+/* #endif  /\* ujlong *\/ */
+/* #define ujlong uint64_t */
 
 #define JNI_TYPES_ALREADY_DEFINED_IN_JNI_MD_H
 

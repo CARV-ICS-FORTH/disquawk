@@ -46,7 +46,7 @@
 #include "jni.h"
 #include "errno.h"
 
-/* map various functions to myrmics ones */
+/* map various functions to myrmics' ones */
 #define fprintf(s, ...) printf(__VA_ARGS__)
 #define fflush(s)
 #define strlen kt_strlen
@@ -55,6 +55,20 @@
 #define free kt_free
 #define malloc kt_malloc
 #define atoi kt_atoi
+
+/* Myrmics uses the ar_float_sqrt and ar_float_pow as sqrt and pow
+ * respectively. However to be consistent with libc those should be
+ * sqrtf and powf.
+ * Reference os_math.h and os_math.c.spp for more info.
+ */
+#ifdef pow
+# undef  pow
+# define pow __ieee754_pow
+#endif
+#ifdef sqrt
+# undef  sqrt
+# define sqrt __ieee754_sqrt
+#endif
 
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
@@ -74,7 +88,7 @@ void exit(int status) {
     kt_printf("%s", DBG_KILL_CONNECTION);
   }
 
-  // Stall
+  // Stall until power off
   while (1) {
     ;
   }
