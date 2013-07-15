@@ -39,7 +39,7 @@ STR_ELF = "[1m[ [36mELF [0;1m][0m"
 STR_JVC = "[1m[ [37mJVC [0;1m][0m"
 STR_MAP = "[1m[ [31mMAP [0;1m][0m"
 
-.PHONY: run myrmics
+.PHONY: run myrmics FormicApp.suite
 
 all: $(ELF) map
 
