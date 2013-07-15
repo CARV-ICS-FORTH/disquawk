@@ -491,9 +491,7 @@ System.out.println("filePathelements=" + filePathelements);
         // Run the collector to prevent a collection being run during relocation which
         // will screw a RAM buffer
         if (!VM.isHosted()) {
-          long start = VM.getTimeMillis();
           VM.collectGarbage(true);
-          VM.println("[DIAG] GC in loadThis took "+(VM.getTimeMillis()-start)+" ms");
         }
 
         if (VM.isVerbose()) {
