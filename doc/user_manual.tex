@@ -1,0 +1,446 @@
+% It doesn’t do anything, per se, it just warns when you accidentally
+% use deprecated LaTeX constructs from l2tabu
+\RequirePackage[l2tabu, orthodox]{nag}
+
+% Check https://en.wikibooks.org/wiki/LaTeX/Document_Structure for
+% more info
+\documentclass[
+a4paper,
+12pt,
+]{report}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Include packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% most of the packages bellow are from
+% http://tex.stackexchange.com/questions/553/what-packages-do-people-load-by-default-in-latex
+
+% less hyphens... (works only with pdflatex)
+% stretch=10 allows font expansion up to 1% (default is 2%)
+\usepackage[stretch=10]{microtype}
+% disable ff and fi etc. ligatures
+\DisableLigatures{encoding = *, family = *}
+% If grouped citations are in the same order put the range i.e. 5-7
+% DOES NOT WORK WITH biblatex package
+%\usepackage{cite}
+% For hyperlinks and more in the pdfs
+\usepackage{hyperref}
+\hypersetup{
+  linktoc=all,
+  bookmarks=false,           % show bookmarks bar?
+  bookmarksopen,
+  bookmarksnumbered,
+  colorlinks = true,
+%  linkcolor=black,           % color of interlinks
+  citecolor=black,           % color of the citation links
+%  urlcolor=black,            % the url color
+  unicode=true,              % non-Latin characters in Acrobat’s bookmarks
+  pdftoolbar=true,           % show Acrobat’s toolbar?
+  pdfmenubar=true,           % show Acrobat’s menu?
+  pdffitwindow=true,         % window fit to page when opened
+  pdftitle={GreenVM User's Manual},  % title
+  pdfborder={ 0 0 0 },        % uBorder tin links
+  pdfauthor = {Foivos S. Zakkak},
+  pdfcreator = {Foivos S. Zakkak},
+}
+% handles spaces in commands (i.e. \newcommand{\test}[0]{Test\xspace},
+% this way \test will be replaced by Test and a space *iff* needed)
+\usepackage{xspace}
+% Adds the \todo command which adds nice todo blocks to the document
+\usepackage{todonotes}
+% For citations and bibliographies, biblatex is the package of my
+% choice
+\usepackage{biblatex}
+% The booktabs package creates much nicer looking tables than the
+% standard latex tables;
+\usepackage{booktabs}
+% the array package's ability to create custom columns is invaluable
+% for formatting tabular material on a per-column basis.
+\usepackage{array}
+% For unicode files
+\usepackage[utf8]{inputenc}
+% For including figures, rotating or scaling text. I also use the
+% \graphicspath command to specify a subfolder to help organize my
+% figures and so I can easily change between, for example, a set of
+% figures for internal used (with extra info) and final versions for
+% distribution.
+\usepackage{graphicx}
+% This package provides very sophisticated facilities for reading and
+% writing verbatim TeX code. Users can perform common tasks like
+% changing font family and size, numbering lines, framing code
+% examples, colouring text and conditionally processing text.
+\usepackage{fancyvrb}
+
+% Using listings
+\usepackage{listings}
+% Change the listing captions
+% to use \begin{lstlisting}[label=some-code,caption=Some Code]
+\usepackage{caption}
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{\colorbox{MidnightBlue}{\parbox{.98\textwidth}{#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white}
+\renewcommand{\lstlistingname}{Code}
+\renewcommand\lstlistlistingname{List of Codes}
+\def\lstlistingautorefname{Code }
+% lstset
+\lstset{
+  language=C,
+  basicstyle=\sffamily,
+  columns=flexible,
+  numbers=left,
+%   numberstyle=\em\scriptsize,s
+  showstringspaces=false,
+  alsoletter={-},
+  morekeywords={in,out,inout,pragma,task,wait,all,safe,scoop,input,output,start,finish},
+  otherkeywords={INOUT,INPUT,SAFE,OUTPUT,START},
+  literate={-}{-}1,
+  numbersep=1em,
+  xleftmargin=2.5em,
+  xrightmargin=1em,
+  escapeinside={@}{@},
+  morecomment=[l][\bf\color{BrickRed}]{\#pragma\ scoop},
+  commentstyle=\color{gray},
+%   identifierstyle=\color{green},
+%   backgroundcolor=\color{gray},
+  keywordstyle=\bf\color{MidnightBlue},
+  stringstyle=\color{OliveGreen},
+}
+% Change the margins
+\usepackage[margin=3cm]{geometry}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\FancyVerbFormatLine}[1]{%
+  \$ #1}
+\DefineVerbatimEnvironment{bash}{Verbatim}{
+  fontsize=\footnotesize,
+  frame=lines,
+  framesep=3mm,
+  label={\normalsize{Code}},
+  labelposition=topline,
+  commentchar=\#,
+}
+
+\newcommand{\gvm}{GreenVM\xspace}
+\newcommand{\mblaze}{MicroBlaze\texttrademark\xspace}
+\newcommand{\java}{Java\texttrademark\xspace}
+
+% \title{GreenVM User's Manual}
+% \author{Foivos S. Zakkak}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+
+\LARGE \textbf{GreenVM}\\ User's Manual\\[0.5cm]
+\large \today
+
+\vfill
+
+\large Author: \textit{Foivos S. Zakkak}\\[2cm]
+
+Foundation for Research and Technology - Hellas (FORTH)\\
+Institute of Computer Science\\
+N. Plastira 100\\
+Vassilika Vouton, GR-700 13 Heraklion, Crete, Greece\\[0.5cm]
+
+\end{center}
+
+\end{titlepage}
+
+% \maketitle
+
+\pagenumbering{Roman}
+\pagestyle{plain}
+\tableofcontents
+\newpage
+% \phantomsection \label{listoffig}
+% \addcontentsline{toc}{chapter}{List of Figures}
+% \listoffigures
+% \newpage
+% \phantomsection \label{listoflst}
+% \addcontentsline{toc}{chapter}{List of Codes}
+% \lstlistoflistings
+% \newpage
+% \phantomsection \label{listoftb}
+% \addcontentsline{toc}{chapter}{List of Tables}
+% \listoftables
+% \newpage
+\thispagestyle{empty}
+\pagenumbering{arabic}
+\pagestyle{headings}
+
+\chapter{Design}
+
+\section{Formic cube's architecture overview}
+
+The Formic cube consists of 64
+\href{http://www.formic-board.com/}{Formic Boards} with a total of 512
+\href{http://www.xilinx.com/tools/microblaze.htm}{\mblaze} cores.
+Each board has 8 \mblaze cores running at 10Mhz and 128MB of memory.
+%\subsection{\mblaze}
+
+%\subsection{Memory}
+The Formic Board provides protection per 1MB pages.
+
+\section{Memory Management}
+The Formic cube's total memory is 8GB. However the \mblaze processor
+is 32-bit and can address up to 4GB of memory. In our design we take
+advantage of this feature and split the memory to two segments. On
+each Formic Board, 64MB are dedicated to provide a slice of the \java
+heap which is addressable and accessible from every core on the
+system. The remaining 64MB are used for the binary code (read-only),
+the Squawk's and \java's stacks and mostly for caching objects from
+\textit{remote} \java heap slices.
+
+\todo{Figure X is a visualization of the memory mapping}
+
+\section{DRAM mapping}
+Code starts at 0x00 and is 10MB long User space is 84MB
+
+\chapter{Implementation}
+
+\section{Choosing the code base}
+
+At the early stages we examined the following list of \java virtual
+machines.
+
+\begin{itemize}
+\item Squawk
+  \begin{itemize}
+  \item Still active
+  \item ~150k LOC of which 8k are C and 590 are Assembly
+  \item bare metal ready
+  \end{itemize}
+\item JamVM
+  \begin{itemize}
+  \item Last release Jan '10
+  \item written for embedded
+  \item mostly interpreter
+  \item small footprint
+  \item well structured
+  \item 19391 LOC
+  \end{itemize}
+\item hotspot
+  \begin{itemize}
+  \item the official
+  \item complex
+  \item posix
+  \item JIT and Interpreter
+  \item ~450000 LOC
+  \end{itemize}
+\item kaffe
+  \begin{itemize}
+  \item Well known
+  \item Inactive for many years
+  \item 64376 LOC
+  \end{itemize}
+\item CACAO
+  \begin{itemize}
+  \item Last release Sept '12
+  \item JIT
+  \item Used to be the default for OpenJDK
+  \item Well documented
+  \item 121175 LOC
+  \end{itemize}
+\item sableVM
+  \begin{itemize}
+  \item Claims to be "A robust, clean, easy to maintain and extend,
+     extremely portable, efficient, and specification-compliant Java
+     virtual machine."
+  \item 3 flavors of threaded interpretation (switched, threaded and
+     inlined),
+  \item bidirectional object layout,
+  \item spinlock-free thin locks,
+  \item sparse interface vtables,
+  \item low-cost maps for precise garbage collection.
+  \item limited by the current state of the class libraries, and
+    occasionally lacks VM support for some class library features.
+  \item 216893 LOC
+  \end{itemize}
+\item llvm-vmkit
+  \begin{itemize}
+  \item depends on llvm for JIT
+  \item complex and big
+  \end{itemize}
+\item jikesrvm
+  \begin{itemize}
+  \item java source
+  \item ant build system
+  \item requires another JVM to run it
+  \end{itemize}
+\item gcj
+  \begin{itemize}
+  \item complex source code
+  \item no VM
+  \end{itemize}
+\end{itemize}
+
+
+We finally decided to build \gvm on top of
+\href{https://java.net/projects/squawk/pages/SquawkDevelopment}{Squawk}.
+This decision was mostly driven by the fact that Squawk was the only
+\java virtual machine that was able to run on bare metal.  Squawk is a
+good quality \java virtual machine that was used commercially on the
+\href{http://www.sunspotworld.com/}{Sun Spot} platform.  Squawk comes
+only with an interpreter and no JIT (Just-In-Time compilation) support.
+
+\section{Squawk's specification overview}
+\todo{write down the most important things from
+  \href{http://java.net/projects/squawk/sources/svn/content/trunk/doc/TheSquawkSystem-Sep02.pdf}{here}
+  plus personal experiences}
+
+\section{\gvm limitations}
+
+Squawk is designed to support the
+\href{https://en.wikipedia.org/wiki/CLDC}{Connected Limited Device
+  Configuration (CLDC)} 1.1.  CLDC is designed to work with \java 1.4
+which is considered outdated.  We modified Squawk's toolchain to use
+\href{http://retrotranslator.sourceforge.net/}{retrotranslator} to be
+able to compile 1.5 source code to valid 1.4 classes.  This way we are
+able to run \java 1.5 applications.
+
+However, there are still some limitations that we did not put effort
+to overcome.
+
+\begin{itemize}
+\item \verb!java.lang.reflect! is entirely missing, leaving us without
+  reflection
+\item We don't support finalization. CLDC does not include the
+  Object.finalize() method
+\item Many JavaSE 1.5 libraries are missing
+\item No I/O is supported except from printing
+\item Float autoboxing in throwException (breaks preverify)
+\item errno is \textbf{NOT} implemented
+
+\end{itemize}
+% FIXME: might be more, but those are known ATM.
+
+\section{Garbage Collection}
+
+Currently there are three garbage collectors available in Squawk.
+
+\begin{itemize}
+\item \href{https://en.wikipedia.org/wiki/Cheney%27s_algorithm}{Cheney} (semispace)
+\item Lisp2
+\item Lisp2Generational
+\end{itemize}
+
+Non of this garbage collectors is suitable for \gvm though. That said,
+\gvm needs to implement its own garbage collector. \todo{work package:
+  GC}
+
+\chapter{Configure, Build, Deploy}
+
+\section{Dependencies}
+
+In order to build \gvm you will need:
+
+\begin{itemize}
+\item Xilinix Tools (only for deploying on the Formic Board: see
+  details bellow)
+\item JDK 1.5 or later
+\item git
+\item GNU make
+\item awk
+\item sed
+\item wc (wordcount)
+\item od (objectdump)
+\end{itemize}
+
+\subsection{Build}
+
+\subsubsection{On Formic Board (Microblaze)}
+build-mb.properties contains the configuration of the microblaze
+builds.
+
+To create all needed files execute:
+\begin{bash}
+make -f mb.mk
+\end{bash}
+
+
+To deploy on the Formic cube:
+\begin{bash}
+make -f mb.mk run
+\end{bash}
+
+\textbf{Note:} your IP must be allowed to access formicarium. Please
+contact \href{mailto:zakkak@ics.forth.gr}{zakkak} if your IP is not
+whitelisted
+
+\textbf{\color{red}CAUTION:} When running on formicarium always
+\verb!tail! /home/lyberis/measure.log and /home/lyberis/server.log to
+monitor the logs and make sure the cube shuts down when you finish.
+
+\subsubsection{on X86}
+build-x86.properties contains the configuration of the x86 builds
+
+To build (the JVM) and run the current application execute
+
+\begin{bash}
+make -f x86.mk
+\end{bash}
+
+\subsubsection{Options}
+To change the application you want to build define \verb!APP!. For
+example
+
+\begin{bash}
+make -f mb.mk "APP=../formic-tests/HelloWorld"
+make -f mb.mk "APP=../formic-tests/HelloWorld" run
+\end{bash}
+
+To change the Garbage collector you have to modify the
+build.properties file \textbf{and} build-*.properties file of the
+architecture you want to target.
+
+\subsection{Romizing programs (a.k.a. creating *.suite files)}
+
+First compile the *.java files as usual. Then using retrotranslator
+transform them to 1.4 classes. Next, preverify them using the
+preverify tool. Finally, invoke the romizer (through the builder) to
+produce the final suite file out of the *.class files.
+
+\subsection{Xilinx Tools}
+
+\subsubsection{Download and extract:}
+\href{http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/design-tools/v12_4.html)}
+{ISE  Design Suite - 12.4 Full Product Installation}
+
+\begin{bash}
+tar xvf Xilinx_ISE_DS_Lin_12.4_M.81d.2.0.tar
+\end{bash}
+
+\subsubsection{Install:}
+\begin{bash}
+sudo ./xsetup
+\end{bash}
+
+\subsubsection{LICENSE:} 27000@carvouno.ics.forth.gr
+
+\subsubsection{Scripts to source:}
+\begin{bash}
+. /opt/Xilinx/12.4/ISE_DS/EDK/settings64.sh /opt/Xilinx/12.4/ISE_DS/EDK
+. /opt/Xilinx/12.4/ISE_DS/ISE/settings64.sh /opt/Xilinx/12.4/ISE_DS/ISE
+#. /opt/Xilinx/12.4/ISE_DS/PlanAhead/settings64.sh /opt/Xilinx/12.4/ISE_DS/PlanAhead
+. /opt/Xilinx/12.4/ISE_DS/common/settings64.sh /opt/Xilinx/12.4/ISE_DS/common
+\end{bash}
+
+It is recommended to avoid adding these lines in your .bash\_profile or
+.bashrc
+
+\subsubsection{For the usb:}
+If you are planning to deploy on a Formic Board using your usb port
+you will need to follow
+\href{http://www.george-smart.co.uk/wiki/Xilinx_JTAG_Linux}{this}
+tutorial.
+
+
+In case it fails try the following alternatives:
+\begin{itemize}
+\item \url{http://www.petalogix.com/support/kb/xilinx_ubuntu_install}
+\item \url{http://forums.xilinx.com/t5/Installation-and-Licensing/installing-platform-cable-USB-II-ubuntu/td-p/66729}
+\item \url{http://rmdir.de/~michael/xilinx/}
+\end{itemize}
+\end{document}
