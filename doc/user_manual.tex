@@ -242,11 +242,24 @@ The Formic cube's total memory is 8GB ($64\times128$MB). However the
 design we take advantage of this feature and split the memory to two
 segments. On each Formic Board, 64MB are dedicated to provide a slice
 of the \java heap which is addressable and accessible from every core
-on the system. The remaining 64MB are used for the binary code
-(read-only), the Squawk's and \java's stacks and mostly for caching
-objects from \textit{remote} \java heap slices.
+on the system. The remaining 64MB are used as follows. We reserve 4MB
+for the binary code (read-only). We reserve 1MB per core for the
+JVM's and the \java's stacks. Finally we reserve 6.5MB per core for
+caching objects from \textit{remote} \java heap slices.
 
-\missingfigure{Figure X is a visualization of the memory mapping}
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=\linewidth]{memmap}
+  \caption{Memory Partitioning}
+  \label{fig:memmap}
+\end{figure}
+
+\autoref{fig:memmap} is a visualization of the memory
+partitioning. The dark block is the reserved space for the binary
+code. The turquoise scales are the private memory segments used for
+the JVM's and the \java's stacks as well as for caching. Each scale
+denotes a different core. Finally the light green block is the memory
+partition that serves as a heap slice.
 
 \subsection{Software Caching}
 
