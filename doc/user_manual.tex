@@ -48,8 +48,6 @@ a4paper,
 % handles spaces in commands (i.e. \newcommand{\test}[0]{Test\xspace},
 % this way \test will be replaced by Test and a space *iff* needed)
 \usepackage{xspace}
-% Adds the \todo command which adds nice todo blocks to the document
-\usepackage{todonotes}
 % For citations and bibliographies, biblatex is the package of my
 % choice
 \usepackage{biblatex}
@@ -67,6 +65,8 @@ a4paper,
 % figures for internal used (with extra info) and final versions for
 % distribution.
 \usepackage{graphicx}
+% define the default path for the figures
+\graphicspath{{figs/}}
 % This package provides very sophisticated facilities for reading and
 % writing verbatim TeX code. Users can perform common tasks like
 % changing font family and size, numbering lines, framing code
@@ -107,16 +107,20 @@ a4paper,
   keywordstyle=\bf\color{MidnightBlue},
   stringstyle=\color{OliveGreen},
 }
+% Allow different numbering styles in enumerate environment
+\usepackage{enumerate}
 % Change the margins
 \usepackage[margin=3cm]{geometry}
 \setlength{\marginparwidth}{2.5cm}
+% Adds the \todo command which adds nice todo blocks to the document
+\usepackage{todonotes}
 % change the side for the todos
 \reversemarginpar
+% I much prefer no indentation and space between paragraphs
+\usepackage[parfill]{parskip}
 % Add fonts
 \usepackage{comfortaa}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\graphicspath{{figs/}}
 
 \renewcommand{\FancyVerbFormatLine}[1]{%
   \$ #1}
@@ -143,13 +147,17 @@ a4paper,
 \begin{titlepage}
 \begin{center}
 
-\includegraphics[width=.5\linewidth]{greenvm.png}\\
+\href{http://www.ics.forth.gr/carv/greenvm}{\includegraphics[width=.5\linewidth]{greenvm}}\\
 \LARGE User's Manual\\[0.5cm]
 \large \today
 
 \vfill
 
-\large Author: \textit{Foivos S. Zakkak}\\[2cm]
+\includegraphics[width=.8\linewidth]{myrmigki_color}\\
+
+\vfill
+
+\large Author: \href{mailto:zakkak@ics.forth.gr}{\textit{Foivos S. Zakkak}}\\[1cm]
 
 Foundation for Research and Technology - Hellas (FORTH)\\
 Institute of Computer Science\\
@@ -184,35 +192,110 @@ Vassilika Vouton, GR-700 13 Heraklion, Crete, Greece\\[0.5cm]
 \pagenumbering{arabic}
 \pagestyle{headings}
 
+\chapter*{Introduction}
+
+\gvm is a \java Virtual Machine that uses software shared memory to run
+parallel \java programs on non cache-coherent architectures.
+
 \chapter{Design}
+
+\gvm is currently implemented to run on the Formic cube.
 
 \section{Formic cube's architecture overview}
 
 The Formic cube consists of 64
 \href{http://www.formic-board.com/}{Formic Boards} with a total of 512
 \href{http://www.xilinx.com/tools/microblaze.htm}{\mblaze} cores.
-Each board has 8 \mblaze cores running at 10Mhz and 128MB of memory.
+
+Each Formic board features:
+\begin{itemize}
+\item 8 \mblaze 32-bit RISC CPUs running at 10MHz.
+\item 128MB of memory (400MHz DDR DRAM)
+\end{itemize}
+
+Each \mblaze core features:
+\begin{itemize}
+\item a private two-way 4-KB instruction L1 cache
+\item a private two-way 8-KB data L1 cache
+\item a private eight-way 256-KB L2 unified cache
+\item a DMA engine, supporting 64 outstanding DMAs (32 incoming and 32 outgoing)
+\item a 4-KB mailbox (messages can be of one or two words)
+\item 128 counters, that support atomic increment, decrement and read
+  (but no fetch and add or compare and swap etc.)
+\end{itemize}
 %\subsection{\mblaze}
 
-%\subsection{Memory}
-The Formic Board provides protection per 1MB pages.
+\subsection{Technical information}
+The Formic board provides protection per 1MB pages.
+
+To flush only parts of the private caches the programmer needs to
+issue a DMA transfer from the cache to the local DRAM.
+
+DMA transfers operate on cache line granularity\todo{needs confirmation}.
+
+In each DMA engine serialization happens only between incoming and
+between outgoing requests (they are handled by two different queues).
 
 \section{Memory Management}
-The Formic cube's total memory is 8GB. However the \mblaze processor
-is 32-bit and can address up to 4GB of memory. In our design we take
-advantage of this feature and split the memory to two segments. On
-each Formic Board, 64MB are dedicated to provide a slice of the \java
-heap which is addressable and accessible from every core on the
-system. The remaining 64MB are used for the binary code (read-only),
-the Squawk's and \java's stacks and mostly for caching objects from
-\textit{remote} \java heap slices.
+The Formic cube's total memory is 8GB ($64\times128$MB). However the
+\mblaze processor can address up to 4GB of memory (32-bit CPU). In our
+design we take advantage of this feature and split the memory to two
+segments. On each Formic Board, 64MB are dedicated to provide a slice
+of the \java heap which is addressable and accessible from every core
+on the system. The remaining 64MB are used for the binary code
+(read-only), the Squawk's and \java's stacks and mostly for caching
+objects from \textit{remote} \java heap slices.
 
 \missingfigure{Figure X is a visualization of the memory mapping}
 
-\section{DRAM mapping}
-Code starts at 0x00 and is 10MB long User space is 84MB
+\subsection{Software Caching}
+
+Partitioning the \java Heap across 64 boards raises the need for
+caching. To access an object that is located in a remote DRAM module a
+DMA transfer for each access would be too expensive. That said, \gvm
+is based on software caching at object granularity. In case of arrays
+we use a block size, in number of elements, (defined as a JVM
+argument) granularity.
+
+To implement the software caching we use
+\todo{complete me}
+
+A possible improvement here would be
+
+\section{Locks/Monitors}
+
+In \java, each object reference can be used as a lock. In most \java
+Virtual Machines this implies one extra field per object that is used
+as a lock. In our design we decouple the locks from the objects but
+still respect the tight relation between them. We use dedicated cores
+for the lock management (less than one per board). When the virtual
+machine executes a \verb!monitorenter! or a \verb!monitorexit!
+bytecode it sends an appropriate message to the \emph{lock manager}
+core responsible for the object reference passed as the bytecode's
+argument. It's the \emph{lock manager} responsibility to handle this
+request and reply appropriately to the \emph{sender}.
+
+There are two possible scenarios when the virtual machine wants to
+acquire a lock.
+\begin{enumerate}[a)]
+\item \textbf{The lock is free:} In this case the process is straight
+  forward.  The \emph{lock manager} marks the lock as acquired and
+  sends an acknowledgment message to the \emph{sender}.
+\item \textbf{The lock is already taken:} In this case the \emph{lock
+    manager} should reply with a negative acknowledgment. As a first
+  approach the \emph{sender} should keep requesting to acquire the
+  lock until it succeeds. Later on, we could allow the execution of
+  other threads/tasks between the requests.
+\end{enumerate}
+
+With each object's lock being handled by one single core, we can
+ensure that there is no possibility for two different \java threads to
+enter the same critical region concurrently. The \emph{lock manager's}
+mailbox acts as a serialization point for the acquire and release
+requests.
 
 \chapter{Implementation}
+\label{cha:implementation}
 
 \section{Choosing the code base}
 
@@ -351,8 +434,8 @@ Non of this garbage collectors is suitable for \gvm though. That said,
 In order to build \gvm you will need:
 
 \begin{itemize}
-\item Xilinix Tools (only for deploying on the Formic Board: see
-  details bellow)
+\item Xilinix Tools (only for deploying on the Formic board: see
+  \autoref{sec:xilinx-tools})
 \item JDK 1.5 or later
 \item git
 \item GNU make
@@ -362,9 +445,9 @@ In order to build \gvm you will need:
 \item od (objectdump)
 \end{itemize}
 
-\subsection{Build}
+\section{Build}
 
-\subsubsection{On Formic Board (Microblaze)}
+\subsection{On Formic Board (Microblaze)}
 build-mb.properties contains the configuration of the microblaze
 builds.
 
@@ -387,7 +470,7 @@ whitelisted
 \verb!tail! /home/lyberis/measure.log and /home/lyberis/server.log to
 monitor the logs and make sure the cube shuts down when you finish.
 
-\subsubsection{on X86}
+\subsection{on X86}
 build-x86.properties contains the configuration of the x86 builds
 
 To build (the JVM) and run the current application execute
@@ -396,7 +479,7 @@ To build (the JVM) and run the current application execute
 make -f x86.mk
 \end{bash}
 
-\subsubsection{Options}
+\subsection{Options}
 To change the application you want to build define \verb!APP!. For
 example
 
@@ -409,16 +492,17 @@ To change the Garbage collector you have to modify the
 build.properties file \textbf{and} build-*.properties file of the
 architecture you want to target.
 
-\subsection{Romizing programs (a.k.a. creating *.suite files)}
+\section{Romizing programs (a.k.a. creating *.suite files)}
 
 First compile the *.java files as usual. Then using retrotranslator
 transform them to 1.4 classes. Next, preverify them using the
 preverify tool. Finally, invoke the romizer (through the builder) to
 produce the final suite file out of the *.class files.
 
-\subsection{Xilinx Tools}
+\section{Xilinx Tools}
+\label{sec:xilinx-tools}
 
-\subsubsection{Download and extract:}
+\paragraph{Download and extract:}
 \href{http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/design-tools/v12_4.html)}
 {ISE  Design Suite - 12.4 Full Product Installation}
 
@@ -426,14 +510,14 @@ produce the final suite file out of the *.class files.
 tar xvf Xilinx_ISE_DS_Lin_12.4_M.81d.2.0.tar
 \end{bash}
 
-\subsubsection{Install:}
+\paragraph{Install:}
 \begin{bash}
 sudo ./xsetup
 \end{bash}
 
-\subsubsection{LICENSE:} 27000@carvouno.ics.forth.gr
+\paragraph{License:} 27000@carvouno.ics.forth.gr
 
-\subsubsection{Scripts to source:}
+\paragraph{Scripts to source:}
 \begin{bash}
 . /opt/Xilinx/12.4/ISE_DS/EDK/settings64.sh /opt/Xilinx/12.4/ISE_DS/EDK
 . /opt/Xilinx/12.4/ISE_DS/ISE/settings64.sh /opt/Xilinx/12.4/ISE_DS/ISE
@@ -444,7 +528,7 @@ sudo ./xsetup
 It is recommended to avoid adding these lines in your .bash\_profile or
 .bashrc
 
-\subsubsection{For the usb:}
+\paragraph{For the usb JTAG programmer:}
 If you are planning to deploy on a Formic Board using your usb port
 you will need to follow
 \href{http://www.george-smart.co.uk/wiki/Xilinx_JTAG_Linux}{this}
