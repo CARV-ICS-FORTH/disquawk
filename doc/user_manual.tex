@@ -20,6 +20,8 @@ a4paper,
 \usepackage[stretch=10]{microtype}
 % disable ff and fi etc. ligatures
 \DisableLigatures{encoding = *, family = *}
+% allow breakable urls
+\usepackage[hyphens]{url}
 % If grouped citations are in the same order put the range i.e. 5-7
 % DOES NOT WORK WITH biblatex package
 %\usepackage{cite}
@@ -38,7 +40,7 @@ a4paper,
   pdftoolbar=true,           % show Acrobat’s toolbar?
   pdfmenubar=true,           % show Acrobat’s menu?
   pdffitwindow=true,         % window fit to page when opened
-  pdftitle={GreenVM User's Manual},  % title
+  pdftitle={greenvm User's Manual},  % title
   pdfborder={ 0 0 0 },        % uBorder tin links
   pdfauthor = {Foivos S. Zakkak},
   pdfcreator = {Foivos S. Zakkak},
@@ -107,7 +109,14 @@ a4paper,
 }
 % Change the margins
 \usepackage[margin=3cm]{geometry}
+\setlength{\marginparwidth}{2.5cm}
+% change the side for the todos
+\reversemarginpar
+% Add fonts
+\usepackage{comfortaa}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\graphicspath{{figs/}}
 
 \renewcommand{\FancyVerbFormatLine}[1]{%
   \$ #1}
@@ -120,11 +129,13 @@ a4paper,
   commentchar=\#,
 }
 
-\newcommand{\gvm}{GreenVM\xspace}
+\definecolor{g}{HTML}{0E3B12}
+\definecolor{v}{HTML}{003366}
+\newcommand{\gvm}{{\fontfamily{fco}\selectfont\textbf{\color{g}green\color{v}vm}}\xspace}
 \newcommand{\mblaze}{MicroBlaze\texttrademark\xspace}
 \newcommand{\java}{Java\texttrademark\xspace}
 
-% \title{GreenVM User's Manual}
+% \title{greenvm User's Manual}
 % \author{Foivos S. Zakkak}
 
 \begin{document}
@@ -132,7 +143,8 @@ a4paper,
 \begin{titlepage}
 \begin{center}
 
-\LARGE \textbf{GreenVM}\\ User's Manual\\[0.5cm]
+\includegraphics[width=.5\linewidth]{greenvm.png}\\
+\LARGE User's Manual\\[0.5cm]
 \large \today
 
 \vfill
@@ -152,6 +164,8 @@ Vassilika Vouton, GR-700 13 Heraklion, Crete, Greece\\[0.5cm]
 
 \pagenumbering{Roman}
 \pagestyle{plain}
+\listoftodos
+\newpage
 \tableofcontents
 \newpage
 % \phantomsection \label{listoffig}
@@ -193,7 +207,7 @@ system. The remaining 64MB are used for the binary code (read-only),
 the Squawk's and \java's stacks and mostly for caching objects from
 \textit{remote} \java heap slices.
 
-\todo{Figure X is a visualization of the memory mapping}
+\missingfigure{Figure X is a visualization of the memory mapping}
 
 \section{DRAM mapping}
 Code starts at 0x00 and is 10MB long User space is 84MB
