@@ -120,7 +120,43 @@ a4paper,
 \usepackage[parfill]{parskip}
 % Add fonts
 \usepackage{comfortaa}
+% use tikz
+\usepackage{tikz}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Boxes for notes and caution messages
+\usetikzlibrary{shapes,snakes}
+\tikzstyle{notebox} = [draw=yellow, fill=yellow!10, very thick,
+    rectangle, rounded corners, inner sep=10pt, inner ysep=15pt]
+\tikzstyle{notetitle} =[draw=yellow, fill=white, text=black, very thick]
+
+\newcommand{\notebox}[1]{
+  \begin{tikzpicture}
+    \node [notebox] (box){%
+      \begin{minipage}{.95\linewidth}
+        #1
+      \end{minipage}
+    };
+    \node[notetitle, rounded corners, right=10pt] at (box.north west) {Note:};
+  \end{tikzpicture}%
+}
+
+\tikzstyle{cautionbox} = [draw=red, fill=red!10, very thick,
+    rectangle, rounded corners, inner sep=10pt, inner ysep=15pt]
+\tikzstyle{cautiontitle} =[draw=red, fill=white, text=black, very thick]
+
+\newcommand{\cautionbox}[1]{
+  \begin{tikzpicture}
+    \node [cautionbox] (box){%
+      \begin{minipage}{.95\linewidth}
+        #1
+      \end{minipage}
+    };
+    \node[cautiontitle, rounded corners, right=10pt] at (box.north west) {\textbf{Caution:}};
+  \end{tikzpicture}%
+}
+
+%%
 
 \renewcommand{\FancyVerbFormatLine}[1]{%
   \$ #1}
@@ -219,7 +255,7 @@ Each \mblaze core features:
 \item a private two-way 8-KB data L1 cache
 \item a private eight-way 256-KB L2 unified cache
 \item a DMA engine, supporting 64 outstanding DMAs (32 incoming and 32 outgoing)
-\item a 4-KB mailbox (messages can be of one or two words)
+\item a 4-KB mailbox (messages can be of one or two words or even one cache-line)
 \item 128 counters, that support atomic increment, decrement and read
   (but no fetch and add or compare and swap etc.)
 \end{itemize}
@@ -265,15 +301,124 @@ partition that serves as a heap slice.
 
 Partitioning the \java Heap across 64 boards raises the need for
 caching. To access an object that is located in a remote DRAM module a
-DMA transfer for each access would be too expensive. That said, \gvm
-is based on software caching at object granularity. In case of arrays
-we use a block size, in number of elements, (defined as a JVM
-argument) granularity.
+DMA transfer for each access would be too expensive. To reduce the
+overhead, \gvm is based on software caching at object granularity. In
+case of arrays we use a block granularity (defined as a JVM argument).
+Caching, however, requires extra effort in order to provide a coherent
+view of the data, as it is defined by the \java Memory Model.
 
-To implement the software caching we use
-\todo{complete me}
+\notebox{
+  Suggested reading material:
+  \begin{itemize}
+  \item \href{http://gee.cs.oswego.edu/dl/jmm/cookbook.html}{The JSR-133
+      Cookbook for Compiler Writers}
+  \item
+    \href{http://www.cs.umd.edu/~pugh/java/memoryModel/jsr133.pdf}{JSR-133
+      \java Memory Model and Thread Specification}
+  \item
+    \href{https://dl.dropboxusercontent.com/u/1011627/journal.pdf}{SPECIAL
+      POPL ISSUE: The \java Memory Model}
+  \end{itemize}
+}
 
-A possible improvement here would be
+To implement the software caching with respect to the \java Memory
+Model we have to satisfy the following conditions:
+
+\begin{itemize}
+\item Before each \verb!monitorexit! and \verb!volatile! store
+  \begin{itemize}
+  \item all \emph{dirty} objects (on this core) must be flushed to the
+    memory
+
+    \notebox{ There is no need to empty our software-cache. }
+  \item any preceding load or \verb!monitorenter! instructions must
+    complete (and be visible by other processors if needed)
+  \end{itemize}
+\item Before each \verb!monitorenter! and \verb!volatile! load all
+  preceding \verb!monitorexit! instructions and \verb!volatile! stores
+  must complete.
+
+  \notebox{ That said, what is mostly important, is to make sure any
+    pending write-backs from a (globally) previous \texttt{monitorexit}
+    have come to completion. The simplest approach here is to make
+    \texttt{monitorexit} bock until completion of the write-backs,
+    however this seems totally inefficient. That raises the need of a
+    mechanism that can understand if there are any outstanding
+    write-backs.}
+
+\item At \verb!monitorenter! and \verb!volatile! loads we have to wait
+  until they complete before we continue with the execution.
+  Furthermore, we have to ensure that any cached objects are
+  up-to-date.
+
+  \notebox{ The simplest way to achieve this, is to empty our
+    software-cache and re-fetch the objects upon request.}
+
+  \notebox{ Pre-fetching data would save a significant amount of time
+    as the DMA transfers would overlap with code execution. However,
+    for \gvm to be aware of what objects need to be fetched a priori,
+    the programmer or even better a static analysis must provide
+    appropriate hints. In a data-flow execution model this is even
+    easier to achieve, combining the programmer's data-flow
+    annotations with a static analysis on the code.}
+
+  \notebox{ A possible improvement here would be to use versioning of
+    the cached objects instead of flushing the whole software cache at
+    every synchronization point. With versioning a core can simply
+    query the \emph{home} DRAM for the latest version of the cached
+    objects. Then it can only fetch the remote objects that feature a
+    higher version number than the cached data. In this case we would
+    probably like to use some dedicated cores (like the ones discussed
+    in the next section) that would be responsible for answering such
+    queries and even initiate the DMA transfers. The version number
+    could be kept in the object's header.}
+
+\item After the completion of a \verb!Thread.start()! call the newly
+  created thread must be able to see the same stores its creator was
+  able to see at the calling point.
+
+  \notebox{
+    A simple approach is to write-back \emph{dirty} objects and let the
+    newly created thread fetch them if it needs them.
+  }
+
+  \notebox{
+    Another approach is to copy the software-cache state of the
+    caller core to the core where the newly created thread is going
+    to be executed. This, however, is not straightforward when there
+    are more \java threads than cores. Furthermore, before the copy
+    we must ensure that any dirty data from the hardware-cache are
+    written-back to the software-cache.
+  }
+
+\item After the completion of a \verb!Thread.join()! call the calling
+  thread must be able to see the same stores the terminating thread
+  was able to see.
+
+  \notebox{
+    This case is trickier than the
+    previous. In this case we have two different live threads and we
+    need to merge their software-caches. By simply copying the
+    terminating thread's software-cache to the caller we could loose
+    changes made by the caller thread, which is undesirable.
+    A simple implementation would be to write-back any
+    \emph{dirty} objects from the caller's software-cache and then
+    copy over the terminating thread's software-cache. A more
+    efficient approach would be to implement a mechanism for
+    software-cache merging. The mechanism needs to identify which
+    cached objects correspond to the same heap object and then keep
+    the terminating thread's copy, updating the bookkeeping
+    data-structures as needed.
+  }
+\item All \verb!static final! fields must be initialized before the
+  object can be accessed.
+
+  \notebox{ Squawk should already be taking care of this. If not, a
+    simple solution is to use a ready flag per object (probably in its
+    header).}
+\end{itemize}
+
+\cautionbox{ JNI routine's entry and exit points might need to be synchronized. }
 
 \section{Locks/Monitors}
 
@@ -475,13 +620,17 @@ To deploy on the Formic cube:
 make -f mb.mk run
 \end{bash}
 
-\textbf{Note:} your IP must be allowed to access formicarium. Please
-contact \href{mailto:zakkak@ics.forth.gr}{zakkak} if your IP is not
-whitelisted
+\notebox{
+  Your IP must be allowed to access formicarium. Please
+  contact \href{mailto:zakkak@ics.forth.gr}{zakkak} if your IP is not
+  whitelisted
+}
 
-\textbf{\color{red}CAUTION:} When running on formicarium always
-\verb!tail! /home/lyberis/measure.log and /home/lyberis/server.log to
-monitor the logs and make sure the cube shuts down when you finish.
+\cautionbox{
+  When running on formicarium always \texttt{tail}
+  /home/lyberis/measure.log and /home/lyberis/server.log to monitor
+  the logs and make sure the cube shuts down when you finish.
+}
 
 \subsection{on X86}
 build-x86.properties contains the configuration of the x86 builds
