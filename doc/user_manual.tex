@@ -325,7 +325,7 @@ To implement the software caching with respect to the \java Memory
 Model we have to satisfy the following conditions:
 
 \begin{itemize}
-\item Before each \verb!monitorexit! and \verb!volatile! store
+\item Before each \verb!monitorexit! and \verb!volatile! store completion
   \begin{itemize}
   \item all \emph{dirty} objects (on this core) must be flushed to the
     memory
@@ -341,10 +341,12 @@ Model we have to satisfy the following conditions:
   \notebox{ That said, what is mostly important, is to make sure any
     pending write-backs from a (globally) previous \texttt{monitorexit}
     have come to completion. The simplest approach here is to make
-    \texttt{monitorexit} bock until completion of the write-backs,
+    \texttt{monitorexit} block until completion of the write-backs,
     however this seems totally inefficient. That raises the need of a
     mechanism that can understand if there are any outstanding
-    write-backs.}
+    write-backs. On the other hand in the case of volatile stores
+    this, blocking seems reasonable.
+  }
 
 \item At \verb!monitorenter! and \verb!volatile! loads we have to wait
   until they complete before we continue with the execution.
