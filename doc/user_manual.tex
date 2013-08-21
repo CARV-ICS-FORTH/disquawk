@@ -122,7 +122,15 @@ a4paper,
 \usepackage{comfortaa}
 % use tikz
 \usepackage{tikz}
+% For quotations
+\usepackage[
+indentfirst=true,
+font=itshape,
+begintext=\textquotedblleft,
+endtext=\textquotedblright,
+]{quoting}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %% Boxes for notes and caution messages
 \usetikzlibrary{shapes,snakes}
@@ -189,7 +197,7 @@ a4paper,
 
 \vfill
 
-\includegraphics[width=.8\linewidth]{myrmigki_color}\\
+\includegraphics[width=.5\linewidth]{myrmigki_color}\\
 
 \vfill
 
@@ -267,7 +275,7 @@ The Formic board provides protection per 1MB pages.
 To flush only parts of the private caches the programmer needs to
 issue a DMA transfer from the cache to the local DRAM.
 
-DMA transfers operate on cache line granularity\todo{needs confirmation}.
+DMA transfers operate on cache line granularity.
 
 In each DMA engine serialization happens only between incoming and
 between outgoing requests (they are handled by two different queues).
@@ -297,8 +305,6 @@ the JVM's and the \java's stacks as well as for caching. Each scale
 denotes a different core. Finally the light green block is the memory
 partition that serves as a heap slice.
 
-\subsection{Software Caching}
-
 Partitioning the \java Heap across 64 boards raises the need for
 caching. To access an object that is located in a remote DRAM module a
 DMA transfer for each access would be too expensive. To reduce the
@@ -306,6 +312,38 @@ overhead, \gvm is based on software caching at object granularity. In
 case of arrays we use a block granularity (defined as a JVM argument).
 Caching, however, requires extra effort in order to provide a coherent
 view of the data, as it is defined by the \java Memory Model.
+
+\subsubsection{The \java Memory Model}
+Here, let us quote Jeremy Manson to give an informal and brief
+description of the \java Memory Model:
+
+\begin{quoting}
+  1) Each thread in Java takes place in a separate memory space
+  (this is clearly untrue, so bear with me on this one).\\
+  \ ~2) You need to use special mechanisms to guarantee that
+  communication happens between these threads, as you would on a
+  message passing system.\\
+  \ ~3) Memory writes that happen in one thread can ``leak through'' and
+  be seen by another thread, but this is by no means
+  guaranteed. Without explicit communication, you can't guarantee
+  which writes get seen by other threads, or even the order in which
+  they get seen.
+\end{quoting}
+Source: \url{http://jeremymanson.blogspot.com/2008/11/what-volatile-means-in-java.html}
+
+According to the \java Memory Model. \java has the following
+synchronization points.
+
+\begin{itemize}
+\item \verb!monitorenter!
+\item \verb!monitorexit!
+\item \verb!volatile! load
+\item \verb!volatile! store
+\item \verb!Thread.start()!
+\item \verb!Thread.join()!
+\item \verb!class! initialization (Constructors)
+\item \verb!final! fields initialization
+\end{itemize}
 
 \notebox{
   Suggested reading material:
@@ -321,59 +359,140 @@ view of the data, as it is defined by the \java Memory Model.
   \end{itemize}
 }
 
+\subsection{Software Caching}
+\label{sec:software-caching}
+
 To implement the software caching with respect to the \java Memory
 Model we have to satisfy the following conditions:
 
 \begin{itemize}
-\item Before each \verb!monitorexit! and \verb!volatile! store completion
+\item Before each \verb!monitorenter!
   \begin{itemize}
-  \item all \emph{dirty} objects (on this core) must be flushed to the
-    memory
+  \item any preceding \verb!monitorexit!, \verb!monitorenter!,
+    \verb!volatile! read or \verb!volatile! store must reach
+    completion
+  \item any preceding \verb!volatile! store's effects must become
+    visible to the home node
+  \item any preceding \verb!monitorexit!'s effects must become visible
+    to the other cores/processors
+  \item any outstanding write-backs from synchronization points must
+    reach completion
+
+    \notebox{The previous bullets are implicitly satisfied by the
+      conditions of \texttt{monitorexit}, \texttt{volatile} store and
+      \texttt{volatile} read that follow and the fact that \mblaze is
+      \textit{inorder}}
+  \end{itemize}
+\item Before each \verb!monitorenter! completion
+  \begin{itemize}
+  \item Any cached objects must be updated (if there are newer
+    versions at the home node available)
+
+    \notebox{ The simplest way to achieve this, is to empty our
+      software-cache and re-fetch the objects upon request.}
+
+    \notebox{ Pre-fetching data would save a significant amount of
+      time as the DMA transfers would overlap with code
+      execution. However, for \gvm to be aware of what objects need to
+      be fetched a priori, the programmer or even better a static
+      analysis must provide appropriate hints. In a data-flow
+      execution model this is even easier to achieve, combining the
+      programmer's data-flow annotations with a static analysis on the
+      code.}
+
+    \notebox{ A possible improvement here would be to use versioning
+      of the cached objects instead of flushing the whole software
+      cache at every synchronization point. With versioning a core can
+      simply query the \emph{home} DRAM for the latest version of the
+      cached objects. Then it can only fetch the remote objects that
+      feature a higher version number than the cached data. In this
+      case we would probably like to use some dedicated cores (like
+      the ones discussed in the next section) that would be
+      responsible for answering such queries and even initiate the DMA
+      transfers. The version number could be kept in the object's
+      header.}
+  \item the effects of this instruction (lock acquisition) must become
+    visible to every core
+  \end{itemize}
+
+\item Before each \verb!monitorexit!
+  \begin{itemize}
+  \item any preceding load or store must complete
+
+    \notebox{This is implicitly satisfied by the \texttt{volatile}
+      store completion conditions that follow and the fact that
+      \mblaze is \textit{inorder}}
+  \item any preceding \verb!monitorenter! or \verb!monitorexit!
+    instruction must reach completion
+  \end{itemize}
+\item Before each \verb!monitorexit! completion
+  \begin{itemize}
+  \item all \emph{dirty} objects (on this core) must get written-back
+    to the memory
 
     \notebox{ There is no need to empty our software-cache. }
-  \item any preceding load or \verb!monitorenter! instructions must
-    complete (and be visible by other processors if needed)
+
+    \notebox{ Here it is not mandatory to block until the write-back
+      reach completion. However to do this we need a mechanism to
+      notify the home node that there are pending write-backs so
+      potential readers will block until completion of the DMA
+      transfers. Furthermore it would break the implicit satisfaction
+      of some of the \textit{monitorenter} and \texttt{volatile} load
+      bullets. }
   \end{itemize}
-\item Before each \verb!monitorenter! and \verb!volatile! load all
-  preceding \verb!monitorexit! instructions and \verb!volatile! stores
-  must complete.
 
-  \notebox{ That said, what is mostly important, is to make sure any
-    pending write-backs from a (globally) previous \texttt{monitorexit}
-    have come to completion. The simplest approach here is to make
-    \texttt{monitorexit} block until completion of the write-backs,
-    however this seems totally inefficient. That raises the need of a
-    mechanism that can understand if there are any outstanding
-    write-backs. On the other hand in the case of volatile stores
-    this, blocking seems reasonable.
-  }
+\item Before each \verb!volatile! store or \verb!volatile! read
+  \begin{itemize}
+  \item any preceding load or store must complete
 
-\item At \verb!monitorenter! and \verb!volatile! loads we have to wait
-  until they complete before we continue with the execution.
-  Furthermore, we have to ensure that any cached objects are
-  up-to-date.
+    \notebox{This is implicitly satisfied by the \texttt{volatile}
+      store completion conditions that follow and the fact that
+      \mblaze is \textit{inorder}}
+  \item any preceding \verb!monitorexit! or \verb!monitorenter!
+    !instructions must reach completion
+  \item any outstanding write-backs from synchronization points must
+    reach completion
+  \item Any cached objects must be updated (if there are newer
+    versions at the home node available)
 
-  \notebox{ The simplest way to achieve this, is to empty our
-    software-cache and re-fetch the objects upon request.}
+    \notebox{Look at \texttt{monitorenter} conditions for some notes
+      on this}
+  \end{itemize}
+\item Before each \verb!volatile! store completion
+  \begin{itemize}
+  \item all \emph{dirty} objects (on this core) must get written-back
+    to the memory
 
-  \notebox{ Pre-fetching data would save a significant amount of time
-    as the DMA transfers would overlap with code execution. However,
-    for \gvm to be aware of what objects need to be fetched a priori,
-    the programmer or even better a static analysis must provide
-    appropriate hints. In a data-flow execution model this is even
-    easier to achieve, combining the programmer's data-flow
-    annotations with a static analysis on the code.}
+    \notebox{ There is no need to empty our software-cache. }
 
-  \notebox{ A possible improvement here would be to use versioning of
-    the cached objects instead of flushing the whole software cache at
-    every synchronization point. With versioning a core can simply
-    query the \emph{home} DRAM for the latest version of the cached
-    objects. Then it can only fetch the remote objects that feature a
-    higher version number than the cached data. In this case we would
-    probably like to use some dedicated cores (like the ones discussed
-    in the next section) that would be responsible for answering such
-    queries and even initiate the DMA transfers. The version number
-    could be kept in the object's header.}
+    \notebox{ Here it is not mandatory to block until the write-back
+      reach completion. However to do this we need a mechanism to
+      notify the home node that there are pending write-backs so
+      potential readers will block until completion of the DMA
+      transfers. Furthermore it would break the implicit satisfaction
+      of some of the \textit{monitorenter} and \texttt{volatile} load
+      bullets. }
+  \item the effects of this instruction must be written-back to the
+    home node
+  \end{itemize}
+
+  \notebox{ One might note that the effects of a \texttt{volatile}
+    store are almost identical to that of \texttt{monitorexit}}
+\item Before each \verb!volatile! read completion
+  \begin{itemize}
+  \item all \emph{dirty} objects (on this core) must get written-back
+    to the memory
+
+    \notebox{ There is no need to empty our software-cache. }
+
+    \notebox{ Here it is not mandatory to block until the write-back
+      reach completion. However to do this we need a mechanism to
+      notify the home node that there are pending write-backs so
+      potential readers will block until completion of the DMA
+      transfers. Furthermore it would break the implicit satisfaction
+      of some of the \textit{monitorenter} and \texttt{volatile} load
+      bullets. }
+  \end{itemize}
 
 \item After the completion of a \verb!Thread.start()! call the newly
   created thread must be able to see the same stores its creator was
@@ -415,12 +534,17 @@ Model we have to satisfy the following conditions:
 \item All \verb!static final! fields must be initialized before the
   object can be accessed.
 
-  \notebox{ Squawk should already be taking care of this. If not, a
-    simple solution is to use a ready flag per object (probably in its
-    header).}
+\item Before using any object instance we have to make sure its
+  initialization reached completion.
+
+  \notebox{ Squawk should already be taking care of the previous two
+    bullets. If not, a simple solution is to use a ready flag per
+    object (probably in its header).}
 \end{itemize}
 
-\cautionbox{ JNI routine's entry and exit points might need to be synchronized. }
+\cautionbox{ JNI routine's entry and exit points are not
+  synchronized. It is the programmer's responsibility to ensure her
+  native code does not break the \java Memory Model semantincs.}
 
 \section{Locks/Monitors}
 
@@ -622,11 +746,9 @@ To deploy on the Formic cube:
 make -f mb.mk run
 \end{bash}
 
-\notebox{
-  Your IP must be allowed to access formicarium. Please
-  contact \href{mailto:zakkak@ics.forth.gr}{zakkak} if your IP is not
-  whitelisted
-}
+\notebox{ Your IP must be allowed to access formicarium. Please
+  contact \href{mailto:zakkak@ics.forth.gr}{zakkak@ics.forth.gr} if
+  your IP is not whitelisted }
 
 \cautionbox{
   When running on formicarium always \texttt{tail}
