@@ -13,6 +13,10 @@ a4paper,
 12pt,
 ]{report}
 
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Include packages
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,7 +74,7 @@ a4paper,
 % distribution.
 \usepackage{graphicx}
 % define the default path for the figures
-\graphicspath{{figs/}}
+\graphicspath{{./figs/}}
 % This package provides very sophisticated facilities for reading and
 % writing verbatim TeX code. Users can perform common tasks like
 % changing font family and size, numbering lines, framing code
@@ -335,7 +339,7 @@ description of the \java Memory Model:
 \end{quoting}
 Source: \url{http://jeremymanson.blogspot.com/2008/11/what-volatile-means-in-java.html}
 
-According to the \java Memory Model. \java has the following
+According to the \java Memory Model, \java has the following
 synchronization points.
 
 \begin{itemize}
@@ -347,6 +351,53 @@ synchronization points.
 \item \verb!Thread.join()!
 \item \verb!class! initialization (Constructors)
 \item \verb!final! fields initialization
+\end{itemize}
+
+According to the \verb!java.util.concurrent! documentation,
+
+\begin{quoting}
+  The methods of all classes in \texttt{java.util.concurrent} and its
+  subpackages extend these guarantees to higher-level
+  synchronization. In particular:
+  \begin{itemize}
+  \item Actions in a thread prior to placing an object into any
+    concurrent collection \textit{happen-before} actions subsequent to
+    the access or removal of that element from the collection in
+    another thread.
+  \item Actions in a thread prior to the submission of a
+    \texttt{Runnable} to an \texttt{Executor} \textit{happen-before}
+    its execution begins. Similarly for \texttt{Callables} submitted
+    to an \texttt{ExecutorService}.
+  \item Actions taken by the asynchronous computation represented by a
+    \texttt{Future} \textit{happen-before} actions subsequent to the
+    retrieval of the result via \texttt{Future.get()} in another
+    thread.
+  \item Actions prior to ``releasing'' synchronizer methods such as
+    \texttt{Lock.unlock}, \texttt{Semaphore.release}, and
+    \texttt{CountDownLatch.countDown} \textit{happen-before} actions
+    subsequent to a successful ``acquiring'' method such as
+    \texttt{Lock.lock}, \texttt{Semaphore.acquire},
+    \texttt{Condition.await}, and \texttt{CountDownLatch.await} on the
+    same synchronizer object in another thread.
+  \item For each pair of threads that successfully exchange objects
+    via an \texttt{Exchanger}, actions prior to the
+    \texttt{exchange()} in each thread \textit{happen-before} those
+    subsequent to the corresponding \texttt{exchange()} in another
+    thread.
+  \item Actions prior to calling \texttt{CyclicBarrier.await}
+    \textit{happen-before} actions performed by the barrier action,
+    and actions performed by the barrier action \textit{happen-before}
+    actions subsequent to a successful return from the corresponding
+    await in other threads.
+  \end{itemize}
+\end{quoting}
+
+As a result, \java also has the following synchronization points.
+\todo{add them}
+\begin{itemize}
+\item addition to/access to/removal from any concurrent collection
+\item \verb!Future.get()!
+\item
 \end{itemize}
 
 \notebox{
