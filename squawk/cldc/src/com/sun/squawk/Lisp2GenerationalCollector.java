@@ -447,9 +447,13 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
      */
     private static int computeMaxClassAddressSpace(int heapSize) {
         int romSize = VM.getRomEnd().diff(VM.getRomStart()).toInt();
-        int nvmSize = GC.getNvmSize();
         int max = heapSize > romSize ? heapSize : romSize;
-        return nvmSize > max ? nvmSize : max;
+/*if[MICROBLAZE_BUILD]*/
+        return max;
+/*else[MICROBLAZE_BUILD]*/
+//      int nvmSize = GC.getNvmSize();
+//      return nvmSize > max ? nvmSize : max;
+/*end[MICROBLAZE_BUILD]*/
     }
 
     /**
@@ -3134,8 +3138,15 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
             classOrAssociationOffset = VM.getOffsetInRom(classOrAssociation);
             tag = ClassWordTag.ROM;
         } else {
-            Assert.that(GC.inNvm(classOrAssociation));
-            classOrAssociationOffset = GC.getOffsetInNvm(classOrAssociation);
+/*if[MICROBLAZE_BUILD]*/
+            Assert.shouldNotReachHere();
+            classOrAssociationOffset = Offset.zero();
+/*else[MICROBLAZE_BUILD]*/
+//          Assert.that(GC.inNvm(classOrAssociation));
+//          classOrAssociationOffset = GC.getOffsetInNvm(classOrAssociation);
+/*end[MICROBLAZE_BUILD]*/
+            // In microblaze builds this is just to compile, we should
+            // never reach here
             tag = ClassWordTag.NVM;
         }
         classOrAssociationOffset = classOrAssociationOffset.bytesToWords(); // convert to word-base offset
@@ -3160,7 +3171,9 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
         switch (tag) {
             case ClassWordTag.HEAP: return getObjectInHeap(classOrAssociationOffset);
             case ClassWordTag.ROM:  return VM.getObjectInRom(classOrAssociationOffset);
+/*if[!MICROBLAZE_BUILD]*/
             case ClassWordTag.NVM:  return GC.getObjectInNvm(classOrAssociationOffset);
+/*end[MICROBLAZE_BUILD]*/
             default:
                 Assert.shouldNotReachHere();
                 return Address.zero();

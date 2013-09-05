@@ -1095,7 +1095,8 @@ char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
 /**
  * Sets up the memory buffer.
  *
- * All "Start" values are rounded up to the system page size (note that page size on SPOT is 4 BYTES!)
+ * All "Start" values are rounded up to the system page size (note
+ * that page size on SPOT is 4 BYTES!)
  *
  * Desktop machine memory layout:
  *
@@ -1126,6 +1127,22 @@ char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
  *    argv copy
  * Memory_end
  *
+ * Formic board memory layout:
+ *
+ * 0x00000000
+ *     Bootstrap_suite object/Binary code [4MB]
+ * 0x00400000 + core_id*0x00100000
+ *     C/Java stack
+ *     service stack [24KB]
+ *     argv copy
+ * 0x00C00000 + core_id*0x00600000
+ *     Private memory (not heap) [6MB]
+ * 0x04000000
+ *     Java Heap [64MB]
+ *     This part is actually shared across all cores and should not be
+ *     directly used by any JVM instance
+ * 0x08000000
+ *
  * @param ramSize   either the size (in bytes) requested for RAM or for the SPOT the total memory available
  * @param nvmSize   the size (in bytes) requested for NVM
  * @param argv      the command line options after the -X and -J options have been stripped
@@ -1148,8 +1165,8 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
     memorySize = roundUp(ramSize - (pageSize-1), pageSize);
     ramSize = memorySize - roundUp(serviceChunkSize, pageSize) - roundUp(argvTotalSize, pageSize) - roundUp(nvmSize, pageSize);
     diagnosticWithValue("ram size", ramSize);
-	diagnosticWithValue("page size", pageSize);
-	diagnosticWithValue("memory size", memorySize);
+    diagnosticWithValue("page size", pageSize);
+    diagnosticWithValue("memory size", memorySize);
     assume(!TYPEMAP);
 #else /* FLASH_MEMORY */
     memorySize = getFileSize(bootstrapSuiteFile);
@@ -1200,6 +1217,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 #endif /* FLASH_MEMORY */
     com_sun_squawk_VM_bootstrapEnd = Address_add(com_sun_squawk_VM_bootstrapStart, bootstrapSize);
 
+/*if[!MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
     // NVM starts at the beginning of the memory buffer
     com_sun_squawk_GC_nvmStart = (Address)roundUp((UWord)memory, pageSize);
@@ -1209,9 +1227,14 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 #endif /* FLASH_MEMORY */
     com_sun_squawk_GC_nvmEnd = Address_add(com_sun_squawk_GC_nvmStart, nvmSize);
     com_sun_squawk_GC_nvmAllocationPointer = com_sun_squawk_GC_nvmStart;
+/*end[MICROBLAZE_BUILD]*/
 
     // RAM starts on the next page after the end of NVM
-    com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)com_sun_squawk_GC_nvmEnd, pageSize);
+/*if[MICROBLAZE_BUILD]*/
+    com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)memory, pageSize);
+/*else[MICROBLAZE_BUILD]*/
+//  com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)com_sun_squawk_GC_nvmEnd, pageSize);
+/*end[MICROBLAZE_BUILD]*/
     com_sun_squawk_GC_ramEnd = Address_add(com_sun_squawk_GC_ramStart, ramSize);
 
     com_sun_squawk_VM_bootstrapSuite = suite;
@@ -1970,7 +1993,9 @@ Address Squawk_setup(int argc, char *argv[]) {
     /*
      * Make ROM and NVM be read-only
      */
+/*if[!MICROBLAZE_BUILD]*/
     sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, true);
+/*end[MICROBLAZE_BUILD]*/
     sysToggleMemoryProtection(com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, true);
 
     initMethods();
@@ -2292,7 +2317,7 @@ void Squawk_run(int argc, char *argv[]) {
  */
 void Squawk_main(int argc, char *argv[]) {
 #if KERNEL_SQUAWK
-    /* Doing this here guaratees that all configurations (including
+    /* Doing this here guarantees that all configurations (including
      * Java_com_sun_squawk_vm_Main_squawk() via JNI) have access to
      * a kernel/user split. However, Nik felt this option should be
      * done explicitly for only those platforms that will use this
@@ -2318,39 +2343,38 @@ void Squawk_main(int argc, char *argv[]) {
  * @param argv the parameter argument vector
  */
 int Squawk_main_wrapper(int argc, char *argv[]) {
-      initializeGlobals(&userGlobals);
+    initializeGlobals(&userGlobals);
 
-/*if[!EMULATOR_LAUNCHER]*/
-/*else[EMULATOR_LAUNCHER]*/
-//    char *executable = argv[0];
-//
-//    int executableLength = strlen(executable);
-//    char *executablePath, *executableName;
-//    char *delimiter;
-//
-//    executablePath = strncpy(calloc(executableLength + 1, sizeof(char)), executable, executableLength);
-//    delimiter = strrchr(executablePath, (char) fileSeparatorChar);
-//
-//    if (delimiter != NULL) {
-//        int nameLength;
-//
-//        delimiter++;
-//        nameLength = strlen(delimiter);
-//        executableName = strncpy(calloc(nameLength + 1, sizeof(char)), delimiter, nameLength);
-//        *delimiter = '\0';  // Terminate executablePath
-//    } else {
-//        executableName = executablePath;
-//        executablePath = calloc(1, sizeof(char));
-//    }
-//
-//    if (strlen(executablePath) > 0) {
-//        // hack: changes to the directory containing the emulator so that it
-//        // can access local files
-//        chdir(executablePath);
-//    }
-//
-//    free(executablePath);
-//    free(executableName);
+/*if[EMULATOR_LAUNCHER]*/
+    char *executable = argv[0];
+
+    int executableLength = strlen(executable);
+    char *executablePath, *executableName;
+    char *delimiter;
+
+    executablePath = strncpy(calloc(executableLength + 1, sizeof(char)), executable, executableLength);
+    delimiter = strrchr(executablePath, (char) fileSeparatorChar);
+
+    if (delimiter != NULL) {
+      int nameLength;
+
+      delimiter++;
+      nameLength = strlen(delimiter);
+      executableName = strncpy(calloc(nameLength + 1, sizeof(char)), delimiter, nameLength);
+      *delimiter = '\0';  // Terminate executablePath
+    } else {
+      executableName = executablePath;
+      executablePath = calloc(1, sizeof(char));
+    }
+
+    if (strlen(executablePath) > 0) {
+      // hack: changes to the directory containing the emulator so that it
+      // can access local files
+      chdir(executablePath);
+    }
+
+    free(executablePath);
+    free(executableName);
 /*end[EMULATOR_LAUNCHER]*/
     diagnostic("in Squawk_main_wrapper");
 

@@ -1309,14 +1309,22 @@ INLINE_UNALIGNED jlong getUnalignedLong(Address base, Offset offset) {
          */
         void copyBytes(Address src, int srcPos, Address dst, int dstPos, int length, boolean nvmDst) {
             /*fprintf(stderr, format("copying  %d bytes from %A at offset %d to %A at offset %d nvmDst=%d\n"), length, src, srcPos, dst, dstPos, nvmDst);*/
-            if (nvmDst) {
-                sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, false);
-            }
+/*if[MICROBLAZE_BUILD]*/
+/*if[DEBUG_CODE_ENABLED]*/
+            Assert.that(!nvmDst);
+/*end[DEBUG_CODE_ENABLED]*/
+/*else[MICROBLAZE_BUILD]*/
+//          if (nvmDst) {
+//              sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, false);
+//          }
+/*end[MICROBLAZE_BUILD]*/
             memmove(Address_add(dst, dstPos), Address_add(src, srcPos), length);
             checkPostWrite(Address_add(dst, dstPos), length);
+/*if[!MICROBLAZE_BUILD]*/
             if (nvmDst) {
                 sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, true);
             }
+/*end[MICROBLAZE_BUILD]*/
         }
 
 #ifdef BAD_ADDRESS
