@@ -834,14 +834,25 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
                     setByteTyped(ea, 6, AddressType_ANY, (char)b1);
                     setByteTyped(ea, 7, AddressType_ANY, (char)b0);
                 } else {
-                    setByteTyped(ea, 0, AddressType_ANY, (char)b0);
-                    setByteTyped(ea, 1, AddressType_ANY, (char)b1);
-                    setByteTyped(ea, 2, AddressType_ANY, (char)b2);
-                    setByteTyped(ea, 3, AddressType_ANY, (char)b3);
-                    setByteTyped(ea, 4, AddressType_ANY, (char)b4);
-                    setByteTyped(ea, 5, AddressType_ANY, (char)b5);
-                    setByteTyped(ea, 6, AddressType_ANY, (char)b6);
-                    setByteTyped(ea, 7, AddressType_ANY, (char)b7);
+/*if[MICROBLAZE_BUILD]*/
+                    setByteTyped(ea, 0, AddressType_ANY, (char)b4);
+                    setByteTyped(ea, 1, AddressType_ANY, (char)b5);
+                    setByteTyped(ea, 2, AddressType_ANY, (char)b6);
+                    setByteTyped(ea, 3, AddressType_ANY, (char)b7);
+                    setByteTyped(ea, 4, AddressType_ANY, (char)b0);
+                    setByteTyped(ea, 5, AddressType_ANY, (char)b1);
+                    setByteTyped(ea, 6, AddressType_ANY, (char)b2);
+                    setByteTyped(ea, 7, AddressType_ANY, (char)b3);
+/*else[MICROBLAZE_BUILD]*/
+//                  setByteTyped(ea, 0, AddressType_ANY, (char)b0);
+//                  setByteTyped(ea, 1, AddressType_ANY, (char)b1);
+//                  setByteTyped(ea, 2, AddressType_ANY, (char)b2);
+//                  setByteTyped(ea, 3, AddressType_ANY, (char)b3);
+//                  setByteTyped(ea, 4, AddressType_ANY, (char)b4);
+//                  setByteTyped(ea, 5, AddressType_ANY, (char)b5);
+//                  setByteTyped(ea, 6, AddressType_ANY, (char)b6);
+//                  setByteTyped(ea, 7, AddressType_ANY, (char)b7);
+/*end[MICROBLAZE_BUILD]*/
                 }
             }
             setAssume(value == getUnalignedLong(base, offset));
@@ -1311,7 +1322,7 @@ INLINE_UNALIGNED jlong getUnalignedLong(Address base, Offset offset) {
             /*fprintf(stderr, format("copying  %d bytes from %A at offset %d to %A at offset %d nvmDst=%d\n"), length, src, srcPos, dst, dstPos, nvmDst);*/
 /*if[MICROBLAZE_BUILD]*/
 /*if[DEBUG_CODE_ENABLED]*/
-            Assert.that(!nvmDst);
+            assume(!nvmDst);
 /*end[DEBUG_CODE_ENABLED]*/
 /*else[MICROBLAZE_BUILD]*/
 //          if (nvmDst) {

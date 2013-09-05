@@ -1130,10 +1130,10 @@ char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
  * Formic board memory layout:
  *
  * 0x00000000
- *     Bootstrap_suite object/Binary code [4MB]
+ *     Bootstrap_suite object/Binary code [<4MB]
+ *     service stack [24KB * 8 cores]
  * 0x00400000 + core_id*0x00100000
  *     C/Java stack
- *     service stack [24KB]
  *     argv copy
  * 0x00C00000 + core_id*0x00600000
  *     Private memory (not heap) [6MB]
@@ -1239,11 +1239,17 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 
     com_sun_squawk_VM_bootstrapSuite = suite;
 
-    // The stack for the service thread starts on the next page after the end of RAM.
-    // The length of the stack in logical slots is written into the first word of the
-    // block allocate for the stack. This length is later used in Thread.initializeThreading()
-    // to format the stack as a Java object of type Klass.LOCAL_ARRAY
-    com_sun_squawk_VMThread_serviceStack = Address_add(roundUp((UWord)com_sun_squawk_GC_ramEnd, pageSize), TWOWORDS);
+/*if[MICROBLAZE_BUILD]*/
+    // allocate 8 service stacks in the bss segment (one for each core)
+    static char service_stack[8][SERVICE_CHUNK_SIZE] __attribute__((aligned(MM_PAGE_SIZE)));
+    com_sun_squawk_VMThread_serviceStack = Address_add((UWord)service_stack[ar_get_core_id()], TWOWORDS);
+/*else[MICROBLAZE_BUILD]*/
+//  // The stack for the service thread starts on the next page after the end of RAM.
+//  // The length of the stack in logical slots is written into the first word of the
+//  // block allocate for the stack. This length is later used in Thread.initializeThreading()
+//  // to format the stack as a Java object of type Klass.LOCAL_ARRAY
+//  com_sun_squawk_VMThread_serviceStack = Address_add(roundUp((UWord)com_sun_squawk_GC_ramEnd, pageSize), TWOWORDS);
+/*end[MICROBLAZE_BUILD]*/
     setArrayLength(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS / HDR_BYTES_PER_WORD);
     setUWord(com_sun_squawk_VMThread_serviceStack, SC_guard, 0);
     setObject(com_sun_squawk_VMThread_serviceStack, SC_owner, 0);
@@ -1260,7 +1266,9 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 
     // Ensure all the buffers start at word aligned addresses.
     assume(isWordAligned((UWord)com_sun_squawk_VM_romStart));
+/*if[!MICROBLAZE_BUILD]*/
     assume(isWordAligned((UWord)com_sun_squawk_GC_nvmStart));
+/*end[MICROBLAZE_BUILD]*/
     assume(isWordAligned((UWord)com_sun_squawk_GC_ramStart));
     assume(isWordAligned((UWord)com_sun_squawk_VMThread_serviceStack));
 
