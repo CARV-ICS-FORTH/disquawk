@@ -141,7 +141,7 @@ endtext=\textquotedblright,
 
 
 %% Boxes for notes and caution messages
-\usetikzlibrary{shapes,snakes}
+\usetikzlibrary{shapes}
 \tikzstyle{notebox} = [draw=yellow, fill=yellow!10, very thick,
     rectangle, rounded corners, inner sep=10pt, inner ysep=15pt]
 \tikzstyle{notetitle} =[draw=yellow, fill=white, text=black, very thick]
@@ -278,7 +278,18 @@ Each \mblaze core features:
 %\subsection{\mblaze}
 
 \subsection{Technical information}
-The Formic board provides protection per 1MB pages.
+The Formic board provides 4 ARTs (Address Region Tables) per core.
+Refer to 2.1 in formic architecture manual for more details.  ARTs
+allow the programmer to set different access permissions on 1MB
+granularity.  A programmer can mark a region as:
+
+\begin{itemize}
+\item cacheable
+\item read-only
+\item execute
+\item user access
+\item privileged access
+\end{itemize}
 
 To flush only parts of the private caches the programmer needs to
 issue a DMA transfer from the cache to the local DRAM.
@@ -849,6 +860,16 @@ support. Specifically, under \texttt{src/rts/formic}, you can find the
 formic native code implementation. Note here that you will also need
 \textit{myrmics} under \texttt{src/rts/formic}.
 
+\subsection{Modifying the memory mapping}
+
+In order to change the memory mapping you have to modify:
+
+\begin{itemize}
+\item \texttt{squawk/vmcore/src/rts/formic/myrmics/src/include/memory\_management.h}
+\item \texttt{squawk/vmcore/src/rts/formic/myrmics/src/arch/mb/boot.s}
+\item \texttt{squawk/vmcore/src/rts/formic/myrmics/src/arch/mb/init.c}
+\end{itemize}
+
 \chapter{Configure, Build, Deploy}
 
 \section{Dependencies}
@@ -882,16 +903,17 @@ make -f mb.mk
 
 To deploy on the Formic cube:
 \begin{bash}
-make -f mb.mk run
+  make -f mb.mk run
+
 \end{bash}
 
 \notebox{ Your IP must be allowed to access formicarium. Please
   contact \href{mailto:zakkak@ics.forth.gr}{zakkak@ics.forth.gr} if
-  your IP is not whitelisted }
+  your IP is not white-listed }
 
 \cautionbox{
   When running on formicarium always \texttt{tail}
-  /home/lyberis/measure.log and /home/lyberis/server.log to monitor
+  /home/batch/sensors.log and /home/batch/server.log to monitor
   the logs and make sure the cube shuts down when you finish.
 }
 
