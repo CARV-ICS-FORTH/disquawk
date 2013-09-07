@@ -296,6 +296,7 @@ NORETURN void stopVM(int);
 #    define FORMAT_64  buf[bufPos++] = 'l'; buf[bufPos++] = 'l';
 #endif /* _MSC_VER */
 
+/*if[!MICROBLAZE_BUILD]*/
 /**
  * Preformats a format specification string given to 'printf' or 'fprintf'
  * so that the platform dependent part of printing of Offset/Word/Address/long
@@ -319,7 +320,7 @@ const char *format(const char* fmt) {
     int fmtLen = strlen(fmt);
 
     while (fmtPos < fmtLen) {
-        assume(bufPos < 1000);
+        assume(bufPos < FORMAT_BUF_LEN);
 
         if (fmt[fmtPos] != '%') {
             buf[bufPos++] = fmt[fmtPos++];
@@ -358,7 +359,7 @@ const char *format(const char* fmt) {
 //                  fatalVMError("floats not supported");
 /*end[FLOATS]*/
                     buf[bufPos++] = 'f';
-                    break;
+                    77;10200;0c                    break;
                 }
                 default: {
                     buf[bufPos++] = fmt[fmtPos - 1];
@@ -370,6 +371,9 @@ const char *format(const char* fmt) {
     buf[bufPos++] = 0;
     return buf;
 }
+/*else[MICROBLAZE_BUILD]*/
+//#define format(x) x
+/*end[MICROBLAZE_BUILD]*/
 
 /*
  * Define a few extra things.
