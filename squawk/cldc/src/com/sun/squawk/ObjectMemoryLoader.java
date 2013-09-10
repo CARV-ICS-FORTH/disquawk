@@ -719,7 +719,12 @@ class StandardObjectMemoryLoader extends ObjectMemoryLoader {
 
         // Set up the address at which the object memory will finally reside
         final Address bufferAddress = VM.isHosted() ? canonicalStart : Address.fromObject(buffer);
-        final Address relocatedBufferAddress = (loadIntoReadOnlyMemory) ? GC.allocateNvmBuffer(size) : bufferAddress;
+/*if[MICROBLAZE_BUILD]*/
+        Assert.that(!loadIntoReadOnlyMemory);
+        final Address relocatedBufferAddress = bufferAddress;
+/*else[MICROBLAZE_BUILD]*/
+//      final Address relocatedBufferAddress = (loadIntoReadOnlyMemory) ? GC.allocateNvmBuffer(size) : bufferAddress;
+/*end[MICROBLAZE_BUILD]*/
 
         // Null the buffer object as there is no need for the relocation to test whether
         // or not the relocated buffer has moved which it won't have if it is in read-only

@@ -45,7 +45,7 @@ all: $(ELF) map
 
 include $(APP)/Makefile
 
-run:
+run: $(ELF)
 	$(AT)rm -f run.log
 	$(AT)$(MYRMICS_SRC)/client -pwr_formic -boot formic -elf $(ELF) | tee run.log
 

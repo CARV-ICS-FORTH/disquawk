@@ -394,6 +394,8 @@ public class GC implements GlobalStaticFields {
         }
     }
 
+// Formic doesn't have NVM
+/*if[!MICROBLAZE_BUILD]*/
     /*---------------------------------------------------------------------------*\
      *                       Non-volatile memory management                      *
     \*---------------------------------------------------------------------------*/
@@ -476,6 +478,7 @@ public class GC implements GlobalStaticFields {
     static Address getObjectInNvm(Offset offset) {
         return nvmStart.addOffset(offset);
     }
+/*end[MICROBLAZE_BUILD]*/
 
     /*---------------------------------------------------------------------------*\
      *                            RAM memory management                          *
@@ -542,9 +545,11 @@ public class GC implements GlobalStaticFields {
     static void initialize() throws HostedPragma {
         ramStart = Address.zero();
         ramEnd = Address.zero();
+/*if[!MICROBLAZE_BUILD]*/
         nvmStart = Address.zero();
         nvmEnd = Address.zero();
         nvmAllocationPointer = nvmStart;
+/*end[MICROBLAZE_BUILD]*/
 
         // Get the pointers rounded correctly.
         Assert.always(ramStart.eq(ramStart.roundUpToWord()), "RAM limit is not word aligned");
