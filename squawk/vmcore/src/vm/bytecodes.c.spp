@@ -3969,7 +3969,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     int result;
                     checkNativeCall(fptr);
                     result = (*fptr)();
+/*if[!MICROBLAZE_BUILD]*/
                     set_com_sun_squawk_VMThread_errno(com_sun_squawk_VMThread_currentThread, errno);
+/*else[MICROBLAZE_BUILD]*/
+//                  fprintf("NATIVE UNSAFE CALL at %s:%d\n", __FILE__, __LINE__);
+/*end[MICROBLAZE_BUILD]*/
                     endCheckNativeCall();
                     pushInt(result);
                     break;
@@ -3982,7 +3986,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     int result;
                     checkNativeCall(fptr);
                     result = (*fptr)(i1);
+/*if[!MICROBLAZE_BUILD]*/
                     set_com_sun_squawk_VMThread_errno(com_sun_squawk_VMThread_currentThread, errno);
+/*else[MICROBLAZE_BUILD]*/
+//                  fprintf("NATIVE UNSAFE CALL at %s:%d\n", __FILE__, __LINE__);
+/*end[MICROBLAZE_BUILD]*/
                     endCheckNativeCall();
                     pushInt(result);
                     break;
@@ -3996,7 +4004,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     int result;
                     checkNativeCall(fptr);
                     result = (*fptr)(i1, i2);
+/*if[!MICROBLAZE_BUILD]*/
                     set_com_sun_squawk_VMThread_errno(com_sun_squawk_VMThread_currentThread, errno);
+/*else[MICROBLAZE_BUILD]*/
+//                  fprintf("NATIVE UNSAFE CALL at %s:%d\n", __FILE__, __LINE__);
+/*end[MICROBLAZE_BUILD]*/
                     endCheckNativeCall();
                     pushInt(result);
                     break;
@@ -4011,7 +4023,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     int result;
                     checkNativeCall(fptr);
                     result = (*fptr)(i1, i2, i3);
+/*if[!MICROBLAZE_BUILD]*/
                     set_com_sun_squawk_VMThread_errno(com_sun_squawk_VMThread_currentThread, errno);
+/*else[MICROBLAZE_BUILD]*/
+//                  fprintf("NATIVE UNSAFE CALL at %s:%d\n", __FILE__, __LINE__);
+/*end[MICROBLAZE_BUILD]*/
                     endCheckNativeCall();
                     pushInt(result);
                     break;
@@ -4027,7 +4043,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     int result;
                     checkNativeCall(fptr);
                     result = (*fptr)(i1, i2, i3, i4);
+/*if[!MICROBLAZE_BUILD]*/
                     set_com_sun_squawk_VMThread_errno(com_sun_squawk_VMThread_currentThread, errno);
+/*else[MICROBLAZE_BUILD]*/
+//                  fprintf("NATIVE UNSAFE CALL at %s:%d\n", __FILE__, __LINE__);
+/*end[MICROBLAZE_BUILD]*/
                     endCheckNativeCall();
                     pushInt(result);
                     break;
@@ -4044,7 +4064,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     int result;
                     checkNativeCall(fptr);
                     result = (*fptr)(i1, i2, i3, i4, i5);
+/*if[!MICROBLAZE_BUILD]*/
                     set_com_sun_squawk_VMThread_errno(com_sun_squawk_VMThread_currentThread, errno);
+/*else[MICROBLAZE_BUILD]*/
+//                  fprintf("NATIVE UNSAFE CALL at %s:%d\n", __FILE__, __LINE__);
+/*end[MICROBLAZE_BUILD]*/
                     endCheckNativeCall();
                     pushInt(result);
                     break;
@@ -4062,7 +4086,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     int result;
                     checkNativeCall(fptr);
                     result = (*fptr)(i1, i2, i3, i4, i5, i6);
+/*if[!MICROBLAZE_BUILD]*/
                     set_com_sun_squawk_VMThread_errno(com_sun_squawk_VMThread_currentThread, errno);
+/*else[MICROBLAZE_BUILD]*/
+//                  fprintf("NATIVE UNSAFE CALL at %s:%d\n", __FILE__, __LINE__);
+/*end[MICROBLAZE_BUILD]*/
                     endCheckNativeCall();
                     pushInt(result);
                     break;
@@ -4085,7 +4113,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
                     int result;
                     checkNativeCall(fptr);
                     result = (*fptr)(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10);
+/*if[!MICROBLAZE_BUILD]*/
                     set_com_sun_squawk_VMThread_errno(com_sun_squawk_VMThread_currentThread, errno);
+/*else[MICROBLAZE_BUILD]*/
+//                  fprintf("NATIVE UNSAFE CALL at %s:%d\n", __FILE__, __LINE__);
+/*end[MICROBLAZE_BUILD]*/
                     endCheckNativeCall();
                     pushInt(result);
                     break;

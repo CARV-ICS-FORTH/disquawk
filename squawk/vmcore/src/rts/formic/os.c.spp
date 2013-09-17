@@ -178,9 +178,9 @@ INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly) 
 INLINE void osloop() {}
 
 #define enableARMInterrupts enableInterrupts
-void enableInterrupts(void) {}
+#define enableInterrupts(x)
 #define disableARMInterrupts disableInterrupts
-void disableInterrupts(void) {}
+#define disableInterrupts(x)
 
 /**
  * Called while Squawk exits. For the eSPOT and bSPOT this function disables

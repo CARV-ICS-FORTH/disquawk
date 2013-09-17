@@ -2,22 +2,22 @@
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Oracle, 16 Network Circle, Menlo Park, CA 94025 or
  * visit www.oracle.com if you need additional information or have
  * any questions.
@@ -84,9 +84,6 @@ void doShallowSleep(long long targetMillis) {
 	}
 	while (1) {
 		if (checkForEvents()) break;
-#ifdef OLD_IIC_MESSAGES
-		if (checkForMessageEvent()) break;
-#endif
 		last_time = getMilliseconds();
 		if (last_time > targetMillis) break;
 		stopProcessor();
@@ -135,7 +132,7 @@ void freeSerialPort(int device_type) {
  * ****************************************************************
  */
 
-unsigned int java_irq_status; 
+unsigned int java_irq_status;
 extern void java_irq_hndl();
 
 #define WAIT_FOR_DEEP_SLEEP_EVENT_NUMBER (DEVICE_LAST+1)
@@ -328,7 +325,7 @@ int avr_low_result = 0;
                 synchroniseWithAVRClock();
             }
             break;
-            
+
     	case ChannelConstants_USB_GET_STATE:
             res = usb_get_state();
             break;
@@ -343,7 +340,7 @@ int avr_low_result = 0;
         case ChannelConstants_AVR_GET_TIME_LOW:
         	res = avr_low_result;
         	break;
-        	
+
         case ChannelConstants_AVR_GET_STATUS:
         	res = avrGetOutstandingEvents();
         	break;
@@ -353,13 +350,13 @@ int avr_low_result = 0;
         	write_secured_silicon_area((Flash_ptr)i1, (short)i2);
         	data_cache_enable();
         	break;
-        	
+
         case ChannelConstants_READ_SECURED_SILICON_AREA:
         	data_cache_disable();
         	read_secured_silicon_area((unsigned char*)send);
         	data_cache_enable();
         	break;
-        	
+
         case ChannelConstants_ENABLE_AVR_CLOCK_SYNCHRONISATION:
     		enableAVRClockSynchronisation(i1);
     		res = 0;
@@ -371,7 +368,7 @@ int avr_low_result = 0;
             res = retrieve_public_key(buffer_to_write_public_key_into, maximum_length);
         }
     	    break;
-    	    
+
     	case ChannelConstants_REPROGRAM_MMU: {
     		reprogram_mmu(FALSE);
     		}
@@ -397,10 +394,9 @@ int avr_low_result = 0;
             res = read_recorded_output(buf, len, just_last);
             }
             break;
-            
+
         default:
             res = ChannelConstants_RESULT_BADPARAMETER;
     }
     com_sun_squawk_ServiceOperation_result = res;
 }
-

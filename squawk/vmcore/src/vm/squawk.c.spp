@@ -154,43 +154,43 @@ static Address lookupStaticMethod(int cid, int methodOffset);
 
     VM has five virtual machine registers.
 
-      ip - the instruction pointer.
-      fp - the frame pointer
-      sp - the stack pointer
-      sl - the stack limit
-      bc - the branch counter
+    ip - the instruction pointer.
+    fp - the frame pointer
+    sp - the stack pointer
+    sl - the stack limit
+    bc - the branch counter
 
     The stack goes downwards, and activation records have the following format:
 
     High:
-             -------------------------------
-            |              P3               |
-             -------------------------------
-            |              P2               |
-             -------------------------------
-            |              P1               |
-             -------------------------------
-            |              P0               |
-             -------------------------------
-            |           Return IP           |
-             -------------------------------
-            |           Return FP           |
-             -------------------------------
+    -------------------------------
+    |              P3               |
+    -------------------------------
+    |              P2               |
+    -------------------------------
+    |              P1               |
+    -------------------------------
+    |              P0               |
+    -------------------------------
+    |           Return IP           |
+    -------------------------------
+    |           Return FP           |
+    -------------------------------
     fp ->   |         Current method        |
-             -------------------------------
-            |              L0               |
-             -------------------------------
-            |              L1               |
-             -------------------------------
-            |              ...              |
-             -------------------------------
+    -------------------------------
+    |              L0               |
+    -------------------------------
+    |              L1               |
+    -------------------------------
+    |              ...              |
+    -------------------------------
     sp ->   |              LN               |
-             -------------------------------
-            |                               |
-            :        Evaluation stack       :
-            :                               :
-            |                               |
-             -------------------------------
+    -------------------------------
+    |                               |
+    :        Evaluation stack       :
+    :                               :
+    |                               |
+    -------------------------------
     Low:
 
 */
@@ -261,10 +261,10 @@ NORETURN void stopVM(int);
 /*
  * Setup ss and sl.
  */
-#define setStack(newss) {                                \
-    ss = (UWordAddress)newss;                            \
-    sl = ss + SC_limit;                                  \
-}                                                        \
+#define setStack(newss) {	  \
+		ss = (UWordAddress)newss; \
+		sl = ss + SC_limit; \
+	} \
 
 /*
  * Test to see if the interpreter is running in kernel mode.
@@ -314,62 +314,62 @@ NORETURN void stopVM(int);
  * @return the transformed version of 'fmt'
  */
 const char *format(const char* fmt) {
-    static char buf[FORMAT_BUF_LEN];
-    int fmtPos = 0;
-    int bufPos = 0;
-    int fmtLen = strlen(fmt);
+	static char buf[FORMAT_BUF_LEN];
+	int fmtPos = 0;
+	int bufPos = 0;
+	int fmtLen = strlen(fmt);
 
-    while (fmtPos < fmtLen) {
-        assume(bufPos < FORMAT_BUF_LEN);
+	while (fmtPos < fmtLen) {
+		assume(bufPos < FORMAT_BUF_LEN);
 
-        if (fmt[fmtPos] != '%') {
-            buf[bufPos++] = fmt[fmtPos++];
-        } else {
-            fmtPos++;
-            buf[bufPos++] = '%';
-            switch (fmt[fmtPos++]) {
-                case 'A': {
+		if (fmt[fmtPos] != '%') {
+			buf[bufPos++] = fmt[fmtPos++];
+		} else {
+			fmtPos++;
+			buf[bufPos++] = '%';
+			switch (fmt[fmtPos++]) {
+			case 'A': {
 #if SQUAWK_64
-                    FORMAT_64
+				FORMAT_64
 #endif /* SQUAWK_64 */
-                    buf[bufPos++] = 'u';
-                    break;
-                }
-                case 'O': {
+					buf[bufPos++] = 'u';
+				break;
+			}
+			case 'O': {
 #if SQUAWK_64
-                    FORMAT_64
+				FORMAT_64
 #endif /* SQUAWK_64 */
-                    buf[bufPos++] = 'd';
-                    break;
-                }
-                case 'L': {
-                    FORMAT_64
-                    buf[bufPos++] = 'd';
-                    break;
-                }
-                case 'U': {
-                    FORMAT_64
-                    buf[bufPos++] = 'u';
-                    break;
-                }
-                case 'D': {
-                    FORMAT_64
+					buf[bufPos++] = 'd';
+				break;
+			}
+			case 'L': {
+				FORMAT_64
+					buf[bufPos++] = 'd';
+				break;
+			}
+			case 'U': {
+				FORMAT_64
+					buf[bufPos++] = 'u';
+				break;
+			}
+			case 'D': {
+				FORMAT_64
 /*if[FLOATS]*/
 /*else[FLOATS]*/
 //                  fatalVMError("floats not supported");
 /*end[FLOATS]*/
-                    buf[bufPos++] = 'f';
-                    77;10200;0c                    break;
-                }
-                default: {
-                    buf[bufPos++] = fmt[fmtPos - 1];
-                }
-            }
-        }
+					buf[bufPos++] = 'f';
+				77;10200;0c                    break;
+			}
+			default: {
+				buf[bufPos++] = fmt[fmtPos - 1];
+			}
+			}
+		}
 
-    }
-    buf[bufPos++] = 0;
-    return buf;
+	}
+	buf[bufPos++] = 0;
+	return buf;
 }
 /*else[MICROBLAZE_BUILD]*/
 //#define format(x) x
@@ -397,19 +397,19 @@ typedef int Type;
 
 /*if[!MICROBLAZE32_BUILD]*/
 NOINLINE jlong float2ll_slow(float f) {
-    static const unsigned long LongMin_f = 0xdf000000L;
-    static const unsigned long LongMax_f = 0x5f000000L;
-    jlong r;
+	static const unsigned long LongMin_f = 0xdf000000L;
+	static const unsigned long LongMax_f = 0x5f000000L;
+	jlong r;
 
-    if (f != f)
-      r = 0;
-    else if ( f < *((float *)(unsigned long*) &LongMin_f))
-      r = 0x8000000000000000LL;
-    else if ( f >= *((float *)(unsigned long*) &LongMax_f))
-      r = 0x7fffffffffffffffLL;
-    else
-      r = (jlong) f;
-    return r;
+	if (f != f)
+		r = 0;
+	else if ( f < *((float *)(unsigned long*) &LongMin_f))
+		r = 0x8000000000000000LL;
+	else if ( f >= *((float *)(unsigned long*) &LongMax_f))
+		r = 0x7fffffffffffffffLL;
+	else
+		r = (jlong) f;
+	return r;
 }
 /*else[MICROBLAZE32_BUILD]*/
 //#define float2ll_slow float2l_slow
@@ -418,67 +418,67 @@ NOINLINE jlong float2ll_slow(float f) {
 /*if[!MICROBLAZE32_BUILD]*/
 NOINLINE jlong double2ll_slow(double d) {
 #if ARM_FPA
-    static const ujlong LongMin_d = 0x00000000c3e00000LL;
-    static const ujlong LongMax_d = 0x0000000043e00000LL;
+	static const ujlong LongMin_d = 0x00000000c3e00000LL;
+	static const ujlong LongMax_d = 0x0000000043e00000LL;
 #else /* ARM_FPA */
-    static const ujlong LongMin_d = 0xc3e0000000000000LL;
-    static const ujlong LongMax_d = 0x43e0000000000000LL;
+	static const ujlong LongMin_d = 0xc3e0000000000000LL;
+	static const ujlong LongMax_d = 0x43e0000000000000LL;
 #endif /* ARM_FPA */
 
-    jlong r;
+	jlong r;
 
-    if (d != d)
-        r = 0;
-    else if ( d < *((double *)(ujlong*) &LongMin_d))
-        r = 0x8000000000000000LL;
-    else if ( d >= *((double *)(ujlong*) &LongMax_d))
-        r = 0x7fffffffffffffffLL;
-    else
-        r = (jlong) d;
-    return r;
+	if (d != d)
+		r = 0;
+	else if ( d < *((double *)(ujlong*) &LongMin_d))
+		r = 0x8000000000000000LL;
+	else if ( d >= *((double *)(ujlong*) &LongMax_d))
+		r = 0x7fffffffffffffffLL;
+	else
+		r = (jlong) d;
+	return r;
 }
 /*else[MICROBLAZE32_BUILD]*/
 //#define double2ll_slow float2l_slow
 /*end[MICROBLAZE32_BUILD]*/
 
 NOINLINE int float2l_slow(float f) {
-    static const unsigned int IntegerMin_f = 0xcf000000L;
-    static const unsigned long IntegerMax_f = 0x4f000000L;
+	static const unsigned int IntegerMin_f = 0xcf000000L;
+	static const unsigned long IntegerMax_f = 0x4f000000L;
 
-    int r;
+	int r;
 
-    if (f != f)
-      r = 0;
-    else if ( f < *((float *)(unsigned int*) &IntegerMin_f))
-      r = 0x80000000U;
-    else if ( f >= *((float *)(unsigned long*) &IntegerMax_f))
-      r = 0x7fffffff;
-    else
-      r = (int) f;
-    return r;
+	if (f != f)
+		r = 0;
+	else if ( f < *((float *)(unsigned int*) &IntegerMin_f))
+		r = 0x80000000U;
+	else if ( f >= *((float *)(unsigned long*) &IntegerMax_f))
+		r = 0x7fffffff;
+	else
+		r = (int) f;
+	return r;
 }
 
 /*if[!MICROBLAZE32_BUILD]*/
 NOINLINE int double2l_slow(double d) {
 #if ARM_FPA
-    static const ujlong IntegerMin_d = 0x00000000c1e00000LL;
-    static const ujlong IntegerMax_d = 0x0000000041e00000LL;
+	static const ujlong IntegerMin_d = 0x00000000c1e00000LL;
+	static const ujlong IntegerMax_d = 0x0000000041e00000LL;
 #else /* ARM_FPA */
-    static const ujlong IntegerMin_d = 0xc1e0000000000000LL;
-    static const ujlong IntegerMax_d = 0x41e0000000000000LL;
+	static const ujlong IntegerMin_d = 0xc1e0000000000000LL;
+	static const ujlong IntegerMax_d = 0x41e0000000000000LL;
 #endif /* ARM_FPA */
 
-    int r;
+	int r;
 
-    if (d != d)
-      r = 0;
-    else if ( d < *((double *)(ujlong*) &IntegerMin_d))
-      r = 0x80000000U;
-    else if ( d >= *((double *)(ujlong*) &IntegerMax_d))
-      r = 0x7fffffff;
-    else
-      r = (int) d;
-    return r;
+	if (d != d)
+		r = 0;
+	else if ( d < *((double *)(ujlong*) &IntegerMin_d))
+		r = 0x80000000U;
+	else if ( d >= *((double *)(ujlong*) &IntegerMax_d))
+		r = 0x7fffffff;
+	else
+		r = (int) d;
+	return r;
 }
 /*else[MICROBLAZE32_BUILD]*/
 //#define double2l_slow float2l_slow
@@ -501,48 +501,48 @@ NOINLINE int double2l_slow(double d) {
  */
 void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
 
-    void *buffer;
+	void *buffer;
 
-    /*
-     * Adjust size so that it is a multiple of the page size of the machine
-     */
-    int pageSize = sysGetPageSize();
-    int actualSize = (size + (pageSize - 1)) & ~(pageSize - 1);
+	/*
+	 * Adjust size so that it is a multiple of the page size of the machine
+	 */
+	int pageSize = sysGetPageSize();
+	int actualSize = (size + (pageSize - 1)) & ~(pageSize - 1);
 
-    buffer = sysValloc(actualSize);
+	buffer = sysValloc(actualSize);
 
 //fprintf(stderr, format("newBuffer: desc=%s, size=%A, actualSize=%O buffer=%A\n"), desc, size, actualSize, buffer);
-    /*
-     * Ensure that the resulting buffer is word aligned (which is surely guaranteed
-     * if it is page aligned!)
-     */
-    assume(isWordAligned((UWord)buffer));
+	/*
+	 * Ensure that the resulting buffer is word aligned (which is surely guaranteed
+	 * if it is page aligned!)
+	 */
+	assume(isWordAligned((UWord)buffer));
 
-    if (buffer == null) {
-        if (fatalIfFail) {
-            fprintf(stderr, format("Failed to allocate buffer of %A bytes for %s\n"), size, desc);
-            stopVM(1);
-        } else {
-            return null;
-        }
-    }
+	if (buffer == null) {
+		if (fatalIfFail) {
+			fprintf(stderr, format("Failed to allocate buffer of %A bytes for %s\n"), size, desc);
+			stopVM(1);
+		} else {
+			return null;
+		}
+	}
 
 /*if[!MICROBLAZE_BUILD]*/
-    /*
-     * Zero the bytes in the buffer.
-     */
-    memset(buffer, 0, (int)size);
+	/*
+	 * Zero the bytes in the buffer.
+	 */
+	memset(buffer, 0, (int)size);
 /*end[MICROBLAZE_BUILD]*/
 
-    /*
-     * Register the buffer.
-     */
-    if (BufferCount >= MAX_BUFFERS) {
-        fatalVMError("exceeded MAX_BUFFERS allocations");
-    }
-    Buffers[BufferCount++] = buffer;
+	/*
+	 * Register the buffer.
+	 */
+	if (BufferCount >= MAX_BUFFERS) {
+		fatalVMError("exceeded MAX_BUFFERS allocations");
+	}
+	Buffers[BufferCount++] = buffer;
 
-    return buffer;
+	return buffer;
 }
 
 /**
@@ -550,33 +550,33 @@ void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
  * it from the table of allocated buffers.
  */
 void freeBuffer(Address buffer) {
-    int i = 0;
-    int insert = 0;
+	int i = 0;
+	int insert = 0;
 
-    while (i != BufferCount) {
-        if (Buffers[i] == buffer) {
+	while (i != BufferCount) {
+		if (Buffers[i] == buffer) {
 //fprintf(stderr, format("freeBuffer: buffer=%A\n"), buffer);
-            sysVallocFree(buffer);
-        } else {
-            Buffers[insert] = Buffers[i];
-            insert++;
-        }
-        i++;
-    }
+			sysVallocFree(buffer);
+		} else {
+			Buffers[insert] = Buffers[i];
+			insert++;
+		}
+		i++;
+	}
 
-    if (BufferCount != insert + 1) {
-        fatalVMError("buffer not in Buffers exactly once");
-    }
-    BufferCount = insert;
+	if (BufferCount != insert + 1) {
+		fatalVMError("buffer not in Buffers exactly once");
+	}
+	BufferCount = insert;
 }
 
 /**
  * Free all the buffers that were allocated by 'newBuffer'.
  */
 void freeBuffers() {
-    while (BufferCount != 0) {
-        freeBuffer(Buffers[0]);
-    }
+	while (BufferCount != 0) {
+		freeBuffer(Buffers[0]);
+	}
 }
 
 /*
@@ -647,25 +647,25 @@ void freeBuffers() {
  * @param p  the string to parse
  */
 jlong parseQuantityLong(char *p, const char* arg) {
-    jlong val = 0;
-    for (;;) {
-        int ch = *p++;
-        if (ch == 0) {
-            break;
-        } else if (ch >= '0' && ch <= '9') {
-            val = (val * 10) + (ch - '0');
-        } else if (ch == 'K' || ch == 'k') {
-            val *= 1024;
-            break;
-        } else if (ch == 'M' || ch == 'm') {
-            val *= (1024*1024);
-            break;
-        } else {
-            fprintf(stderr, "Badly formatted quantity for '%s' option\n", arg);
-            stopVM(-1);
-        }
-    }
-    return val;
+	jlong val = 0;
+	for (;;) {
+		int ch = *p++;
+		if (ch == 0) {
+			break;
+		} else if (ch >= '0' && ch <= '9') {
+			val = (val * 10) + (ch - '0');
+		} else if (ch == 'K' || ch == 'k') {
+			val *= 1024;
+			break;
+		} else if (ch == 'M' || ch == 'm') {
+			val *= (1024*1024);
+			break;
+		} else {
+			fprintf(stderr, "Badly formatted quantity for '%s' option\n", arg);
+			stopVM(-1);
+		}
+	}
+	return val;
 }
 
 
@@ -675,12 +675,12 @@ jlong parseQuantityLong(char *p, const char* arg) {
  * @param p  the string to parse
  */
 int parseQuantity(char *p, const char* arg) {
-    jlong res = parseQuantityLong(p, arg);
-    if (res != (int)res) {
-        fprintf(stderr, "parseQuantity overflow for '%s' option\n", arg);
-        stopVM(-1);
-    }
-    return (int)res;
+	jlong res = parseQuantityLong(p, arg);
+	if (res != (int)res) {
+		fprintf(stderr, "parseQuantity overflow for '%s' option\n", arg);
+		stopVM(-1);
+	}
+	return (int)res;
 }
 
 /**
@@ -691,16 +691,16 @@ int parseQuantity(char *p, const char* arg) {
  */
 Offset getFileSize(const char *file) {
 /*if[!MICROBLAZE_BUILD]*/
-    struct stat buf;
-    if (stat(file, &buf) == 0) {
-        return buf.st_size;
-    } else {
-        if (errno != ENOENT) {
-             fprintf(stderr, "Call to stat(%s) failed: %s\n", file, strerror(errno));
-             stopVM(-1);
-        }
-        return -1;
-    }
+	struct stat buf;
+	if (stat(file, &buf) == 0) {
+		return buf.st_size;
+	} else {
+		if (errno != ENOENT) {
+			fprintf(stderr, "Call to stat(%s) failed: %s\n", file, strerror(errno));
+			stopVM(-1);
+		}
+		return -1;
+	}
 /*else[MICROBLAZE_BUILD]*/
 //  printf("Error #2: Can't get file size, no stat() implementation available\n");
 //
@@ -719,36 +719,36 @@ Offset getFileSize(const char *file) {
  */
 int readFile(const char *file, Address buffer, UWord size) {
 /*if[!MICROBLAZE_BUILD]*/
-    struct stat buf;
-    int result = -1;
-    if (stat(file, &buf) == 0) {
-        int fd = open(file, O_RDONLY|O_BINARY);
-        result = buf.st_size;
-        if (fd != -1) {
-            int count   = 0;
-            int toRead  = buf.st_size;
-            char *readPos = (char *)buffer;
-            while (toRead > 0) {
-                count = read(fd, readPos, toRead);
-                if (count == -1) {
-                    fprintf(stderr,format("Call to read() failed: %s (file size=%A, read=%d)\n"), strerror(errno), buf.st_size, buf.st_size-toRead);
-                    stopVM(-1);
-                }
-                toRead -= count;
-                readPos += count;
-            }
-            close(fd);
-        } else {
-             fprintf(stderr,"Call to open(%s) failed: %s\n", file, strerror(errno));
-             stopVM(-1);
-        }
-    } else {
-        if (errno != ENOENT) {
-             fprintf(stderr,"Call to stat(%s) failed: %s\n", file, strerror(errno));
-             stopVM(-1);
-        }
-    }
-    return result;
+	struct stat buf;
+	int result = -1;
+	if (stat(file, &buf) == 0) {
+		int fd = open(file, O_RDONLY|O_BINARY);
+		result = buf.st_size;
+		if (fd != -1) {
+			int count   = 0;
+			int toRead  = buf.st_size;
+			char *readPos = (char *)buffer;
+			while (toRead > 0) {
+				count = read(fd, readPos, toRead);
+				if (count == -1) {
+					fprintf(stderr,format("Call to read() failed: %s (file size=%A, read=%d)\n"), strerror(errno), buf.st_size, buf.st_size-toRead);
+					stopVM(-1);
+				}
+				toRead -= count;
+				readPos += count;
+			}
+			close(fd);
+		} else {
+			fprintf(stderr,"Call to open(%s) failed: %s\n", file, strerror(errno));
+			stopVM(-1);
+		}
+	} else {
+		if (errno != ENOENT) {
+			fprintf(stderr,"Call to stat(%s) failed: %s\n", file, strerror(errno));
+			stopVM(-1);
+		}
+	}
+	return result;
 /*else[MICROBLAZE_BUILD]*/
 //  printf("Error #3: Can't read file, no implementation available\n");
 //
@@ -773,70 +773,70 @@ int readFile(const char *file, Address buffer, UWord size) {
 #ifndef FLASH_MEMORY
 
 static void printCacheStat(const char *label, int part, jlong whole) {
-    if (whole == 0) {
-        fprintf(stderr, " %s:0%%", label);
-    } else {
-        fprintf(stderr, format(" %s:%u.%02u%%"), label, AS_PERCENT(part, whole));
-    }
+	if (whole == 0) {
+		fprintf(stderr, " %s:0%%", label);
+	} else {
+		fprintf(stderr, format(" %s:%u.%02u%%"), label, AS_PERCENT(part, whole));
+	}
 }
 
 /**
  * Print cache stats.
  */
 static void printCacheStats() {
-    jlong count = 0;
-    fprintf(stderr, "----------------------------------");
+	jlong count = 0;
+	fprintf(stderr, "----------------------------------");
 #ifdef PROFILING
-    count = instructionCount-lastStatCount;
+	count = instructionCount-lastStatCount;
 /*if[MICROBLAZE32_BUILD]*/
-    fprintf(stderr, " %ld.%02ld M Instructions ", count/1000000, (count % 1000000) / 10000);
+	fprintf(stderr, " %ld.%02ld M Instructions ", count/1000000, (count % 1000000) / 10000);
 /*else[MICROBLAZE32_BUILD]*/
 //  fprintf(stderr, " %lld.%02lld M Instructions ", count/1000000, (count % 1000000) / 10000);
 /*end[MICROBLAZE32_BUILD]*/
-    lastStatCount = instructionCount;
+	lastStatCount = instructionCount;
 #else
 #if TRACE
-    count = getBranchCount()-lastStatCount;
+	count = getBranchCount()-lastStatCount;
 /*if[MICROBLAZE32_BUILD]*/
-    fprintf(stderr, " %ld.02%ld M Branches ", count/1000000, (count % 1000000) / 10000);
+	fprintf(stderr, " %ld.02%ld M Branches ", count/1000000, (count % 1000000) / 10000);
 /*else[MICROBLAZE32_BUILD]*/
 //  fprintf(stderr, " %lld.02%lld M Branches ", count/1000000, (count % 1000000) / 10000);
 /*end[MICROBLAZE32_BUILD]*/
-    lastStatCount = getBranchCount();
+	lastStatCount = getBranchCount();
 #endif /* TRACE */
 #endif /* PROFILING */
-    fprintf(stderr, "----------------------------------");
+	fprintf(stderr, "----------------------------------");
 
 #ifdef INTERPRETER_STATS
-    if (count > 0) {
-        fprintf(stderr, "\nTotals - ");
-        fprintf(stderr, " Class: %d",   cachedClassAccesses);
-        fprintf(stderr, " Monitor: %d", pendingMonitorAccesses);
-        fprintf(stderr, " Exit: %d",    com_sun_squawk_GC_monitorExitCount);
-        fprintf(stderr, " New: %d",     com_sun_squawk_GC_newCount);
-    }
+	if (count > 0) {
+		fprintf(stderr, "\nTotals - ");
+		fprintf(stderr, " Class: %d",   cachedClassAccesses);
+		fprintf(stderr, " Monitor: %d", pendingMonitorAccesses);
+		fprintf(stderr, " Exit: %d",    com_sun_squawk_GC_monitorExitCount);
+		fprintf(stderr, " New: %d",     com_sun_squawk_GC_newCount);
+	}
 
-    fprintf(stderr, "\nHits   - ");
-    printCacheStat(" Class",   cachedClassHits,                  cachedClassAccesses);
-    printCacheStat(" Monitor", pendingMonitorHits,               pendingMonitorAccesses);
-    printCacheStat(" Exit",    com_sun_squawk_GC_monitorReleaseCount, com_sun_squawk_GC_monitorExitCount);
-    printCacheStat(" New",     com_sun_squawk_GC_newHits,        com_sun_squawk_GC_newCount);
-    fprintf(stderr, "\n");
-    cachedClassHits = cachedClassAccesses = 0;
-    pendingMonitorHits = pendingMonitorAccesses = 0;
+	fprintf(stderr, "\nHits   - ");
+	printCacheStat(" Class",   cachedClassHits,                  cachedClassAccesses);
+	printCacheStat(" Monitor", pendingMonitorHits,               pendingMonitorAccesses);
+	printCacheStat(" Exit",    com_sun_squawk_GC_monitorReleaseCount, com_sun_squawk_GC_monitorExitCount);
+	printCacheStat(" New",     com_sun_squawk_GC_newHits,        com_sun_squawk_GC_newCount);
+	fprintf(stderr, "\n");
+	cachedClassHits = cachedClassAccesses = 0;
+	pendingMonitorHits = pendingMonitorAccesses = 0;
 #else /* INTERPRETER_STATS */
-    fprintf(stderr, "\n");
+	fprintf(stderr, "\n");
 #endif /* INTERPRETER_STATS */
 
-    com_sun_squawk_GC_monitorExitCount = com_sun_squawk_GC_monitorReleaseCount = 0;
-    com_sun_squawk_GC_newCount = com_sun_squawk_GC_newHits = 0;
+	com_sun_squawk_GC_monitorExitCount = com_sun_squawk_GC_monitorReleaseCount = 0;
+	com_sun_squawk_GC_newCount = com_sun_squawk_GC_newHits = 0;
 
 #if TRACE
-    if (total_extends > 0) {
-        fprintf(stderr, format("Extends: %d (slots as %% of extends = %d.%02d%%)\n"), total_extends, AS_PERCENT(total_slots, total_extends));
-    }
+	if (total_extends > 0) {
+		fprintf(stderr, format("Extends: %d (slots as %% of extends = %d.%02d%%)\n"), total_extends, AS_PERCENT(total_slots, total_extends));
+	}
 #endif /* TRACE */
-    fprintf(stderr, format("GCs: %d full, %d partial\n"), com_sun_squawk_GC_fullCollectionCount, com_sun_squawk_GC_partialCollectionCount);
+	fprintf(stderr, format("GCs: %d full, %d partial\n"), com_sun_squawk_GC_fullCollectionCount, com_sun_squawk_GC_partialCollectionCount);
 }
 
 #endif /* !FLASH_MEMORY */
@@ -847,7 +847,7 @@ static void printCacheStats() {
  * @param exitCode the exit code
  */
 NORETURN void stopVM(int exitCode) {
-    stopVM0(exitCode, true);
+	stopVM0(exitCode, true);
 }
 
 /**
@@ -856,65 +856,66 @@ NORETURN void stopVM(int exitCode) {
  * @param exitCode the exit code
  */
 NORETURN void stopVM0(int exitCode, boolean cleanup) {
-    static boolean inStop = false;
+	/* HACK: allow the race */
+	static boolean inStop = false;
 
 /*
-if ( com_sun_squawk_VM_isBlocked) {
-fprintf(stderr, "VM is in a blocking system call!!! WILL CRASH????");
-}
+  if ( com_sun_squawk_VM_isBlocked) {
+  fprintf(stderr, "VM is in a blocking system call!!! WILL CRASH????");
+  }
 */
 
-    if (!inStop) {
-        inStop = true;
-        finalizeStreams();
+	if (!inStop) {
+		inStop = true;
+		finalizeStreams();
 
-        if (cleanup) {
-            freeBuffers();
-        }
+		if (cleanup) {
+			freeBuffers();
+		}
 /*if[!EMULATOR_LAUNCHER]*/
-        fprintf(stderr, "\n\n");
+		fprintf(stderr, "\n\n");
 #ifndef FLASH_MEMORY
-        printCacheStats();
+		printCacheStats();
 #endif /* !FLASH_MEMORY */
-        fprintf(stderr, "** VM stopped");
+		fprintf(stderr, "** VM stopped");
 #ifdef PROFILING
-        fprintf(stderr, format(" after %L instructions"), instructionCount);
+		fprintf(stderr, format(" after %L instructions"), instructionCount);
 #endif /* PROFILING */
 #if TRACE
-        fprintf(stderr, format(" after %L branches"), getBranchCount());
+		fprintf(stderr, format(" after %L branches"), getBranchCount());
 #endif /* TRACE */
-        fprintf(stderr, format(": exit code = %d ** "), exitCode);
+		fprintf(stderr, format(": exit code = %d ** "), exitCode);
 #if PLATFORM_TYPE_SOCKET
-        if (ioport != null) {
-            jlong average = (io_ops_count == 0 ? 0 : io_ops_time / io_ops_count);
-            fprintf(stderr, format(" (average time for %d I/O operation: %L ms)"), io_ops_count, average);
-        }
+		if (ioport != null) {
+			jlong average = (io_ops_count == 0 ? 0 : io_ops_time / io_ops_count);
+			fprintf(stderr, format(" (average time for %d I/O operation: %L ms)"), io_ops_count, average);
+		}
 #endif
-        fprintf(stderr, "\n");
+		fprintf(stderr, "\n");
 /*if[MICROBLAZE_BUILD]*/
-        fprintf(stderr, format("End: %L ms\n"), getMilliseconds());
+		fprintf(stderr, format("End: %L ms\n"), getMilliseconds());
 /*end[MICROBLAZE_BUILD]*/
-        fflush(stderr);
+		fflush(stderr);
 /*else[EMULATOR_LAUNCHER]*/
 /*end[EMULATOR_LAUNCHER]*/
 
 #ifdef DB_DEBUG
-        db_vm_exiting();
+		db_vm_exiting();
 #endif
-    }
+	}
 #ifdef _MSC_VER
-    if (notrap) {
-        _asm{ int 3 };
-    }
+	if (notrap) {
+		_asm{ int 3 };
+	}
 #endif
 
 #if PLATFORM_TYPE_NATIVE
-    IO_shutdown();
+	IO_shutdown();
 #endif
 
-    osfinish();
+	osfinish();
 	inStop = false;
-    exit(exitCode);
+	exit(exitCode);
 }
 
 /**
@@ -922,11 +923,11 @@ fprintf(stderr, "VM is in a blocking system call!!! WILL CRASH????");
  */
 #if PLATFORM_TYPE_DELEGATING
 void jvmUsage() {
-    printf("    -J<flag>       pass <flag> to the embedded Java VM. Some common usages include:\n");
-    printf("                       -J-Xdebug -J-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9999\n");
-    printf("                                [enables debugging of embedded JVM]\n");
-    printf("                       -J-Dcio.tracing=true [enables tracing in embedded JVM]\n");
-    printf("                       -J-Dcio.logging=true [enables logging in embedded JVM]\n");
+	printf("    -J<flag>       pass <flag> to the embedded Java VM. Some common usages include:\n");
+	printf("                       -J-Xdebug -J-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9999\n");
+	printf("                                [enables debugging of embedded JVM]\n");
+	printf("                       -J-Dcio.tracing=true [enables tracing in embedded JVM]\n");
+	printf("                       -J-Dcio.logging=true [enables logging in embedded JVM]\n");
 }
 #endif /* PLATFORM_TYPE_DELEGATING */
 
@@ -934,57 +935,57 @@ void jvmUsage() {
  * Shows the usage message.
  */
 void usage() {
-    printf("Usage: \n");
-    printf("    -Xmx:<size>    set RAM size (%dKb)\n", DEFAULT_RAM_SIZE/1024);
+	printf("Usage: \n");
+	printf("    -Xmx:<size>    set RAM size (%dKb)\n", DEFAULT_RAM_SIZE/1024);
 #if DEFAULT_NVM_SIZE
-    printf("    -Xmxnvm:<size> set NVM size (%dKb)\n", DEFAULT_NVM_SIZE/1024);
+	printf("    -Xmxnvm:<size> set NVM size (%dKb)\n", DEFAULT_NVM_SIZE/1024);
 #endif
-    printf("    -Xboot:<file>  load bootstrap suite from file (squawk.suite)\n");
-    printf("    -Xtgc:<n>      set GC trace flags:\n");
-    printf("                     1: trace mem config and GC events\n");
+	printf("    -Xboot:<file>  load bootstrap suite from file (squawk.suite)\n");
+	printf("    -Xtgc:<n>      set GC trace flags:\n");
+	printf("                     1: trace mem config and GC events\n");
 #if com_sun_squawk_GC_GC_TRACING_SUPPORTED
-    printf("                     2: trace allocations\n");
-    printf("                     4: detailed trace of garbage collector\n");
-    printf("                     8: detailed trace of object graph copying\n");
-    printf("                    16: heap trace before each GC\n");
-    printf("                    32: heap trace after each GC\n");
-    printf("                    64: include heap contents in heap trace\n");
+	printf("                     2: trace allocations\n");
+	printf("                     4: detailed trace of garbage collector\n");
+	printf("                     8: detailed trace of object graph copying\n");
+	printf("                    16: heap trace before each GC\n");
+	printf("                    32: heap trace after each GC\n");
+	printf("                    64: include heap contents in heap trace\n");
 #endif
 #if (com_sun_squawk_GC_GC_TRACING_SUPPORTED | com_sun_squawk_GarbageCollector_HEAP_TRACE)
-    printf("    -Xtgca:<n>     start GC tracing at collection 'n' (0)\n");
+	printf("    -Xtgca:<n>     start GC tracing at collection 'n' (0)\n");
 #endif
 #if TRACE
-    printf("    -Xts:<n>       start tracing after 'n' backward branches\n");
-    printf("    -Xte:<n>       stop tracing after 'n' backward branches\n");
-    printf("    -Xtr:<n>       trace 1000 backward branches after 'n' backward branches\n");
-    printf("    -Xtnoservice   do not trace when executing on the service thread\n");
-    printf("    -Xterr         trace to standard error output stream\n");
-    printf("    -Xstats:<n>    dump a cache stats every 'n' backward branches\n");
+	printf("    -Xts:<n>       start tracing after 'n' backward branches\n");
+	printf("    -Xte:<n>       stop tracing after 'n' backward branches\n");
+	printf("    -Xtr:<n>       trace 1000 backward branches after 'n' backward branches\n");
+	printf("    -Xtnoservice   do not trace when executing on the service thread\n");
+	printf("    -Xterr         trace to standard error output stream\n");
+	printf("    -Xstats:<n>    dump a cache stats every 'n' backward branches\n");
 #endif /* TRACE */
 
 #ifdef PROFILING
 #ifdef OSPROF
-    printf("    -Xprof:<n>     take profile sample every 'n' milliseconds\n");
+	printf("    -Xprof:<n>     take profile sample every 'n' milliseconds\n");
 #else
-    printf("    -Xprof:<n>     take profile sample every 'n' instructions\n");
+	printf("    -Xprof:<n>     take profile sample every 'n' instructions\n");
 #endif /* OSPROF */
 #endif /* PROFILING */
 
 #if PLATFORM_TYPE_SOCKET
-    printf("    -Xioport:[host:]port  connect to an I/O server via a socket\n");
+	printf("    -Xioport:[host:]port  connect to an I/O server via a socket\n");
 #endif /* PLATFORM_TYPE_SOCKET */
 
 #if KERNEL_SQUAWK
-    printf("    -Xkernel[:<n>] support async handling of interrupts (with signal number <n>)\n");
-    printf("    -K<flags>      arguments to pass to kernel VM\n");
+	printf("    -Xkernel[:<n>] support async handling of interrupts (with signal number <n>)\n");
+	printf("    -K<flags>      arguments to pass to kernel VM\n");
 #endif /* KERNEL_SQUAWK */
 
 #ifndef FLASH_MEMORY
-    printf("    -Xnotrap       don't trap VM crashes\n");
+	printf("    -Xnotrap       don't trap VM crashes\n");
 #endif /* FLASH_MEMORY */
 
 #if PLATFORM_TYPE_DELEGATING
-    jvmUsage();
+	jvmUsage();
 #endif /* PLATFORM_TYPE_DELEGATING */
 }
 
@@ -996,20 +997,20 @@ void usage() {
  * @return true if line starts with prefix
  */
 boolean startsWith(char *line, char *prefix) {
-    int i;
-    for (i = 0 ;; i++) {
-        char ch = line[i];
-        int prefixCh = prefix[i];
-        if (prefixCh == 0) {
-            return true;
-        }
-        if (ch == 0) {
-            return false;
-        }
-        if (prefixCh != ch) {
-            return false;
-        }
-    }
+	int i;
+	for (i = 0 ;; i++) {
+		char ch = line[i];
+		int prefixCh = prefix[i];
+		if (prefixCh == 0) {
+			return true;
+		}
+		if (ch == 0) {
+			return false;
+		}
+		if (prefixCh != ch) {
+			return false;
+		}
+	}
 }
 
 /**
@@ -1020,16 +1021,16 @@ boolean startsWith(char *line, char *prefix) {
  * @return true if s1 and s2 are the length and have matching contents
  */
 boolean equals(char *s1, char *s2) {
-    int i;
-    for (i = 0 ;; i++) {
-        int ch = s1[i];
-        if (ch == 0) {
-            return s2[i] == 0;
-        }
-        if (s2[i] != ch) {
-            return false;
-        }
-    }
+	int i;
+	for (i = 0 ;; i++) {
+		int ch = s1[i];
+		if (ch == 0) {
+			return s2[i] == 0;
+		}
+		if (s2[i] != ch) {
+			return false;
+		}
+	}
 }
 
 /**
@@ -1040,13 +1041,14 @@ boolean equals(char *s1, char *s2) {
  * @return the size (in bytes) required for a deep copy of the array
  */
 int calculateSizeForCopyOfCStringArray(int length, char **array) {
-    int total = length * sizeof(char *);
-    while(length-- > 0) {
-        total += strlen(array[length]) + 1;
-    }
-    return total;
+	int total = length * sizeof(char *);
+	while(length-- > 0) {
+		total += strlen(array[length]) + 1;
+	}
+	return total;
 }
 
+/*if[!MICROBLAZE_BUILD]*/
 /**
  * Writes a C string (i.e. a null-terminated char array) into the VM's memory buffer.
  *
@@ -1055,11 +1057,11 @@ int calculateSizeForCopyOfCStringArray(int length, char **array) {
  * @return the offset one past the last byte written to the VM's memory buffer
  */
 int writeCString(char *string, int offset) {
-    while (*string != 0) {
-        setByte(memory, offset++, *string++);
-    }
-    setByte(memory, offset++, 0); // write null-terminator
-    return offset;
+	while (*string != 0) {
+		setByte(memory, offset++, *string++);
+	}
+	setByte(memory, offset++, 0); // write null-terminator
+	return offset;
 }
 
 /**
@@ -1072,16 +1074,17 @@ int writeCString(char *string, int offset) {
  * @return the offset one past the last byte written to the VM's memory buffer
  */
 int writeCStringArray(int length, char **array, int offset) {
-    char **arrayCopy = (char **)Address_add(memory, offset);
+	char **arrayCopy = (char **)Address_add(memory, offset);
 
-    // Find the end of the array copy which is where the elements will be copied
-    offset += length * sizeof(Address);
-    while (length-- > 0) {
-        setObject(arrayCopy++, 0, Address_add(memory, offset));
-        offset = writeCString(*array++, offset);
-    }
-    return offset;
+	// Find the end of the array copy which is where the elements will be copied
+	offset += length * sizeof(Address);
+	while (length-- > 0) {
+		setObject(arrayCopy++, 0, Address_add(memory, offset));
+		offset = writeCString(*array++, offset);
+	}
+	return offset;
 }
+/*end[MICROBLAZE_BUILD]*/
 
 /**
  * Return another path to find the bootstrap suite with the given name.
@@ -1112,7 +1115,7 @@ char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
  *    NVM_end
  *    RAM_start [8MB]
  *    RAM_end
- *    serviceStack [24KB]
+ *    serviceStack [24KB * cores]
  *    argv copy
  * Memory_end
  * [TYPEMAP]
@@ -1153,145 +1156,203 @@ char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
  * @param argc      the number of components in argv
  */
 Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *bootstrapSuiteFile) {
-    int pageSize = sysGetPageSize();
+	int pageSize = sysGetPageSize();
 
-    int serviceChunkSize = SERVICE_CHUNK_SIZE;
-    int realMemorySize;
-    int bootstrapSize;
-    Address suite;
-    int argvTotalSize = calculateSizeForCopyOfCStringArray(argc, argv);
-    int offset;
+	int serviceChunkSize = SERVICE_CHUNK_SIZE;
+	int realMemorySize;
+	int bootstrapSize;
+	Address suite;
+	int argvTotalSize = calculateSizeForCopyOfCStringArray(argc, argv);
+	int offset;
 
-    diagnosticWithValue("setupMemory: ram size", ramSize);
-    diagnosticWithValue("setupMemory: nvmSize size", nvmSize);
+	diagnosticWithValue("setupMemory: ram size", ramSize);
+	diagnosticWithValue("setupMemory: nvmSize size", nvmSize);
 
 #ifdef FLASH_MEMORY
-    memorySize = roundUp(ramSize - (pageSize-1), pageSize);
-    ramSize = memorySize - roundUp(serviceChunkSize, pageSize) - roundUp(argvTotalSize, pageSize) - roundUp(nvmSize, pageSize);
-    diagnosticWithValue("ram size", ramSize);
-    diagnosticWithValue("page size", pageSize);
-    diagnosticWithValue("memory size", memorySize);
-    assume(!TYPEMAP);
+	memorySize = roundUp(ramSize - (pageSize-1), pageSize);
+	ramSize = memorySize
+		- roundUp(serviceChunkSize, pageSize)
+		- roundUp(argvTotalSize, pageSize)
+		- roundUp(nvmSize, pageSize);
+	diagnosticWithValue("ram size", ramSize);
+	diagnosticWithValue("page size", pageSize);
+	diagnosticWithValue("memory size", memorySize);
+	assume(!TYPEMAP);
 #else /* FLASH_MEMORY */
-    memorySize = getFileSize(bootstrapSuiteFile);
-    if (memorySize == -1) {
-        char* altName = sysGetAlternateBootstrapSuiteLocation(bootstrapSuiteFile);
-        if (altName) {
-            printf("bootstrap suite not found, trying %s\n", altName);
-            bootstrapSuiteFile = altName;
-            memorySize = getFileSize(bootstrapSuiteFile);
-        }
-    }
-    memorySize = roundUp(memorySize + ramSize, pageSize);
-    memorySize = roundUp(memorySize + nvmSize, pageSize);
-    memorySize = roundUp(memorySize + serviceChunkSize, pageSize);
-    memorySize = roundUp(memorySize + argvTotalSize, pageSize);
+	memorySize = getFileSize(bootstrapSuiteFile);
+	if (memorySize == -1) {
+		char* altName = sysGetAlternateBootstrapSuiteLocation(bootstrapSuiteFile);
+		if (altName) {
+			printf("bootstrap suite not found, trying %s\n", altName);
+			bootstrapSuiteFile = altName;
+			memorySize = getFileSize(bootstrapSuiteFile);
+		}
+	}
+	memorySize = roundUp(memorySize + ramSize, pageSize);
+	memorySize = roundUp(memorySize + nvmSize, pageSize);
+	memorySize = roundUp(memorySize + serviceChunkSize, pageSize);
+	memorySize = roundUp(memorySize + argvTotalSize, pageSize);
 #endif /* FLASH_MEMORY */
 
-     // Double the memory buffer to allocate the type map if necessary
-    realMemorySize = TYPEMAP ? memorySize * 2 : memorySize;
+	// Double the memory buffer to allocate the type map if necessary
+	realMemorySize = TYPEMAP ? memorySize * 2 : memorySize;
 
-    // Allocate the memory buffer
-    memory = newBuffer(realMemorySize, "memory", true);
-    memoryEnd = Address_add(memory, memorySize);
+	// Allocate the memory buffer
+	memory = newBuffer(realMemorySize, "memory", true);
+	memoryEnd = Address_add(memory, memorySize);
 /*if[MICROBLAZE_BUILD]*/
 /*if[DEBUG_CODE_ENABLED]*/
-    printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
-    printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
+	printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
+	printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
 /*end[DEBUG_CODE_ENABLED]*/
 /*end[MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
-    bootstrapSize = loadBootstrapSuiteFromFlash(bootstrapSuiteFile, &com_sun_squawk_VM_romStart, &suite, &com_sun_squawk_VM_bootstrapHash);
-    com_sun_squawk_VM_bootstrapStart = com_sun_squawk_VM_romStart;
+	bootstrapSize = loadBootstrapSuiteFromFlash(bootstrapSuiteFile,
+	                                            &com_sun_squawk_VM_romStart,
+	                                            &suite,
+	                                            &com_sun_squawk_VM_bootstrapHash);
+	com_sun_squawk_VM_bootstrapStart = com_sun_squawk_VM_romStart;
 
 #ifdef VIRTUAL_ADDRESS_SPACE_LOWER_BOUND
-    // on SPOTs and machines with MMU, flash memory may be virtually allocated to a larger range than specified by get_flash_base() + get_flash_size()
-    assume((Address)VIRTUAL_ADDRESS_SPACE_LOWER_BOUND > com_sun_squawk_VM_romStart);
-    com_sun_squawk_VM_romEnd = (Address)VIRTUAL_ADDRESS_SPACE_UPPER_BOUND;
-    //com_sun_squawk_VM_romEnd = (Address)(FLASH_BASE_ADDR + FLASH_BASE_SIZE);
+	// on SPOTs and machines with MMU, flash memory may be virtually
+	// allocated to a larger range than specified by get_flash_base()
+	// + get_flash_size()
+	assume((Address)VIRTUAL_ADDRESS_SPACE_LOWER_BOUND > com_sun_squawk_VM_romStart);
+	com_sun_squawk_VM_romEnd = (Address)VIRTUAL_ADDRESS_SPACE_UPPER_BOUND;
+	//com_sun_squawk_VM_romEnd = (Address)(FLASH_BASE_ADDR + FLASH_BASE_SIZE);
 #else /* VIRTUAL_ADDRESS_SPACE_LOWER_BOUND */
-    com_sun_squawk_VM_romEnd = (Address)(get_flash_base() + get_flash_size());
+	com_sun_squawk_VM_romEnd = (Address)(get_flash_base() + get_flash_size());
 #endif /* VIRTUAL_ADDRESS_SPACE_LOWER_BOUND */
 
 #else /* FLASH_MEMORY */
-    // ROM starts at the begining of the VM's memory buffer
-    com_sun_squawk_VM_romStart = com_sun_squawk_VM_bootstrapStart = memory;
-    bootstrapSize = loadBootstrapSuite(bootstrapSuiteFile, memory, memorySize, &suite, &com_sun_squawk_VM_bootstrapHash);
-    com_sun_squawk_VM_romEnd = Address_add(com_sun_squawk_VM_romStart, bootstrapSize);
+	// ROM starts at the begining of the VM's memory buffer
+	com_sun_squawk_VM_romStart = com_sun_squawk_VM_bootstrapStart = memory;
+	bootstrapSize = loadBootstrapSuite(bootstrapSuiteFile,
+	                                   memory, memorySize,
+	                                   &suite,
+	                                   &com_sun_squawk_VM_bootstrapHash);
+	com_sun_squawk_VM_romEnd = Address_add(com_sun_squawk_VM_romStart,
+	                                       bootstrapSize);
 #endif /* FLASH_MEMORY */
-    com_sun_squawk_VM_bootstrapEnd = Address_add(com_sun_squawk_VM_bootstrapStart, bootstrapSize);
+	com_sun_squawk_VM_bootstrapEnd = Address_add(com_sun_squawk_VM_bootstrapStart,
+	                                             bootstrapSize);
 
 /*if[!MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
-    // NVM starts at the beginning of the memory buffer
-    com_sun_squawk_GC_nvmStart = (Address)roundUp((UWord)memory, pageSize);
+	// NVM starts at the beginning of the memory buffer
+	com_sun_squawk_GC_nvmStart = (Address)roundUp((UWord)memory, pageSize);
 #else
-    // NVM starts on the next page after the end of ROM
-    com_sun_squawk_GC_nvmStart = (Address)roundUp((UWord)com_sun_squawk_VM_romEnd, pageSize);
+	// NVM starts on the next page after the end of ROM
+	com_sun_squawk_GC_nvmStart = (Address)roundUp((UWord)com_sun_squawk_VM_romEnd,
+	                                              pageSize);
 #endif /* FLASH_MEMORY */
-    com_sun_squawk_GC_nvmEnd = Address_add(com_sun_squawk_GC_nvmStart, nvmSize);
-    com_sun_squawk_GC_nvmAllocationPointer = com_sun_squawk_GC_nvmStart;
+	com_sun_squawk_GC_nvmEnd = Address_add(com_sun_squawk_GC_nvmStart, nvmSize);
+	com_sun_squawk_GC_nvmAllocationPointer = com_sun_squawk_GC_nvmStart;
 /*end[MICROBLAZE_BUILD]*/
 
-    // RAM starts on the next page after the end of NVM
+	// RAM starts on the next page after the end of NVM
 /*if[MICROBLAZE_BUILD]*/
-    com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)memory, pageSize);
+	com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)memory, pageSize);
 /*else[MICROBLAZE_BUILD]*/
-//  com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)com_sun_squawk_GC_nvmEnd, pageSize);
+//	com_sun_squawk_GC_ramStart =
+//		(Address)roundUp((UWord)com_sun_squawk_GC_nvmEnd, pageSize);
 /*end[MICROBLAZE_BUILD]*/
-    com_sun_squawk_GC_ramEnd = Address_add(com_sun_squawk_GC_ramStart, ramSize);
+	com_sun_squawk_GC_ramEnd = Address_add(com_sun_squawk_GC_ramStart, ramSize);
 
-    com_sun_squawk_VM_bootstrapSuite = suite;
+	com_sun_squawk_VM_bootstrapSuite = suite;
 
+/* NOTE: This is the original core */
+//	com_sun_squawk_VMThread_serviceStack =
+//		Address_add(roundUp((UWord)com_sun_squawk_GC_ramEnd, pageSize), TWOWORDS);
 /*if[MICROBLAZE_BUILD]*/
-    // allocate 8 service stacks in the bss segment (one for each core)
-    static char service_stack[8][SERVICE_CHUNK_SIZE] __attribute__((aligned(MM_PAGE_SIZE)));
-    com_sun_squawk_VMThread_serviceStack = Address_add((UWord)service_stack[ar_get_core_id()], TWOWORDS);
+	int my_cid = ar_get_core_id();
+	// allocate AR_FORMIC_CORES_PER_BOARD service stacks in the bss
+	// segment (one for each core)
+	static char service_stack[AR_FORMIC_CORES_PER_BOARD][SERVICE_CHUNK_SIZE] __attribute__((aligned(MM_PAGE_SIZE)));
+	com_sun_squawk_VMThread_serviceStack =
+		Address_add((UWord)service_stack[my_cid], TWOWORDS);
 /*else[MICROBLAZE_BUILD]*/
 //  // The stack for the service thread starts on the next page after the end of RAM.
 //  // The length of the stack in logical slots is written into the first word of the
 //  // block allocate for the stack. This length is later used in Thread.initializeThreading()
 //  // to format the stack as a Java object of type Klass.LOCAL_ARRAY
-//  com_sun_squawk_VMThread_serviceStack = Address_add(roundUp((UWord)com_sun_squawk_GC_ramEnd, pageSize), TWOWORDS);
+//	static __thread char service_stack[SERVICE_CHUNK_SIZE];
+//	com_sun_squawk_VMThread_serviceStack =
+//		Address_add((UWord)service_stack, TWOWORDS);
 /*end[MICROBLAZE_BUILD]*/
-    setArrayLength(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS / HDR_BYTES_PER_WORD);
-    setUWord(com_sun_squawk_VMThread_serviceStack, SC_guard, 0);
-    setObject(com_sun_squawk_VMThread_serviceStack, SC_owner, 0);
-    setObject(com_sun_squawk_VMThread_serviceStack, SC_lastFP, 0);
-    setUWord(com_sun_squawk_VMThread_serviceStack, SC_lastBCI, 0);
 
-    // The command line arguments for the JAM start on the next page after the end of the stack for the service thread.
-    com_sun_squawk_VM_argc = argc;
-    com_sun_squawk_VM_argv = (Address)roundUp((UWord)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS), pageSize);
-    offset = writeCStringArray(argc, argv, Address_diff(com_sun_squawk_VM_argv, memory));
+	setArrayLength(com_sun_squawk_VMThread_serviceStack,
+	               SERVICE_CHUNK_SIZE_MINUS2WORDS / HDR_BYTES_PER_WORD);
+	setUWord(com_sun_squawk_VMThread_serviceStack, SC_guard, 0);
+	setObject(com_sun_squawk_VMThread_serviceStack, SC_owner, 0);
+	setObject(com_sun_squawk_VMThread_serviceStack, SC_lastFP, 0);
+	setUWord(com_sun_squawk_VMThread_serviceStack, SC_lastBCI, 0);
 
-    // Ensure that the buffer did not overflow
-    assumeAlways(loeq(Address_add(memory, offset), memoryEnd));
+	// The command line arguments for the JAM start on the next page after the end of the stack for the service thread.
+	com_sun_squawk_VM_argc = argc;
+/*if[MICROBLAZE_BUILD]*/
+	// No need to re-allocate argv
+	com_sun_squawk_VM_argv = argv;
+	offset = Address_diff(com_sun_squawk_GC_ramStart, memory);
+/*else[MICROBLAZE_BUILD]*/
+//  // The stack for the service thread starts on the next page after the end of RAM.
+//  // The length of the stack in logical slots is written into the first word of the
+//  // block allocate for the stack. This length is later used in Thread.initializeThreading()
+//  // to format the stack as a Java object of type Klass.LOCAL_ARRAY
+//  com_sun_squawk_VM_argv = (Address)roundUp((UWord)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS), pageSize);
+//  offset = writeCStringArray(argc, argv, Address_diff(com_sun_squawk_VM_argv, memory));
+/*end[MICROBLAZE_BUILD]*/
 
-    // Ensure all the buffers start at word aligned addresses.
-    assume(isWordAligned((UWord)com_sun_squawk_VM_romStart));
+	// Ensure that the buffer did not overflow
+	assumeAlways(loeq(Address_add(memory, offset), memoryEnd));
+
+	// Ensure all the buffers start at word aligned addresses.
+	assume(isWordAligned((UWord)com_sun_squawk_VM_romStart));
 /*if[!MICROBLAZE_BUILD]*/
-    assume(isWordAligned((UWord)com_sun_squawk_GC_nvmStart));
+	assume(isWordAligned((UWord)com_sun_squawk_GC_nvmStart));
 /*end[MICROBLAZE_BUILD]*/
-    assume(isWordAligned((UWord)com_sun_squawk_GC_ramStart));
-    assume(isWordAligned((UWord)com_sun_squawk_VMThread_serviceStack));
+	assume(isWordAligned((UWord)com_sun_squawk_GC_ramStart));
+	assume(isWordAligned((UWord)com_sun_squawk_VMThread_serviceStack));
 
 /*if[DEBUG_CODE_ENABLED]*/
-    printRange("ROM       ", (char*)com_sun_squawk_VM_romStart, (char*)com_sun_squawk_VM_romEnd);
-    printRange("Suite     ", (char*)suite, (char*)((char*) suite + bootstrapSize));
-    printRange("Memory    ", (char*)memory, (char*)memoryEnd);
+	printRange("ROM       ",
+	           (char*)com_sun_squawk_VM_romStart,
+	           (char*)com_sun_squawk_VM_romEnd);
+	printRange("Suite     ",
+	           (char*)suite,
+	           (char*)((char*) suite + bootstrapSize));
+	printRange("Memory    ",
+	           (char*)memory,
+	           (char*)memoryEnd);
 #if TYPEMAP
-    printRange("Type map  ", (char*)getTypePointer(memory), (char*)getTypePointer(memoryEnd));
+	printRange("Type map  ",
+	           (char*)getTypePointer(memory),
+	           (char*)getTypePointer(memoryEnd));
 #endif /* TYPEMAP */
 #if DEFAULT_NVM_SIZE
-    printRange("NVM       ", (char*)com_sun_squawk_GC_nvmStart, (char*)com_sun_squawk_GC_nvmEnd);
+	printRange("NVM       ",
+	           (char*)com_sun_squawk_GC_nvmStart,
+	           (char*)com_sun_squawk_GC_nvmEnd);
 #endif
-    printRange("RAM       ", (char*)com_sun_squawk_GC_ramStart, (char*)com_sun_squawk_GC_ramEnd);
-    printRange("ServiceStk", (char*)com_sun_squawk_VMThread_serviceStack, (char*)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS));
-    printRange("argv      ", (char*)com_sun_squawk_VM_argv, (char*)Address_add(memory, offset));
+	printRange("RAM       ",
+	           (char*)com_sun_squawk_GC_ramStart,
+	           (char*)com_sun_squawk_GC_ramEnd);
+	printRange("ServiceStk",
+	           (char*)com_sun_squawk_VMThread_serviceStack,
+	           (char*)Address_add(com_sun_squawk_VMThread_serviceStack,
+	                              SERVICE_CHUNK_SIZE_MINUS2WORDS));
+/*if[MICROBLAZE_BUILD]*/
+	printRange("argv      ",
+	           (char*)com_sun_squawk_VM_argv,
+	           (char*)com_sun_squawk_VM_argv);
+/*else[MICROBLAZE_BUILD]*/
+//	printRange("argv      ",
+//	           (char*)com_sun_squawk_VM_argv,
+//	           (char*)Address_add(memory, offset));
+/*end[MICROBLAZE_BUILD]*/
 /*end[DEBUG_CODE_ENABLED]*/
 
-    return suite;
+	return suite;
 }
 
 #if KERNEL_SQUAWK
@@ -1304,51 +1365,51 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
  */
 void preprocessArgs(char *argv[], int *argc,
                     char *kernelArgs[], int *kernelArgsCount) {
-    int newIndex = 0;
-    int oldIndex = 0;
-    int indexLim = *argc;
+	int newIndex = 0;
+	int oldIndex = 0;
+	int indexLim = *argc;
 
-    *kernelArgsCount = 0;
-    while (oldIndex != indexLim) {
-        char *arg = argv[oldIndex];
-        if (arg[0] != '-') {
-            break; /* finished VM options part */
-        }
+	*kernelArgsCount = 0;
+	while (oldIndex != indexLim) {
+		char *arg = argv[oldIndex];
+		if (arg[0] != '-') {
+			break; /* finished VM options part */
+		}
 
-        if (arg[1] != 'X' && arg[1] != 'K') {
-            argv[newIndex++] = arg;
-        } else {
-            if (arg[1] == 'X') {
-                if (startsWith(arg + 2, "kernel")) {
-                    kernelMode = true;
-                    if (arg[8] == ':') {
-                        int n = atoi(arg + 9);
-                        kernelSignal = (n == 0) ? SIGSYS : n;
-                    } else {
-                        kernelSignal = SIGSYS;
-                    }
-                } else {
-                    argv[newIndex++] = arg;
-                }
-            } else {
-                /* '-K' flag */
-                /* Use "MAX_JVM_ARGS - 1" to reserve space for
-                 * "java.lang.JavaDriverManager". */
-                if (*kernelArgsCount >= MAX_JVM_ARGS - 1) {
-                    fatalVMError("too many '-K' flags");
-                }
-                kernelArgs[(*kernelArgsCount)++] = arg + 2;
-            }
-        }
-        oldIndex++;
-    }
+		if (arg[1] != 'X' && arg[1] != 'K') {
+			argv[newIndex++] = arg;
+		} else {
+			if (arg[1] == 'X') {
+				if (startsWith(arg + 2, "kernel")) {
+					kernelMode = true;
+					if (arg[8] == ':') {
+						int n = atoi(arg + 9);
+						kernelSignal = (n == 0) ? SIGSYS : n;
+					} else {
+						kernelSignal = SIGSYS;
+					}
+				} else {
+					argv[newIndex++] = arg;
+				}
+			} else {
+				/* '-K' flag */
+				/* Use "MAX_JVM_ARGS - 1" to reserve space for
+				 * "java.lang.JavaDriverManager". */
+				if (*kernelArgsCount >= MAX_JVM_ARGS - 1) {
+					fatalVMError("too many '-K' flags");
+				}
+				kernelArgs[(*kernelArgsCount)++] = arg + 2;
+			}
+		}
+		oldIndex++;
+	}
 
-    /* Copy main class and it args */
-    while (oldIndex != indexLim) {
-        argv[newIndex++] = argv[oldIndex++];
-    }
+	/* Copy main class and it args */
+	while (oldIndex != indexLim) {
+		argv[newIndex++] = argv[oldIndex++];
+	}
 
-    *argc = newIndex;
+	*argc = newIndex;
 }
 #endif /* KERNEL_SQUAWK */
 
@@ -1361,18 +1422,18 @@ void preprocessArgs(char *argv[], int *argc,
 #if _MSC_VER // the old way
 
 void signalHandler(int signum) {
-    char* strsignal(int signum);
-    /* WARNING: ARE THESE SAFE TO CALL FROM A SIGNAL HANDLER??? */
-    fprintf(stderr, "\ncaught signal %d\n", signum);
-    fatalVMError(strsignal(signum));
+	char* strsignal(int signum);
+	/* WARNING: ARE THESE SAFE TO CALL FROM A SIGNAL HANDLER??? */
+	fprintf(stderr, "\ncaught signal %d\n", signum);
+	fatalVMError(strsignal(signum));
 }
 
 void setupSignals() {
-    signal(SIGSEGV, signalHandler);
+	signal(SIGSEGV, signalHandler);
 #ifndef _MSC_VER
-    signal(SIGBUS,  signalHandler);
+	signal(SIGBUS,  signalHandler);
 #endif
-    signal(SIGINT,  signalHandler);
+	signal(SIGINT,  signalHandler);
 }
 
 
@@ -1383,64 +1444,64 @@ void setupSignals() {
 
 void termHandler(int signum, siginfo_t * pInfo, void * pContext) {
 /* WARNING: ARE THESE SAFE TO CALL FROM A SIGNAL HANDLER??? */
-    fprintf(stderr, "\nSquawk VM caught signal %d\nTERMINATIN©G\n", signum);
+	fprintf(stderr, "\nSquawk VM caught signal %d\nTERMINATIN©G\n", signum);
 
-    fatalVMError(strsignal(signum));
+	fatalVMError(strsignal(signum));
 
 }
 
 void crashHandler(int signum, siginfo_t * pInfo, void * pContext) {
-    /* WARNING: ARE THESE SAFE TO CALL FROM A SIGNAL HANDLER??? */
-    fprintf(stderr, "\nSquawk VM caught signal %d\nCRASH\n", signum);
+	/* WARNING: ARE THESE SAFE TO CALL FROM A SIGNAL HANDLER??? */
+	fprintf(stderr, "\nSquawk VM caught signal %d\nCRASH\n", signum);
 
-    fprintf(stderr, "    si_code: 0x%x\n", pInfo->si_code);
+	fprintf(stderr, "    si_code: 0x%x\n", pInfo->si_code);
 #ifdef VXWORKS
-    fprintf(stderr, "    si_value.sival_int: 0x%x\n", pInfo->si_value.sival_int);
+	fprintf(stderr, "    si_value.sival_int: 0x%x\n", pInfo->si_value.sival_int);
 #else
-    fprintf(stderr, "    si_errno: %d\n", pInfo->si_errno);
-    fprintf(stderr, "    si_addr: %p\n", pInfo->si_addr);
+	fprintf(stderr, "    si_errno: %d\n", pInfo->si_errno);
+	fprintf(stderr, "    si_addr: %p\n", pInfo->si_addr);
 #endif
 
-    if (nativeFuncPtr == NULL) {
-        fprintf(stderr, "    Not in callout to native function.\n");
-    } else {
-        fprintf(stderr, "    In callout to native function: %p\n", nativeFuncPtr);
-         Dl_info dlinfo;
-         if (dladdr(nativeFuncPtr, &dlinfo)) {
-            fprintf(stderr, "   named: %s\n", dlinfo.dli_sname);
-         } else {
-            fprintf(stderr, "   named: unknown\n");
-         }
-    }
-    fprintf(stderr, "Resuming system signal handler...\n");
+	if (nativeFuncPtr == NULL) {
+		fprintf(stderr, "    Not in callout to native function.\n");
+	} else {
+		fprintf(stderr, "    In callout to native function: %p\n", nativeFuncPtr);
+		Dl_info dlinfo;
+		if (dladdr(nativeFuncPtr, &dlinfo)) {
+			fprintf(stderr, "   named: %s\n", dlinfo.dli_sname);
+		} else {
+			fprintf(stderr, "   named: unknown\n");
+		}
+	}
+	fprintf(stderr, "Resuming system signal handler...\n");
 }
 
 void setupSignals() {
-    struct sigaction sa;
+	struct sigaction sa;
 
-    nativeFuncPtr = NULL;
+	nativeFuncPtr = NULL;
 
-    sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
-    sa.sa_sigaction = crashHandler;
+	sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
+	sa.sa_sigaction = crashHandler;
 
-    if(sigaction(SIGSEGV, &sa, NULL)) {
-      perror("sigaction");
-      exit(0);
-   }
+	if(sigaction(SIGSEGV, &sa, NULL)) {
+		perror("sigaction");
+		exit(0);
+	}
 
 #ifndef _MSC_VER
-    if(sigaction(SIGBUS, &sa, NULL)) {
-      perror("sigaction");
-      exit(0);
-   }
+	if(sigaction(SIGBUS, &sa, NULL)) {
+		perror("sigaction");
+		exit(0);
+	}
 #endif
 
-    sa.sa_flags = SA_SIGINFO;
-    sa.sa_sigaction = termHandler;
-    if(sigaction(SIGINT, &sa, NULL)) {
-      perror("sigaction");
-      exit(0);
-   }
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = termHandler;
+	if(sigaction(SIGINT, &sa, NULL)) {
+		perror("sigaction");
+		exit(0);
+	}
 
 }
 
@@ -1456,152 +1517,154 @@ void setupSignals() {
  * @return the pointer to the relocated bootstrap suite in ROM
  */
 Address processArgs(char *argv[], const int argc) {
-    int newIndex = 0;
-    int oldIndex = 0;
-    char *javaVMArgs[MAX_JVM_ARGS];
-    int   javaVMArgsCount = 0;
-    char *bootstrapSuiteFile = "squawk.suite";
+	int newIndex = 0;
+	int oldIndex = 0;
+	char *javaVMArgs[MAX_JVM_ARGS];
+	int   javaVMArgsCount = 0;
+	char *bootstrapSuiteFile = "squawk.suite";
 
-    int nvmSize = DEFAULT_NVM_SIZE;
-    int ramSize = DEFAULT_RAM_SIZE;
+	int nvmSize = DEFAULT_NVM_SIZE;
+	int ramSize = DEFAULT_RAM_SIZE;
 
-    diagnostic("in processArgs");
+	diagnostic("in processArgs");
 
 /*if[!EMULATOR_LAUNCHER]*/
 #ifdef PROFILING
-    fprintf(stderr, "*************** Profiling version ***************\n");
+	fprintf(stderr, "*************** Profiling version ***************\n");
 #endif
 
 #ifdef DB_DEBUG
-    fprintf(stderr, "*************** Debug version ***************\n");
+	fprintf(stderr, "*************** Debug version ***************\n");
 #endif
 
 #if TRACE
-    fprintf(stderr, "*************** Tracing version ***************\n");
+	fprintf(stderr, "*************** Tracing version ***************\n");
 #endif
 
-    while (oldIndex != argc) {
-        char *arg = argv[oldIndex];
-        char *wholeArg = arg;
+	fprintf(stderr, "Argv= %s\n", argv);
 
-        if (arg[0] != '-') {
-            break; /* finished VM options part */
-        }
+	while (oldIndex != argc) {
+		char *arg = argv[oldIndex];
+		char *wholeArg = arg;
 
-        if (arg[1] == 'X') {
-            arg += 2; /* skip the '-X' */
+		if (arg[0] != '-') {
+			break; /* finished VM options part */
+		}
+
+		if (arg[1] == 'X') {
+			arg += 2; /* skip the '-X' */
 #if PLATFORM_TYPE_SOCKET
-            if (startsWith(arg, "ioport:")) {
-                ioport = arg + 7;
-            } else
+			if (startsWith(arg, "ioport:")) {
+				ioport = arg + 7;
+			} else
 #endif
 #if DEFAULT_NVM_SIZE
-            if (startsWith(arg, "mxnvm:")) {
-                nvmSize = parseQuantity(arg+6, wholeArg);
-            } else
+				if (startsWith(arg, "mxnvm:")) {
+					nvmSize = parseQuantity(arg+6, wholeArg);
+				} else
 #endif
 /*if[!MICROBLAZE_BUILD]*/
-            if (startsWith(arg, "mx:")) {
-                ramSize = roundDownToWord(parseQuantity(arg+3, wholeArg));
-            } else if (startsWith(arg, "boot:")) {
-                bootstrapSuiteFile = arg + 5;
-            } else
+					if (startsWith(arg, "mx:")) {
+						ramSize = roundDownToWord(parseQuantity(arg+3, wholeArg));
+					} else if (startsWith(arg, "boot:")) {
+						bootstrapSuiteFile = arg + 5;
+					} else
 /*end[MICROBLAZE_BUILD]*/
 #if (com_sun_squawk_GC_GC_TRACING_SUPPORTED | com_sun_squawk_GarbageCollector_HEAP_TRACE)
-            if (startsWith(arg, "tgca:")) {
-                com_sun_squawk_GC_traceThreshold = parseQuantity(arg+5, wholeArg);
-            } else
+						if (startsWith(arg, "tgca:")) {
+							com_sun_squawk_GC_traceThreshold = parseQuantity(arg+5, wholeArg);
+						} else
 #endif
-            if (startsWith(arg, "tgc:")) {
-                com_sun_squawk_GC_traceFlags = parseQuantity(arg+4, wholeArg);
+							if (startsWith(arg, "tgc:")) {
+								com_sun_squawk_GC_traceFlags = parseQuantity(arg+4, wholeArg);
 #ifndef FLASH_MEMORY
-            } else if (equals(arg, "notrap")) {
-                notrap = true;
+							} else if (equals(arg, "notrap")) {
+								notrap = true;
 #endif /* FLASH_MEMORY */
 #if TRACE
-            } else if (equals(arg, "tnoservice")) {
-                traceServiceThread = false;
+							} else if (equals(arg, "tnoservice")) {
+								traceServiceThread = false;
 /*if[!MICROBLAZE_BUILD]*/
-            } else if (equals(arg, "terr")) {
-                traceFile = stderr;
-            } else if (startsWith(arg, "ts:")) {
-                setTraceStart(parseQuantityLong(arg+3, wholeArg));
-            } else if (startsWith(arg, "te:")) {
-                setTraceEnd(parseQuantityLong(arg+3, wholeArg));
-            } else if (startsWith(arg, "tr:")) {
-                jlong start = parseQuantityLong(arg+3, wholeArg);
-                setTraceStart(start);
-                setTraceEnd(start + 1000);
+							} else if (equals(arg, "terr")) {
+								traceFile = stderr;
+							} else if (startsWith(arg, "ts:")) {
+								setTraceStart(parseQuantityLong(arg+3, wholeArg));
+							} else if (startsWith(arg, "te:")) {
+								setTraceEnd(parseQuantityLong(arg+3, wholeArg));
+							} else if (startsWith(arg, "tr:")) {
+								jlong start = parseQuantityLong(arg+3, wholeArg);
+								setTraceStart(start);
+								setTraceEnd(start + 1000);
 /*end[MICROBLAZE_BUILD]*/
-            } else if (startsWith(arg, "stats:")) {
-                statsFrequency = parseQuantity(arg+6, wholeArg);
-                if (statsFrequency == 0) {
-                    fprintf(stderr,"-Xstats:0 is invalid\n");
-                    stopVM(-1);
-                }
+							} else if (startsWith(arg, "stats:")) {
+								statsFrequency = parseQuantity(arg+6, wholeArg);
+								if (statsFrequency == 0) {
+									fprintf(stderr,"-Xstats:0 is invalid\n");
+									stopVM(-1);
+								}
 #endif /* TRACE */
 #ifdef PROFILING
-            } else if (startsWith(arg, "prof:")) {
-                sampleFrequency = parseQuantity(arg+5, wholeArg);
-                if (sampleFrequency == 0) {
-                    fprintf(stderr,"-Xprof:0 is invalid\n");
-                    stopVM(-1);
-                }
+							} else if (startsWith(arg, "prof:")) {
+								sampleFrequency = parseQuantity(arg+5, wholeArg);
+								if (sampleFrequency == 0) {
+									fprintf(stderr,"-Xprof:0 is invalid\n");
+									stopVM(-1);
+								}
 #endif /* PROFILING */
-            } else {
-                if (arg[0] != 0) {
-                    fprintf(stderr,"Unrecognised option: %s\n", wholeArg);
-                }
-                usage();
-                stopVM(0);
-            }
-        } else if (PLATFORM_TYPE_DELEGATING && arg[1] == 'J') {
-            /* '-J' flag */
-            if (javaVMArgsCount >= MAX_JVM_ARGS) {
-                fatalVMError("too many '-J' flags");
-            }
-            javaVMArgs[javaVMArgsCount++] = arg + 2;
+							} else {
+								if (arg[0] != 0) {
+									fprintf(stderr,"Unrecognised option: %s\n", wholeArg);
+								}
+								usage();
+								stopVM(0);
+							}
+		} else if (PLATFORM_TYPE_DELEGATING && arg[1] == 'J') {
+			/* '-J' flag */
+			if (javaVMArgsCount >= MAX_JVM_ARGS) {
+				fatalVMError("too many '-J' flags");
+			}
+			javaVMArgs[javaVMArgsCount++] = arg + 2;
 #ifdef __APPLE__
-        } else if (startsWith(arg, "-psn")) {
-            // skip this (process id number?)
+		} else if (startsWith(arg, "-psn")) {
+			// skip this (process id number?)
 #endif /* __APPLE__ */
-        } else {
-            argv[newIndex++] = arg;
-        }
-        oldIndex++;
-    }
+		} else {
+			argv[newIndex++] = arg;
+		}
+		oldIndex++;
+	}
 
-    /* Copy main class and it args */
-    while (oldIndex != argc) {
-        argv[newIndex++] = argv[oldIndex++];
-    }
+	/* Copy main class and it args */
+	while (oldIndex != argc) {
+		argv[newIndex++] = argv[oldIndex++];
+	}
 /*else[EMULATOR_LAUNCHER]*/
 //    newIndex = argc;
 /*end[EMULATOR_LAUNCHER]*/
 
 #ifndef FLASH_MEMORY
-    if (!notrap) {
-        setupSignals();
-    } else {
-        printf("Trap handling disabled\n");
-    }
+	if (!notrap) {
+		setupSignals();
+	} else {
+		printf("Trap handling disabled\n");
+	}
 #endif /* FLASH_MEMORY */
 
 #if PLATFORM_TYPE_DELEGATING
-    /*
-     * Startup the embedded Hotspot VM if Squawk was not launched via a JNI call
-     */
-    CIO_initialize("squawk.jar", javaVMArgs, javaVMArgsCount);
+	/*
+	 * Startup the embedded Hotspot VM if Squawk was not launched via a JNI call
+	 */
+	CIO_initialize("squawk.jar", javaVMArgs, javaVMArgsCount);
 #elif PLATFORM_TYPE_NATIVE
-    IO_initialize();
+	IO_initialize();
 #elif PLATFORM_TYPE_SOCKET
-    IO_initialize();
+	IO_initialize();
 #endif
 
-    /*
-     * Set up the buffer that will be used for the ROM, NVM and RAM, remaining.
-     */
-    return setupMemory(ramSize, nvmSize, newIndex, argv, bootstrapSuiteFile);
+	/*
+	 * Set up the buffer that will be used for the ROM, NVM and RAM, remaining.
+	 */
+	return setupMemory(ramSize, nvmSize, newIndex, argv, bootstrapSuiteFile);
 }
 
 #if RUN_UNIT_TESTS
@@ -1609,8 +1672,8 @@ Address processArgs(char *argv[], const int argc) {
  * A structure used to verify that the PLATFORM_BIG_ENDIAN constant is correct.
  */
 typedef union {
-    int i;
-    char c[4];
+	int i;
+	char c[4];
 } EndianTest;
 
 /**
@@ -1620,219 +1683,219 @@ typedef union {
  * these tests fail, an error message is printed and the VM will exit.
  */
 void verifyBuildFlags() {
-    EndianTest et;
-    boolean bigEndian;
+	EndianTest et;
+	boolean bigEndian;
 
-    et.i = 1;
-    bigEndian = (et.c[3] == 1);
+	et.i = 1;
+	bigEndian = (et.c[3] == 1);
 
-    if (bigEndian != PLATFORM_BIG_ENDIAN) {
-        fprintf(stderr, "PLATFORM_BIG_ENDIAN constant is incorrect: should be %s\n", bigEndian ? "true" : "false");
-        stopVM(-1);
-    }
+	if (bigEndian != PLATFORM_BIG_ENDIAN) {
+		fprintf(stderr, "PLATFORM_BIG_ENDIAN constant is incorrect: should be %s\n", bigEndian ? "true" : "false");
+		stopVM(-1);
+	}
 
-    if (SQUAWK_64 != (HDR_BYTES_PER_WORD == 8)) {
-        fprintf(stderr, "A %d bit squawk executable cannot be run with a %d bit image\n", (SQUAWK_64 ? 64 : 32), HDR_BYTES_PER_WORD*8);
-        stopVM(-1);
-    }
+	if (SQUAWK_64 != (HDR_BYTES_PER_WORD == 8)) {
+		fprintf(stderr, "A %d bit squawk executable cannot be run with a %d bit image\n", (SQUAWK_64 ? 64 : 32), HDR_BYTES_PER_WORD*8);
+		stopVM(-1);
+	}
 
-    if (PLATFORM_UNALIGNED_LOADS) {
-        unsigned char bytecode[] = { 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
-        int i;
+	if (PLATFORM_UNALIGNED_LOADS) {
+		unsigned char bytecode[] = { 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
+		int i;
 
-        for (i = 0; i != 8; ++i) {
-            ByteAddress xxip;
-            unsigned char *ptr = bytecode + i;
-            int b1 = *ptr++;
-            int b2 = *ptr++;
-            int b3 = *ptr++;
-            int b4 = *ptr++;
-            int expect;
+		for (i = 0; i != 8; ++i) {
+			ByteAddress xxip;
+			unsigned char *ptr = bytecode + i;
+			int b1 = *ptr++;
+			int b2 = *ptr++;
+			int b3 = *ptr++;
+			int b4 = *ptr++;
+			int expect;
 
-            if (PLATFORM_BIG_ENDIAN) {
-                expect = (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
-            } else {
-                expect = (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
-            }
+			if (PLATFORM_BIG_ENDIAN) {
+				expect = (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+			} else {
+				expect = (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
+			}
 
-            xxip = bytecode + i;
-            if (expect != *((int *)xxip)) {
-                fprintf(stderr, "PLATFORM_UNALIGNED_LOADS constant is incorrect: should be false\n");
-                stopVM(-1);
-            }
-        }
-    }
+			xxip = bytecode + i;
+			if (expect != *((int *)xxip)) {
+				fprintf(stderr, "PLATFORM_UNALIGNED_LOADS constant is incorrect: should be false\n");
+				stopVM(-1);
+			}
+		}
+	}
 
-    if (MONITOR_CACHE_SIZE > com_sun_squawk_VMThread_MAXDEPTH) {
-        // this should never happen, but check once at startup, instead of
-        // at every lock operation.
-        fprintf(stderr, "MONITOR_CACHE_SIZE is too large for maximum lock depth\n");
-        stopVM(-1);
-    }
+	if (MONITOR_CACHE_SIZE > com_sun_squawk_VMThread_MAXDEPTH) {
+		// this should never happen, but check once at startup, instead of
+		// at every lock operation.
+		fprintf(stderr, "MONITOR_CACHE_SIZE is too large for maximum lock depth\n");
+		stopVM(-1);
+	}
 }
 
-#define assertEquals4(msg, expected, received) \
-    if (received != expected) { \
-        fprintf(stderr, "Test failed. Expected 0x%x, received 0x%x at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
-        exit(EXIT_FAILURE); \
-    } \
+#define assertEquals4(msg, expected, received)	  \
+	if (received != expected) { \
+		fprintf(stderr, "Test failed. Expected 0x%x, received 0x%x at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
+		exit(EXIT_FAILURE); \
+	} \
 
 /*if[!MICROBLAZE32_BUILD]*/
-#define assertEquals8(msg, expected, received) \
-    if (received != expected) { \
-        fprintf(stderr, "Test failed. Expected 0x%llx, received 0x%llx at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
-        exit(EXIT_FAILURE); \
-    }
+#define assertEquals8(msg, expected, received)	  \
+	if (received != expected) { \
+		fprintf(stderr, "Test failed. Expected 0x%llx, received 0x%llx at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
+		exit(EXIT_FAILURE); \
+	}
 /*else[MICROBLAZE32_BUILD]*/
 //#define assertEquals8 assertEquals4
 /*end[MICROBLAZE32_BUILD]*/
 
 void testLongs() {
-    const jlong PATTERN1 = 0xAAAAAAAAAAAAAAAALL;
-    const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
-    const int   PATTERN3 = 0xAAAAAAAA;
-    const int   MAX      = 0xFFFFFFFF;
+	const jlong PATTERN1 = 0xAAAAAAAAAAAAAAAALL;
+	const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
+	const int   PATTERN3 = 0xAAAAAAAA;
+	const int   MAX      = 0xFFFFFFFF;
 
-    jlong l1 = makeLong(PATTERN3, PATTERN3);
-    assertEquals8("makeLong() 1", PATTERN1, l1);
+	jlong l1 = makeLong(PATTERN3, PATTERN3);
+	assertEquals8("makeLong() 1", PATTERN1, l1);
 
 /*if[MICROBLAZE32_BUILD]*/
-    assertEquals4("getHi() 1", 0, getHi(l1));
+	assertEquals4("getHi() 1", 0, getHi(l1));
 /*else[MICROBLAZE32_BUILD]*/
 //  assertEquals4("getHi() 1", PATTERN3, getHi(l1));
 /*end[MICROBLAZE32_BUILD]*/
-    assertEquals4("getLo() 1", PATTERN3, getLo(l1));
+	assertEquals4("getLo() 1", PATTERN3, getLo(l1));
 
-    l1 = makeLong(PATTERN3, MAX);
-    assertEquals8("makeLong() 2", PATTERN2, l1);
+	l1 = makeLong(PATTERN3, MAX);
+	assertEquals8("makeLong() 2", PATTERN2, l1);
 
 /*if[MICROBLAZE32_BUILD]*/
-    assertEquals4("getHi() 1", 0, getHi(l1));
+	assertEquals4("getHi() 1", 0, getHi(l1));
 /*else[MICROBLAZE32_BUILD]*/
 //  assertEquals4("getHi() 2", PATTERN3, getHi(l1));
 /*end[MICROBLAZE32_BUILD]*/
-    assertEquals4("getLo() 2", MAX,      getLo(l1));
+	assertEquals4("getLo() 2", MAX,      getLo(l1));
 }
 
 void testUnaligned() {
 /*if[MICROBLAZE32_BUILD]*/
-    const jlong PATTERN1 = 0x11223344L;
-    const jlong PATTERN1_SWAP = 0x44332211L;
-    const jlong PATTERN2 = 0xAAAAAAAAL;
-    const jlong PATTERN2_SWAP = 0xAAAAAAAAL;
+	const jlong PATTERN1 = 0x11223344L;
+	const jlong PATTERN1_SWAP = 0x44332211L;
+	const jlong PATTERN2 = 0xAAAAAAAAL;
+	const jlong PATTERN2_SWAP = 0xAAAAAAAAL;
 /*else[MICROBLAZE32_BUILD]*/
 //  const jlong PATTERN1 = 0x1122334455667788LL;
 //  const jlong PATTERN1_SWAP = 0x8877665544332211LL;
 //  const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
 //  const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
 /*end[MICROBLAZE32_BUILD]*/
-    const int   PATTERN3 = 0x55667788;
-    const int   PATTERN3_SWAP = 0x88776655;
-    jlong tmp[2];
-    Address buf = ((char*)&tmp); // first check aligned:
-    tmp[0] = 0;
-    tmp[1] = 0;
+	const int   PATTERN3 = 0x55667788;
+	const int   PATTERN3_SWAP = 0x88776655;
+	jlong tmp[2];
+	Address buf = ((char*)&tmp); // first check aligned:
+	tmp[0] = 0;
+	tmp[1] = 0;
 
-    {
-        jlong val;
-        jlong valCheck;
+	{
+		jlong val;
+		jlong valCheck;
 
-        // compare results of the aligned and unaligned accessors
-        setLong(buf, 0, PATTERN1);
-        assertEquals8("overwrite", 0LL, tmp[1]);
-        valCheck = getLong(buf, 0);
-        assertEquals8("getLong", PATTERN1, valCheck);
+		// compare results of the aligned and unaligned accessors
+		setLong(buf, 0, PATTERN1);
+		assertEquals8("overwrite", 0LL, tmp[1]);
+		valCheck = getLong(buf, 0);
+		assertEquals8("getLong", PATTERN1, valCheck);
 
-        setUnalignedLong(buf, 0, PATTERN1);
-        assertEquals8("overwrite", 0LL, tmp[1]);
-        valCheck = getLong(buf, 0);
-        assertEquals8("getLong 2", PATTERN1, valCheck);
-        val = getUnalignedLong(buf, 0);
-        assertEquals8("getUnalignedLong check", valCheck, val);
-        swap8(buf);
-        valCheck = getLong(buf, 0);
-        assertEquals8("swap8 aligned", PATTERN1_SWAP, valCheck);
-        val = getUnalignedLong(buf, 0);
-        assertEquals8("swap8", PATTERN1_SWAP, val);
+		setUnalignedLong(buf, 0, PATTERN1);
+		assertEquals8("overwrite", 0LL, tmp[1]);
+		valCheck = getLong(buf, 0);
+		assertEquals8("getLong 2", PATTERN1, valCheck);
+		val = getUnalignedLong(buf, 0);
+		assertEquals8("getUnalignedLong check", valCheck, val);
+		swap8(buf);
+		valCheck = getLong(buf, 0);
+		assertEquals8("swap8 aligned", PATTERN1_SWAP, valCheck);
+		val = getUnalignedLong(buf, 0);
+		assertEquals8("swap8", PATTERN1_SWAP, val);
 
-        setUnalignedLong(buf, 0, PATTERN2);
-        assertEquals8("overwrite", 0LL, tmp[1]);
-        val = getUnalignedLong(buf, 0);
-        assertEquals8("getUnalignedLong 2", PATTERN2, val);
-        swap8(buf);
-        valCheck = getLong(buf, 0);
-        assertEquals8("swap8 p2 aligned", PATTERN2_SWAP, valCheck);
-        val = getUnalignedLong(buf, 0);
-        assertEquals8("swap8 p2 2", PATTERN2_SWAP, val);
-    }
+		setUnalignedLong(buf, 0, PATTERN2);
+		assertEquals8("overwrite", 0LL, tmp[1]);
+		val = getUnalignedLong(buf, 0);
+		assertEquals8("getUnalignedLong 2", PATTERN2, val);
+		swap8(buf);
+		valCheck = getLong(buf, 0);
+		assertEquals8("swap8 p2 aligned", PATTERN2_SWAP, valCheck);
+		val = getUnalignedLong(buf, 0);
+		assertEquals8("swap8 p2 2", PATTERN2_SWAP, val);
+	}
 
-    {
-        int val;
-        int valCheck;
+	{
+		int val;
+		int valCheck;
 
-        setInt(buf, 0, PATTERN3);
-        valCheck = getInt(buf, 0);
-        assertEquals4("getInt", PATTERN3, valCheck);
+		setInt(buf, 0, PATTERN3);
+		valCheck = getInt(buf, 0);
+		assertEquals4("getInt", PATTERN3, valCheck);
 
-        setUnalignedInt(buf, 0, PATTERN3);
-        valCheck = getInt(buf, 0);
-        assertEquals4("getInt 2", PATTERN3, valCheck);
-        val = getUnalignedInt(buf, 0);
-        assertEquals4("getUnalignedInt", PATTERN3, val);
-        swap4(buf);
-        val = getUnalignedInt(buf, 0);
-        assertEquals4("swap4", PATTERN3_SWAP, val);
-    }
+		setUnalignedInt(buf, 0, PATTERN3);
+		valCheck = getInt(buf, 0);
+		assertEquals4("getInt 2", PATTERN3, valCheck);
+		val = getUnalignedInt(buf, 0);
+		assertEquals4("getUnalignedInt", PATTERN3, val);
+		swap4(buf);
+		val = getUnalignedInt(buf, 0);
+		assertEquals4("swap4", PATTERN3_SWAP, val);
+	}
 
-    // -------- force unaligned -----------------
-    buf = ((char*)&tmp) + 1;
+	// -------- force unaligned -----------------
+	buf = ((char*)&tmp) + 1;
 
-    {
-        const int REMAINDER_MASK = PLATFORM_BIG_ENDIAN ? 0x00FFFFFFLL: 0xFFFFFF00LL;
-        jlong val;
+	{
+		const int REMAINDER_MASK = PLATFORM_BIG_ENDIAN ? 0x00FFFFFFLL: 0xFFFFFF00LL;
+		jlong val;
 
-        setUnalignedLong(buf, 0, PATTERN1);
-        #ifdef JAVA
-        assertEquals8("overwrite", 0l, (tmp[1] & REMAINDER_MASK));
-        #else
-        assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
-        #endif  /* JAVA */
-        val = getUnalignedLong(buf, 0);
-        assertEquals8("getUnalignedLong", PATTERN1, val);
-        swap8(buf);
-        val = getUnalignedLong(buf, 0);
-        assertEquals8("swap8", PATTERN1_SWAP, val);
+		setUnalignedLong(buf, 0, PATTERN1);
+#ifdef JAVA
+		assertEquals8("overwrite", 0l, (tmp[1] & REMAINDER_MASK));
+#else
+		assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
+#endif  /* JAVA */
+		val = getUnalignedLong(buf, 0);
+		assertEquals8("getUnalignedLong", PATTERN1, val);
+		swap8(buf);
+		val = getUnalignedLong(buf, 0);
+		assertEquals8("swap8", PATTERN1_SWAP, val);
 
-        setUnalignedLong(buf, 0, PATTERN2);
-        #ifdef JAVA
-        assertEquals8("overwrite", 0l, (tmp[1] & REMAINDER_MASK));
-        #else
-        assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
-        #endif  /* JAVA */
-        val = getUnalignedLong(buf, 0);
-        assertEquals8("getUnalignedLong p2", PATTERN2, val);
-        swap8(buf);
-        val = getUnalignedLong(buf, 0);
-        assertEquals8("swap8 p2", PATTERN2_SWAP, val);
-    }
+		setUnalignedLong(buf, 0, PATTERN2);
+#ifdef JAVA
+		assertEquals8("overwrite", 0l, (tmp[1] & REMAINDER_MASK));
+#else
+		assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
+#endif  /* JAVA */
+		val = getUnalignedLong(buf, 0);
+		assertEquals8("getUnalignedLong p2", PATTERN2, val);
+		swap8(buf);
+		val = getUnalignedLong(buf, 0);
+		assertEquals8("swap8 p2", PATTERN2_SWAP, val);
+	}
 
-    {
-        int val;
-        setUnalignedInt(buf, 0, PATTERN3);
-        val = getUnalignedInt(buf, 0);
-        assertEquals4("getUnalignedInt", PATTERN3, val);
-        swap4(buf);
-        val = getUnalignedInt(buf, 0);
-        assertEquals4("swap4", PATTERN3_SWAP, val);
-    }
+	{
+		int val;
+		setUnalignedInt(buf, 0, PATTERN3);
+		val = getUnalignedInt(buf, 0);
+		assertEquals4("getUnalignedInt", PATTERN3, val);
+		swap4(buf);
+		val = getUnalignedInt(buf, 0);
+		assertEquals4("swap4", PATTERN3_SWAP, val);
+	}
 }
 
 void testWordAt() {
 /*if[MICROBLAZE32_BUILD]*/
-    const jlong PATTERN1 = 0x11223344L;
-    const jlong PATTERN1_SWAP = 0x44332211L;
-    const jlong PATTERN2 = 0xAAAAAAAAL;
-    const jlong PATTERN2_SWAP = 0xAAAAAAAAL;
+	const jlong PATTERN1 = 0x11223344L;
+	const jlong PATTERN1_SWAP = 0x44332211L;
+	const jlong PATTERN2 = 0xAAAAAAAAL;
+	const jlong PATTERN2_SWAP = 0xAAAAAAAAL;
 /*else[MICROBLAZE32_BUILD]*/
 //  const jlong PATTERN1 = 0x1122334455667788LL;
 //  const jlong PATTERN1_SWAP = 0x8877665544332211LL;
@@ -1841,112 +1904,112 @@ void testWordAt() {
 /*end[MICROBLAZE32_BUILD]*/
 //    const int   PATTERN3 = 0x55667788;
 //    const int   PATTERN3_SWAP = 0x88776655;
-    jlong tmp;
-    Address buf = &tmp;
-    jlong val;
+	jlong tmp;
+	Address buf = &tmp;
+	jlong val;
 
-    setLongAtWord(buf, 0, PATTERN1);
-    val = getLongAtWord(buf, 0);
-    assertEquals8("getLongAtWord", PATTERN1, val);
-    swap8(buf);
-    val = getLongAtWord(buf, 0);
-    assertEquals8("swap8", PATTERN1_SWAP, val);
+	setLongAtWord(buf, 0, PATTERN1);
+	val = getLongAtWord(buf, 0);
+	assertEquals8("getLongAtWord", PATTERN1, val);
+	swap8(buf);
+	val = getLongAtWord(buf, 0);
+	assertEquals8("swap8", PATTERN1_SWAP, val);
 
-    setLongAtWord(buf, 0, PATTERN2);
-    val = getLongAtWord(buf, 0);
-    assertEquals8("getLongAtWord 2", PATTERN2, val);
-    swap8(buf);
-    val = getLongAtWord(buf, 0);
-    assertEquals8("swap8 2", PATTERN2_SWAP, val);
+	setLongAtWord(buf, 0, PATTERN2);
+	val = getLongAtWord(buf, 0);
+	assertEquals8("getLongAtWord 2", PATTERN2, val);
+	swap8(buf);
+	val = getLongAtWord(buf, 0);
+	assertEquals8("swap8 2", PATTERN2_SWAP, val);
 }
 
 /*if[FLOATS]*/
 void fpTest() {
-    float f0 = 0.0;
-    float f1 = 1.0;
+	float f0 = 0.0;
+	float f1 = 1.0;
 /*if[!MICROBLAZE_BUILD]*/
-    FILE *vmOut = streams[currentStream];
+	FILE *vmOut = streams[currentStream];
 /*end[MICROBLAZE_BUILD]*/
 
 #if 0
-    double d0 = 0.0;
-    double d1 = 1.0;
-    fprintf(vmOut, format("f0 = %i\n"), f2ib(f0));
-    fprintf(vmOut, format("f1 = %i\n"), f2ib(f1));
-    fprintf(vmOut, format("f0 + f0 = %i\n"), f2ib(f0 + f0));
-    fprintf(vmOut, format("f0 + f1 = %i\n"), f2ib(f0 + f1));
-    fprintf(vmOut, format("f0 * f1 = %i\n"), f2ib(f0 * f1));
-    fprintf(vmOut, format("f1 * f1 = %i\n"), f2ib(f1 * f1));
-    fprintf(vmOut, format("f1 + f1 = %i\n"), f2ib(f1 + f1));
-    fflush(vmOut);
+	double d0 = 0.0;
+	double d1 = 1.0;
+	fprintf(vmOut, format("f0 = %i\n"), f2ib(f0));
+	fprintf(vmOut, format("f1 = %i\n"), f2ib(f1));
+	fprintf(vmOut, format("f0 + f0 = %i\n"), f2ib(f0 + f0));
+	fprintf(vmOut, format("f0 + f1 = %i\n"), f2ib(f0 + f1));
+	fprintf(vmOut, format("f0 * f1 = %i\n"), f2ib(f0 * f1));
+	fprintf(vmOut, format("f1 * f1 = %i\n"), f2ib(f1 * f1));
+	fprintf(vmOut, format("f1 + f1 = %i\n"), f2ib(f1 + f1));
+	fflush(vmOut);
 
-    fprintf(vmOut, format("f0 = %f\n"), f0);fflush(vmOut);
-    fprintf(vmOut, format("f1 = %f\n"), f1);fflush(vmOut);
-    fprintf(vmOut, format("f0 + f0 = %f\n"), (f0 + f0));fflush(vmOut);
-    fprintf(vmOut, format("f0 + f1 = %f\n"), (f0 + f1));fflush(vmOut);
-    fprintf(vmOut, format("f0 * f1 = %f\n"), (f0 * f1));fflush(vmOut);
-    fprintf(vmOut, format("f1 * f1 = %f\n"), (f1 * f1));fflush(vmOut);
-    fprintf(vmOut, format("f1 + f1 = %f\n"), (f1 + f1));fflush(vmOut);
+	fprintf(vmOut, format("f0 = %f\n"), f0);fflush(vmOut);
+	fprintf(vmOut, format("f1 = %f\n"), f1);fflush(vmOut);
+	fprintf(vmOut, format("f0 + f0 = %f\n"), (f0 + f0));fflush(vmOut);
+	fprintf(vmOut, format("f0 + f1 = %f\n"), (f0 + f1));fflush(vmOut);
+	fprintf(vmOut, format("f0 * f1 = %f\n"), (f0 * f1));fflush(vmOut);
+	fprintf(vmOut, format("f1 * f1 = %f\n"), (f1 * f1));fflush(vmOut);
+	fprintf(vmOut, format("f1 + f1 = %f\n"), (f1 + f1));fflush(vmOut);
 
-    fprintf(vmOut, format("d0 = %D\n"), d0);fflush(vmOut);
-    fprintf(vmOut, format("d1 = %D\n"), d1);fflush(vmOut);
-    fprintf(vmOut, format("d0 + d0 = %D\n"), (d0 + d0));fflush(vmOut);
-    fprintf(vmOut, format("d0 + d1 = %D\n"), (d0 + d1));fflush(vmOut);
-    fprintf(vmOut, format("d0 * d1 = %D\n"), (d0 * d1));fflush(vmOut);
-    fprintf(vmOut, format("d1 * d1 = %D\n"), (d1 * d1));fflush(vmOut);
-    fflush(vmOut);
+	fprintf(vmOut, format("d0 = %D\n"), d0);fflush(vmOut);
+	fprintf(vmOut, format("d1 = %D\n"), d1);fflush(vmOut);
+	fprintf(vmOut, format("d0 + d0 = %D\n"), (d0 + d0));fflush(vmOut);
+	fprintf(vmOut, format("d0 + d1 = %D\n"), (d0 + d1));fflush(vmOut);
+	fprintf(vmOut, format("d0 * d1 = %D\n"), (d0 * d1));fflush(vmOut);
+	fprintf(vmOut, format("d1 * d1 = %D\n"), (d1 * d1));fflush(vmOut);
+	fflush(vmOut);
 #endif
 
-    if (f0 == 0.0) {
-        // fprintf(vmOut, "fpTest passed 1\n");
-    } else {
-        fprintf(vmOut, "fpTest failed 1\n");
-    }
+	if (f0 == 0.0) {
+		// fprintf(vmOut, "fpTest passed 1\n");
+	} else {
+		fprintf(vmOut, "fpTest failed 1\n");
+	}
 
-    if (f1 > f0) {
-        // fprintf(vmOut, "fpTest passed 2\n");
-    } else {
-        fprintf(vmOut, "fpTest failed 2\n");
-    }
+	if (f1 > f0) {
+		// fprintf(vmOut, "fpTest passed 2\n");
+	} else {
+		fprintf(vmOut, "fpTest failed 2\n");
+	}
 
 #if C_FP_CONVERSIONS_OK
-    // Test that the normal C conversions are OK to use, or if the
-    // functions float2l, float2ll, double2l, double2ll are needed on this platform:
+	// Test that the normal C conversions are OK to use, or if the
+	// functions float2l, float2ll, double2l, double2ll are needed on this platform:
 
-    //fprintf(vmOut, "Running C_FP_CONVERSIONS_OK tests...\n");
-    assertEquals4("float2l(1.0f)", float2l_slow(1.0f), (int)1.0f);
-    assertEquals4("float2l(F_L_POS_NAN)", float2l_slow(ib2f(F_L_POS_NAN)), (int)(ib2f(F_L_POS_NAN)));
-    assertEquals4("float2l(F_H_POS_NAN)", float2l_slow(ib2f(F_H_POS_NAN)), (int)(ib2f(F_H_POS_NAN)));
-    assertEquals4("float2l(F_L_NEG_NAN)", float2l_slow(ib2f(F_L_NEG_NAN)), (int)(ib2f(F_L_NEG_NAN)));
-    assertEquals4("float2l(F_H_NEG_NAN)", float2l_slow(ib2f(F_H_NEG_NAN)), (int)(ib2f(F_H_NEG_NAN)));
-    assertEquals4("float2l(F_POS_INFINITY)", float2l_slow(ib2f(F_POS_INFINITY)), (int)(ib2f(F_POS_INFINITY)));
-    assertEquals4("float2l(F_NEG_INFINITY)", float2l_slow(ib2f(F_NEG_INFINITY)), (int)(ib2f(F_NEG_INFINITY)));
+	//fprintf(vmOut, "Running C_FP_CONVERSIONS_OK tests...\n");
+	assertEquals4("float2l(1.0f)", float2l_slow(1.0f), (int)1.0f);
+	assertEquals4("float2l(F_L_POS_NAN)", float2l_slow(ib2f(F_L_POS_NAN)), (int)(ib2f(F_L_POS_NAN)));
+	assertEquals4("float2l(F_H_POS_NAN)", float2l_slow(ib2f(F_H_POS_NAN)), (int)(ib2f(F_H_POS_NAN)));
+	assertEquals4("float2l(F_L_NEG_NAN)", float2l_slow(ib2f(F_L_NEG_NAN)), (int)(ib2f(F_L_NEG_NAN)));
+	assertEquals4("float2l(F_H_NEG_NAN)", float2l_slow(ib2f(F_H_NEG_NAN)), (int)(ib2f(F_H_NEG_NAN)));
+	assertEquals4("float2l(F_POS_INFINITY)", float2l_slow(ib2f(F_POS_INFINITY)), (int)(ib2f(F_POS_INFINITY)));
+	assertEquals4("float2l(F_NEG_INFINITY)", float2l_slow(ib2f(F_NEG_INFINITY)), (int)(ib2f(F_NEG_INFINITY)));
 
-    assertEquals8("float2ll(1.0f)", float2ll_slow(1.0f), (jlong)1.0f);
-    assertEquals8("float2ll(F_L_POS_NAN)", float2ll_slow(ib2f(F_L_POS_NAN)), (jlong)(ib2f(F_L_POS_NAN)));
-    assertEquals8("float2ll(F_H_POS_NAN)", float2ll_slow(ib2f(F_H_POS_NAN)), (jlong)(ib2f(F_H_POS_NAN)));
-    assertEquals8("float2ll(F_L_NEG_NAN)", float2ll_slow(ib2f(F_L_NEG_NAN)), (jlong)(ib2f(F_L_NEG_NAN)));
-    assertEquals8("float2ll(F_H_NEG_NAN)", float2ll_slow(ib2f(F_H_NEG_NAN)), (jlong)(ib2f(F_H_NEG_NAN)));
-    assertEquals8("float2ll(F_POS_INFINITY)", float2ll_slow(ib2f(F_POS_INFINITY)), (jlong)(ib2f(F_POS_INFINITY)));
-    assertEquals8("float2ll(F_NEG_INFINITY)", float2ll_slow(ib2f(F_NEG_INFINITY)), (jlong)(ib2f(F_NEG_INFINITY)));
+	assertEquals8("float2ll(1.0f)", float2ll_slow(1.0f), (jlong)1.0f);
+	assertEquals8("float2ll(F_L_POS_NAN)", float2ll_slow(ib2f(F_L_POS_NAN)), (jlong)(ib2f(F_L_POS_NAN)));
+	assertEquals8("float2ll(F_H_POS_NAN)", float2ll_slow(ib2f(F_H_POS_NAN)), (jlong)(ib2f(F_H_POS_NAN)));
+	assertEquals8("float2ll(F_L_NEG_NAN)", float2ll_slow(ib2f(F_L_NEG_NAN)), (jlong)(ib2f(F_L_NEG_NAN)));
+	assertEquals8("float2ll(F_H_NEG_NAN)", float2ll_slow(ib2f(F_H_NEG_NAN)), (jlong)(ib2f(F_H_NEG_NAN)));
+	assertEquals8("float2ll(F_POS_INFINITY)", float2ll_slow(ib2f(F_POS_INFINITY)), (jlong)(ib2f(F_POS_INFINITY)));
+	assertEquals8("float2ll(F_NEG_INFINITY)", float2ll_slow(ib2f(F_NEG_INFINITY)), (jlong)(ib2f(F_NEG_INFINITY)));
 
-    assertEquals4("double2l(1.0)", double2l_slow(1.0), (int)1.0);
-    assertEquals4("double2l(D_L_POS_NAN)", double2l_slow(lb2d(D_L_POS_NAN)), (int)(lb2d(D_L_POS_NAN)));
-    assertEquals4("double2l(D_H_POS_NAN)", double2l_slow(lb2d(D_H_POS_NAN)), (int)(lb2d(D_H_POS_NAN)));
-    assertEquals4("double2l(D_L_NEG_NAN)", double2l_slow(lb2d(D_L_NEG_NAN)), (int)(lb2d(D_L_NEG_NAN)));
-    assertEquals4("double2l(D_H_NEG_NAN)", double2l_slow(lb2d(D_H_NEG_NAN)), (int)(lb2d(D_H_NEG_NAN)));
-    assertEquals4("double2l(D_POS_INFINITY)", double2l_slow(lb2d(D_POS_INFINITY)), (int)(lb2d(D_POS_INFINITY)));
-    assertEquals4("double2l(D_NEG_INFINITY)", double2l_slow(lb2d(D_NEG_INFINITY)), (int)(lb2d(D_NEG_INFINITY)));
+	assertEquals4("double2l(1.0)", double2l_slow(1.0), (int)1.0);
+	assertEquals4("double2l(D_L_POS_NAN)", double2l_slow(lb2d(D_L_POS_NAN)), (int)(lb2d(D_L_POS_NAN)));
+	assertEquals4("double2l(D_H_POS_NAN)", double2l_slow(lb2d(D_H_POS_NAN)), (int)(lb2d(D_H_POS_NAN)));
+	assertEquals4("double2l(D_L_NEG_NAN)", double2l_slow(lb2d(D_L_NEG_NAN)), (int)(lb2d(D_L_NEG_NAN)));
+	assertEquals4("double2l(D_H_NEG_NAN)", double2l_slow(lb2d(D_H_NEG_NAN)), (int)(lb2d(D_H_NEG_NAN)));
+	assertEquals4("double2l(D_POS_INFINITY)", double2l_slow(lb2d(D_POS_INFINITY)), (int)(lb2d(D_POS_INFINITY)));
+	assertEquals4("double2l(D_NEG_INFINITY)", double2l_slow(lb2d(D_NEG_INFINITY)), (int)(lb2d(D_NEG_INFINITY)));
 
-    assertEquals8("double2ll(1.0)", double2ll_slow(1.0), (jlong)1.0);
-    assertEquals8("double2ll(D_L_POS_NAN)", double2ll_slow(lb2d(D_L_POS_NAN)), (jlong)(lb2d(D_L_POS_NAN)));
-    assertEquals8("double2ll(D_H_POS_NAN)", double2ll_slow(lb2d(D_H_POS_NAN)), (jlong)(lb2d(D_H_POS_NAN)));
-    assertEquals8("double2ll(D_L_NEG_NAN)", double2ll_slow(lb2d(D_L_NEG_NAN)), (jlong)(lb2d(D_L_NEG_NAN)));
-    assertEquals8("double2ll(D_H_NEG_NAN)", double2ll_slow(lb2d(D_H_NEG_NAN)), (jlong)(lb2d(D_H_NEG_NAN)));
-    assertEquals8("double2ll(D_POS_INFINITY)", double2ll_slow(lb2d(D_POS_INFINITY)), (jlong)(lb2d(D_POS_INFINITY)));
-    assertEquals8("double2ll(D_NEG_INFINITY)", double2ll_slow(lb2d(D_NEG_INFINITY)), (jlong)(lb2d(D_NEG_INFINITY)));
+	assertEquals8("double2ll(1.0)", double2ll_slow(1.0), (jlong)1.0);
+	assertEquals8("double2ll(D_L_POS_NAN)", double2ll_slow(lb2d(D_L_POS_NAN)), (jlong)(lb2d(D_L_POS_NAN)));
+	assertEquals8("double2ll(D_H_POS_NAN)", double2ll_slow(lb2d(D_H_POS_NAN)), (jlong)(lb2d(D_H_POS_NAN)));
+	assertEquals8("double2ll(D_L_NEG_NAN)", double2ll_slow(lb2d(D_L_NEG_NAN)), (jlong)(lb2d(D_L_NEG_NAN)));
+	assertEquals8("double2ll(D_H_NEG_NAN)", double2ll_slow(lb2d(D_H_NEG_NAN)), (jlong)(lb2d(D_H_NEG_NAN)));
+	assertEquals8("double2ll(D_POS_INFINITY)", double2ll_slow(lb2d(D_POS_INFINITY)), (jlong)(lb2d(D_POS_INFINITY)));
+	assertEquals8("double2ll(D_NEG_INFINITY)", double2ll_slow(lb2d(D_NEG_INFINITY)), (jlong)(lb2d(D_NEG_INFINITY)));
 
-    assertEquals8("(jlong)1E+100D == max long",     (jlong)1E+100, 0x7fffffffffffffffLL);
+	assertEquals8("(jlong)1E+100D == max long",     (jlong)1E+100, 0x7fffffffffffffffLL);
 #endif
 }
 /*else[FLOATS]*/
@@ -1954,15 +2017,15 @@ void fpTest() {
 /*end[FLOATS]*/
 
 void unitTests() {
-    diagnostic("in unitTests");
-    testLongs();
-    diagnostic("in unitTests ... Longs     OK");
-    testUnaligned();
-    diagnostic("in unitTests ... Unaligned OK");
-    testWordAt();
-    diagnostic("in unitTests ... WordAt    OK");
-    fpTest();
-    diagnostic("in unitTests ... FP        OK");
+	diagnostic("in unitTests");
+	testLongs();
+	diagnostic("in unitTests ... Longs     OK");
+	testUnaligned();
+	diagnostic("in unitTests ... Unaligned OK");
+	testWordAt();
+	diagnostic("in unitTests ... WordAt    OK");
+	fpTest();
+	diagnostic("in unitTests ... FP        OK");
 }
 
 #endif /* RUN_UNIT_TESTS */
@@ -1975,73 +2038,73 @@ void unitTests() {
  */
 Address Squawk_setup(int argc, char *argv[]) {
 
-    Address bootstrapSuite;
+	Address bootstrapSuite;
 
-    /*
-     * Sanity check.
-     */
-    assume(sizeof(UWord) == sizeof(Address));
-    diagnostic("in Squawk_setup");
+	/*
+	 * Sanity check.
+	 */
+	assume(sizeof(UWord) == sizeof(Address));
+	diagnostic("in Squawk_setup");
 
 #if RUN_UNIT_TESTS
-    /*
-     * Check that the build flags were correct.
-     */
-    verifyBuildFlags();
+	/*
+	 * Check that the build flags were correct.
+	 */
+	verifyBuildFlags();
 
-    unitTests();
+	unitTests();
 #endif
 
-    /*
-     * Extract the native VM options
-     */
-    bootstrapSuite = processArgs(argv, argc);
+	/*
+	 * Extract the native VM options
+	 */
+	bootstrapSuite = processArgs(argv, argc);
 
-    /*
-     * Set the global informing the VM that memory access type checking is enabled
-     */
-    com_sun_squawk_VM_usingTypeMap = TYPEMAP;
+	/*
+	 * Set the global informing the VM that memory access type checking is enabled
+	 */
+	com_sun_squawk_VM_usingTypeMap = TYPEMAP;
 
-    /*
-     * Make ROM and NVM be read-only
-     */
+	/*
+	 * Make ROM and NVM be read-only
+	 */
 /*if[!MICROBLAZE_BUILD]*/
-    sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, true);
+	sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, true);
 /*end[MICROBLAZE_BUILD]*/
-    sysToggleMemoryProtection(com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, true);
+	sysToggleMemoryProtection(com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, true);
 
-    initMethods();
+	initMethods();
 
-    /*
-     * Return the bootstrap suite.
-     */
-    return bootstrapSuite;
+	/*
+	 * Return the bootstrap suite.
+	 */
+	return bootstrapSuite;
 }
 
 /**
  * Saves the values of the 'ip, 'sp' and 'fp' registers into the data structure
  * encapsulating the current execution context (uer or kernel).
  */
-#define saveContextRegisters() {    \
-    saved_ip = ip;          \
-    saved_fp = fp;          \
-    saved_sp = sp;          \
-}
+#define saveContextRegisters() {	  \
+		saved_ip = ip; \
+		saved_fp = fp; \
+		saved_sp = sp; \
+	}
 
 /**
  * Implements the OPC.PAUSE bytecode. This must be a macro as it
  * executes a return from the main interpreter loop.
  */
 #if KERNEL_SQUAWK
-#define do_pause() {        \
-fprintf(stderr, format("VM.pause called after %L branches (kernelMode %d)\n"), getBranchCount(), inKernelMode()); \
-    saveContextRegisters(); \
-    return;                 \
-}
+#define do_pause() {	  \
+		fprintf(stderr, format("VM.pause called after %L branches (kernelMode %d)\n"), getBranchCount(), inKernelMode()); \
+		saveContextRegisters(); \
+		return; \
+	}
 #else /* KERNEL_SQUAWK */
-#define do_pause() {        \
-    fatalInterpreterError("Illegal Squawk bytecode (OPC.PAUSE = 0xFF)"); \
-}
+#define do_pause() {	  \
+		fatalInterpreterError("Illegal Squawk bytecode (OPC.PAUSE = 0xFF)"); \
+	}
 #endif /* KERNEL_SQUAWK */
 
 /**
@@ -2050,153 +2113,153 @@ fprintf(stderr, format("VM.pause called after %L branches (kernelMode %d)\n"), g
  * @param gp the global pointer
  */
 void Squawk_continue(Globals *gp) {
-    int opcode = -1;
+	int opcode = -1;
 #if TRACE
 #ifdef OSPROF
-    int opcodeCopy = opcode;
+	int opcodeCopy = opcode;
 #endif /* OSPROF */
 #endif /* TRACE */
 
 #ifdef MACROIZE
-    int          iparm;             /* The immediate operand value of the current bytecode. */
-    ByteAddress  ip;                /* The instruction pointer. */
-    UWordAddress fp;                /* The frame pointer. */
-    UWordAddress sp;                /* The stack pointer. */
+	int          iparm;             /* The immediate operand value of the current bytecode. */
+	ByteAddress  ip;                /* The instruction pointer. */
+	UWordAddress fp;                /* The frame pointer. */
+	UWordAddress sp;                /* The stack pointer. */
 #if SDA_DEBUGGER
-    int sda_bp_set_or_stepping = false;     /* TRUE if we have any breakpoints set or are in a stepping mode [optimisation] */
+	int sda_bp_set_or_stepping = false;     /* TRUE if we have any breakpoints set or are in a stepping mode [optimisation] */
 #endif /* SDA_DEBUGGER */
 #endif /* MACROIZE */
 
-    ip = saved_ip;                  /* Restore the instruction pointer. */
-    fp = saved_fp;                  /* Restore the frame pointer. */
-    sp = saved_sp;                  /* Restore the stack pointer. */
+	ip = saved_ip;                  /* Restore the instruction pointer. */
+	fp = saved_fp;                  /* Restore the frame pointer. */
+	sp = saved_sp;                  /* Restore the stack pointer. */
 
 //    if (com_sun_squawk_VM_verboseLevel != 0) {
 //        fprintf(stderr, "[switched to %s context]\n", (gp == &kernelGlobals ? "kernel" : "user"));
 //    }
 
-    /*
-     * This is the main bytecode execution loop.
-     */
-   while (true) {
+	/*
+	 * This is the main bytecode execution loop.
+	 */
+	while (true) {
 #if TRACE
 #ifdef OSPROF
-        const int lastOpcode = opcodeCopy;
-        ByteAddress ipCopy = ip;
+		const int lastOpcode = opcodeCopy;
+		ByteAddress ipCopy = ip;
 #endif /* OSPROF */
 #ifdef MACROIZE
-        /*
-         * Copy the variable values into corresponding globals so that
-         * printStackTrace() works in the macroized version of the VM
-         */
-        lastIP = ip;
-        lastFP = fp;
+		/*
+		 * Copy the variable values into corresponding globals so that
+		 * printStackTrace() works in the macroized version of the VM
+		 */
+		lastIP = ip;
+		lastFP = fp;
 #endif /* MACROIZE */
 
 #endif /* TRACE */
 
 #if SDA_DEBUGGER
-        /* Check for breakpoint or single step before decoding. If breakpoint is hit, then sda_checkBreakOrStep()
-         * will update frame and ip, so that breakpoint handling code is called instead.  Likewise, if a step occurs,
-         * single step handling code is called.
-         */
-        sda_checkBreakOrStep(ip, fp, sp);
+		/* Check for breakpoint or single step before decoding. If breakpoint is hit, then sda_checkBreakOrStep()
+		 * will update frame and ip, so that breakpoint handling code is called instead.  Likewise, if a step occurs,
+		 * single step handling code is called.
+		 */
+		sda_checkBreakOrStep(ip, fp, sp);
 #endif
 
-        opcode = fetchUByte();
+		opcode = fetchUByte();
 
 
 #ifdef PROFILING
-        opcodeCopy = opcode;
+		opcodeCopy = opcode;
 #endif
-        osloop();
+		osloop();
 #ifdef DB_DEBUG
-        db_checkBreak(opcode, ip, fp);
+		db_checkBreak(opcode, ip, fp);
 #endif
 
 
 #if TRACE
-        if (com_sun_squawk_VM_tracing) {
+		if (com_sun_squawk_VM_tracing) {
 /*if[MICROBLAZE_BUILD]*/
-          /*trace(ipCopy, fp, sp, opcode);*/
+			/*trace(ipCopy, fp, sp, opcode);*/
 /*else[MICROBLAZE_BUILD]*/
 //          trace(ipCopy, fp, sp);
 /*end[MICROBLAZE_BUILD]*/
-        }
+		}
 #endif /* TRACE */
 
 #ifdef PROFILING
-        instructionCount++;
+		instructionCount++;
 #ifdef OSPROF
-        OSPROF(ipCopy, fp, lastOpcode);
+		OSPROF(ipCopy, fp, lastOpcode);
 #else
-        if (sampleFrequency > 0 && (instructionCount % sampleFrequency) == 0) {
-            printProfileStackTrace(ipCopy, fp, lastOpcode);
-        }
+		if (sampleFrequency > 0 && (instructionCount % sampleFrequency) == 0) {
+			printProfileStackTrace(ipCopy, fp, lastOpcode);
+		}
 #endif /* OSPROF */
 #endif /* PROFILING */
-        next:
+	next:
 #include "switch.c"
-            continue;
+		continue;
 
 #ifdef MACROIZE
-        threadswitchstart: {
-            threadswitchmain();
-            continue;
-        }
+	threadswitchstart: {
+			threadswitchmain();
+			continue;
+		}
 
-        invokenativestart: {
-            invokenativemain();
-            continue;
-        }
+	invokenativestart: {
+			invokenativemain();
+			continue;
+		}
 
-        throw_nullPointerException: {
-            saveContextRegisters();
-            resetStackPointer();
-            call(com_sun_squawk_VM_nullPointerException);
-            continue;
-        }
+	throw_nullPointerException: {
+			saveContextRegisters();
+			resetStackPointer();
+			call(com_sun_squawk_VM_nullPointerException);
+			continue;
+		}
 
-        throw_arrayIndexOutOfBoundsException: {
-            saveContextRegisters();
-            resetStackPointer();
-            call(com_sun_squawk_VM_arrayIndexOutOfBoundsException);
-            continue;
-        }
+	throw_arrayIndexOutOfBoundsException: {
+			saveContextRegisters();
+			resetStackPointer();
+			call(com_sun_squawk_VM_arrayIndexOutOfBoundsException);
+			continue;
+		}
 
 #endif /* MACROIZE */
-    }
+	}
 }
 
 void printRange(char* label, void* start, void* end) {
-    fprintf(stderr, "%s  : %p~%p [size:%d]\r\n", label, start, end, ((char*)end - (char*)start));
+	fprintf(stderr, "%s  : %p~%p [size:%d]\r\n", label, start, end, ((char*)end - (char*)start));
 }
 
 int printValueInRange(Address value, char* valueName, Address low, Address high, char* rangeName) {
-    int result = (value >= low && value < high);
-    fprintf(stderr, "    %s: %p. Is %sin %s range %p .. %p\n", valueName, value, (result ? "" : "NOT "), rangeName, low, high);
-    return result;
+	int result = (value >= low && value < high);
+	fprintf(stderr, "    %s: %p. Is %sin %s range %p .. %p\n", valueName, value, (result ? "" : "NOT "), rangeName, low, high);
+	return result;
 }
 
 void printStrSafely(Address value, char* valueName, Address low, Address high, char* rangeName) {
-    int result = (value >= low && value < high);
-    fprintf(stderr, "    %s: ", valueName);
-    if (value == 0) {
-        fprintf(stderr, "NULL.\n");
-    } else if (result) {
+	int result = (value >= low && value < high);
+	fprintf(stderr, "    %s: ", valueName);
+	if (value == 0) {
+		fprintf(stderr, "NULL.\n");
+	} else if (result) {
 /*if[MICROBLAZE_BUILD]*/
-        printJavaString(value);
+		printJavaString(value);
 /*else[MICROBLAZE_BUILD]*/
 //      printJavaString(value, stderr);
 /*end[MICROBLAZE_BUILD]*/
-        fprintf(stderr, "\n");
-    } else {
-        fprintf(stderr, "%p is NOT in %s range %p .. %p\n", value, rangeName, low, high);
-    }
+		fprintf(stderr, "\n");
+	} else {
+		fprintf(stderr, "%p is NOT in %s range %p .. %p\n", value, rangeName, low, high);
+	}
 }
 
 void printJavaStrSafely(Address value, char* valueName) {
-    printStrSafely(value, valueName, com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "RAM or ROM");
+	printStrSafely(value, valueName, com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "RAM or ROM");
 }
 
 
@@ -2204,77 +2267,77 @@ void printJavaStrSafely(Address value, char* valueName) {
  * Exits the VM with an error message including various interpreter state.
  */
 extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddress _ip, UWordAddress _fp, UWordAddress _sp, char* file, int line) {
-    Address stackHigh = com_sun_squawk_GC_ramEnd;
-    boolean userStack = FALSE;
+	Address stackHigh = com_sun_squawk_GC_ramEnd;
+	boolean userStack = FALSE;
 
-    fprintf(stderr, "fatalInterpreterError %s -- %s:%d\n", msg, file, line);
-    fprintf(stderr, "    opcode: 0x%x\n", opcode);
+	fprintf(stderr, "fatalInterpreterError %s -- %s:%d\n", msg, file, line);
+	fprintf(stderr, "    opcode: 0x%x\n", opcode);
 /*if[DEBUG_CODE_ENABLED]*/
-    if (opcode != (opcode & 0xFF)) {
-           fprintf(stderr, "    opcode overflowed!\n");
-    }
+	if (opcode != (opcode & 0xFF)) {
+		fprintf(stderr, "    opcode overflowed!\n");
+	}
 /*end[DEBUG_CODE_ENABLED]*/
-    fprintf(stderr, "    iparm: 0x%x\n", _iparm);
+	fprintf(stderr, "    iparm: 0x%x\n", _iparm);
 
-    if (com_sun_squawk_GC_collecting) {
-        fprintf(stderr, "    in GC\n");
-    }
+	if (com_sun_squawk_GC_collecting) {
+		fprintf(stderr, "    in GC\n");
+	}
 
 #if com_sun_squawk_Klass_ENABLE_DYNAMIC_CLASSLOADING
-    printValueInRange(_ip, "ip", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
+	printValueInRange(_ip, "ip", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
 #else
-    printValueInRange(_ip, "ip", com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, "code");
+	printValueInRange(_ip, "ip", com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, "code");
 #endif
 
-    if (ss == com_sun_squawk_VMThread_serviceStack) {
-        fprintf(stderr, "    stack: %p. current stack is service stack\n", ss);
-    } else if (printValueInRange(ss, "stack", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM")) {
-        int cid = com_sun_squawk_Klass_id(getClass(ss));
-        if (cid == CID_LOCAL_ARRAY) {
-            userStack = TRUE;
-        } else {
-            fprintf(stderr, "stack has bad class id: %x\n", cid);
-        }
-    }
-    stackHigh = Address_add(ss, getArrayLength(ss) * HDR_BYTES_PER_WORD);
-    printValueInRange(_sp, "sp", sl, stackHigh, "current stack");
-    printValueInRange(_fp, "fp", sl, stackHigh, "current stack");
+	if (ss == com_sun_squawk_VMThread_serviceStack) {
+		fprintf(stderr, "    stack: %p. current stack is service stack\n", ss);
+	} else if (printValueInRange(ss, "stack", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM")) {
+		int cid = com_sun_squawk_Klass_id(getClass(ss));
+		if (cid == CID_LOCAL_ARRAY) {
+			userStack = TRUE;
+		} else {
+			fprintf(stderr, "stack has bad class id: %x\n", cid);
+		}
+	}
+	stackHigh = Address_add(ss, getArrayLength(ss) * HDR_BYTES_PER_WORD);
+	printValueInRange(_sp, "sp", sl, stackHigh, "current stack");
+	printValueInRange(_fp, "fp", sl, stackHigh, "current stack");
 
-    // saved values not always valid.
-    fprintf(stderr, "        next three saved values may not be valid:\n");
+	// saved values not always valid.
+	fprintf(stderr, "        next three saved values may not be valid:\n");
 #if com_sun_squawk_Klass_ENABLE_DYNAMIC_CLASSLOADING
-    printValueInRange(saved_ip, "saved_ip", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
+	printValueInRange(saved_ip, "saved_ip", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
 #else
-    printValueInRange(saved_ip, "saved_ip", com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, "code");
+	printValueInRange(saved_ip, "saved_ip", com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, "code");
 #endif
-    printValueInRange(saved_sp, "saved_sp", sl, stackHigh, "current stack");
-    printValueInRange(saved_fp, "saved_fp", sl, stackHigh, "current stack");
+	printValueInRange(saved_sp, "saved_sp", sl, stackHigh, "current stack");
+	printValueInRange(saved_fp, "saved_fp", sl, stackHigh, "current stack");
 
-    if (userStack) {
-        Address thread = getObject(ss, SC_owner);
+	if (userStack) {
+		Address thread = getObject(ss, SC_owner);
 
-        printValueInRange(thread, "thread", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM");
-        printStrSafely(com_sun_squawk_VMThread_name(thread), "thread name", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "RAM or ROM");
+		printValueInRange(thread, "thread", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM");
+		printStrSafely(com_sun_squawk_VMThread_name(thread), "thread name", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "RAM or ROM");
 #if com_sun_squawk_Klass_DEBUG_CODE_ENABLED
-        {
-            Address isolate = com_sun_squawk_VMThread_isolate(thread);
-            if (printValueInRange(isolate, "isolate", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM")) {
-                printStrSafely(com_sun_squawk_Isolate_mainClassName(isolate), "isolate main class",
-                               com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM");
-            }
-        }
+		{
+			Address isolate = com_sun_squawk_VMThread_isolate(thread);
+			if (printValueInRange(isolate, "isolate", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM")) {
+				printStrSafely(com_sun_squawk_Isolate_mainClassName(isolate), "isolate main class",
+				               com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM");
+			}
+		}
 #endif
-    } else {
-        if (com_sun_squawk_GC_collecting) {
-            fprintf(stderr, "    in garbage collection\n");
-        }
-    }
+	} else {
+		if (com_sun_squawk_GC_collecting) {
+			fprintf(stderr, "    in garbage collection\n");
+		}
+	}
 
-    if (!com_sun_squawk_VM_extendsEnabled) {
-        fprintf(stderr, "    stack extension disabled\n");
-    }
+	if (!com_sun_squawk_VM_extendsEnabled) {
+		fprintf(stderr, "    stack extension disabled\n");
+	}
 
-    fatalVMError("");
+	fatalVMError("");
 }
 
 /**
@@ -2284,41 +2347,41 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
  * @param argv the parameter argument vector
  */
 void Squawk_run(int argc, char *argv[]) {
-    Address bootstrapSuite = Squawk_setup(argc, argv);
+	Address bootstrapSuite = Squawk_setup(argc, argv);
 
 //fpTest();
 
 #ifdef MACROIZE
-    ByteAddress  ip = 0;            /* The instruction pointer. */
-    UWordAddress fp = 0;            /* The frame pointer. */
-    UWordAddress sp = 0;            /* The stack pointer. */
+	ByteAddress  ip = 0;            /* The instruction pointer. */
+	UWordAddress fp = 0;            /* The frame pointer. */
+	UWordAddress sp = 0;            /* The stack pointer. */
 #endif
 
-    /*
-     * Set up the VM entry point.
-     */
-    ip = (ByteAddress)com_sun_squawk_VM_startup;
-    sp = (UWordAddress)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS);
-    setStack(com_sun_squawk_VMThread_serviceStack);
+	/*
+	 * Set up the VM entry point.
+	 */
+	ip = (ByteAddress)com_sun_squawk_VM_startup;
+	sp = (UWordAddress)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS);
+	setStack(com_sun_squawk_VMThread_serviceStack);
 
-    /*
-     * Push the parameters.
-     */
-    downPushAddress(bootstrapSuite);
-    downPushAddress(0); /* Dummy return address */
+	/*
+	 * Push the parameters.
+	 */
+	downPushAddress(bootstrapSuite);
+	downPushAddress(0); /* Dummy return address */
 
 #ifdef PROFILING
 #ifdef OSPROF
-    osprofstart(sampleFrequency);
+	osprofstart(sampleFrequency);
 #endif
 #endif
 
 #ifdef DB_DEBUG
-    db_prepare();
+	db_prepare();
 #endif
 
-    saveContextRegisters();
-    Squawk_continue(gp);
+	saveContextRegisters();
+	Squawk_continue(gp);
 }
 
 /**
@@ -2329,23 +2392,23 @@ void Squawk_run(int argc, char *argv[]) {
  */
 void Squawk_main(int argc, char *argv[]) {
 #if KERNEL_SQUAWK
-    /* Doing this here guarantees that all configurations (including
-     * Java_com_sun_squawk_vm_Main_squawk() via JNI) have access to
-     * a kernel/user split. However, Nik felt this option should be
-     * done explicitly for only those platforms that will use this
-     * mode. This seems good enough for now. */
-    char *kernelArgs[MAX_JVM_ARGS];
-    int   kernelArgsCount = 0;
+	/* Doing this here guarantees that all configurations (including
+	 * Java_com_sun_squawk_vm_Main_squawk() via JNI) have access to
+	 * a kernel/user split. However, Nik felt this option should be
+	 * done explicitly for only those platforms that will use this
+	 * mode. This seems good enough for now. */
+	char *kernelArgs[MAX_JVM_ARGS];
+	int   kernelArgsCount = 0;
 
-    preprocessArgs(argv, &argc, kernelArgs, &kernelArgsCount);
-    if (kernelMode) {
-        Squawk_setSignalHandlers();
-        Squawk_kernelMain(kernelArgsCount, kernelArgs);
-    }
+	preprocessArgs(argv, &argc, kernelArgs, &kernelArgsCount);
+	if (kernelMode) {
+		Squawk_setSignalHandlers();
+		Squawk_kernelMain(kernelArgsCount, kernelArgs);
+	}
 #endif /* KERNEL_SQUAWK */
-    diagnostic("in Squawk_main");
-    Squawk_run(argc, argv);
-    fatalVMError("return from interpreter loop in non-kernel mode");
+	diagnostic("in Squawk_main");
+	Squawk_run(argc, argv);
+	fatalVMError("return from interpreter loop in non-kernel mode");
 }
 
 /**
@@ -2355,50 +2418,55 @@ void Squawk_main(int argc, char *argv[]) {
  * @param argv the parameter argument vector
  */
 int Squawk_main_wrapper(int argc, char *argv[]) {
-    initializeGlobals(&userGlobals);
+/*if[MICROBLAZE_BUILD]*/
+	int my_cid = ar_get_core_id();
+	initializeGlobals(&userGlobals[my_cid]);
+/*else[MICROBLAZE_BUILD]*/
+	initializeGlobals(&userGlobals);
+/*end[MICROBLAZE_BUILD]*/
 
 /*if[EMULATOR_LAUNCHER]*/
-    char *executable = argv[0];
+	char *executable = argv[0];
 
-    int executableLength = strlen(executable);
-    char *executablePath, *executableName;
-    char *delimiter;
+	int executableLength = strlen(executable);
+	char *executablePath, *executableName;
+	char *delimiter;
 
-    executablePath = strncpy(calloc(executableLength + 1, sizeof(char)), executable, executableLength);
-    delimiter = strrchr(executablePath, (char) fileSeparatorChar);
+	executablePath = strncpy(calloc(executableLength + 1, sizeof(char)), executable, executableLength);
+	delimiter = strrchr(executablePath, (char) fileSeparatorChar);
 
-    if (delimiter != NULL) {
-      int nameLength;
+	if (delimiter != NULL) {
+		int nameLength;
 
-      delimiter++;
-      nameLength = strlen(delimiter);
-      executableName = strncpy(calloc(nameLength + 1, sizeof(char)), delimiter, nameLength);
-      *delimiter = '\0';  // Terminate executablePath
-    } else {
-      executableName = executablePath;
-      executablePath = calloc(1, sizeof(char));
-    }
+		delimiter++;
+		nameLength = strlen(delimiter);
+		executableName = strncpy(calloc(nameLength + 1, sizeof(char)), delimiter, nameLength);
+		*delimiter = '\0';  // Terminate executablePath
+	} else {
+		executableName = executablePath;
+		executablePath = calloc(1, sizeof(char));
+	}
 
-    if (strlen(executablePath) > 0) {
-      // hack: changes to the directory containing the emulator so that it
-      // can access local files
-      chdir(executablePath);
-    }
+	if (strlen(executablePath) > 0) {
+		// hack: changes to the directory containing the emulator so that it
+		// can access local files
+		chdir(executablePath);
+	}
 
-    free(executablePath);
-    free(executableName);
+	free(executablePath);
+	free(executableName);
 /*end[EMULATOR_LAUNCHER]*/
-    diagnostic("in Squawk_main_wrapper");
+	diagnostic("in Squawk_main_wrapper");
 
-    /*
-     * Lose the first argument (the path to the executable program).
-     */
-    argv++;
-    argc--;
+	/*
+	 * Lose the first argument (the path to the executable program).
+	 */
+	argv++;
+	argc--;
 
-    Squawk_main(argc, argv);
+	Squawk_main(argc, argv);
 
-    return 0;
+	return 0;
 }
 
 /**
@@ -2412,11 +2480,11 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
 
 #ifndef VXWORKS
 int main(int argc, char *argv[]) {
-    diagnostic("In main - squawk.c");
+	diagnostic("In main - squawk.c");
 #ifdef __APPLE__
-    os_main(argc, argv);
+	os_main(argc, argv);
 #else
-    return Squawk_main_wrapper(argc, argv);
+	return Squawk_main_wrapper(argc, argv);
 #endif /* !__APPLE__ */
 }
 #endif /* VXWORKS */
@@ -2428,29 +2496,29 @@ int main(int argc, char *argv[]) {
  * @return klass
  */
 static Address lookupKlass(int cid) {
-    Address classes;
-    Address class;
-    assume(com_sun_squawk_VM_bootstrapSuite != null);
-    assume(inROM(com_sun_squawk_VM_bootstrapSuite));
-    //diagnosticWithValue("bootstrapSuite: ", com_sun_squawk_VM_bootstrapSuite);
-    classes = com_sun_squawk_Suite_classes(com_sun_squawk_VM_bootstrapSuite);
-    //diagnosticWithValue("com_sun_squawk_Suite_classes: ", classes);
-    assume(inROM(classes));
-    boundsAssume(classes, cid);
-    class = getObject(classes, cid);
-    return class;
+	Address classes;
+	Address class;
+	assume(com_sun_squawk_VM_bootstrapSuite != null);
+	assume(inROM(com_sun_squawk_VM_bootstrapSuite));
+	//diagnosticWithValue("bootstrapSuite: ", com_sun_squawk_VM_bootstrapSuite);
+	classes = com_sun_squawk_Suite_classes(com_sun_squawk_VM_bootstrapSuite);
+	//diagnosticWithValue("com_sun_squawk_Suite_classes: ", classes);
+	assume(inROM(classes));
+	boundsAssume(classes, cid);
+	class = getObject(classes, cid);
+	return class;
 }
 
 static Address lookupStaticMethod(int cid, int methodOffset) {
-    Address klass;
-    Address method;
-    //fprintf(stderr, "Lookup of %d in class %d = ", methodOffset, cid);
-    klass = lookupKlass(cid);
-    //diagnosticWithValue("LookupStaticMethod klass: ", klass);
-    assume(inROM(klass));
-    method = getStaticMethod(klass, methodOffset);
-    //diagnosticWithValue("LookupStaticMethod method: ", method);
-    assume(inCode(method));
-    //fprintf(stderr, "%x\n", method);
-    return method;
+	Address klass;
+	Address method;
+	//fprintf(stderr, "Lookup of %d in class %d = ", methodOffset, cid);
+	klass = lookupKlass(cid);
+	//diagnosticWithValue("LookupStaticMethod klass: ", klass);
+	assume(inROM(klass));
+	method = getStaticMethod(klass, methodOffset);
+	//diagnosticWithValue("LookupStaticMethod method: ", method);
+	assume(inCode(method));
+	//fprintf(stderr, "%x\n", method);
+	return method;
 }

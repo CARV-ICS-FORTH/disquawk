@@ -1,22 +1,22 @@
 /*
  * Copyright 1999-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -245,7 +245,7 @@ public class Connector {
                 throw new ConnectionNotFoundException("The '"+protocol+"' protocol does not exist");
             }
         }
-        
+
         return result;
     }
 
@@ -278,7 +278,7 @@ public class Connector {
                  */
                 String fullclassname = packageRoot + "." + platform + "." + protocolClassName + ".Protocol";
                 Class clazz = null;
-                
+
                 if (protocolTable == null) { // bootstrapping gets in the way. Wait until class is initialized before getting fancy
                     try {
                         clazz = Class.forName(fullclassname);
@@ -367,7 +367,7 @@ public class Connector {
      * @exception IOException  If some other kind of I/O error occurs.
      */
     public static DataInputStream openDataInputStream(String name) throws IOException {
-	
+
   	    InputConnection con = null;
         try {
             con = (InputConnection)Connector.open(name, Connector.READ);
@@ -408,20 +408,4 @@ public class Connector {
             con.close();
         }
     }
-
-/*if[!OLD_IIC_MESSAGES]*/
-/*else[OLD_IIC_MESSAGES]*/
-///**
-// * This class exists so the above code will execute in a J2SE system where
-// * com.sun.squawk.io.j2me.msg.MessageResourceManager is not availible.
-// */
-//class MessageConector {
-//    /**
-//     * Allocates a client protocol object
-//     */
-//    public static ConnectionBase allocateClientProtocol() {
-//        return com.sun.squawk.io.j2me.msg.MessageResourceManager.allocateClientProtocol();
-//    }
-//}
-/*end[OLD_IIC_MESSAGES]*/
 }

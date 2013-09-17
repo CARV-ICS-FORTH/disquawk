@@ -34,9 +34,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Stack;
 
-/*if[OLD_IIC_MESSAGES]*/
-//import com.sun.squawk.io.ServerConnectionHandler;
-/*end[OLD_IIC_MESSAGES]*/
 /*if[NEW_IIC_MESSAGES]*/
 import com.sun.squawk.io.mailboxes.Mailbox;
 /*end[NEW_IIC_MESSAGES]*/
@@ -175,14 +172,6 @@ public class VM implements GlobalStaticFields {
      * Flags if the VM was built with memory access type checking enabled.
      */
     private static boolean usingTypeMap;
-
-/*if[!OLD_IIC_MESSAGES]*/
-/*else[OLD_IIC_MESSAGES]*/
-//    /**
-//     * The list of ServerConnectionHandlers. For JavaDriverManager
-//     */
-//    private static ServerConnectionHandler serverConnectionHandlers;
-/*end[OLD_IIC_MESSAGES]*/
 
     /**
      * The C array of the null terminated C strings representing the command line
@@ -3785,38 +3774,6 @@ hbp.dumpState();
         }
     }
 
-/*if[!OLD_IIC_MESSAGES]*/
-/*else[OLD_IIC_MESSAGES]*/
-//    /**
-//     * Executes a message I/O operation.
-//     *
-//     * @param op        the opcode
-//     * @param key       the message key
-//     * @param data      the message data or null
-//     * @param status    the message status
-//     * @return          the Address result or null
-//     * @throws java.io.IOException
-//     */
-//    public static Address execMessageIO(int op, Object key, Object data, int status) throws IOException {
-//        for (; ; ) {
-//            executeCIO( -1, op, ChannelConstants.CHANNEL_MESSAGEIO, status, 0, 0, 0, 0, 0, key, data);
-//            int result = serviceResult();
-//            if (result == ChannelConstants.RESULT_OK) {
-//                return addressResult();
-//            } else if (result < 0) {
-//                if (result == ChannelConstants.RESULT_MALLOCFAILURE) {
-//                    throw outOfMemoryError;
-//                } else if (result == ChannelConstants.RESULT_BADPARAMETER) {
-//                    throw new IOException("Bad parameter(s) to connection");
-//                }
-//                throw Assert.shouldNotReachHere("execMessageIO result = " + result);
-//            } else {
-//                VMThread.waitForEvent(result);
-//            }
-//        }
-//    }
-/*end[OLD_IIC_MESSAGES]*/
-
     /**
      * Executes an I/O operation that returns a <code>long</code> value.
      *
@@ -4018,33 +3975,6 @@ hbp.dumpState();
     public static void setMaxSystemWait(long max) {
         VMThread.setMaxSystemWait(max);
     }
-
-/*if[!OLD_IIC_MESSAGES]*/
-/*else[OLD_IIC_MESSAGES]*/
-//    /**
-//     * Adds a new ServerConnectionHandler to the list of active handlers.
-//     *
-//     * @param sch the ServerConnectionHandler to add
-//     * @throws IllegalArgumentException if there is already a handler registered with the same name as <code>sch</code>
-//     */
-//    static void addServerConnectionHandler(ServerConnectionHandler sch) {
-//        if (ServerConnectionHandler.lookup(serverConnectionHandlers, sch.getConnectionName()) != null) {
-//            throw new IllegalArgumentException();
-//        }
-//        sch.setNext(serverConnectionHandlers);
-//        serverConnectionHandlers = sch;
-//    }
-//
-//    /**
-//     * Finds the first ServerConnectionHandler in the list that has an active message waiting.
-//     *
-//     * @return the ServerConnectionHandler or null if none have a waiting message
-//     */
-//    static ServerConnectionHandler getNextServerConnectionHandler() throws IOException {
-//        Address res = execMessageIO(ChannelConstants.INTERNAL_SEARCH_SERVER_HANDLERS, null, serverConnectionHandlers, 0);
-//        return (ServerConnectionHandler)res.toObject();
-//    }
-/*end[OLD_IIC_MESSAGES]*/
 
 
     /*=======================================================================*\

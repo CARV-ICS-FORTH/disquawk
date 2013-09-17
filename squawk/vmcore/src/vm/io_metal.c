@@ -33,7 +33,10 @@ long long rebuildLongParam(int i1, int i2) {
 /**************************************************************************
  * Sleep support
  **************************************************************************/
+#ifndef JAVA
+/* NOTE: FORMIC does not have a mechanism for sleeping (at least yet) */
 int deepSleepEnabled = 0;           // indicates whether the feature is currently enabled (=1)
+#endif /* JAVA */
 int sleepManagerRunning = 1;        // assume that sleepManager is running until it calls WAIT_FOR_DEEP_SLEEP
 int outstandingDeepSleepEvent = 0;  // whether the sleep manager thread should be unblocked at the next reschedule
 long long storedDeepSleepWakeupTarget; // The millis that the next deep sleep should end at
@@ -58,10 +61,13 @@ void osMilliSleep(long long millisecondsToWait) {
     if (target <= 0) {
         target = 0x7FFFFFFFFFFFFFFFLL; // overflow detected
     }
+#ifndef JAVA
     if ((millisecondsToWait < 0x7FFFFFFFFFFFFFFFLL) && deepSleepEnabled &&
          !sleepManagerRunning && (millisecondsToWait >= minimumDeepSleepMillis)) {
         setDeepSleepEventOutstanding(target);
-    } else {
+    } else
+#endif
+    {
         doShallowSleep(target);
     }
 }
@@ -97,10 +103,6 @@ extern void setup_java_interrupts();
 int getEvent(int, int);
 #endif
 static int check_irq(int irq_mask, int clear_flag);
-
-#ifdef OLD_IIC_MESSAGES
-INLINE boolean checkForMessageEvent();
-#endif
 
 /*
  * Java has requested wait for an interrupt. Store the request,
@@ -494,7 +496,9 @@ static void ioExecute(void) {
         }
 
         case ChannelConstants_SET_DEEP_SLEEP_ENABLED: {
+#ifndef JAVA
             deepSleepEnabled = i1;
+#endif /* JAVA */
             res = 0;
             break;
         }
