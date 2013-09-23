@@ -34,13 +34,14 @@ import com.sun.squawk.builder.util.*;
 
 public class BuildFormicVMCommand extends FormicCommand {
 
-  private static final File VM_SRC_DIR = new File("vmcore/src/vm");
-  private static final File VM_BLD_DIR = new File("vmcore/build");
-  private static final File FP_SRC_DIR = new File("vmcore/src/vm/fp");
-  private static final File UTIL_SRC_DIR = new File("vmcore/src/vm/util");
-  private static final File VM_SRC_RTS_DIR = new File("vmcore/src/rts");
-  private static final File VM_SRC_FILE = new File(VM_SRC_DIR, "squawk.c");
-  private static final File VM2C_SRC_FILE = new File(VM_SRC_DIR, "vm2c.c.spp");
+  private static final File SRC_DIR          = new File("vmcore/src");
+  private static final File VM_SRC_DIR       = new File("vmcore/src/vm");
+  private static final File VM_BLD_DIR       = new File("vmcore/build");
+  private static final File FP_SRC_DIR       = new File("vmcore/src/vm/fp");
+  private static final File UTIL_SRC_DIR     = new File("vmcore/src/vm/util");
+  private static final File VM_SRC_RTS_DIR   = new File("vmcore/src/rts");
+  private static final File VM_SRC_FILE      = new File(VM_SRC_DIR, "squawk.c");
+  private static final File VM2C_SRC_FILE    = new File(VM_SRC_DIR, "vm2c.c.spp");
   private static final File linkerOutputFile = new File(VM_BLD_DIR, "squawk.elf");
 
   private String formicApp_dir = "./";
@@ -199,7 +200,7 @@ public class BuildFormicVMCommand extends FormicCommand {
 
     // Preprocess any files with the ".spp" suffix
     List<File> generatedFiles = new ArrayList<File>();
-    FileSet sppFiles = new FileSet(VM_SRC_DIR, new FileSet.SuffixSelector(".spp"));
+    FileSet sppFiles = new FileSet(SRC_DIR, new FileSet.SuffixSelector(".spp"));
     for (File sppFile : sppFiles.list()) {
       SppFilePreprocessCommand.preprocess(sppFile, generatedFiles,
           env.getPreprocessor(), env.getMacroizer(),
@@ -259,6 +260,7 @@ public class BuildFormicVMCommand extends FormicCommand {
        *     literal translation of the source. Regardless of the processor architecture, using
        *     such flags might be necessary to implement Java virtual machine semantics in C code.
        */
+    // FIXME: Do preprocessing
       env.log(env.brief, "[compiling floating point sources in " + FP_SRC_DIR + " ...]");
       List<File> sources = new FileSet(FP_SRC_DIR, new FileSet.SuffixSelector(".c")).list();
       for (File source : sources) {

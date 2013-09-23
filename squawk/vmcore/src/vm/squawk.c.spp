@@ -359,7 +359,7 @@ const char *format(const char* fmt) {
 //                  fatalVMError("floats not supported");
 /*end[FLOATS]*/
 					buf[bufPos++] = 'f';
-				77;10200;0c                    break;
+				break;
 			}
 			default: {
 				buf[bufPos++] = fmt[fmtPos - 1];
@@ -1541,11 +1541,11 @@ Address processArgs(char *argv[], const int argc) {
 	fprintf(stderr, "*************** Tracing version ***************\n");
 #endif
 
-	fprintf(stderr, "Argv= %s\n", argv);
-
 	while (oldIndex != argc) {
 		char *arg = argv[oldIndex];
 		char *wholeArg = arg;
+
+		fprintf(stderr, "Argv[%d]= %s\n", oldIndex, wholeArg);
 
 		if (arg[0] != '-') {
 			break; /* finished VM options part */
@@ -2422,7 +2422,7 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
 	int my_cid = ar_get_core_id();
 	initializeGlobals(&userGlobals[my_cid]);
 /*else[MICROBLAZE_BUILD]*/
-	initializeGlobals(&userGlobals);
+//	initializeGlobals(&userGlobals);
 /*end[MICROBLAZE_BUILD]*/
 
 /*if[EMULATOR_LAUNCHER]*/

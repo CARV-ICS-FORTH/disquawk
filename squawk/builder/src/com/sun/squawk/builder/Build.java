@@ -1404,7 +1404,7 @@ public class Build {
 
             public void run(String[] args) {
                 if (args.length != 0) {
-                    throw new CommandException(this, "too many arguemnts");
+                    throw new CommandException(this, "too many arguments");
                 }
 //			When I remove the phoneme source from our source tree
 //            	String phoneMeSourceRoot = "../phoneme/";

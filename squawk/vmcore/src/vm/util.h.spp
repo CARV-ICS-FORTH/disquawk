@@ -88,11 +88,11 @@ NORETURN void fatalVMError0(char *msg, boolean cleanup) {
 	// segment (one for each core)
 /*if[MICROBLAZE_BUILD]*/
 	static boolean inFatalVMError[AR_FORMIC_CORES_PER_BOARD] = {false};
+	int my_cid = ar_get_core_id();
 /*else[MICROBLAZE_BUILD]*/
 //	static __thread boolean inFatalVMError = {false};
 /*end[MICROBLAZE_BUILD]*/
 	NORETURN void stopVM0(int, boolean);
-	int my_cid = ar_get_core_id();
 
 	if (msg == null) {
 		msg = "fatal VM error";
@@ -307,7 +307,9 @@ INLINE int    l2i(jlong l)                 { return (int)l;                   }
 /*if[FLOATS]*/
 
 #include "fp/global.h"
+/*if[MICROBLAZE32_BUILD]*/
 #include "fp/fdlibm.h"
+/*end[MICROBLAZE32_BUILD]*/
 
 #ifndef C_FP_CONVERSIONS_OK // defualt to safe unless told otherwise
 #define C_FP_CONVERSIONS_OK 0
