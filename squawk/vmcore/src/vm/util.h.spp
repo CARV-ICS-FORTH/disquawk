@@ -307,9 +307,9 @@ INLINE int    l2i(jlong l)                 { return (int)l;                   }
 /*if[FLOATS]*/
 
 #include "fp/global.h"
-/*if[MICROBLAZE32_BUILD]*/
+/*if[MICROBLAZE_BUILD]*/
 #include "fp/fdlibm.h"
-/*end[MICROBLAZE32_BUILD]*/
+/*end[MICROBLAZE_BUILD]*/
 
 #ifndef C_FP_CONVERSIONS_OK // defualt to safe unless told otherwise
 #define C_FP_CONVERSIONS_OK 0

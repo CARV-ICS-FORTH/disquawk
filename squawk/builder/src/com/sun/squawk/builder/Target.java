@@ -37,7 +37,6 @@ public final class Target extends Command {
     public final boolean preprocess;
     public final File baseDir;
     public final File[] srcDirs;
-    public final List<File> copyJ2meDirs;
 
     public List<String> extraArgs;
 
@@ -134,7 +133,6 @@ public final class Target extends Command {
         this.baseDir = new File(baseDir);
         this.srcDirs = srcDirs;
         this.preprocess = preprocess;
-        this.copyJ2meDirs = new ArrayList<File>();
     }
 
     public void addExtraArg(String extraArg) {
@@ -201,10 +199,6 @@ public final class Target extends Command {
      * {@inheritDoc}
      */
     public void run(String[] args) {
-        // TODO: This is not a good thing, but doing it for now :( EA
-        for (File source: copyJ2meDirs) {
-            env.copy(source.getPath(), new File(baseDir, getCompiledDirectoryName()).getPath(), null, "**");
-        }
         env.javac(getCompileClassPath(null), getPreverifiedClassPath(null), baseDir, srcDirs, j2me, extraArgs, preprocess);
     }
 
@@ -261,17 +255,6 @@ public final class Target extends Command {
         Build.clear(new File(baseDir, "javadoc"), true);
         Build.clear(new File(baseDir, "doccheck"), true);
         Build.clear(new File(baseDir, "native"), true);
-    }
-
-    public void addCopyJ2meDirs(String dirsString) {
-        if (dirsString == null) {
-            return;
-        }
-        StringTokenizer tokenizer = new StringTokenizer(dirsString, ":");
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            copyJ2meDirs.add(new File(baseDir, token));
-        }
     }
 
 }

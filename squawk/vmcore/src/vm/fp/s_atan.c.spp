@@ -41,12 +41,7 @@ DESCRIPTION
 <<atanf>> is identical to <<atan>>, save that it operates on <<floats>>.
 
 RETURNS
-@ifnottex
 <<atan>> returns a value in radians, in the range of -pi/2 to pi/2.
-@end ifnottex
-@tex
-<<atan>> returns a value in radians, in the range of $-\pi/2$ to $\pi/2$.
-@end tex
 
 PORTABILITY
 <<atan>> is ANSI C.  <<atanf>> is an extension.

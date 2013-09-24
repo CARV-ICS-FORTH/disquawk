@@ -27,7 +27,7 @@ APP?=../formic-tests/Linpack
 #APP?=../formic-tests/Double2String
 # The starting address of the suites in memory (this is automatically
 # calculated later)
-SUITES_ADDR:=D2428
+SUITES_ADDR:=DEAD
 
 STR_CLN = "[1m[ [31mCLN [0;1m][0m"
 STR_BLD = "[1m[ [32mBLD [0;1m][0m"
