@@ -56,7 +56,7 @@
 /* To n dinei to tetartimorio */
 
 #include "../platform.h"
-#include <global.h>
+#include "global.h"
 
 double JFP_lib_sin(double x) {
     double y[2];

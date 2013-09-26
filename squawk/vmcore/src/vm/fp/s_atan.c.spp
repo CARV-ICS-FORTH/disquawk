@@ -69,7 +69,7 @@ PORTABILITY
  */
 
 #include "../platform.h"
-#include <global.h>
+#include "global.h"
 #include "fdlibm.h"
 
 #ifndef _DOUBLE_IS_32BITS

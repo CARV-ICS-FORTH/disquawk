@@ -57,7 +57,7 @@
 #endif
 
 #include "../platform.h"
-#include <global.h>
+#include "global.h"
 
 static const double
 S1  = -1.66666666666666666666e-01, /* -1/3!  0xBFC55555, 0x55555549 */

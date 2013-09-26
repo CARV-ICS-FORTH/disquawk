@@ -436,7 +436,7 @@ public class Build {
 			String baseDirPath;
 
 			if (!env.getBooleanProperty("AUTOGEN_JNA_NATIVES")) {
-				System.out.println("    Skipping generation JNA files in " + baseDir);
+				env.log(env.info, "    Skipping generation JNA files in " + baseDir);
 				return;
 			}
 
@@ -1493,9 +1493,6 @@ public class Build {
 		// Add the "buildBootstrap" command
 //        addCommand(new BuildBootsrapCommand(this));
 
-		// Add the "buildFormicVM" command
-		addCommand(new BuildFormicVMCommand(this));
-
 		// Add the "spp" command
 		addCommand(new SppFilePreprocessCommand(this));
 
@@ -1779,18 +1776,18 @@ public class Build {
 		}
 		if (!hasBeenRun(command, args)) {
 			if (command instanceof Target) {
-				log(brief, "[\033[1;36m BLD\033[m " + command.getName() + "...]");
+				log(info, "[\033[1;36m BLD\033[m " + command.getName() + "...]");
 			} else if (command instanceof GeneratorCommand) {
 				log(info, "[\033[1;32m GEN\033[m " + command.getName() + "...]");
 			} else if (command instanceof LinkTarget) {
 				log(info, "[\033[1;37m LNK\033[m " + command.getName() + "...]");
 			} else {
-				log(brief, "[\033[1;33m RUN\033[m " + command.getName() + "...]");
+				log(info, "[\033[1;33m RUN\033[m " + command.getName() + "...]");
 			}
 			if (verbose) {
-				log(info, "  description: " + command.getDescription());
+				log(verbose, "  description: " + command.getDescription());
 				for (int i=0; i < args.length; i++) {
-					log(info, "  arg[" + i +"]: " + args[i]);
+					log(verbose, "  arg[" + i +"]: " + args[i]);
 				}
 			}
 			try {
@@ -2032,7 +2029,9 @@ public class Build {
 	public static File mkdir(File path) {
 		if (!path.exists()) {
 			if (!path.mkdirs()) {
-				throw new BuildException("Could not create directory: " + path, 1);
+				if (!path.exists()) {
+					throw new BuildException("Could not create directory: " + path, 1);
+				}
 			}
 		} else {
 			if (!path.isDirectory()) {
