@@ -10,10 +10,14 @@ if ARGV.length < expected_args
 end
 
 trace=ARGV[0].to_s
+romstart=0;
 
 File.open(trace).each do |line|
-  if line.start_with?("*STACKTRACE*:")
-    offset = line.split(':')[1].to_i-4
+  if line.start_with?("*TRACE*:*ROM*:")
+    romstart = line.split(':')[2].to_i+4
+    puts line
+  elsif line.start_with?("*STACKTRACE*:")
+    offset = line.split(':')[1].to_i-romstart
     flag = 0
     begin
       cmd = "grep '#{offset} :.*method'"
@@ -33,8 +37,8 @@ File.open(trace).each do |line|
         puts line.gsub(/\n/, '')+"\t"+tokens[1].split[1]
         flag = 3
       else
-        offset -= 664
-        flag += + 1
+        offset -= 768
+        flag += 1
       end
     end until flag > 1
     if flag == 2

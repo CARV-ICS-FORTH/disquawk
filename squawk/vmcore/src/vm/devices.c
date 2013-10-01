@@ -89,13 +89,13 @@ void postMessage(Address key, Message *msg) {
  * Continues execution in the kernel context after the last OPC.PAUSE.
  */
 void Squawk_kernelContinue(void) {
-	void Squawk_continue(Globals *gp);
+	void Squawk_continue();
 	Globals *save = gp;
 	gp = &kernelGlobals;
 //	deferInterruptsAndDo(
 //		fprintf(stderr, "[switching to kernel context]\n");
 //	);
-	Squawk_continue(gp);
+	Squawk_continue();
 	gp = save;
 }
 

@@ -16,6 +16,8 @@
 
 #include <kernel_toolset.h>
 
+extern int Squawk_main_wrapper(int, char **);
+
 void squawk_entry_point(void)
 {
   char          *fakeArgv[3];

@@ -176,7 +176,7 @@ static Address lookupStaticMethod(int cid, int methodOffset);
     -------------------------------
     |           Return FP           |
     -------------------------------
-    fp ->   |         Current method        |
+    |         Current method        | <- fp
     -------------------------------
     |              L0               |
     -------------------------------
@@ -184,7 +184,7 @@ static Address lookupStaticMethod(int cid, int methodOffset);
     -------------------------------
     |              ...              |
     -------------------------------
-    sp ->   |              LN               |
+    |              LN               | <- sp
     -------------------------------
     |                               |
     :        Evaluation stack       :
@@ -252,6 +252,10 @@ const jlong MAX_UJLONG = (jlong)0xffffffff;
  */
 NORETURN void stopVM0(int, boolean);
 NORETURN void stopVM(int);
+
+/*if[MICROBLAZE_BUILD]*/
+#define format(x) x
+/*end[MICROBLAZE_BUILD]*/
 
 /*
  * Include all the globals.
@@ -371,8 +375,6 @@ const char *format(const char* fmt) {
 	buf[bufPos++] = 0;
 	return buf;
 }
-/*else[MICROBLAZE_BUILD]*/
-//#define format(x) x
 /*end[MICROBLAZE_BUILD]*/
 
 /*
@@ -1261,25 +1263,21 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 
 	com_sun_squawk_VM_bootstrapSuite = suite;
 
-/* NOTE: This is the original core */
+	// The stack for the service thread starts on the next page after the end of RAM.
+	// The length of the stack in logical slots is written into the first word of the
+	// block allocate for the stack. This length is later used in Thread.initializeThreading()
+	// to format the stack as a Java object of type Klass.LOCAL_ARRAY
+
+	/* NOTE: This is the original core */
 //	com_sun_squawk_VMThread_serviceStack =
 //		Address_add(roundUp((UWord)com_sun_squawk_GC_ramEnd, pageSize), TWOWORDS);
-/*if[MICROBLAZE_BUILD]*/
-	int my_cid = ar_get_core_id();
-	// allocate AR_FORMIC_CORES_PER_BOARD service stacks in the bss
-	// segment (one for each core)
-	static char service_stack[AR_FORMIC_CORES_PER_BOARD][SERVICE_CHUNK_SIZE] __attribute__((aligned(MM_PAGE_SIZE)));
-	com_sun_squawk_VMThread_serviceStack =
-		Address_add((UWord)service_stack[my_cid], TWOWORDS);
-/*else[MICROBLAZE_BUILD]*/
-//  // The stack for the service thread starts on the next page after the end of RAM.
-//  // The length of the stack in logical slots is written into the first word of the
-//  // block allocate for the stack. This length is later used in Thread.initializeThreading()
-//  // to format the stack as a Java object of type Klass.LOCAL_ARRAY
-//	static __thread char service_stack[SERVICE_CHUNK_SIZE];
-//	com_sun_squawk_VMThread_serviceStack =
-//		Address_add((UWord)service_stack, TWOWORDS);
+
+/*if[!MICROBLAZE_BUILD]*/
+	// In microblaze this is defined as a global in globals.h
+	static __thread char service_stack[SERVICE_CHUNK_SIZE];
 /*end[MICROBLAZE_BUILD]*/
+	com_sun_squawk_VMThread_serviceStack =
+		Address_add((UWord)service_stack, TWOWORDS);
 
 	setArrayLength(com_sun_squawk_VMThread_serviceStack,
 	               SERVICE_CHUNK_SIZE_MINUS2WORDS / HDR_BYTES_PER_WORD);
@@ -1545,7 +1543,9 @@ Address processArgs(char *argv[], const int argc) {
 		char *arg = argv[oldIndex];
 		char *wholeArg = arg;
 
+/*if[DEBUG_CODE_ENABLED]*/
 		fprintf(stderr, "Argv[%d]= %s\n", oldIndex, wholeArg);
+/*end[DEBUG_CODE_ENABLED]*/
 
 		if (arg[0] != '-') {
 			break; /* finished VM options part */
@@ -2070,8 +2070,8 @@ Address Squawk_setup(int argc, char *argv[]) {
 	 */
 /*if[!MICROBLAZE_BUILD]*/
 	sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, true);
-/*end[MICROBLAZE_BUILD]*/
 	sysToggleMemoryProtection(com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, true);
+/*end[MICROBLAZE_BUILD]*/
 
 	initMethods();
 
@@ -2109,10 +2109,9 @@ Address Squawk_setup(int argc, char *argv[]) {
 
 /**
  * Continues execution of the VM from the last OPC.PAUSE.
- *
- * @param gp the global pointer
  */
-void Squawk_continue(Globals *gp) {
+void Squawk_continue() {
+
 	int opcode = -1;
 #if TRACE
 #ifdef OSPROF
@@ -2134,9 +2133,9 @@ void Squawk_continue(Globals *gp) {
 	fp = saved_fp;                  /* Restore the frame pointer. */
 	sp = saved_sp;                  /* Restore the stack pointer. */
 
-//    if (com_sun_squawk_VM_verboseLevel != 0) {
-//        fprintf(stderr, "[switched to %s context]\n", (gp == &kernelGlobals ? "kernel" : "user"));
-//    }
+	/* if (com_sun_squawk_VM_verboseLevel != 0) {
+	 * 	fprintf(stderr, "[switched to %s context]\n", (gp == &kernelGlobals ? "kernel" : "user"));
+	 * } */
 
 	/*
 	 * This is the main bytecode execution loop.
@@ -2177,16 +2176,6 @@ void Squawk_continue(Globals *gp) {
 		db_checkBreak(opcode, ip, fp);
 #endif
 
-
-#if TRACE
-		if (com_sun_squawk_VM_tracing) {
-/*if[MICROBLAZE_BUILD]*/
-			/*trace(ipCopy, fp, sp, opcode);*/
-/*else[MICROBLAZE_BUILD]*/
-//          trace(ipCopy, fp, sp);
-/*end[MICROBLAZE_BUILD]*/
-		}
-#endif /* TRACE */
 
 #ifdef PROFILING
 		instructionCount++;
@@ -2381,7 +2370,7 @@ void Squawk_run(int argc, char *argv[]) {
 #endif
 
 	saveContextRegisters();
-	Squawk_continue(gp);
+	Squawk_continue();
 }
 
 /**
@@ -2419,7 +2408,6 @@ void Squawk_main(int argc, char *argv[]) {
  */
 int Squawk_main_wrapper(int argc, char *argv[]) {
 /*if[MICROBLAZE_BUILD]*/
-	int my_cid = ar_get_core_id();
 	initializeGlobals(&userGlobals[my_cid]);
 /*else[MICROBLAZE_BUILD]*/
 //	initializeGlobals(&userGlobals);

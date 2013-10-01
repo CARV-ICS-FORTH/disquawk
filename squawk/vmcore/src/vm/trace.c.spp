@@ -38,11 +38,16 @@ boolean openTraceFile() {
         if (traceFile == NULL) {
             traceFile = fopen(inKernelMode() ? "ktrace" : "trace", "w");
         }
+        fprintf(traceFile, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*\n"),
+                com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
+                com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd,
+                SQUAWK_64 ? 64 : 32);
+/*else[MICROBLAZE_BUILD]*/
+//      fprintf(traceFile, format("*TRACE*:*ROM*:%A:%A:*%d*\n"),
+//              com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
+//              SQUAWK_64 ? 64 : 32);
 /*end[MICROBLAZE_BUILD]*/
         traceFileOpen = true;
-        fprintf(traceFile, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*\n"),
-                com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd,
-                SQUAWK_64 ? 64 : 32);
         return true;
     } else {
         return false;
@@ -381,14 +386,12 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
                 repetitions++;
             } else {
                 if (repetitions != 0) {
-                    fprintf(traceFile, format("*STACKTRACE*:\"%d\n"), repetitions);
+                    fprintf(traceFile, format("*STACKTRACE*:\"%d:%d:%d\n"),
+                            repetitions, my_bid, my_cid);
                     repetitions = 0;
                 }
-/*if[MICROBLAZE_BUILD]*/
-                fprintf(traceFile, format("*STACKTRACE*:%A:%d\n"), (uint32_t)frame.MP-(uint32_t)com_sun_squawk_VM_bootstrapStart, frame.PC);
-/*else[MICROBLAZE_BUILD]*/
-//              fprintf(traceFile, format("*STACKTRACE*:%A:%d\n"), frame.MP, frame.PC);
-/*end[MICROBLAZE_BUILD]*/
+                fprintf(traceFile, format("*STACKTRACE*:%A:%d:%d:%d\n"),
+                        frame.MP, frame.PC, my_bid, my_cid);
             }
         }
 

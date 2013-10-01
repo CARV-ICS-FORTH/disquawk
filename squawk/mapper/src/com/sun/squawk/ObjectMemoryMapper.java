@@ -55,7 +55,7 @@ public class ObjectMemoryMapper {
      * currently being dumped.
      */
      private Histogram classHistogram;
-     
+
     /*---------------------------------------------------------------------------*\
      *                                Relocation                                 *
     \*---------------------------------------------------------------------------*/
@@ -214,7 +214,7 @@ public class ObjectMemoryMapper {
         out.println("    -verbose, -v    provide more output while running");
         out.println("    -h              show this help message");
     }
-    
+
     /**
      * The output dump stream.
      */
@@ -259,22 +259,22 @@ public class ObjectMemoryMapper {
      * The total number of bytes in the method headers.
      */
     private int totalMethodHeaderLength;
-    
+
     /**
      * Total number of bytes of bytecodes
      */
     private int totalBytecodes;
-    
+
     /**
      * The total number of bytes in the method headers due to oopmaps
      */
     private int totalMethodOopMap;
-    
+
      /**
      * The total number of bytes in the method headers due to exception tables
      */
     private int totalMethodExceptionTableSize;
-    
+
     private int totalRelocationTableSize;
     private int totalTypeTableSize;
     private int totalMinfoSize;
@@ -293,17 +293,17 @@ public class ObjectMemoryMapper {
      * Print any per-object data
      */
     private boolean showObjects = true;
-    
+
     /**
      * Print classes and packages summary
      */
     private boolean showAllClassesAndPackages = true;
-    
+
    /**
     * Print detailed ownership of objects by each class
     */
     private boolean highlightAllClasses = false;
-    
+
     private Hashtable<String, Histogram> ownerHistograms ;
 
     /**
@@ -460,7 +460,7 @@ public class ObjectMemoryMapper {
         out.println(prefix + owner.name + " = " + owner.size);
         histogram.dump(out, prefix + "    ", false);
     }
-    
+
     /**
      * Print all of the objects owned by "thwOwner", in address order.
      */
@@ -476,7 +476,7 @@ public class ObjectMemoryMapper {
         }
         Object[] ownedObjects = new Object[ownedObjectBuffer.size()];
         ownedObjectBuffer.copyInto(ownedObjects);
-        
+
         // 2. sort by address:
         Arrays.sort(ownedObjects, new Comparer() {
              public int compare(Object a, Object b) {
@@ -489,11 +489,11 @@ public class ObjectMemoryMapper {
                  }
             }
         });
-        
+
         boolean oldShowObjects   = showObjects;
         showObjects               = true;
         Address nextBlock = null;
-        
+
         // 3. Print objects
         Object object = null;
         try {
@@ -520,7 +520,7 @@ public class ObjectMemoryMapper {
         }
         showObjects   = oldShowObjects;
     }
-    
+
     /**
      * Print a hostogram of the objects owned by the class, and optionally the objects owned by the class.
      *
@@ -542,7 +542,7 @@ public class ObjectMemoryMapper {
             return true;
         }
     }
-    
+
     /**
      * Execute the mapper and produce the dump.
      */
@@ -555,10 +555,10 @@ public class ObjectMemoryMapper {
                     currentRelocation = relocatedTo.diff(currentObjectMemory.getCanonicalStart());
                 }
                 resetStats();
-                
+
                 Address block = currentObjectMemory.getStart();
                 Address end = block.add(currentObjectMemory.getSize());
-                
+
                 // in intial pass, walk graph from classes, claiming ownership:
                 while (block.lo(end)) {
                     Address object = GC.blockToOop(block);
@@ -569,7 +569,7 @@ public class ObjectMemoryMapper {
                     block = object.add(GC.getBodySize(GC.getKlass(object), object));
                 }
                 block = currentObjectMemory.getStart();
-                
+
                 out.println("+++++++++++++++++++++  start of object memory with URI " + currentObjectMemory.getURI() + " +++++++++++++++++++++++");
                 shouldRecordObjects = true;
                 while (block.lo(end)) {
@@ -584,7 +584,7 @@ public class ObjectMemoryMapper {
                 }
                 shouldRecordObjects = false;
                 out.flush();
-                
+
                 // Appends the field definitions
                 if (fieldDefs != null) {
                 	for (Klass klass : fieldDefs) {
@@ -594,7 +594,7 @@ public class ObjectMemoryMapper {
                     out.println();
                     fieldDefs = new Vector<Klass>();
                 }
-                
+
                 ownerHistograms = makeOwnerHistograms();
                 Assert.always(registeredSuite);
                 int memorySize = currentObjectMemory.getSize();
@@ -612,7 +612,7 @@ public class ObjectMemoryMapper {
                     printOwnedHistogram(ownerHistograms, UNASSIGNED_STATS, padding);
                 }
                 out.println();
-                
+
                 // report details of requested classes:
                 if (highlightAllClasses) {
                     for (String classname : ClassOwnerStats.getKlassNames()) {
@@ -628,7 +628,7 @@ public class ObjectMemoryMapper {
                     }
                     highlightClasses = remainingHighlightClasses;
                 }
-                
+
                 // Show the histogram of counts
                 out.println("Histogram of instance counts:");
                 classHistogram.dump(out, "", true);
@@ -659,7 +659,7 @@ public class ObjectMemoryMapper {
                     printClassTable();
                 }
             }
-            
+
             // look for requested classes that we couldn't find:'
             int numClasses = highlightClasses.size();
             for (int i = 0; i < numClasses; i++) {
@@ -671,11 +671,11 @@ public class ObjectMemoryMapper {
             out.close();
         }
     }
-    
+
     /**
      * Get a reference field by field's type and offset.
      *
-     * @param objAddr the address of the object to check 
+     * @param objAddr the address of the object to check
      * @param Offset  the word offset of the field in the object
      * @return referece
      */
@@ -686,7 +686,7 @@ public class ObjectMemoryMapper {
     /**
      * Get a reference field by field's type and name.
      *
-     * @param objAddr the address of the object to check 
+     * @param objAddr the address of the object to check
      * @param objKlass the klass of the object
      * @param fieldKlass the klass of the field
      * @param fieldname the name of the field
@@ -697,12 +697,12 @@ public class ObjectMemoryMapper {
         if (f == null) throw new RuntimeException("Can't find field " + fieldname + " of type " + fieldKlass + " in " + objKlass);
         return getField(objAddr, f.getOffset());
     }
-    
-    
+
+
     /**
      * Get a reference field by the name of the field's type and the field's name.
      *
-     * @param objAddr the address of the object to check 
+     * @param objAddr the address of the object to check
      * @param objKlass the klass of the object
      * @param fieldKlassName the name of the klass of the field
      * @param fieldname the name of the field
@@ -713,19 +713,19 @@ public class ObjectMemoryMapper {
         if (fieldKlass == null)  throw new RuntimeException("Can't find class " + fieldKlassName);
         return getField(objAddr, objKlass, fieldKlass, fieldname);
     }
-    
+
     /**
      * Table of oop -> Stat
      *
      * This gets populated when walking over suite memory.
      */
     private ObjectTable objectTable;
-    
+
     /*---------------------------------------------------------------------------*\
      *                              Object Ownership                             *
     \*---------------------------------------------------------------------------*/
 
-    /** 
+    /**
      * Table that tracks object ownership. Objects that are only refered to by a single class or resource
      * will be charged to that class or resource. Objects refered to by more than one owner are
      * charged to SHARED_OWNER.
@@ -733,29 +733,29 @@ public class ObjectMemoryMapper {
      * This is a map of object->owners, where owner is a OwnerStats.
      */
     private Hashtable<Object, OwnerStats> ownerTable;
-    
+
     private OwnerStats SHARED_OWNER;
     private OwnerStats RESOURCE_FILES_STATS;
     private OwnerStats PROPERTIES_STATS;
     private OwnerStats SUITE_STATS;
     private OwnerStats METADATA_STATS;
-    
+
     /**
      * Unassigned data is not shared, but it doesn't belong to onew of the top-level items we are tracking
      * (klass, suite, resource file, etc.)
      */
     private OwnerStats UNASSIGNED_STATS;
-    
+
     /**
      * Summary of all object owned by classes. Generted in makeOwnerHistograms.
      */
     private OwnerStats ALL_CLASSES_STATS;
-    
+
     /**
      * List of class names specified by user that should have detailed statistics displayed.
      */
     private Vector<String> highlightClasses = new Vector<String>();
-    
+
     /**
      * Reset statistics for each object memory being dumped.
      */
@@ -783,12 +783,12 @@ public class ObjectMemoryMapper {
         Object oldOwner = ownerTable.put(object, newOwner);
         Assert.that(oldOwner == null || newOwner == SHARED_OWNER);
     }
-    
+
     /**
      * Attempt to "color" all of the objects in this object graph by the owner. When
      * we detect that another owner is attempting to color an already colored object,
      * we then color it (and the objects reachable from it) in the special "SHARED" color.
-     * 
+     *
      * The owner's size is NOT updated in this pass. A Pass is taken over the ownerTable
      * later to update owner sizes.
      *
@@ -816,20 +816,20 @@ public class ObjectMemoryMapper {
                 } else if (oldOwner != SHARED_OWNER) {
                     newOwner = SHARED_OWNER;
                 }
-                
+
                 if (newOwner == null) {
                     // nothing to change, so leave:
                     return;
                 }
-                
+
                 if (objklass.isSquawkArray()) {
                     int length = GC.getArrayLengthNoCheck(object);
                     updateOwner(newOwner, object);
-                    
+
                     if (owner == UNASSIGNED_STATS) {
                         return;
                     }
-                    
+
                     Klass elementType = objklass.getComponentType();
                     if (elementType!= null && (elementType.isArray() || (elementType.isReferenceType() && !elementType.isSynthetic()))) {
                         for (int i = 0; i < length; i++) {
@@ -847,11 +847,11 @@ public class ObjectMemoryMapper {
                 } else {
                     int nWords = objklass.getInstanceSize();
                     updateOwner(newOwner, object);
-                    
+
                     if (owner == UNASSIGNED_STATS) {
                         return;
                     }
-                    
+
                     for (int i = 0 ; i < nWords ; i++) {
                         if (Klass.isInstanceWordReference(objklass, i)) {
                             Object refField = NativeUnsafe.getObject(object, i);
@@ -864,10 +864,10 @@ public class ObjectMemoryMapper {
             }
         }
     }
-    
+
     /**
-     * Walk over the owner table, and make a histogram for each type of owner 
-     * (SHARED, RESOURCE, PROPERTIES, SUITE, META_DATA, ALL_CLASSES). Place each 
+     * Walk over the owner table, and make a histogram for each type of owner
+     * (SHARED, RESOURCE, PROPERTIES, SUITE, META_DATA, ALL_CLASSES). Place each
      * new histogram in a hashtable keyed by the owner's name.
      *
      * This also sets the size statistics for each owner.
@@ -883,7 +883,7 @@ public class ObjectMemoryMapper {
             allHistograms.put(allStatEntries[i].name, new Histogram());
         }
         Histogram allClassesHistogram = (Histogram)allHistograms.get(ALL_CLASSES_STATS.name);
-        
+
         // add Histograms for requested classes:
         if (highlightAllClasses) {
             for (String classname : ClassOwnerStats.getKlassNames()) {
@@ -894,13 +894,13 @@ public class ObjectMemoryMapper {
                 allHistograms.put(classname, new Histogram());
             }
         }
-        
+
         for (Map.Entry<Object, OwnerStats> entry : ownerTable.entrySet()) {
 			Object object = entry.getKey();
 			OwnerStats owner = entry.getValue();
 	        try {
 	            int objectSize = objectTable.getObjectSize(object);
-	            
+
 	            // get the histogram for this owner:
 	            Klass objKlass = GC.getKlass(object);
 	            Histogram histogram = (Histogram)allHistograms.get(owner.name);
@@ -908,11 +908,11 @@ public class ObjectMemoryMapper {
 	                allClassesHistogram.updateFor(objKlass, objectSize);
 	                ALL_CLASSES_STATS.updateSize(objectSize); // keep the stats value and the histogram's totals in sync.'
 	            }
-	            
+
 	            if (histogram != null) {
 	                histogram.updateFor(objKlass, objectSize);
 	            }
-	            
+
 	            // also update the owner's size statistics:
 	            owner.updateSize(objectSize);
 	        } catch (RuntimeException e) {
@@ -920,10 +920,10 @@ public class ObjectMemoryMapper {
 	            throw e;
 	        }
         }
-        
+
         return allHistograms;
     }
-    
+
     /**
      * Create the ClassOwnerStats for klass, and claim the object graph rooted from klassAddr.
      *
@@ -935,8 +935,8 @@ public class ObjectMemoryMapper {
         OwnerStats klassOwner = new ClassOwnerStats(fullName);
         claimObjectGraph(klassOwner, klassAddr, true);
     }
-    
-    
+
+
     /*---------------------------------------------------------------------------*\
      *                   Class and package size analysis                         *
     \*---------------------------------------------------------------------------*/
@@ -944,12 +944,12 @@ public class ObjectMemoryMapper {
      * This is a map of package name -> OwnerStats(s).
      */
     Hashtable<String, OwnerStats> packageTable;
-    
-    
+
+
     private void printClassTable() {
         OwnerStats[] stats  = mapToArray(ClassOwnerStats.allKlassStats);
         Arrays.sort(stats, new OwnerStats.CompareByName());
-        
+
         out.println("# classes:" + stats.length);
         out.println("Class statistics sorted alphabetically (bytes):");
         for (int i = 0; i < stats.length; i++) {
@@ -977,7 +977,7 @@ public class ObjectMemoryMapper {
             out.println(stat.name + ": " + stat.size);
         }
     }
-    
+
     /**
      * Create an array conatining all of the elements of the hashtable t.
      *
@@ -989,8 +989,8 @@ public class ObjectMemoryMapper {
         t.values().toArray(stats);
         return stats;
     }
-    
-    
+
+
         /**
      * Create an array conatining all of the elements of the hashtable t.
      *
@@ -1002,7 +1002,7 @@ public class ObjectMemoryMapper {
         t.values().toArray(stats);
         return stats;
     }
-    
+
     /**
      * Count the occurences of ch in the string.
      * @param str the string
@@ -1019,12 +1019,12 @@ public class ObjectMemoryMapper {
         }
         return result;
     }
-    
+
     /**
      * Given a full class name, add the specified size to all of the package's
-     * statitiscs that contain the class. For example, given "java.lang.Object", 
+     * statitiscs that contain the class. For example, given "java.lang.Object",
      * update the size for the pakacges "java" and "java.lang".
-     * 
+     *
      * @param name a full class name
      * @param size the size (in bytes) of objects owned by the class.
      */
@@ -1039,11 +1039,11 @@ public class ObjectMemoryMapper {
             if (oldVal == null) {
                 oldVal = new OwnerStats(name);
                 packageTable.put(name, oldVal);
-            } 
+            }
             oldVal.updateSize(size);
         }
     }
-    
+
     /**
      * Print the size in bytes of all of the objects owned by each packge.
      */
@@ -1051,7 +1051,7 @@ public class ObjectMemoryMapper {
     	for (OwnerStats stat : ClassOwnerStats.allKlassStats.values()) {
             doPackageAccounting(stat.name, stat.size);
         }
-        
+
         out.println("Package statistics (bytes):");
         OwnerStats[] stats  = tableToArray(packageTable);
         Arrays.sort(stats, new OwnerStats.CompareByName());
@@ -1067,10 +1067,10 @@ public class ObjectMemoryMapper {
             }
             out.println(": " + stat.size);
         }
-        
+
         out.println();
     }
-        
+
     /**
      * Initialize the contents of memory from one or more object memory files.
      *
@@ -1147,7 +1147,7 @@ public class ObjectMemoryMapper {
             out.println("     canonical start = " + memory.getCanonicalStart());
             out.println("       canonical end = " + memory.getCanonicalStart().add(size));
             out.println("         oopmap size = " + GC.calculateOopMapSizeInBytes(size));
-           
+
             if (relocationTable != null) {
                 Address relocatedTo = relocationTable.get(memory);
                 out.println("    relocation start = " + relocatedTo);
@@ -1439,7 +1439,7 @@ public class ObjectMemoryMapper {
         int bytecodes = GC.getArrayLengthNoCheck(oop);
         int totalSize = headerLength + bytecodes;
         totalBytecodes += bytecodes;
-        
+
         String headerString = getMethodHeaderText(oop); // does accounting also...
         if (showObjects) {
             printWordLine(block, "{"+headerLength+"}", false);
@@ -1454,6 +1454,8 @@ public class ObjectMemoryMapper {
             printWordLine(definingClassAddress, "defined in "+definingClass.getName(), true);
             printWordLine(oop.sub(HDR.arrayHeaderSize),  "["+GC.getArrayLengthNoCheck(oop)+"] total size " + totalSize, false);
             printWordLine(oop.sub(HDR.basicHeaderSize), "method "+getMethodSignature(oop) + classWordAnnotation(oop), true);
+            /* FIXME: It doesn't work for FormicApp */
+            out.println("METHOD."+oop.sub(HDR.basicHeaderSize-4)+".NAME="+getMethodSignature(oop));
         }
         oopNext = true;
         return headerLength;
@@ -1477,7 +1479,7 @@ public class ObjectMemoryMapper {
         totalMethodOpStack += maxStack;
         totalMethodOopMap += (parameterCount+localCount+7) / 8;
         int b0 = NativeUnsafe.getByte(oop, HDR.methodInfoStart) & 0xFF;
-        
+
         if (b0 < 128) {
             totalMinfoSize += 2;
         } else {
@@ -1563,7 +1565,7 @@ public class ObjectMemoryMapper {
             sb.append(" }");
         }
         totalTypeTableSize += MethodHeader.decodeTypeTableSize(oop); //in bytes
-        
+
         if (MethodHeader.isInterpreterInvoked(oop)) {
             sb.append(" INTERPRETER_INVOKED");
         }
@@ -1579,11 +1581,11 @@ public class ObjectMemoryMapper {
     /** cache this class so we don't have to do string compare on generated class name...
      */
     static Klass suiteKlass = null;
-    
+
     /*
      */
     boolean registeredSuite;
-    
+
     /**
      * Decode an instance.
      *
@@ -1608,8 +1610,8 @@ public class ObjectMemoryMapper {
 
         return nextBlock;
     }
-    
-    
+
+
 
     /**
      * When finding a suite, account for various metadata.
@@ -1624,12 +1626,12 @@ public class ObjectMemoryMapper {
         claimObjectGraph(SUITE_STATS, getField(oop, suiteKlass, Klass.STRING, "configuration"), false);
         claimObjectGraph(SUITE_STATS, getField(oop, suiteKlass, "[com.sun.squawk.Klass", "classes"), false);
         claimObjectGraph(SUITE_STATS, getField(oop, suiteKlass, Klass.STRING_ARRAY, "noClassDefFoundErrorClassNames"), false);
-        
+
         claimObjectGraph(METADATA_STATS,       getField(oop, suiteKlass, "[com.sun.squawk.KlassMetadata", "metadatas"), false);
         claimObjectGraph(RESOURCE_FILES_STATS, getField(oop, suiteKlass, "[com.sun.squawk.ResourceFile", "resourceFiles"), false);
         claimObjectGraph(PROPERTIES_STATS,     getField(oop, suiteKlass, "[com.sun.squawk.ManifestProperty", "manifestProperties"), false);
     }
-    
+
     /**
      * Print the fields of a non-array object.
      *
@@ -1650,7 +1652,7 @@ public class ObjectMemoryMapper {
     }
 
     private int modifiersSeen;
-    
+
     private String classFieldAnnotation(String name, final Address fieldAddress) {
         String annotation = "";
         if (name.equals("modifiers")) {
@@ -1673,7 +1675,7 @@ public class ObjectMemoryMapper {
         }
         return annotation;
     }
-    
+
     /**
      * Print the fields of an instance for a given class in the hierarchy of the instance.
      *
@@ -1722,7 +1724,7 @@ public class ObjectMemoryMapper {
                 if (klass == Klass.KLASS) { // do more decoding of fields...
                     annotation = classFieldAnnotation(name, fieldAddress);
                 }
-                
+
                 switch (type.getSystemID()) {
                     case CID.BOOLEAN:   printPrimitiveLine(fieldAddress, fsize, "bool",   name, NativeUnsafe.getByte(fieldAddress, 0) + annotation);  break;
                     case CID.BYTE:      printPrimitiveLine(fieldAddress, fsize, "byte",   name, NativeUnsafe.getByte(fieldAddress, 0) + annotation);  break;
@@ -1748,7 +1750,7 @@ public class ObjectMemoryMapper {
         return nextField;
     }
 
-    /** 
+    /**
      * Should record objects when maling linear pass over object memory.
      */
     boolean shouldRecordObjects = true;
@@ -1766,7 +1768,7 @@ public class ObjectMemoryMapper {
         objectTable.recordObject(block, oop, size);
         claimObjectGraph(UNASSIGNED_STATS, oop, false);
     }
-    
+
     /*---------------------------------------------------------------------------*\
      *                        Array object decoding                              *
     \*---------------------------------------------------------------------------*/
@@ -1788,7 +1790,7 @@ public class ObjectMemoryMapper {
             recordObject(klass, block, oop, oop);
             return oop;
         }
-        
+
         if (klass == Klass.LOCAL_ARRAY) {
             decodeChunk(oop, length);
         } else if (klass == Klass.GLOBAL_ARRAY) {
@@ -1800,14 +1802,14 @@ public class ObjectMemoryMapper {
             String value = VM.asString(oop);
             int charsPerLine = 8 / componentSize;
             Address addr = oop;
-            
+
             while (value.length() != 0) {
                 int charsThisLine = (int)Math.min(charsPerLine, value.length());
                 int bytesThisLine = charsThisLine * componentSize;
                 if (showObjects) {
                     printLine(addr, bytesThisLine, '"' + value.substring(0, charsThisLine) + '"');
                 }
-                
+
                 if (value.length() >= charsThisLine) {
                     value = value.substring(charsThisLine);
                     addr = addr.add(bytesThisLine);
@@ -1826,12 +1828,12 @@ public class ObjectMemoryMapper {
                     case CID.LONG_ARRAY:      printPrimitiveLine(componentAddress, componentSize, "long",   index, ""+NativeUnsafe.getLong(componentAddress, 0));  break;
                     case CID.DOUBLE_ARRAY:    printPrimitiveLine(componentAddress, componentSize, "double", index, ""+Double.longBitsToDouble(NativeUnsafe.getLong(componentAddress, 0)));  break;
                     case CID.UWORD_ARRAY:     printPrimitiveLine(componentAddress, componentSize, "word",   index, ""+NativeUnsafe.getUWord(componentAddress, 0));   break;
-                    
+
                     default: {
                         printPointerLine(componentAddress, index, componentType);
                         break;
                     }
-                    
+
                     case CID.BYTE_ARRAY: {
                         int b  = NativeUnsafe.getByte(componentAddress, 0);
                         StringBuffer s = new StringBuffer(80).
@@ -1851,7 +1853,7 @@ public class ObjectMemoryMapper {
                 }
             }
         }
-        
+
         Address nextBlock = oop.add(componentSize * length).roundUpToWord();
         recordObject(klass, block, oop, nextBlock);
         return nextBlock;
@@ -2039,7 +2041,7 @@ public class ObjectMemoryMapper {
                     if (method.isHosted() || method.isAbstract() || method.isNative()) {
                         continue;
                     }
-                    
+
                     int offset = method.getOffset();
                     String signature = method.toString();
                     Assert.always(offset < length);
@@ -2049,7 +2051,7 @@ public class ObjectMemoryMapper {
             }
         }
     }
-    
+
     private void putMethodSignature(Object methodBody, String signature) {
         if (methodBody != Address.zero() &&
             methodMap.get(methodBody) == null) {

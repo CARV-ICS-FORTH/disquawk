@@ -35,69 +35,6 @@
 /* FIXME: Make a struct for read-only (after initialization) globals
  * to skip copies and double initialization
  */
-/**
- * This struct encapsulates all the common globals in the Squawk VM. This allows
- * a formic board to share common properties with several VM instances.
- */
-typedef struct trueGlobalsStruct {
-    Address     _memory;                     /* The buffer containing ROM, NVM, RAM and serviceChunk */
-    Address     _memoryEnd;                  /* The end of the memory buffer. */
-    UWord       _memorySize;                 /* The size (in bytes) of the memory buffer. */
-
-    UWordAddress _sl;                        /* The stack limit. */
-    UWordAddress _ss;                        /* The stack start. */
-    int          _bc;                        /* The branch counter. */
-
-    ByteAddress  _saved_ip;                  /* The saved instruction pointer. */
-    UWordAddress _saved_fp;                  /* The saved frame pointer. */
-    UWordAddress _saved_sp;                  /* The saved stack pointer. */
-
-    int         _Ints[GLOBAL_INT_COUNT];     /* Storage for the primitive typed Java globals. */
-    Address     _Addrs[GLOBAL_ADDR_COUNT];   /* Storage for the primitive typed Java globals. */
-    Address     _Oops[GLOBAL_OOP_COUNT];     /* Storage for the reference typed Java globals. */
-    Address     _Buffers[MAX_BUFFERS];       /* Buffers that are allocated by native code. */
-    int         _BufferCount;                /* Number of buffers that are currently allocated by native code. */
-    int         _currentStream;              /* The currently selected stream */
-    int         _internalLowResult;          /* Value for INTERNAL_LOW_RESULT */
-
-    void*       _nativeFuncPtr;               /* Ptr to the function that is being called via NativeUnsafe.call, or null */
-
-#ifdef PROFILING
-    int         _sampleFrequency;            /* The profile sample frequency */
-    jlong       _instructionCount;
-#endif /* PROFILING */
-
-#if TRACE
-    FILE       *_traceFile;                  /* The trace file name */
-    boolean     _traceFileOpen;              /* Specifies if the trace file has been opened. */
-    boolean     _traceServiceThread;         /* Specifies if execution on the service thread is to be traced. */
-    int         _traceLastThreadID;          /* Specifies the thread ID at the last call to trace() */
-
-    int         _total_extends;              /* Total number of extends */
-    int         _total_slots;                /* Total number of slots cleared */
-
-    int         _statsFrequency;             /* The statistics output frequency */
-#endif /* TRACE */
-
-#if defined(PROFILING) | TRACE
-    jlong       _lastStatCount;
-#endif /* PROFILING */
-
-    Address     _cachedClassState[CLASS_CACHE_SIZE > 0 ? CLASS_CACHE_SIZE : 1];
-    Address     _cachedClass     [CLASS_CACHE_SIZE > 0 ? CLASS_CACHE_SIZE : 1];
-#ifdef INTERPRETER_STATS
-    int         _cachedClassAccesses;
-    int         _cachedClassHits;
-#endif /* INTERPRETER_STATS */
-
-    Address    *_pendingMonitors;
-    int         _pendingMonitorStackPointer;
-#ifdef INTERPRETER_STATS
-    int         _pendingMonitorAccesses;
-    int         _pendingMonitorHits;
-#endif /* INTERPRETER_STATS */
-
-} TrueGlobals;
 #endif	/* JAVA */
 
 /**
@@ -195,19 +132,28 @@ typedef struct globalsStruct {
     int         _pendingMonitorHits;
 #endif /* INTERPRETER_STATS */
 
+#ifdef JAVA
+	boolean     _inFatalVMError;
+	char        _service_stack[SERVICE_CHUNK_SIZE] __attribute__((aligned(MM_PAGE_SIZE)));
+#endif /* JAVA */
+
+
 } Globals;
 
 /*=======================================================================*\
  *                          Truly global globals                         *
 \*=======================================================================*/
 
-Globals *gp;              /* The pointer to the global execution context */
-/* The user mode execution context */
-#ifdef JAVA
 /* keep it thread/core local */
+#ifdef JAVA
+/* The pointer to the global execution context */
+Globals *gps[AR_FORMIC_CORES_PER_BOARD];
+#define gp gps[my_cid]
+/* The user mode execution context */
 Globals userGlobals[AR_FORMIC_CORES_PER_BOARD];
 #else
-__thread Globals userGlobals;
+__thread Globals *gp;         /* The pointer to the global execution context */
+__thread Globals userGlobals; /* The user mode execution context */
 #endif /* JAVA */
 
 #if KERNEL_SQUAWK
@@ -345,6 +291,11 @@ boolean     notrap;
 #define lastStatCount                       defineGlobal(lastStatCount)
 #endif /* PROFILING */
 
+#ifdef JAVA
+#define inFatalVMError                      defineGlobal(inFatalVMError)
+#define service_stack                       defineGlobal(service_stack)
+#endif /* JAVA */
+
 /**
  * Initialize/re-initialize the globals to their defaults.
  */
@@ -385,11 +336,10 @@ int initializeGlobals(Globals *globals) {
 /**
  * Prints the name and current value of all the globals.
  */
-#ifdef JAVA
-#define printGlobals()
-#else
 void printGlobals() {
+#ifndef JAVA
     FILE *vmOut = streams[currentStream];
+#endif  /* JAVA */
 #if TRACE
     int i;
 
@@ -414,7 +364,6 @@ void printGlobals() {
     fprintf(vmOut, "printGlobals() requires tracing\n");
 #endif /* TRACE */
 }
-#endif /* JAVA */
 
 /**
  * Sets the stream for the VM.print... methods to one of the com_sun_squawk_VM_STREAM_... constants.

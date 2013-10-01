@@ -211,6 +211,9 @@ class Symbols {
          * @return  the last name in the pathname returned by {@link #getFilePath()}
          */
         public String getFile() {
+	        if (filePath==null)
+		        return "";
+
             File file = new File(filePath);
             return file.getName();
         }
@@ -224,6 +227,9 @@ class Symbols {
          */
         public int getSourceLineNumber(int pc) {
             Assert.that(startPCs != null, "line number table is not yet set");
+            if (lineNumbers==null)
+	            return 0;
+
             int lineNumber = lineNumbers.length == 0 ? -1 : lineNumbers[0];
             for (int i = 0; i != startPCs.length; ++i) {
                 int startPC = startPCs[i];

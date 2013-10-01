@@ -49,12 +49,15 @@
 /* map various functions to myrmics' ones */
 #define fprintf(s, ...) printf(__VA_ARGS__)
 #define fflush(s)
-#define strlen kt_strlen
-#define strncpy kt_strncpy
-#define strncmp kt_strncmp
-#define free kt_free
-#define malloc kt_malloc
-#define atoi kt_atoi
+#define strlen          kt_strlen
+#define strncpy         kt_strncpy
+#define strncmp         kt_strncmp
+#define free            kt_free
+#define malloc          kt_malloc
+#define atoi            kt_atoi
+
+#define my_cid          ar_get_core_id()
+#define my_bid          ar_get_board_id()
 
 /* Myrmics uses the ar_float_sqrt and ar_float_pow as sqrt and pow
  * respectively. However to be consistent with libc those should be
@@ -74,24 +77,18 @@
 #define EXIT_FAILURE 1
 
 void exit(int status) {
-  int b, c;
+	kt_printf("Board=%d Core=%d : Exited with %d\n",
+	          my_bid, my_cid, status);
 
-  // Get core & board ID
-  b = ar_get_board_id();
+	// Instruct server to kill the power
+	if ((my_bid == AR_BOOT_MASTER_BID) && (!my_cid)) {
+		ar_uart_flush();
+		ar_timer_busy_wait_msec(200);
+		kt_printf("%s", DBG_KILL_CONNECTION);
+	}
 
-  c = ar_get_core_id();
-
-  // Instruct server to kill the power
-  if ((b == AR_BOOT_MASTER_BID) && (!c)) {
-    ar_uart_flush();
-    ar_timer_busy_wait_msec(200);
-    kt_printf("%s", DBG_KILL_CONNECTION);
-  }
-
-  // Stall until power off
-  while (1) {
-    ;
-  }
+	// Stall until power off
+	while (1);
 }
 
 
@@ -106,20 +103,14 @@ extern int __linker_squawk_suite_end;
  * @return pointer to allocated memory or null.
  */
 INLINE void* sysValloc(size_t size) {
-  int           my_cid;
-  size_t        kernel_base;
 
-  if (size>MM_MB_KERNEL_SIZE) {
-    fprintf(stderr, "Requesting %d Bytes but there are only %d available\n",
-            size, MM_MB_KERNEL_SIZE);
-    return NULL;
-  }
+	if (size>MM_MB_KERNEL_SIZE) {
+		fprintf(stderr, "Requesting %d Bytes but there are only %d available\n",
+		        size, MM_MB_KERNEL_SIZE);
+		return NULL;
+	}
 
-
-  my_cid = ar_get_core_id();
-  kernel_base = mm_va_kernel_base(my_cid);
-
-  return (void*)kernel_base;
+	return (void*)mm_va_kernel_base(my_cid);
 }
 
 /**
@@ -130,17 +121,17 @@ INLINE void* sysValloc(size_t size) {
 #define sysVallocFree(x)
 
 INLINE int sysGetPageSize(void) {
-  return MM_PAGE_SIZE;
+	return MM_PAGE_SIZE;
 }
 
 /**
  * Return the current time in microseconds.
  */
 jlong sysTimeMicros() {
-  // get the cycles, each cycle is 100ns
-  jlong res = (jlong)ar_free_timer_get_cycles();
-  res = res / 10;
-  return res;
+	// get the cycles, each cycle is 100ns
+	jlong res = (jlong)ar_free_timer_get_cycles();
+	res = res / 10;
+	return res;
 }
 
 /**
@@ -148,16 +139,16 @@ jlong sysTimeMicros() {
  * Returns 1 if succeeded, 0 otherwise
  */
 INLINE int sys_compare_and_swap(void* ptr, int old, int new) {
-  return ar_compare_and_swap(ptr, old, new);
+	return ar_compare_and_swap(ptr, old, new);
 }
 
 /**
  * Return the current time in milliseconds.
  */
 INLINE jlong sysTimeMillis(void) {
-  jlong res = sysTimeMicros();
-  res = res / 1000;
-  return res;
+	jlong res = sysTimeMicros();
+	res = res / 1000;
+	return res;
 }
 #define getMilliseconds sysTimeMillis
 
@@ -175,7 +166,8 @@ INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly) 
  * function is not implemented for the eSPOT or the bSPOT. It gets
  * called in every bytecode execution.
  */
-INLINE void osloop() {}
+//INLINE void osloop() {}
+#define osloop()
 
 #define enableARMInterrupts enableInterrupts
 #define enableInterrupts(x)

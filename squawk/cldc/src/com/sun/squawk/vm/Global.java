@@ -46,7 +46,7 @@ import java.util.Hashtable;
  * This class is only used by the romize process, not used at runtime.
  */
 public final class Global {
-    
+
     /**
      * Purely static class should not be instantiated.
      */

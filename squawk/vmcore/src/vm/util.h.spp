@@ -86,33 +86,23 @@ NORETURN void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddr
 NORETURN void fatalVMError0(char *msg, boolean cleanup) {
 	// allocate AR_FORMIC_CORES_PER_BOARD inFatalVMError's in the bss
 	// segment (one for each core)
-/*if[MICROBLAZE_BUILD]*/
-	static boolean inFatalVMError[AR_FORMIC_CORES_PER_BOARD] = {false};
-	int my_cid = ar_get_core_id();
-/*else[MICROBLAZE_BUILD]*/
-//	static __thread boolean inFatalVMError = {false};
+/*if[!MICROBLAZE_BUILD]*/
+	// In microblaze this is defined as a global in globals.h
+	static __thread boolean inFatalVMError = false;
 /*end[MICROBLAZE_BUILD]*/
 	NORETURN void stopVM0(int, boolean);
 
 	if (msg == null) {
 		msg = "fatal VM error";
 	}
-/*if[MICROBLAZE_BUILD]*/
-	if (inFatalVMError[my_cid]) {
-/*else[MICROBLAZE_BUILD]*/
-//	if (inFatalVMError) {
-/*end[MICROBLAZE_BUILD]*/
+	if (inFatalVMError) {
 		fprintf(stderr, "Recursive call to fatalVMError(%s)\n", msg);
 		fflush(stderr);
 		exit(1);
 	} else {
 		fprintf(stderr, "%s\n", msg);
 		fflush(stderr);
-/*if[MICROBLAZE_BUILD]*/
-		inFatalVMError[my_cid] = true;
-/*else[MICROBLAZE_BUILD]*/
-//		inFatalVMError = true;
-/*end[MICROBLAZE_BUILD]*/
+		inFatalVMError = true;
 #if TRACE
 		printStackTrace(msg);
 #endif
@@ -393,7 +383,6 @@ jlong math(int op, jlong rs1_l, jlong rs2_l) {
 	double rs1 = lb2d(rs1_l);
 	double rs2 __attribute__((unused)) = lb2d(rs2_l);
 	double res = 0.0;
-	printf("In C x= %.30lf\n", rs1);
 	switch (op) {
 	case MathOpcodes_SIN:      res = JFP_lib_sin(rs1);               break;
 	case MathOpcodes_COS:      res = JFP_lib_cos(rs1);               break;

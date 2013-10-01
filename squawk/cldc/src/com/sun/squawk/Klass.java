@@ -1627,7 +1627,7 @@ T
         }
     }
 
-    void dumpMethodSymbols(PrintStream out) {
+    public void dumpMethodSymbols(PrintStream out) {
         if (!isArray() && !isSynthetic()) {
             String fileName = getSourceFilePath();
             if (fileName == null) {

@@ -22,79 +22,73 @@ package spec.benchmarks.check;
 
 public class Main {
 
-    /**
-     * Run this functional test.
-     */
-    // public static String testType() {
-    //     return FUNCTIONAL;
-    // }
+	/**
+	 * Run this functional test.
+	 */
+	// public static String testType() {
+	//     return FUNCTIONAL;
+	// }
 
-    public static long runBenchmark() {
-        boolean caughtIndex = false;
-        boolean gotToFinally = false;
+	public static long runBenchmark() {
+		boolean caughtIndex = false;
+		boolean gotToFinally = false;
 
-        try {
-            int[] a = new int[10];
-            for (int i = 0; i <= 10; i++)
-                a[i] = i;
-            System.out.println("Error: array bounds not checked");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            caughtIndex = true;
-        } finally {
-            gotToFinally = true;
-        }
+		try {
+			int[] a = new int[10];
+			for (int i = 0; i <= 10; i++)
+				a[i] = i;
+			System.out.println("Error: array bounds not checked");
+		} catch (ArrayIndexOutOfBoundsException e) {
+			caughtIndex = true;
+		} finally {
+			gotToFinally = true;
+		}
 
-        if (!caughtIndex) {
-            System.out.println("1st bounds test error:\tindex exception not received");
-        }
-        if (!gotToFinally) {
-            System.out.println("1st bounds test error:\tfinally clause not executed");
-        }
-        if (caughtIndex && gotToFinally) {
-            System.out.println("1st bounds test:\tOK");
-        }
+		if (!caughtIndex) {
+			System.out.println("1st bounds test error:\tindex exception not received");
+		}
+		if (!gotToFinally) {
+			System.out.println("1st bounds test error:\tfinally clause not executed");
+		}
+		if (!caughtIndex || !gotToFinally) {
+			System.out.println("1st bounds test:\t[1;31mFAIL[0m");
+		}
+		// if (caughtIndex && gotToFinally) {
+		//     System.out.println("1st bounds test:\t[1;32mPASS[0m");
+		// }
 
-        checkSubclassing();
+		//checkSubclassing();
 
+		// LoopBounds mule = new LoopBounds();
+		LoopBounds.run();
 
-        // LoopBounds mule = new LoopBounds();
-        LoopBounds.run();
+		if (LoopBounds.gotError)
+			System.out.println("2nd bounds test:\t[1;31mFAIL[0m");
+		// else {
+		//     System.out.println("2nd bounds test:\t[1;32mPASS[0m");
+		// }
 
-        if (LoopBounds.gotError) {
-            System.out.println("2nd bounds test:\tfailed");
-        } else {
-            System.out.println("2nd bounds test:\tOK");
-        }
+		PepTest horse = new PepTest();
+		horse.instanceMain();
 
-        PepTest horse = new PepTest();
-        horse.instanceMain();
+		return 0;
+	}
 
-        if (horse.gotError) {
-            System.out.println("PepTest failed");
-        }
+	private static void checkSubclassing() {
+		Super sup = new Super(3);
+		Sub sub = new Sub(3);
+		System.out.println(sup.getName() + ": " + sup.toString());
+		System.out.println(sub.getName() + ": " + sub.toString());
+		System.out.println("Super: prot=" + sup.getProtected() + ", priv=" + sup.getPrivate());
+		System.out.println("Sub:  prot=" + sub.getProtected() + ", priv=" + sub.getPrivate());
+	}
 
-        return 0;
-    }
-
-    private static void checkSubclassing() {
-        Super sup = new Super(3);
-        Sub sub = new Sub(3);
-        System.out.println(sup.getName() + ": " + sup.toString());
-        System.out.println(sub.getName() + ": " + sub.toString());
-        System.out.println("Super: prot=" + sup.getProtected() + ", priv=" + sup.getPrivate());
-        System.out.println("Sub:  prot=" + sub.getProtected() + ", priv=" + sub.getPrivate());
-    }
-
-    public void harnessMain() {
-        runBenchmark();
-    }
-
-  public static void main(String[] args)
-    {
-      long start = System.currentTimeMillis();
-      runBenchmark();
-      long total = System.currentTimeMillis()-start;
-      System.out.println("time: "+total+" ms");
-    }
+	public static void main(String[] args)
+		{
+			long start = System.currentTimeMillis();
+			runBenchmark();
+			long total = System.currentTimeMillis()-start;
+			System.out.println("time: "+total+" ms");
+		}
 
 }

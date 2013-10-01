@@ -65,7 +65,7 @@ static void ioExecute(void) {
       break;
     default:
       printf("ioExecute unknown op: %d\n", op);
-      printStackTrace("");
+      printStackTrace("ioExecute unknown op");
       res = ChannelConstants_RESULT_BADPARAMETER;
     }
     com_sun_squawk_ServiceOperation_result = res;
