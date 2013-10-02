@@ -40,7 +40,6 @@ extern int outstandingDeepSleepEvent;  // whether the sleep manager thread shoul
 extern long long storedDeepSleepWakeupTarget; // The millis that the next deep sleep should end at
 extern long long minimumDeepSleepMillis; // minimum time we're prepared to deep sleep for: avoid deep sleeping initially.
 extern long long totalShallowSleepTime;    // total time the SPOT has been shallow sleeping
-extern int shallow_sleep_clock_mode;
 
 /* ----------- defined in platform-specific code: ----------- */
 

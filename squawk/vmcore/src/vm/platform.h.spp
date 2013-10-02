@@ -84,10 +84,6 @@
 #include <math.h>
 /*end[MICROBLAZE_BUILD]*/
 
-/*if[MICROBLAZE32_BUILD]*/
-#define double float
-/*end[MICROBLAZE32_BUILD]*/
-
 #ifdef _MSC_VER
 #    include <io.h>
 #    undef  ujlong

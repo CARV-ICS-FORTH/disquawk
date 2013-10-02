@@ -266,8 +266,8 @@ NORETURN void stopVM(int);
  * Setup ss and sl.
  */
 #define setStack(newss) {	  \
-		ss = (UWordAddress)newss; \
-		sl = ss + SC_limit; \
+		ss_g = (UWordAddress)newss; \
+		sl_g = ss_g + SC_limit; \
 	} \
 
 /*
@@ -282,7 +282,7 @@ NORETURN void stopVM(int);
 /*
  * Test to see if the interpreter is running on the GC stack
  */
-#define usingServiceStack() (ss == (UWordAddress)com_sun_squawk_VMThread_serviceStack)
+#define usingServiceStack() (ss_g == (UWordAddress)com_sun_squawk_VMThread_serviceStack)
 
 /*
  * Include utility functions.
@@ -539,10 +539,10 @@ void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
 	/*
 	 * Register the buffer.
 	 */
-	if (BufferCount >= MAX_BUFFERS) {
+	if (BufferCount_g >= MAX_BUFFERS) {
 		fatalVMError("exceeded MAX_BUFFERS allocations");
 	}
-	Buffers[BufferCount++] = buffer;
+	Buffers_g[BufferCount_g++] = buffer;
 
 	return buffer;
 }
@@ -555,29 +555,29 @@ void freeBuffer(Address buffer) {
 	int i = 0;
 	int insert = 0;
 
-	while (i != BufferCount) {
-		if (Buffers[i] == buffer) {
+	while (i != BufferCount_g) {
+		if (Buffers_g[i] == buffer) {
 //fprintf(stderr, format("freeBuffer: buffer=%A\n"), buffer);
 			sysVallocFree(buffer);
 		} else {
-			Buffers[insert] = Buffers[i];
+			Buffers_g[insert] = Buffers_g[i];
 			insert++;
 		}
 		i++;
 	}
 
-	if (BufferCount != insert + 1) {
+	if (BufferCount_g != insert + 1) {
 		fatalVMError("buffer not in Buffers exactly once");
 	}
-	BufferCount = insert;
+	BufferCount_g = insert;
 }
 
 /**
  * Free all the buffers that were allocated by 'newBuffer'.
  */
 void freeBuffers() {
-	while (BufferCount != 0) {
-		freeBuffer(Buffers[0]);
+	while (BufferCount_g != 0) {
+		freeBuffer(Buffers_g[0]);
 	}
 }
 
@@ -812,20 +812,20 @@ static void printCacheStats() {
 #ifdef INTERPRETER_STATS
 	if (count > 0) {
 		fprintf(stderr, "\nTotals - ");
-		fprintf(stderr, " Class: %d",   cachedClassAccesses);
-		fprintf(stderr, " Monitor: %d", pendingMonitorAccesses);
+		fprintf(stderr, " Class: %d",   cachedClassAccesses_g);
+		fprintf(stderr, " Monitor: %d", pendingMonitorAccesses_g);
 		fprintf(stderr, " Exit: %d",    com_sun_squawk_GC_monitorExitCount);
 		fprintf(stderr, " New: %d",     com_sun_squawk_GC_newCount);
 	}
 
 	fprintf(stderr, "\nHits   - ");
-	printCacheStat(" Class",   cachedClassHits,                  cachedClassAccesses);
-	printCacheStat(" Monitor", pendingMonitorHits,               pendingMonitorAccesses);
+	printCacheStat(" Class",   cachedClassHits_g,                  cachedClassAccesses_g);
+	printCacheStat(" Monitor", pendingMonitorHits_g,               pendingMonitorAccesses_g);
 	printCacheStat(" Exit",    com_sun_squawk_GC_monitorReleaseCount, com_sun_squawk_GC_monitorExitCount);
 	printCacheStat(" New",     com_sun_squawk_GC_newHits,        com_sun_squawk_GC_newCount);
 	fprintf(stderr, "\n");
-	cachedClassHits = cachedClassAccesses = 0;
-	pendingMonitorHits = pendingMonitorAccesses = 0;
+	cachedClassHits_g = cachedClassAccesses_g = 0;
+	pendingMonitorHits_g = pendingMonitorAccesses_g = 0;
 #else /* INTERPRETER_STATS */
 	fprintf(stderr, "\n");
 #endif /* INTERPRETER_STATS */
@@ -858,17 +858,14 @@ NORETURN void stopVM(int exitCode) {
  * @param exitCode the exit code
  */
 NORETURN void stopVM0(int exitCode, boolean cleanup) {
-	/* HACK: allow the race */
-	static boolean inStop = false;
-
 /*
   if ( com_sun_squawk_VM_isBlocked) {
   fprintf(stderr, "VM is in a blocking system call!!! WILL CRASH????");
   }
 */
 
-	if (!inStop) {
-		inStop = true;
+	if (!squawk_inStop_g) {
+		squawk_inStop_g = true;
 		finalizeStreams();
 
 		if (cleanup) {
@@ -879,7 +876,7 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 #ifndef FLASH_MEMORY
 		printCacheStats();
 #endif /* !FLASH_MEMORY */
-		fprintf(stderr, "** VM stopped");
+		fprintf(stderr, "** VM on %d:%d stopped", my_bid, my_cid);
 #ifdef PROFILING
 		fprintf(stderr, format(" after %L instructions"), instructionCount);
 #endif /* PROFILING */
@@ -916,7 +913,7 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 #endif
 
 	osfinish();
-	inStop = false;
+	squawk_inStop_g = false;
 	exit(exitCode);
 }
 
@@ -1060,9 +1057,9 @@ int calculateSizeForCopyOfCStringArray(int length, char **array) {
  */
 int writeCString(char *string, int offset) {
 	while (*string != 0) {
-		setByte(memory, offset++, *string++);
+		setByte(memory_g, offset++, *string++);
 	}
-	setByte(memory, offset++, 0); // write null-terminator
+	setByte(memory_g, offset++, 0); // write null-terminator
 	return offset;
 }
 
@@ -1076,12 +1073,12 @@ int writeCString(char *string, int offset) {
  * @return the offset one past the last byte written to the VM's memory buffer
  */
 int writeCStringArray(int length, char **array, int offset) {
-	char **arrayCopy = (char **)Address_add(memory, offset);
+	char **arrayCopy = (char **)Address_add(memory_g, offset);
 
 	// Find the end of the array copy which is where the elements will be copied
 	offset += length * sizeof(Address);
 	while (length-- > 0) {
-		setObject(arrayCopy++, 0, Address_add(memory, offset));
+		setObject(arrayCopy++, 0, Address_add(memory_g, offset));
 		offset = writeCString(*array++, offset);
 	}
 	return offset;
@@ -1171,41 +1168,41 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	diagnosticWithValue("setupMemory: nvmSize size", nvmSize);
 
 #ifdef FLASH_MEMORY
-	memorySize = roundUp(ramSize - (pageSize-1), pageSize);
-	ramSize = memorySize
+	memorySize_g = roundUp(ramSize - (pageSize-1), pageSize);
+	ramSize = memorySize_g
 		- roundUp(serviceChunkSize, pageSize)
 		- roundUp(argvTotalSize, pageSize)
 		- roundUp(nvmSize, pageSize);
 	diagnosticWithValue("ram size", ramSize);
 	diagnosticWithValue("page size", pageSize);
-	diagnosticWithValue("memory size", memorySize);
+	diagnosticWithValue("memory size", memorySize_g);
 	assume(!TYPEMAP);
 #else /* FLASH_MEMORY */
-	memorySize = getFileSize(bootstrapSuiteFile);
-	if (memorySize == -1) {
+	memorySize_g = getFileSize(bootstrapSuiteFile);
+	if (memorySize_g == -1) {
 		char* altName = sysGetAlternateBootstrapSuiteLocation(bootstrapSuiteFile);
 		if (altName) {
 			printf("bootstrap suite not found, trying %s\n", altName);
 			bootstrapSuiteFile = altName;
-			memorySize = getFileSize(bootstrapSuiteFile);
+			memorySize_g = getFileSize(bootstrapSuiteFile);
 		}
 	}
-	memorySize = roundUp(memorySize + ramSize, pageSize);
-	memorySize = roundUp(memorySize + nvmSize, pageSize);
-	memorySize = roundUp(memorySize + serviceChunkSize, pageSize);
-	memorySize = roundUp(memorySize + argvTotalSize, pageSize);
+	memorySize_g = roundUp(memorySize_g + ramSize, pageSize);
+	memorySize_g = roundUp(memorySize_g + nvmSize, pageSize);
+	memorySize_g = roundUp(memorySize_g + serviceChunkSize, pageSize);
+	memorySize_g = roundUp(memorySize_g + argvTotalSize, pageSize);
 #endif /* FLASH_MEMORY */
 
 	// Double the memory buffer to allocate the type map if necessary
-	realMemorySize = TYPEMAP ? memorySize * 2 : memorySize;
+	realMemorySize = TYPEMAP ? memorySize_g * 2 : memorySize_g;
 
 	// Allocate the memory buffer
-	memory = newBuffer(realMemorySize, "memory", true);
-	memoryEnd = Address_add(memory, memorySize);
+	memory_g = newBuffer(realMemorySize, "memory", true);
+	memoryEnd_g = Address_add(memory_g, memorySize_g);
 /*if[MICROBLAZE_BUILD]*/
 /*if[DEBUG_CODE_ENABLED]*/
 	printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
-	printf("[DIAG]  Got range %p-%p\n", memory, memoryEnd);
+	printf("[DIAG]  Got range %p-%p\n", memory_g, memoryEnd_g);
 /*end[DEBUG_CODE_ENABLED]*/
 /*end[MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
@@ -1228,9 +1225,9 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 
 #else /* FLASH_MEMORY */
 	// ROM starts at the begining of the VM's memory buffer
-	com_sun_squawk_VM_romStart = com_sun_squawk_VM_bootstrapStart = memory;
+	com_sun_squawk_VM_romStart = com_sun_squawk_VM_bootstrapStart = memory_g;
 	bootstrapSize = loadBootstrapSuite(bootstrapSuiteFile,
-	                                   memory, memorySize,
+	                                   memory_g, memorySize_g,
 	                                   &suite,
 	                                   &com_sun_squawk_VM_bootstrapHash);
 	com_sun_squawk_VM_romEnd = Address_add(com_sun_squawk_VM_romStart,
@@ -1242,7 +1239,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 /*if[!MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
 	// NVM starts at the beginning of the memory buffer
-	com_sun_squawk_GC_nvmStart = (Address)roundUp((UWord)memory, pageSize);
+	com_sun_squawk_GC_nvmStart = (Address)roundUp((UWord)memory_g, pageSize);
 #else
 	// NVM starts on the next page after the end of ROM
 	com_sun_squawk_GC_nvmStart = (Address)roundUp((UWord)com_sun_squawk_VM_romEnd,
@@ -1254,7 +1251,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 
 	// RAM starts on the next page after the end of NVM
 /*if[MICROBLAZE_BUILD]*/
-	com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)memory, pageSize);
+	com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)memory_g, pageSize);
 /*else[MICROBLAZE_BUILD]*/
 //	com_sun_squawk_GC_ramStart =
 //		(Address)roundUp((UWord)com_sun_squawk_GC_nvmEnd, pageSize);
@@ -1272,12 +1269,8 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 //	com_sun_squawk_VMThread_serviceStack =
 //		Address_add(roundUp((UWord)com_sun_squawk_GC_ramEnd, pageSize), TWOWORDS);
 
-/*if[!MICROBLAZE_BUILD]*/
-	// In microblaze this is defined as a global in globals.h
-	static __thread char service_stack[SERVICE_CHUNK_SIZE];
-/*end[MICROBLAZE_BUILD]*/
 	com_sun_squawk_VMThread_serviceStack =
-		Address_add((UWord)service_stack, TWOWORDS);
+		Address_add((UWord)service_stack_g, TWOWORDS);
 
 	setArrayLength(com_sun_squawk_VMThread_serviceStack,
 	               SERVICE_CHUNK_SIZE_MINUS2WORDS / HDR_BYTES_PER_WORD);
@@ -1291,18 +1284,18 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 /*if[MICROBLAZE_BUILD]*/
 	// No need to re-allocate argv
 	com_sun_squawk_VM_argv = argv;
-	offset = Address_diff(com_sun_squawk_GC_ramStart, memory);
+	offset = Address_diff(com_sun_squawk_GC_ramStart, memory_g);
 /*else[MICROBLAZE_BUILD]*/
 //  // The stack for the service thread starts on the next page after the end of RAM.
 //  // The length of the stack in logical slots is written into the first word of the
 //  // block allocate for the stack. This length is later used in Thread.initializeThreading()
 //  // to format the stack as a Java object of type Klass.LOCAL_ARRAY
 //  com_sun_squawk_VM_argv = (Address)roundUp((UWord)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS), pageSize);
-//  offset = writeCStringArray(argc, argv, Address_diff(com_sun_squawk_VM_argv, memory));
+//  offset = writeCStringArray(argc, argv, Address_diff(com_sun_squawk_VM_argv, memory_g));
 /*end[MICROBLAZE_BUILD]*/
 
 	// Ensure that the buffer did not overflow
-	assumeAlways(loeq(Address_add(memory, offset), memoryEnd));
+	assumeAlways(loeq(Address_add(memory_g, offset), memoryEnd_g));
 
 	// Ensure all the buffers start at word aligned addresses.
 	assume(isWordAligned((UWord)com_sun_squawk_VM_romStart));
@@ -1320,12 +1313,12 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	           (char*)suite,
 	           (char*)((char*) suite + bootstrapSize));
 	printRange("Memory    ",
-	           (char*)memory,
-	           (char*)memoryEnd);
+	           (char*)memory_g,
+	           (char*)memoryEnd_g);
 #if TYPEMAP
 	printRange("Type map  ",
-	           (char*)getTypePointer(memory),
-	           (char*)getTypePointer(memoryEnd));
+	           (char*)getTypePointer(memory_g),
+	           (char*)getTypePointer(memoryEnd_g));
 #endif /* TYPEMAP */
 #if DEFAULT_NVM_SIZE
 	printRange("NVM       ",
@@ -1346,7 +1339,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 /*else[MICROBLAZE_BUILD]*/
 //	printRange("argv      ",
 //	           (char*)com_sun_squawk_VM_argv,
-//	           (char*)Address_add(memory, offset));
+//	           (char*)Address_add(memory_g, offset));
 /*end[MICROBLAZE_BUILD]*/
 /*end[DEBUG_CODE_ENABLED]*/
 
@@ -1583,7 +1576,7 @@ Address processArgs(char *argv[], const int argc) {
 #endif /* FLASH_MEMORY */
 #if TRACE
 							} else if (equals(arg, "tnoservice")) {
-								traceServiceThread = false;
+								traceServiceThread_g = false;
 /*if[!MICROBLAZE_BUILD]*/
 							} else if (equals(arg, "terr")) {
 								traceFile = stderr;
@@ -1597,8 +1590,8 @@ Address processArgs(char *argv[], const int argc) {
 								setTraceEnd(start + 1000);
 /*end[MICROBLAZE_BUILD]*/
 							} else if (startsWith(arg, "stats:")) {
-								statsFrequency = parseQuantity(arg+6, wholeArg);
-								if (statsFrequency == 0) {
+								statsFrequency_g = parseQuantity(arg+6, wholeArg);
+								if (statsFrequency_g == 0) {
 									fprintf(stderr,"-Xstats:0 is invalid\n");
 									stopVM(-1);
 								}
@@ -2065,15 +2058,16 @@ Address Squawk_setup(int argc, char *argv[]) {
 	 */
 	com_sun_squawk_VM_usingTypeMap = TYPEMAP;
 
+	initMethods();
+
 	/*
 	 * Make ROM and NVM be read-only
 	 */
 /*if[!MICROBLAZE_BUILD]*/
 	sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, true);
-	sysToggleMemoryProtection(com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, true);
 /*end[MICROBLAZE_BUILD]*/
-
-	initMethods();
+	/* NOTE: Formic here makes the code/bss segment readonly and not the actual address range */
+	sysToggleMemoryProtection(com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, true);
 
 	/*
 	 * Return the bootstrap suite.
@@ -2086,9 +2080,9 @@ Address Squawk_setup(int argc, char *argv[]) {
  * encapsulating the current execution context (uer or kernel).
  */
 #define saveContextRegisters() {	  \
-		saved_ip = ip; \
-		saved_fp = fp; \
-		saved_sp = sp; \
+		saved_ip_g = ip_g; \
+		saved_fp_g = fp_g; \
+		saved_sp_g = sp_g; \
 	}
 
 /**
@@ -2120,18 +2114,18 @@ void Squawk_continue() {
 #endif /* TRACE */
 
 #ifdef MACROIZE
-	int          iparm;             /* The immediate operand value of the current bytecode. */
-	ByteAddress  ip;                /* The instruction pointer. */
-	UWordAddress fp;                /* The frame pointer. */
-	UWordAddress sp;                /* The stack pointer. */
+	int          iparm_g;             /* The immediate operand value of the current bytecode. */
+	ByteAddress  ip_g;                /* The instruction pointer. */
+	UWordAddress fp_g;                /* The frame pointer. */
+	UWordAddress sp_g;                /* The stack pointer. */
 #if SDA_DEBUGGER
 	int sda_bp_set_or_stepping = false;     /* TRUE if we have any breakpoints set or are in a stepping mode [optimisation] */
 #endif /* SDA_DEBUGGER */
 #endif /* MACROIZE */
 
-	ip = saved_ip;                  /* Restore the instruction pointer. */
-	fp = saved_fp;                  /* Restore the frame pointer. */
-	sp = saved_sp;                  /* Restore the stack pointer. */
+	ip_g = saved_ip_g;                  /* Restore the instruction pointer. */
+	fp_g = saved_fp_g;                  /* Restore the frame pointer. */
+	sp_g = saved_sp_g;                  /* Restore the stack pointer. */
 
 	/* if (com_sun_squawk_VM_verboseLevel != 0) {
 	 * 	fprintf(stderr, "[switched to %s context]\n", (gp == &kernelGlobals ? "kernel" : "user"));
@@ -2144,15 +2138,15 @@ void Squawk_continue() {
 #if TRACE
 #ifdef OSPROF
 		const int lastOpcode = opcodeCopy;
-		ByteAddress ipCopy = ip;
+		ByteAddress ipCopy = ip_g;
 #endif /* OSPROF */
 #ifdef MACROIZE
 		/*
 		 * Copy the variable values into corresponding globals so that
 		 * printStackTrace() works in the macroized version of the VM
 		 */
-		lastIP = ip;
-		lastFP = fp;
+		lastIP_g = ip_g;
+		lastFP_g = fp_g;
 #endif /* MACROIZE */
 
 #endif /* TRACE */
@@ -2162,7 +2156,7 @@ void Squawk_continue() {
 		 * will update frame and ip, so that breakpoint handling code is called instead.  Likewise, if a step occurs,
 		 * single step handling code is called.
 		 */
-		sda_checkBreakOrStep(ip, fp, sp);
+		sda_checkBreakOrStep(ip_g, fp_g, sp_g);
 #endif
 
 		opcode = fetchUByte();
@@ -2173,17 +2167,17 @@ void Squawk_continue() {
 #endif
 		osloop();
 #ifdef DB_DEBUG
-		db_checkBreak(opcode, ip, fp);
+		db_checkBreak(opcode, ip_g, fp_g);
 #endif
 
 
 #ifdef PROFILING
 		instructionCount++;
 #ifdef OSPROF
-		OSPROF(ipCopy, fp, lastOpcode);
+		OSPROF(ipCopy, fp_g, lastOpcode);
 #else
 		if (sampleFrequency > 0 && (instructionCount % sampleFrequency) == 0) {
-			printProfileStackTrace(ipCopy, fp, lastOpcode);
+			printProfileStackTrace(ipCopy, fp_g, lastOpcode);
 		}
 #endif /* OSPROF */
 #endif /* PROFILING */
@@ -2278,32 +2272,32 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
 	printValueInRange(_ip, "ip", com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, "code");
 #endif
 
-	if (ss == com_sun_squawk_VMThread_serviceStack) {
-		fprintf(stderr, "    stack: %p. current stack is service stack\n", ss);
-	} else if (printValueInRange(ss, "stack", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM")) {
-		int cid = com_sun_squawk_Klass_id(getClass(ss));
+	if (ss_g == com_sun_squawk_VMThread_serviceStack) {
+		fprintf(stderr, "    stack: %p. current stack is service stack\n", ss_g);
+	} else if (printValueInRange(ss_g, "stack", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM")) {
+		int cid = com_sun_squawk_Klass_id(getClass(ss_g));
 		if (cid == CID_LOCAL_ARRAY) {
 			userStack = TRUE;
 		} else {
 			fprintf(stderr, "stack has bad class id: %x\n", cid);
 		}
 	}
-	stackHigh = Address_add(ss, getArrayLength(ss) * HDR_BYTES_PER_WORD);
-	printValueInRange(_sp, "sp", sl, stackHigh, "current stack");
-	printValueInRange(_fp, "fp", sl, stackHigh, "current stack");
+	stackHigh = Address_add(ss_g, getArrayLength(ss_g) * HDR_BYTES_PER_WORD);
+	printValueInRange(_sp, "sp", sl_g, stackHigh, "current stack");
+	printValueInRange(_fp, "fp", sl_g, stackHigh, "current stack");
 
 	// saved values not always valid.
 	fprintf(stderr, "        next three saved values may not be valid:\n");
 #if com_sun_squawk_Klass_ENABLE_DYNAMIC_CLASSLOADING
-	printValueInRange(saved_ip, "saved_ip", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
+	printValueInRange(saved_ip_g, "saved_ip_g", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
 #else
-	printValueInRange(saved_ip, "saved_ip", com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, "code");
+	printValueInRange(saved_ip_g, "saved_ip_g", com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, "code");
 #endif
-	printValueInRange(saved_sp, "saved_sp", sl, stackHigh, "current stack");
-	printValueInRange(saved_fp, "saved_fp", sl, stackHigh, "current stack");
+	printValueInRange(saved_sp_g, "saved_sp_g", sl_g, stackHigh, "current stack");
+	printValueInRange(saved_fp_g, "saved_fp_g", sl_g, stackHigh, "current stack");
 
 	if (userStack) {
-		Address thread = getObject(ss, SC_owner);
+		Address thread = getObject(ss_g, SC_owner);
 
 		printValueInRange(thread, "thread", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM");
 		printStrSafely(com_sun_squawk_VMThread_name(thread), "thread name", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "RAM or ROM");
@@ -2338,19 +2332,21 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
 void Squawk_run(int argc, char *argv[]) {
 	Address bootstrapSuite = Squawk_setup(argc, argv);
 
+/* TODO: FIXME: Make the code segment readonly */
+
 //fpTest();
 
 #ifdef MACROIZE
-	ByteAddress  ip = 0;            /* The instruction pointer. */
-	UWordAddress fp = 0;            /* The frame pointer. */
-	UWordAddress sp = 0;            /* The stack pointer. */
+	ByteAddress  ip_g = 0;            /* The instruction pointer. */
+	UWordAddress fp_g = 0;            /* The frame pointer. */
+	UWordAddress sp_g = 0;            /* The stack pointer. */
 #endif
 
 	/*
 	 * Set up the VM entry point.
 	 */
-	ip = (ByteAddress)com_sun_squawk_VM_startup;
-	sp = (UWordAddress)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS);
+	ip_g = (ByteAddress)com_sun_squawk_VM_startup;
+	sp_g = (UWordAddress)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS);
 	setStack(com_sun_squawk_VMThread_serviceStack);
 
 	/*
@@ -2407,11 +2403,17 @@ void Squawk_main(int argc, char *argv[]) {
  * @param argv the parameter argument vector
  */
 int Squawk_main_wrapper(int argc, char *argv[]) {
-/*if[MICROBLAZE_BUILD]*/
-	initializeGlobals(&userGlobals[my_cid]);
-/*else[MICROBLAZE_BUILD]*/
-//	initializeGlobals(&userGlobals);
-/*end[MICROBLAZE_BUILD]*/
+    /* The user mode execution context
+     *
+     * Although stack allocated we pass the pointer to a global
+     * variable and use it throughout the VM as a global variable.
+     * Given that this function should never return this is OK.
+     */
+	Globals userGlobals;
+	void initializeLiterals();
+
+	initializeGlobals(&userGlobals);
+	initializeLiterals();
 
 /*if[EMULATOR_LAUNCHER]*/
 	char *executable = argv[0];

@@ -1427,7 +1427,7 @@ hbp.dumpState();
      * @return the pointer to the frame that is the calling context for <code>fp</code>
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="return getObject(_fp, FP_returnFP);")
+    @Vm2c(code="return getObject(fp, FP_returnFP);")
 /*end[JAVA5SYNTAX]*/
     native static Address getPreviousFP(Address fp) throws AllowInlinedPragma;
 
@@ -1438,7 +1438,7 @@ hbp.dumpState();
      * @return the previous instruction pointer
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="return getObject(_fp, FP_returnIP);")
+    @Vm2c(code="return getObject(fp, FP_returnIP);")
 /*end[JAVA5SYNTAX]*/
     native static Address getPreviousIP(Address fp) throws AllowInlinedPragma;
 
@@ -1449,7 +1449,7 @@ hbp.dumpState();
      * @param pfp the previous frame pointer
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="setObject(_fp, FP_returnFP, pfp);")
+    @Vm2c(code="setObject(fp, FP_returnFP, pfp);")
 /*end[JAVA5SYNTAX]*/
     native static void setPreviousFP(Address fp, Address pfp);
 
@@ -1460,7 +1460,7 @@ hbp.dumpState();
      * @param pip the previous instruction pointer
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="setObject(_fp, FP_returnIP, pip);")
+    @Vm2c(code="setObject(fp, FP_returnIP, pip);")
 /*end[JAVA5SYNTAX]*/
     native static void setPreviousIP(Address fp, Address pip);
 
@@ -1603,7 +1603,7 @@ hbp.dumpState();
      * @return the value of entry <code>index</code> in the global integer table
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(macro="Ints[index]")
+    @Vm2c(macro="Ints_g[index]")
 /*end[JAVA5SYNTAX]*/
     native static int getGlobalInt(int index);
 
@@ -1614,7 +1614,7 @@ hbp.dumpState();
      * @param  index   index of the entry to update in the global integer table
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="Ints[index] = value;")
+    @Vm2c(code="Ints_g[index] = value;")
 /*end[JAVA5SYNTAX]*/
     native static void setGlobalInt(int value, int index);
 
@@ -1635,7 +1635,7 @@ hbp.dumpState();
      * @return the value of entry <code>index</code> in the global pointer table
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(macro="Addrs[index]")
+    @Vm2c(macro="Addrs_g[index]")
 /*end[JAVA5SYNTAX]*/
     native static Address getGlobalAddr(int index);
 
@@ -1646,7 +1646,7 @@ hbp.dumpState();
      * @param  index   index of the entry to update in the global pointer table
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="Addrs[index] = value;")
+    @Vm2c(code="Addrs_g[index] = value;")
 /*end[JAVA5SYNTAX]*/
     native static void setGlobalAddr(Address value, int index);
 
@@ -1667,7 +1667,7 @@ hbp.dumpState();
      * @return the value of entry <code>index</code> in the global object pointer table
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(macro="Oops[index]")
+    @Vm2c(macro="Oops_g[index]")
 /*end[JAVA5SYNTAX]*/
     native static Object getGlobalOop(int index);
 
@@ -1678,7 +1678,7 @@ hbp.dumpState();
      * @param  index   index of the entry to update in the global object pointer table
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="Oops[index] = value;")
+    @Vm2c(code="Oops_g[index] = value;")
 /*end[JAVA5SYNTAX]*/
     native static void setGlobalOop(Object value, int index);
 
@@ -1688,7 +1688,7 @@ hbp.dumpState();
      * @return  the address of the global object pointer table
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="return Oops;")
+    @Vm2c(code="return Oops_g;")
 /*end[JAVA5SYNTAX]*/
     native static Address getGlobalOopTable();
 

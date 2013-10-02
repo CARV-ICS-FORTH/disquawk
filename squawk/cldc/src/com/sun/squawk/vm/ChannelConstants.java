@@ -293,9 +293,8 @@ public final class ChannelConstants {
 	public static final int SET_MINIMUM_DEEP_SLEEP_TIME         = SLEEP_OPCODES + 6;
 	public static final int TOTAL_SHALLOW_SLEEP_TIME_MILLIS_HIGH = SLEEP_OPCODES + 7;
 	public static final int TOTAL_SHALLOW_SLEEP_TIME_MILLIS_LOW = SLEEP_OPCODES + 8;
-	public static final int SET_SHALLOW_SLEEP_CLOCK_MODE        = SLEEP_OPCODES + 9;
 
-	public static final int MISC_OPCODES                        = SLEEP_OPCODES + 10;
+	public static final int MISC_OPCODES                        = SLEEP_OPCODES + 9;
 
 	public static final int FLASH_ERASE                         = MISC_OPCODES + 0;
 	public static final int FLASH_WRITE                         = MISC_OPCODES + 1;

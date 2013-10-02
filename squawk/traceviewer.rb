@@ -16,7 +16,7 @@ File.open(trace).each do |line|
   if line.start_with?("*TRACE*:*ROM*:")
     romstart = line.split(':')[2].to_i+4
     puts line
-  elsif line.start_with?("*STACKTRACE*:")
+  elsif line.start_with?("*STACKTRACE*:") and not line.include?("\"")
     offset = line.split(':')[1].to_i-romstart
     flag = 0
     begin
@@ -37,7 +37,7 @@ File.open(trace).each do |line|
         puts line.gsub(/\n/, '')+"\t"+tokens[1].split[1]
         flag = 3
       else
-        offset -= 768
+        offset -= 760
         flag += 1
       end
     end until flag > 1

@@ -53,8 +53,8 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
 \*-----------------------------------------------------------------------*/
 
 #ifdef INTERPRETER_STATS
-#define updateCachedClassAccesses() cachedClassAccesses++
-#define updateCachedClassHits() cachedClassHits++
+#define updateCachedClassAccesses() cachedClassAccesses_g++
+#define updateCachedClassHits() cachedClassHits_g++
 #else
 #define updateCachedClassAccesses()
 #define updateCachedClassHits()
@@ -71,11 +71,11 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
 /*MAC*/ void addClassState(Address $klass, Address $state) {
 	int i;
 	for (i = CLASS_CACHE_SIZE-1 ; i > 0  ; --i) {
-		cachedClass[i]      = cachedClass[i-1];
-		cachedClassState[i] = cachedClassState[i-1];
+		cachedClass_g[i]      = cachedClass_g[i-1];
+		cachedClassState_g[i] = cachedClassState_g[i-1];
 	}
-	cachedClass[0]      = $klass;
-	cachedClassState[0] = $state;
+	cachedClass_g[0]      = $klass;
+	cachedClassState_g[0] = $state;
 }
 
 /**
@@ -88,9 +88,9 @@ Address getClassState(Address klass) {
 	int i;
 	updateCachedClassAccesses();
 	for (i = 0 ; i < CLASS_CACHE_SIZE ; i++) {
-		if (cachedClass[i] == klass) {
+		if (cachedClass_g[i] == klass) {
 			updateCachedClassHits();
-			return cachedClassState[i];
+			return cachedClassState_g[i];
 		}
 	}
 	return null;
@@ -126,8 +126,8 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	int i;
 	UWord res = 0;
 	for (i = 0 ; i < CLASS_CACHE_SIZE ; i++) {
-		res |= (UWord)cachedClass[i];
-		cachedClass[i] = null;
+		res |= (UWord)cachedClass_g[i];
+		cachedClass_g[i] = null;
 	}
 	return res == 0;
 }
@@ -142,7 +142,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*DEF*/ signed char fetchByte() {
-	return getByteTyped(ip++, 0, AddressType_BYTECODE);
+	return getByteTyped(ip_g++, 0, AddressType_BYTECODE);
 }
 
 /**
@@ -151,7 +151,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*DEF*/ unsigned char fetchUByte() {
-	return getUByteTyped(ip++, 0, AddressType_BYTECODE);
+	return getUByteTyped(ip_g++, 0, AddressType_BYTECODE);
 }
 
 /**
@@ -159,8 +159,8 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void fetchShort() {
 	if (PLATFORM_UNALIGNED_LOADS) {
-		fparm = getShortTyped(ip, 0, AddressType_BYTECODE);
-		ip += sizeof(short);
+		fparm = getShortTyped(ip_g, 0, AddressType_BYTECODE);
+		ip_g += sizeof(short);
 	} else {
 		if (PLATFORM_BIG_ENDIAN) {
 			int b1 = fetchByte();
@@ -179,8 +179,8 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void fetchUShort() {
 	if (PLATFORM_UNALIGNED_LOADS) {
-		fparm = getUShortTyped(ip, 0, AddressType_BYTECODE);
-		ip += sizeof(unsigned short);
+		fparm = getUShortTyped(ip_g, 0, AddressType_BYTECODE);
+		ip_g += sizeof(unsigned short);
 	} else {
 		int b1 = fetchUByte();
 		int b2 = fetchUByte();
@@ -197,8 +197,8 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void fetchInt() {
 	if (PLATFORM_UNALIGNED_LOADS) {
-		fparm = getIntTyped(ip, 0, AddressType_BYTECODE);
-		ip += sizeof(int);
+		fparm = getIntTyped(ip_g, 0, AddressType_BYTECODE);
+		ip_g += sizeof(int);
 	} else {
 		int b1 = fetchUByte();
 		int b2 = fetchUByte();
@@ -219,11 +219,11 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void fetchLong() {
 	if (PLATFORM_UNALIGNED_64_LOADS) {
-		flparm = getLongTyped(ip, 0, AddressType_BYTECODE);
-		ip += sizeof(jlong);
+		flparm = getLongTyped(ip_g, 0, AddressType_BYTECODE);
+		ip_g += sizeof(jlong);
 	} else {
-		flparm = getUnalignedLong(ip, 0);
-		ip += sizeof(jlong);
+		flparm = getUnalignedLong(ip_g, 0);
+		ip_g += sizeof(jlong);
 	}
 }
 
@@ -239,13 +239,13 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*MAC*/ void checkPush() {
 /*if[REVERSE_PARAMETERS]*/
-	/* if (loeq(sp, sl)) fprintf(stderr, format("sp=%A, sl=%A, ss=%A\n"), sp, sl, ss); */
-	assume(sp > sl);
-	assume(getUWord(ss, SC_guard) == 0);
-	if (ss == com_sun_squawk_VMThread_serviceStack) {
-		assume(loeq(sp, Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE)));
+	/* if (loeq(sp_g, sl_g)) fprintf(stderr, format("sp_g=%A, sl_g=%A, ss_g=%A\n"), sp_g, sl_g, ss_g); */
+	assume(sp_g > sl_g);
+	assume(getUWord(ss_g, SC_guard) == 0);
+	if (ss_g == com_sun_squawk_VMThread_serviceStack) {
+		assume(loeq(sp_g, Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE)));
 	} else {
-		assume(loeq(sp, &ss[getArrayLength(ss)]));
+		assume(loeq(sp_g, &ss_g[getArrayLength(ss_g)]));
 	}
 /*end[REVERSE_PARAMETERS]*/
 }
@@ -259,9 +259,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ void pushInt(int $value) {
 /*if[REVERSE_PARAMETERS]*/
 	checkPush();
-	setUWordTyped(--sp, 0, AddressType_INT, (UWord)$value);
+	setUWordTyped(--sp_g, 0, AddressType_INT, (UWord)$value);
 /*else[REVERSE_PARAMETERS]*/
-//	setUWordTyped(sp++, 0, AddressType_INT, (UWord)$value);
+//	setUWordTyped(sp_g++, 0, AddressType_INT, (UWord)$value);
 //	checkPush();
 /*end[REVERSE_PARAMETERS]*/
 }
@@ -271,9 +271,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*MAC*/ int popInt() {
 /*if[REVERSE_PARAMETERS]*/
-	return (int)getUWordTyped(sp++, 0, AddressType_INT);
+	return (int)getUWordTyped(sp_g++, 0, AddressType_INT);
 /*else[REVERSE_PARAMETERS]*/
-//	return (int)getUWordTyped(--sp, 0, AddressType_INT);
+//	return (int)getUWordTyped(--sp_g, 0, AddressType_INT);
 /*end[REVERSE_PARAMETERS]*/
 }
 
@@ -282,7 +282,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*MAC*/ void downPushAddress(Address $value) {
 	checkPush();
-	setObject(--sp, 0, $value);
+	setObject(--sp_g, 0, $value);
 }
 
 /**
@@ -291,9 +291,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ void pushAddress(Address $value) {
 /*if[REVERSE_PARAMETERS]*/
 	checkPush();
-	setObject(--sp, 0, $value);
+	setObject(--sp_g, 0, $value);
 /*else[REVERSE_PARAMETERS]*/
-//	setObject(sp++, 0, $value);
+//	setObject(sp_g++, 0, $value);
 //	checkPush();
 /*end[REVERSE_PARAMETERS]*/
 }
@@ -303,9 +303,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*MAC*/ Address popAddress() {
 /*if[REVERSE_PARAMETERS]*/
-	return getObject(sp++, 0);
+	return getObject(sp_g++, 0);
 /*else[REVERSE_PARAMETERS]*/
-//	return getObject(--sp, 0);
+//	return getObject(--sp_g, 0);
 /*end[REVERSE_PARAMETERS]*/
 }
 
@@ -313,7 +313,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * Peeks the value on the top of the runtime stack.
  */
 /*MAC*/ UWord peek() {
-	return getUWordTyped(sp, 0, AddressType_ANY);
+	return getUWordTyped(sp_g, 0, AddressType_ANY);
 }
 
 /**
@@ -323,26 +323,26 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ void pushLong(jlong $value) {
 /*if[REVERSE_PARAMETERS]*/
 	checkPush();
-	setLong(--sp, 0, $value);
-	assumeInterp($value == getLong(sp, 0));
+	setLong(--sp_g, 0, $value);
+	assumeInterp($value == getLong(sp_g, 0));
 /*else[REVERSE_PARAMETERS]*/
-//	setLong(sp++, 0, $value);
+//	setLong(sp_g++, 0, $value);
 //	checkPush();
-//	assumeInterp($value == getLong(sp, -1));
+//	assumeInterp($value == getLong(sp_g, -1));
 /*end[REVERSE_PARAMETERS]*/
 }
 #else
 /*MAC*/ void pushLong(jlong $value) {
 /*if[REVERSE_PARAMETERS]*/
 	checkPush();
-	--sp;
-	setLongAtWord(--sp, 0, $value);
-	assumeInterp($value == getLongAtWord(sp, 0));
+	--sp_g;
+	setLongAtWord(--sp_g, 0, $value);
+	assumeInterp($value == getLongAtWord(sp_g, 0));
 /*else[REVERSE_PARAMETERS]*/
-//	setLongAtWord(sp++, 0, $value);
-//	sp++;
+//	setLongAtWord(sp_g++, 0, $value);
+//	sp_g++;
 //	checkPush();
-//	assumeInterp($value == getLongAtWord(sp, -2));
+//	assumeInterp($value == getLongAtWord(sp_g, -2));
 /*end[REVERSE_PARAMETERS]*/
 }
 #endif
@@ -353,17 +353,17 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 #if SQUAWK_64
 /*MAC*/ jlong popLong() {
 /*if[REVERSE_PARAMETERS]*/
-	return getLong(sp++, 0);
+	return getLong(sp_g++, 0);
 /*else[REVERSE_PARAMETERS]*/
-//	return getLong(--sp, 0);
+//	return getLong(--sp_g, 0);
 /*end[REVERSE_PARAMETERS]*/
 }
 #else
 /*MAC*/ jlong popLong() {
 /*if[REVERSE_PARAMETERS]*/
-	return getLongAtWord(sp = sp + 2, -2);
+	return getLongAtWord(sp_g = sp_g + 2, -2);
 /*else[REVERSE_PARAMETERS]*/
-//	return getLongAtWord(sp = sp - 2, 0);
+//	return getLongAtWord(sp_g = sp_g - 2, 0);
 /*end[REVERSE_PARAMETERS]*/
 }
 #endif
@@ -373,9 +373,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*MAC*/ UWord popWord() {
 /*if[REVERSE_PARAMETERS]*/
-	return getUWord(sp++, 0);
+	return getUWord(sp_g++, 0);
 /*else[REVERSE_PARAMETERS]*/
-//	return getUWord(--sp, 0);
+//	return getUWord(--sp_g, 0);
 /*end[REVERSE_PARAMETERS]*/
 }
 
@@ -385,9 +385,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ void pushWord(UWord $value) {
 /*if[REVERSE_PARAMETERS]*/
 	checkPush();
-	setUWord(--sp, 0, $value);
+	setUWord(--sp_g, 0, $value);
 /*else[REVERSE_PARAMETERS]*/
-//	setUWord(sp++, 0, $value);
+//	setUWord(sp_g++, 0, $value);
 //	checkPush();
 /*end[REVERSE_PARAMETERS]*/
 }
@@ -399,9 +399,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ void pushAsType(UWord $value, char $type) {
 /*if[REVERSE_PARAMETERS]*/
 	checkPush();
-	setUWordTyped(--sp, 0, $type, $value);
+	setUWordTyped(--sp_g, 0, $type, $value);
 /*else[REVERSE_PARAMETERS]*/
-//	setUWordTyped(sp++, 0, $type, $value);
+//	setUWordTyped(sp_g++, 0, $type, $value);
 //	checkPush();
 /*end[REVERSE_PARAMETERS]*/
 }
@@ -411,9 +411,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*MAC*/ UWord popAsType(char $type) {
 /*if[REVERSE_PARAMETERS]*/
-	return getUWordTyped(sp++, 0, $type);
+	return getUWordTyped(sp_g++, 0, $type);
 /*else[REVERSE_PARAMETERS]*/
-//	return getUWordTyped(--sp, 0, $type);
+//	return getUWordTyped(--sp_g, 0, $type);
 /*end[REVERSE_PARAMETERS]*/
 }
 #else
@@ -435,14 +435,14 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * Prefix for bytecode with a byte parameter.
  */
 /*DEF*/ void iparmByte() {
-	iparm = fetchByte();
+	iparm_g = fetchByte();
 }
 
 /**
  * Prefix for bytecode with an unsigned byte parameter.
  */
 /*DEF*/ void iparmUByte() {
-	iparm = fetchUByte();
+	iparm_g = fetchUByte();
 }
 
 /**
@@ -459,7 +459,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void do_wide_n(int $n) {
 	opcode = fetchUByte() + OPC_Properties_WIDE_DELTA;
-	iparm  = fetchUByte() | ($n<<8);
+	iparm_g  = fetchUByte() | ($n<<8);
 	goto next;
 }
 
@@ -471,7 +471,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	int fparm;
 	opcode = fetchUByte() + OPC_Properties_WIDE_DELTA;
 	fetchShort();
-	iparm = fparm;
+	iparm_g = fparm;
 	goto next;
 }
 
@@ -483,7 +483,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	int fparm;
 	opcode = fetchUByte() + OPC_Properties_WIDE_DELTA;
 	fetchInt();
-	iparm = fparm;
+	iparm_g = fparm;
 	goto next;
 }
 
@@ -493,7 +493,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void do_escape_wide_n(int $n) {
 	opcode = fetchUByte() + 256 + OPC_Properties_ESCAPE_WIDE_DELTA;
-	iparm  = fetchUByte() | ($n<<8);
+	iparm_g  = fetchUByte() | ($n<<8);
 	goto next;
 }
 
@@ -505,7 +505,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	int fparm;
 	opcode = fetchUByte() + 256 + OPC_Properties_ESCAPE_WIDE_DELTA;
 	fetchShort();
-	iparm = fparm;
+	iparm_g = fparm;
 	goto next;
 }
 
@@ -517,7 +517,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	int fparm;
 	opcode = fetchUByte() + 256 + OPC_Properties_ESCAPE_WIDE_DELTA;
 	fetchInt();
-	iparm = fparm;
+	iparm_g = fparm;
 	goto next;
 }
 
@@ -533,7 +533,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*MAC*/ UWord peekLocal(int $n) {
-	return getUWordTyped(fp, FP_local0 - $n, AddressType_ANY);
+	return getUWordTyped(fp_g, FP_local0 - $n, AddressType_ANY);
 }
 
 /**
@@ -543,7 +543,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*MAC*/ UWord getLocal(int $n) {
-	return getUWordTyped(fp, FP_local0 - $n, getMutationType());
+	return getUWordTyped(fp_g, FP_local0 - $n, getMutationType());
 }
 
 /**
@@ -553,7 +553,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @param value the value to set
  */
 /*MAC*/ void setLocal(int $n, UWord $value) {
-	setUWordTyped(fp, FP_local0 - $n, getMutationType(), $value);
+	setUWordTyped(fp_g, FP_local0 - $n, getMutationType(), $value);
 }
 
 /**
@@ -563,7 +563,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*MAC*/ jlong getLocalLong(int $n) {
-	return getLongAtWord(fp, FP_local0 - $n);
+	return getLongAtWord(fp_g, FP_local0 - $n);
 }
 
 /**
@@ -573,7 +573,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @param value the value to set
  */
 /*MAC*/ void setLocalLong(int $n, jlong $value) {
-	setLongAtWord(fp, FP_local0 - $n, $value);
+	setLongAtWord(fp_g, FP_local0 - $n, $value);
 }
 
 /**
@@ -583,7 +583,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*MAC*/ UWord getParmTyped(int $n, char $type) {
-	return getUWordTyped(fp, FP_parm0 + $n, $type);
+	return getUWordTyped(fp_g, FP_parm0 + $n, $type);
 }
 
 /**
@@ -603,7 +603,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @param value the value to set
  */
 /*MAC*/ void setParm(int $n, UWord $value) {
-	setUWordTyped(fp, FP_parm0 + $n, getMutationType(), $value);
+	setUWordTyped(fp_g, FP_parm0 + $n, getMutationType(), $value);
 }
 
 /**
@@ -613,7 +613,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*MAC*/ jlong getParmLong(int $n) {
-	return getLongAtWord(fp, FP_parm0 + $n);
+	return getLongAtWord(fp_g, FP_parm0 + $n);
 
 }
 
@@ -624,7 +624,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @param value the value to set
  */
 /*MAC*/ void setParmLong(int $n, jlong $value) {
-	setLongAtWord(fp, FP_parm0 + $n, $value);
+	setLongAtWord(fp_g, FP_parm0 + $n, $value);
 }
 
 #if ASSUME
@@ -652,7 +652,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * Gets the current method pointer.
  */
 /*MAC*/ Address getMP() {
-	return getObject(fp, FP_method);
+	return getObject(fp_g, FP_method);
 }
 
 /**
@@ -916,7 +916,7 @@ int getLocalCountPlusStackCountIfNotReversingParms(Address mp) {
  * @param delta the number of words to adjust by
  */
 /*MAC*/ void resetStackPointerFromDelta(int $delta) {
-	sp = fp - $delta + 1; /* + 1 so sp points one word before first stack word */
+	sp_g = fp_g - $delta + 1; /* + 1 so sp points one word before first stack word */
 }
 
 /**
@@ -1086,8 +1086,8 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
 	assumeInterp(com_sun_squawk_Klass_id(getClass($mth)) == CID_BYTECODE_ARRAY);
 	assumeInterp(inCode($mth));
 	checkReferenceSlots();
-	downPushAddress(ip);
-	ip = $mth;
+	downPushAddress(ip_g);
+	ip_g = $mth;
 }
 
 /**
@@ -1115,10 +1115,10 @@ if (!runningOnServiceThread &&                                                  
     (hbp = com_sun_squawk_VMThread_hitBreakpoint(newThread)) != null &&                      \
     com_sun_squawk_HitBreakpoint_state(hbp) == com_sun_squawk_HitBreakpoint_EXC_HIT) {       \
 	set_com_sun_squawk_HitBreakpoint_state(hbp, com_sun_squawk_HitBreakpoint_EXC_REPORTING); \
-	/* fprintf(stderr, format("Calling do_reportException. newMP: %A, ipOffset: %O, ip: %A, fp: %A.\n", newMP, ipOffset, ip, fp); */ \
+	/* fprintf(stderr, format("Calling do_reportException. newMP: %A, ipOffset: %O, ip: %A, fp: %A.\n", newMP, ipOffset, ip_g, fp_g); */ \
 	call(com_sun_squawk_VM_reportException);                                                 \
 } else {                                                                                     \
-	/*fprintf(stderr, format("fp = %d newMP = %d ipoffset = %d ip=%d tid=%d returnFP=%A\n"), fp, newMP, ipOffset, ip, com_sun_squawk_VMThread_threadNumber(newThread), getObject(fp, FP_returnFP));*/ \
+	/*fprintf(stderr, format("fp = %d newMP = %d ipoffset = %d ip=%d tid=%d returnFP=%A\n"), fp_g, newMP, ipOffset, ip_g, com_sun_squawk_VMThread_threadNumber(newThread), getObject(fp_g, FP_returnFP));*/ \
 }
 #else
 #define SDA_HANDLE_BREAKPOINT_CODE_FRAG
@@ -1130,14 +1130,14 @@ if (!runningOnServiceThread &&                                                  
 /*MAC*/ void threadswitchmain() {
 	Address oldThread  = com_sun_squawk_VMThread_currentThread;
 	Address oldStack   = (Address)com_sun_squawk_VMThread_stack(oldThread);
-	UWord   oldMP      = (UWord)getObject(fp, FP_method);
-	UWord   ipOffset   = ((UWord)ip) - oldMP;
+	UWord   oldMP      = (UWord)getObject(fp_g, FP_method);
+	UWord   ipOffset   = ((UWord)ip_g) - oldMP;
 	Address newThread  = com_sun_squawk_VMThread_otherThread;
 	Address newStack   = (Address)com_sun_squawk_VMThread_stack(newThread);
 	assumeInterp(newStack != null);
 	assumeInterp(!com_sun_squawk_GC_collecting);
 
-	/*fprintf(stderr, format("%%%%%%%%%%%%%% fp = %A oldMP = %A ipoffset = %d ip=%A tid=%d oldThread=%A oldStack=%A newThread=%A newStack=%A\n"), fp, oldMP, ipOffset, ip, com_sun_squawk_VMThread_threadNumber(oldThread), oldThread, oldStack, newThread, newStack);*/
+	/*fprintf(stderr, format("%%%%%%%%%%%%%% fp = %A oldMP = %A ipoffset = %d ip=%A tid=%d oldThread=%A oldStack=%A newThread=%A newStack=%A\n"), fp_g, oldMP, ipOffset, ip_g, com_sun_squawk_VMThread_threadNumber(oldThread), oldThread, oldStack, newThread, newStack);*/
 
 	/*
 	 * Save current VM state in the current thread.
@@ -1146,8 +1146,8 @@ if (!runningOnServiceThread &&                                                  
 		/* handle case from VMThread.abandonThread(). oldThread has died, and will not come back.*/
 		assumeInterp(com_sun_squawk_VMThread_state(oldThread) == com_sun_squawk_VMThread_DEAD);
 	} else {
-		assumeInterp(oldStack == (Address)ss);
-		setObject(oldStack, SC_lastFP, fp);
+		assumeInterp(oldStack == (Address)ss_g);
+		setObject(oldStack, SC_lastFP, fp_g);
 		setUWord(oldStack, SC_lastBCI, ipOffset);
 	}
 
@@ -1182,7 +1182,8 @@ if (!runningOnServiceThread &&                                                  
 		 * If not simply switching back from the service thread to its caller
 		 * then check that the number of pending monitor enter operations is zero.
 		 */
-		assumeInterp(oldThread == com_sun_squawk_VMThread_serviceThread || pendingMonitorStackPointer == 0);
+		assumeInterp(oldThread == com_sun_squawk_VMThread_serviceThread
+		             || pendingMonitorStackPointer_g == 0);
 
 	} else {
 		runningOnServiceThread = true;
@@ -1193,25 +1194,25 @@ if (!runningOnServiceThread &&                                                  
 	 * Switch to the new context.
 	 */
 	setStack(newStack);
-	fp = getObject(ss, SC_lastFP);
-	if (fp == null) {   /* New thread                   */
-		fp = null;      /* The return FP should be zero */
-		ip = null;      /* The return IP should be zero */
-		sp = &ss[getArrayLength(ss)];
+	fp_g = getObject(ss_g, SC_lastFP);
+	if (fp_g == null) {   /* New thread                   */
+		fp_g = null;      /* The return FP should be zero */
+		ip_g = null;    /* The return IP should be zero */
+		sp_g = &ss_g[getArrayLength(ss_g)];
 /*if[REVERSE_PARAMETERS]*/
 		call(com_sun_squawk_VM_callRun);
 /*else[REVERSE_PARAMETERS]*/
-//		downPushAddress(ip);         /* don't call call() ... */
-//		ip = com_sun_squawk_VM_callRun;   /* because resetStackPointer() will not work */
+//		downPushAddress(ip_g);         /* don't call call() ... */
+//		ip_g = com_sun_squawk_VM_callRun;   /* because resetStackPointer() will not work */
 /*end[REVERSE_PARAMETERS]*/
-		/*fprintf(stderr, "callRun: fp = %d sp=%d ip=%d tid = %d\n", fp, sp, ip, com_sun_squawk_VMThread_threadNumber(newThread));*/
+		/*fprintf(stderr, "callRun: fp = %d sp=%d ip=%d tid = %d\n", fp_g, sp_g, ip_g, com_sun_squawk_VMThread_threadNumber(newThread));*/
 	} else {
 
 		assumeInterp(getMP() != null);
-		ipOffset = getUWord(ss, SC_lastBCI);
+		ipOffset = getUWord(ss_g, SC_lastBCI);
 		resetStackPointer();
-		ip = (ByteAddress)getMP() + ipOffset;
-		assumeInterp(inCode(ip));
+		ip_g = (ByteAddress)getMP() + ipOffset;
+		assumeInterp(inCode(ip_g));
 
 		SDA_HANDLE_BREAKPOINT_CODE_FRAG
 			}
@@ -1284,8 +1285,8 @@ if (!runningOnServiceThread &&                                                  
 /*MAC*/ void sda_checkStepPrim(ByteAddress $actual_ip, UWordAddress $actual_fp, UWordAddress $actual_sp) {
 	Address thread = com_sun_squawk_VMThread_currentThread;
 	Address step = com_sun_squawk_VMThread_step(thread);
-	Offset currentFO = framePointerAsOffset(ss, $actual_fp);
-	Address startFP = frameOffsetAsPointer(ss, com_sun_squawk_Debugger_SingleStep_startFO(step));
+	Offset currentFO = framePointerAsOffset(ss_g, $actual_fp);
+	Address startFP = frameOffsetAsPointer(ss_g, com_sun_squawk_Debugger_SingleStep_startFO(step));
 	int state = com_sun_squawk_Debugger_SingleStep_state(step);
 
 	if (!inSystemFrame(startFP, (Address)$actual_fp)) {
@@ -1307,7 +1308,7 @@ if (!runningOnServiceThread &&                                                  
 				/* Still in a method of an excluded class */
 				break;
 			} else if (currentFO < reportedFO) {
-				Address reportedFP = frameOffsetAsPointer(ss, reportedFO);
+				Address reportedFP = frameOffsetAsPointer(ss_g, reportedFO);
 				Address reportedMP = getObject(reportedFP, FP_method);
 				Address currentMP = getObject($actual_fp, FP_method);
 				assumeInterp(((UWord)getObject(reportedMP, HDR_klass) & HDR_headerTagMask) == 0);
@@ -1397,7 +1398,7 @@ boolean sda_handleSingleStepWhenFrameIsDifferent(UWordAddress actual_fp, Offset 
 		UWordAddress prevFP = (UWordAddress)getObject(actual_fp, FP_returnFP);
 		assume(prevFP > actual_fp);
 		while (prevFP != null) {
-			if (framePointerAsOffset(ss, prevFP) == startFO) {
+			if (framePointerAsOffset(ss_g, prevFP) == startFO) {
 #if SDA_DEBUG_PRINT
 				fprintf(stderr, format("sda_handleSingleStep(): Found the frame where stepping was initiated\n"));
 #endif
@@ -1415,7 +1416,7 @@ boolean sda_handleSingleStepWhenFrameIsDifferent(UWordAddress actual_fp, Offset 
  * the attached debugger.
  */
 boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWordAddress actual_sp, Address mp, Address step) {
-	Offset currentFO = framePointerAsOffset(ss, actual_fp);
+	Offset currentFO = framePointerAsOffset(ss_g, actual_fp);
 	Offset startFO = com_sun_squawk_Debugger_SingleStep_startFO(step);
 	int targetBCI = com_sun_squawk_Debugger_SingleStep_targetBCI(step);
 	int size = com_sun_squawk_Debugger_SingleStep_size(step);
@@ -1534,7 +1535,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 						 */
 						Address mp      = getObject($actual_fp, FP_method);
 						Offset currentBCI = Address_diff($actual_ip, mp);
-						Offset currentFO = framePointerAsOffset(ss, $actual_fp);
+						Offset currentFO = framePointerAsOffset(ss_g, $actual_fp);
 						/*fprintf(stderr, format("Hit breakpoint #%d: in method: %A, currentBCI: %O ip: %A currentFO: %O fp: %A\n"),  i, mp, currentBCI, $actual_ip, currentFO, $actual_fp);*/
 
 						if (!sda_isOperandStackEmpty($actual_fp, $actual_sp)) {
@@ -1558,7 +1559,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 			 * is equal to the thread's saved frame and BCI, then we are done reporting the
 			 * breakpoint, and we clean up reporting, and execute the next instruction normally.
 			 */
-			if (framePointerAsOffset(ss, $actual_fp) == com_sun_squawk_HitBreakpoint_hitOrThrowFO(hbp)) {
+			if (framePointerAsOffset(ss_g, $actual_fp) == com_sun_squawk_HitBreakpoint_hitOrThrowFO(hbp)) {
 				Address mp      = getObject($actual_fp, FP_method);
 				Offset currentBCI = Address_diff($actual_ip, mp);
 				if (currentBCI == com_sun_squawk_HitBreakpoint_hitOrThrowBCI(hbp)) {
@@ -1711,7 +1712,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_object() {
-	do_object_n(iparm);
+	do_object_n(iparm_g);
 }
 
 
@@ -1740,7 +1741,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_load() {
-	do_load_n(iparm);
+	do_load_n(iparm_g);
 }
 
 /**
@@ -1764,7 +1765,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_store() {
-	do_store_n(iparm);
+	do_store_n(iparm_g);
 }
 
 /**
@@ -1777,14 +1778,14 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 /*MAC*/ void do_load_i2() {
 	if (TYPEMAP & SQUAWK_64) {
 		if (getMutationType() == AddressType_REF) {
-			pushAsType(getLocal(iparm), AddressType_REF);
+			pushAsType(getLocal(iparm_g), AddressType_REF);
 		} else if (getMutationType() == AddressType_UWORD) {
-			pushAsType(getLocal(iparm), AddressType_UWORD);
+			pushAsType(getLocal(iparm_g), AddressType_UWORD);
 		} else {
-			pushLong(getLocalLong(iparm));
+			pushLong(getLocalLong(iparm_g));
 		}
 	} else {
-		pushLong(getLocalLong(iparm));
+		pushLong(getLocalLong(iparm_g));
 	}
 }
 
@@ -1798,14 +1799,14 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 /*MAC*/ void do_store_i2() {
 	if (TYPEMAP & SQUAWK_64) {
 		if (getMutationType() == AddressType_REF) {
-			setLocal(iparm, popAsType(AddressType_REF));
+			setLocal(iparm_g, popAsType(AddressType_REF));
 		} else if (getMutationType() == AddressType_UWORD) {
-			setLocal(iparm, popAsType(AddressType_UWORD));
+			setLocal(iparm_g, popAsType(AddressType_UWORD));
 		} else {
-			setLocalLong(iparm, popLong());
+			setLocalLong(iparm_g, popLong());
 		}
 	} else {
-		setLocalLong(iparm, popLong());
+		setLocalLong(iparm_g, popLong());
 	}
 }
 
@@ -1817,7 +1818,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_inc() {
-	setLocal(iparm, getLocal(iparm) + 1);
+	setLocal(iparm_g, getLocal(iparm_g) + 1);
 }
 
 /**
@@ -1828,7 +1829,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_dec() {
-	setLocal(iparm, getLocal(iparm) - 1);
+	setLocal(iparm_g, getLocal(iparm_g) - 1);
 }
 
 
@@ -1857,7 +1858,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_loadparm() {
-	do_loadparm_n(iparm);
+	do_loadparm_n(iparm_g);
 }
 
 /**
@@ -1879,7 +1880,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_storeparm() {
-	do_storeparm_n(iparm);
+	do_storeparm_n(iparm_g);
 }
 
 /**
@@ -1892,14 +1893,14 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 /*MAC*/ void do_loadparm_i2() {
 	if (TYPEMAP & SQUAWK_64) {
 		if (getMutationType() == AddressType_REF) {
-			pushAsType(getParm(iparm), AddressType_REF);
+			pushAsType(getParm(iparm_g), AddressType_REF);
 		} else if (getMutationType() == AddressType_UWORD) {
-			pushAsType(getParm(iparm), AddressType_UWORD);
+			pushAsType(getParm(iparm_g), AddressType_UWORD);
 		} else {
-			pushLong(getParmLong(iparm));
+			pushLong(getParmLong(iparm_g));
 		}
 	} else {
-		pushLong(getParmLong(iparm));
+		pushLong(getParmLong(iparm_g));
 	}
 }
 
@@ -1914,14 +1915,14 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 /*MAC*/ void do_storeparm_i2() {
 	if (TYPEMAP & SQUAWK_64) {
 		if (getMutationType() == AddressType_REF) {
-			setParm(iparm, popAsType(AddressType_REF));
+			setParm(iparm_g, popAsType(AddressType_REF));
 		} else if (getMutationType() == AddressType_UWORD) {
-			setParm(iparm, popAsType(AddressType_UWORD));
+			setParm(iparm_g, popAsType(AddressType_UWORD));
 		} else {
-			setParmLong(iparm, popLong());
+			setParmLong(iparm_g, popLong());
 		}
 	} else {
-		setParmLong(iparm, popLong());
+		setParmLong(iparm_g, popLong());
 	}
 }
 
@@ -1933,7 +1934,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_incparm() {
-	setParm(iparm, getParm(iparm) + 1);
+	setParm(iparm_g, getParm(iparm_g) + 1);
 }
 
 /**
@@ -1944,7 +1945,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * <p>
  */
 /*MAC*/ void do_decparm() {
-	setParm(iparm, getParm(iparm) - 1);
+	setParm(iparm_g, getParm(iparm_g) - 1);
 }
 
 
@@ -2007,8 +2008,8 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  */
 /*MAC*/ void do_bbtarget_app() {
 	do_bbtarget_sys();
-	if (unlikely(bc++ >= 0)) {
-		bc = -TIMEQUANTA;
+	if (unlikely(bc_g++ >= 0)) {
+		bc_g = -TIMEQUANTA;
 		call(com_sun_squawk_VM_yield);
 	}
 }
@@ -2019,7 +2020,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  * NB. This function is forced into a special section so that it can be put in RAM.
  */
 __attribute__ ((section (".textinram"))) void force_bb_expired() {
-	bc = 0;
+	bc_g = 0;
 }
 #endif
 
@@ -2033,7 +2034,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  * <p>
  */
 /*MAC*/ void do_goto() {
-	ip += iparm;
+	ip_g += iparm_g;
 }
 
 /**
@@ -2127,7 +2128,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	/*
 	 * Skip the padding.
 	 */
-	while ((((UWord)ip) % $size) != 0) {
+	while ((((UWord)ip_g) % $size) != 0) {
 		(void)fetchByte();
 	}
 
@@ -2139,7 +2140,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	getSwitchEntry($size);
 	high  = fparm;
 	getSwitchEntry($size);
-	iparm = fparm;
+	iparm_g = fparm;
 
 	/*
 	 * Get the key.
@@ -2151,9 +2152,9 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	 */
 	if (key >= low && key <= high) {
 		if ($size == 4) {
-			iparm = getIntTyped(ip, key-low, AddressType_ANY);
+			iparm_g = getIntTyped(ip_g, key-low, AddressType_ANY);
 		} else {
-			iparm = getShortTyped(ip, key-low, AddressType_ANY);
+			iparm_g = getShortTyped(ip_g, key-low, AddressType_ANY);
 		}
 	}
 
@@ -2194,11 +2195,11 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address state = VM_getClassStateREAL(klass);
 	if (state != null) {
 		checkReferenceSlots();
-		boundsAssume(state, iparm);
-		pushInt(getUWord(state, iparm));
+		boundsAssume(state, iparm_g);
+		pushInt(getUWord(state, iparm_g));
 	} else {
 		pushAddress(klass);
-		pushInt(iparm);
+		pushInt(iparm_g);
 		call(com_sun_squawk_VM_getStaticInt);
 	}
 }
@@ -2218,11 +2219,11 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address state = VM_getClassStateREAL(klass);
 	if (state != null) {
 		checkReferenceSlots();
-		boundsAssume(state, iparm);
-		pushLong(getLongAtWord(state, iparm));
+		boundsAssume(state, iparm_g);
+		pushLong(getLongAtWord(state, iparm_g));
 	} else {
 		pushAddress(klass);
-		pushInt(iparm);
+		pushInt(iparm_g);
 		call(com_sun_squawk_VM_getStaticLong);
 	}
 }
@@ -2242,11 +2243,11 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address state = VM_getClassStateREAL(klass);
 	if (state != null) {
 		checkReferenceSlots();
-		boundsAssume(state, iparm);
-		pushAddress(getObject(state, iparm));
+		boundsAssume(state, iparm_g);
+		pushAddress(getObject(state, iparm_g));
 	} else {
 		pushAddress(klass);
-		pushInt(iparm);
+		pushInt(iparm_g);
 		call(com_sun_squawk_VM_getStaticOop);
 	}
 }
@@ -2300,11 +2301,11 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address state = VM_getClassStateREAL(klass);
 	if (state != null) {
 		checkReferenceSlots();
-		boundsAssume(state, iparm);
-		setUWord(state, iparm, popInt());
+		boundsAssume(state, iparm_g);
+		setUWord(state, iparm_g, popInt());
 	} else {
 		pushAddress(klass);
-		pushInt(iparm);
+		pushInt(iparm_g);
 		call(com_sun_squawk_VM_putStaticInt);
 	}
 }
@@ -2324,11 +2325,11 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address state = VM_getClassStateREAL(klass);
 	if (state != null) {
 		checkReferenceSlots();
-		boundsAssume(state, iparm);
-		setLongAtWord(state, iparm, popLong());
+		boundsAssume(state, iparm_g);
+		setLongAtWord(state, iparm_g, popLong());
 	} else {
 		pushAddress(klass);
-		pushInt(iparm);
+		pushInt(iparm_g);
 		call(com_sun_squawk_VM_putStaticLong);
 	}
 }
@@ -2348,11 +2349,11 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address state = VM_getClassStateREAL(klass);
 	if (state != null) {
 		checkReferenceSlots();
-		boundsAssume(state, iparm);
-		setObjectAndUpdateWriteBarrier(state, iparm, popAddress());
+		boundsAssume(state, iparm_g);
+		setObjectAndUpdateWriteBarrier(state, iparm_g, popAddress());
 	} else {
 		pushAddress(klass);
-		pushInt(iparm);
+		pushInt(iparm_g);
 		call(com_sun_squawk_VM_putStaticOop);
 	}
 }
@@ -2472,11 +2473,11 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 /*DEF*/ void getfield_ref_or_uword(Address $oop, boolean $flag) {
 	if (TYPEMAP && $flag) {
 		if (getMutationType() == AddressType_REF) {
-			pushAddress(getObject($oop, iparm));
+			pushAddress(getObject($oop, iparm_g));
 			nextbytecode(); /* completes instruction execution */
 		}
 		if (getMutationType() == AddressType_UWORD) {
-			pushWord(getUWord($oop, iparm));
+			pushWord(getUWord($oop, iparm_g));
 			nextbytecode(); /* completes instruction execution */
 		}
 	}
@@ -2501,7 +2502,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 /*MAC*/ void do_getfield_b(boolean $oopIn0) {
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, true);
-	pushInt(getByte(oop, iparm));
+	pushInt(getByte(oop, iparm_g));
 }
 
 /**
@@ -2519,7 +2520,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 /*MAC*/ void do_getfield_s(boolean $oopIn0) {
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, true);
-	pushInt(getShort(oop, iparm));
+	pushInt(getShort(oop, iparm_g));
 }
 
 /**
@@ -2537,7 +2538,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 /*MAC*/ void do_getfield_c(boolean $oopIn0) {
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, true);
-	pushInt(getUShort(oop, iparm));
+	pushInt(getUShort(oop, iparm_g));
 }
 
 /**
@@ -2556,7 +2557,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, true);
 	getfield_ref_or_uword(oop, !SQUAWK_64);
-	pushInt(getInt(oop, iparm));
+	pushInt(getInt(oop, iparm_g));
 }
 
 /**
@@ -2574,7 +2575,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 /*MAC*/ void do_getfield_o(boolean $oopIn0) {
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, true);
-	pushAddress(getObject(oop, iparm));
+	pushAddress(getObject(oop, iparm_g));
 }
 
 /**
@@ -2593,7 +2594,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, true);
 	getfield_ref_or_uword(oop, SQUAWK_64);
-	pushLong(getLongAtWord(oop, iparm));
+	pushLong(getLongAtWord(oop, iparm_g));
 }
 
 /*if[FLOATS]*/
@@ -2612,7 +2613,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 /*MAC*/ void do_getfield_f(boolean $oopIn0) {
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, true);
-	pushInt(getInt(oop, iparm));
+	pushInt(getInt(oop, iparm_g));
 }
 
 /**
@@ -2630,7 +2631,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 /*MAC*/ void do_getfield_d(boolean $oopIn0) {
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, true);
-	pushLong(getLongAtWord(oop, iparm));
+	pushLong(getLongAtWord(oop, iparm_g));
 }
 /*end[FLOATS]*/
 
@@ -2651,13 +2652,13 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 			Address value = popAddress();
 			Address oop = getInstanceFieldOop($oopIn0);
 			nullCheckPrim(oop, !$oopIn0);
-			setObject(oop, iparm, value);
+			setObject(oop, iparm_g, value);
 			nextbytecode();
 		} else if (getMutationType() == AddressType_UWORD) {
 			UWord value = popWord();
 			Address oop = getInstanceFieldOop($oopIn0);
 			nullCheckPrim(oop, !$oopIn0);
-			setUWord(oop, iparm, value);
+			setUWord(oop, iparm_g, value);
 			nextbytecode();
 		}
 	}
@@ -2679,7 +2680,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	int value = popInt();
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, !$oopIn0);
-	setByte(oop, iparm, value);
+	setByte(oop, iparm_g, value);
 }
 
 /**
@@ -2698,7 +2699,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	int value = popInt();
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, !$oopIn0);
-	setShort(oop, iparm, value);
+	setShort(oop, iparm_g, value);
 }
 
 /**
@@ -2719,7 +2720,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 		int value = popInt();
 		Address oop = getInstanceFieldOop($oopIn0);
 		nullCheckPrim(oop, !$oopIn0);
-		setInt(oop, iparm, value);
+		setInt(oop, iparm_g, value);
 	}
 }
 
@@ -2739,7 +2740,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address value = popAddress();
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, !$oopIn0);
-	setObjectAndUpdateWriteBarrier(oop, iparm, value);
+	setObjectAndUpdateWriteBarrier(oop, iparm_g, value);
 }
 
 /**
@@ -2760,7 +2761,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 		jlong value = popLong();
 		Address oop = getInstanceFieldOop($oopIn0);
 		nullCheckPrim(oop, !$oopIn0);
-		setLongAtWord(oop, iparm, value);
+		setLongAtWord(oop, iparm_g, value);
 	}
 }
 
@@ -2781,7 +2782,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	int value = popInt();
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, !$oopIn0);
-	setInt(oop, iparm, value);
+	setInt(oop, iparm_g, value);
 }
 
 /**
@@ -2800,7 +2801,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	jlong value = popLong();
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, !$oopIn0);
-	setLongAtWord(oop, iparm, value);
+	setLongAtWord(oop, iparm_g, value);
 }
 /*end[FLOATS]*/
 
@@ -3100,7 +3101,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  */
 /*MAC*/ void do_invokestatic() {
 	Address cls = popAddress();
-	call(getStaticMethod(cls, iparm));
+	call(getStaticMethod(cls, iparm_g));
 }
 
 /**
@@ -3115,7 +3116,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	resetStackPointerIfNotRevParms();
 	obj = (Address)peek();
 	nullCheck(obj);
-	callNoReset(getVirtualMethod(cls, iparm));
+	callNoReset(getVirtualMethod(cls, iparm_g));
 }
 
 /**
@@ -3132,7 +3133,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	nullCheck(obj);
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
 	cls = getClassOrAssociation(obj);
-	callNoReset(getVirtualMethod(cls, iparm));
+	callNoReset(getVirtualMethod(cls, iparm_g));
 }
 
 /**
@@ -3148,7 +3149,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	int slot;
 
 	nullCheck(oop);
-	slot = VM_findSlot(oop, interfaceKlass, iparm);
+	slot = VM_findSlot(oop, interfaceKlass, iparm_g);
 	if (likely(slot >= 0)) {
 		pushInt(slot);
 	} else {
@@ -3162,15 +3163,15 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  * Java Stack: [[... arg2], arg1], OOP, VSLOT -> [VALUE] (Stack grows down)
  */
 /*MAC*/ void do_invokeslot() {
-	iparm = popInt();
+	iparm_g = popInt();
 	do_invokevirtual();
 }
 
 
 /*INL*/ void incExtends(int $slots) {
 #if TRACE
-	total_extends++;
-	total_slots += $slots;
+	total_extends_g++;
+	total_slots_g += $slots;
 #endif
 }
 
@@ -3187,16 +3188,16 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	int nlocals, nstack;
 	assumeInterp(com_sun_squawk_VM_extendsEnabled);
 	assumeInterp(inCode(mp));
-	downPushAddress(fp);                        /* Save caller's frame pointer. */
+	downPushAddress(fp_g);                      /* Save caller's frame pointer. */
 	downPushAddress(mp);                        /* Method address.              */
-	fp = sp;                                    /* Setup new frame pointer.     */
+	fp_g = sp_g;                                /* Setup new frame pointer.     */
 	assumeInterp(getMP() == mp);
 	nlocals = getLocalCount(mp);
 	nstack  = getStackCount(mp);
 	assumeInterp($slotsToClear < nlocals);
 	incExtends($slotsToClear);
-	if (likely((fp - nlocals - nstack) > (sl + FP_FIXED_FRAME_SIZE))) {
-		UWordAddress oldsp = sp;
+	if (likely((fp_g - nlocals - nstack) > (sl_g + FP_FIXED_FRAME_SIZE))) {
+		UWordAddress oldsp = sp_g;
 		int delta = nlocals;
 /*if[REVERSE_PARAMETERS]*/
 /*else[REVERSE_PARAMETERS]*/
@@ -3207,25 +3208,25 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 		int slotsToZap = nlocals - 1;
 		UWordAddress oldsp2 = oldsp;
 		while (slotsToZap > 0) {
-			setUWord(--oldsp2, 0, 0xDEAFBEEF);            /* Write a bad value */
+			setUWord(--oldsp2, 0, 0xDEAFBEEF);   /* Write a bad value */
 			setType(oldsp2, AddressType_ANY, sizeof(UWord));
 			slotsToZap = slotsToZap - 1;
 		}
 /*end[CHECK_SLOT_CLEARING]*/
 		while ($slotsToClear > 0) {
-			setUWord(--oldsp, 0, 0);            /* zero local variables that need clearing */
+			setUWord(--oldsp, 0, 0);             /* zero local variables that need clearing */
 			setType(oldsp, AddressType_ANY, sizeof(UWord));
 			$slotsToClear = $slotsToClear - 1;
 		}
 	} else {
-		int overflow = (sl + FP_FIXED_FRAME_SIZE) - (fp - nlocals - nstack);
-		assumeInterp(getUWord(ss, SC_guard) == 0);
+		int overflow = (sl_g + FP_FIXED_FRAME_SIZE) - (fp_g - nlocals - nstack);
+		assumeInterp(getUWord(ss_g, SC_guard) == 0);
 /*if[DEBUG_CODE_ENABLED]*/
 		if (com_sun_squawk_GC_traceFlags > 1) {
 			fprintf(stderr, format(
 				        "*** Extending stack *** (stack size=%d, remaining stack=%d, nlocals=%d, nstack=%d, slotsToClear=%d, mp=0x%x)\n"),
-			        getArrayLength(ss),
-			        sp - sl,
+			        getArrayLength(ss_g),
+			        sp_g - sl_g,
 			        nlocals,
 			        nstack,
 			        $slotsToClear,
@@ -3244,7 +3245,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 		com_sun_squawk_ServiceOperation_i1 = overflow;
 
 		if (TRACE)
-			printStackTracePrim(-1, ip, fp, "extending stack", null);
+			printStackTracePrim(-1, ip_g, fp_g, "extending stack", null);
 
 		threadSwitchFor(com_sun_squawk_ServiceOperation_EXTEND);
 	}
@@ -3255,7 +3256,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  * Check that there are no 0xDEAFBEEF words in the local variables.
  */
 /*MAC*/ void checkReferenceSlots() {
-	if (fp != null) {
+	if (fp_g != null) {
 		int i;
 		Address mp     = getMP();
 		int nparms     = getParmCount(mp);
@@ -3296,8 +3297,8 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  * <p>
  */
 /*MAC*/ void do_extend() {
-	Address mp = Address_sub(ip, 2);
-	extendStack(mp, iparm);
+	Address mp = Address_sub(ip_g, 2);
+	extendStack(mp, iparm_g);
 }
 
 /**
@@ -3308,7 +3309,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  * <p>
  */
 /*MAC*/ void do_extend0() {
-	Address mp = Address_sub(ip, 1);
+	Address mp = Address_sub(ip_g, 1);
 	extendStack(mp, 0);
 }
 
@@ -3326,18 +3327,18 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	if (TYPEMAP && $flag) {
 		if (getMutationType() == AddressType_REF) {
 			Address res;
-			ip = (ByteAddress)getObject(fp, FP_returnIP);
+			ip_g = (ByteAddress)getObject(fp_g, FP_returnIP);
 			res = popAddress();
-			fp = (UWordAddress)getObject(fp, FP_returnFP);
+			fp_g = (UWordAddress)getObject(fp_g, FP_returnFP);
 			resetStackPointer();
 			pushAddress(res);
 			nextbytecode();
 		}
 		if (getMutationType() == AddressType_UWORD) {
 			UWord res;
-			ip = (ByteAddress)getObject(fp, FP_returnIP);
+			ip_g = (ByteAddress)getObject(fp_g, FP_returnIP);
 			res = popWord();
-			fp = (UWordAddress)getObject(fp, FP_returnFP);
+			fp_g = (UWordAddress)getObject(fp_g, FP_returnFP);
 			resetStackPointer();
 			pushWord(res);
 			nextbytecode();
@@ -3356,9 +3357,9 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	return_ref_or_uword(!SQUAWK_64);
 	{
 		int res = popInt();
-		ip = (ByteAddress)getObject(fp, FP_returnIP);
-		fp = (UWordAddress)getObject(fp, FP_returnFP);
-		assumeInterp(inCode(ip));
+		ip_g = (ByteAddress)getObject(fp_g, FP_returnIP);
+		fp_g = (UWordAddress)getObject(fp_g, FP_returnFP);
+		assumeInterp(inCode(ip_g));
 		resetStackPointer();
 		pushInt(res);
 	}
@@ -3375,9 +3376,9 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	return_ref_or_uword(SQUAWK_64);
 	{
 		jlong res = popLong();
-		ip = (ByteAddress)getObject(fp, FP_returnIP);
-		fp = (UWordAddress)getObject(fp, FP_returnFP);
-		assumeInterp(inCode(ip));
+		ip_g = (ByteAddress)getObject(fp_g, FP_returnIP);
+		fp_g = (UWordAddress)getObject(fp_g, FP_returnFP);
+		assumeInterp(inCode(ip_g));
 		resetStackPointer();
 		pushLong(res);
 	}
@@ -3392,9 +3393,9 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  */
 /*MAC*/ void do_return_o() {
 	Address res = popAddress();
-	ip = (ByteAddress)getObject(fp, FP_returnIP);
-	fp = (UWordAddress)getObject(fp, FP_returnFP);
-	assumeInterp(inCode(ip));
+	ip_g = (ByteAddress)getObject(fp_g, FP_returnIP);
+	fp_g = (UWordAddress)getObject(fp_g, FP_returnFP);
+	assumeInterp(inCode(ip_g));
 	resetStackPointer();
 	pushAddress(res);
 }
@@ -3407,9 +3408,9 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  * <p>
  */
 /*MAC*/ void do_return_v() {
-	ip = (ByteAddress)getObject(fp, FP_returnIP);
-	fp = (UWordAddress)getObject(fp, FP_returnFP);
-	assumeInterp(inCode(ip));
+	ip_g = (ByteAddress)getObject(fp_g, FP_returnIP);
+	fp_g = (UWordAddress)getObject(fp_g, FP_returnFP);
+	assumeInterp(inCode(ip_g));
 	resetStackPointer();
 }
 
@@ -3486,7 +3487,7 @@ static int collectGarbage(Address, Address, int);
  */
 /*MAC*/ void invokenativemain() {
 	checkReferenceSlots();
-	switch(iparm) {
+	switch(iparm_g) {
 	case Native_com_sun_squawk_Offset_eq:
 	case Native_com_sun_squawk_UWord_eq: {
 		UWord value2 = popWord();
@@ -4405,7 +4406,7 @@ static int collectGarbage(Address, Address, int);
 	}
 
 	case Native_com_sun_squawk_VM_getFP: {
-		pushAddress(fp);
+		pushAddress(fp_g);
 		break;
 	}
 
@@ -4437,7 +4438,7 @@ static int collectGarbage(Address, Address, int);
 	case Native_com_sun_squawk_VM_setPreviousIP: {
 		Address pip = popAddress();
 		Address afp = popAddress();
-		assumeInterp(inCode(ip));
+		assumeInterp(inCode(ip_g));
 		setObject(afp, FP_returnIP, pip);
 		break;
 	}
@@ -4450,26 +4451,26 @@ static int collectGarbage(Address, Address, int);
 	case Native_com_sun_squawk_VM_getGlobalInt: {
 		int index = popInt();
 		assumeInterp(index < GLOBAL_INT_COUNT);
-		pushInt(Ints[index]);
+		pushInt(Ints_g[index]);
 		break;
 	}
 
 	case Native_com_sun_squawk_VM_getGlobalAddr: {
 		int index = popInt();
 		assumeInterp(index < GLOBAL_ADDR_COUNT);
-		pushAddress(Addrs[index]);
+		pushAddress(Addrs_g[index]);
 		break;
 	}
 
 	case Native_com_sun_squawk_VM_getGlobalOop: {
 		int index = popInt();
 		assumeInterp(index < GLOBAL_OOP_COUNT);
-		pushAddress(Oops[index]);
+		pushAddress(Oops_g[index]);
 		break;
 	}
 
 	case Native_com_sun_squawk_VM_getGlobalOopTable: {
-		pushAddress(Oops);
+		pushAddress(Oops_g);
 		break;
 	}
 
@@ -4477,7 +4478,7 @@ static int collectGarbage(Address, Address, int);
 		int index  = popInt();
 		int value = popInt();
 		assumeInterp(index < GLOBAL_INT_COUNT);
-		Ints[index] = (int)value;
+		Ints_g[index] = (int)value;
 		break;
 	}
 
@@ -4485,7 +4486,7 @@ static int collectGarbage(Address, Address, int);
 		int index  = popInt();
 		Address value = popAddress();
 		assumeInterp(index < GLOBAL_ADDR_COUNT);
-		Addrs[index] = value;
+		Addrs_g[index] = value;
 		break;
 	}
 
@@ -4493,7 +4494,7 @@ static int collectGarbage(Address, Address, int);
 		int index  = popInt();
 		Address value = popAddress();
 		assumeInterp(index < GLOBAL_OOP_COUNT);
-		Oops[index] = value;
+		Oops_g[index] = value;
 		break;
 	}
 
@@ -4545,7 +4546,7 @@ static int collectGarbage(Address, Address, int);
 
 /*if[FINALIZATION]*/
 	case Native_com_sun_squawk_VM_finalize: {
-		iparm = MethodOffsets_virtual_java_lang_Object_finalize;
+		iparm_g = MethodOffsets_virtual_java_lang_Object_finalize;
 		do_invokevirtual();
 		break;
 	}
@@ -4589,7 +4590,7 @@ static int collectGarbage(Address, Address, int);
 		com_sun_squawk_ServiceOperation_o1 = o1;
 		com_sun_squawk_ServiceOperation_o2 = o2;
 		if (TRACE)
-			printStackTracePrim(-1, ip, fp, "COPY_OBJECT_GRAPH", null);
+			printStackTracePrim(-1, ip_g, fp_g, "COPY_OBJECT_GRAPH", null);
 		threadSwitchFor(com_sun_squawk_ServiceOperation_COPY_OBJECT_GRAPH);
 		break;
 	}
@@ -4599,7 +4600,7 @@ static int collectGarbage(Address, Address, int);
 		boolean forceFullGC = popInt();
 		com_sun_squawk_ServiceOperation_i1 = forceFullGC;
 		if (TRACE)
-			printStackTracePrim(-1, ip, fp, "GARBAGE_COLLECT", null);
+			printStackTracePrim(-1, ip_g, fp_g, "GARBAGE_COLLECT", null);
 		threadSwitchFor(com_sun_squawk_ServiceOperation_GARBAGE_COLLECT);
 		break;
 	}
@@ -4653,9 +4654,9 @@ static int collectGarbage(Address, Address, int);
 	case Native_com_sun_squawk_VM_removeVirtualMonitorObject: {
 		Address res = null;
 
-		if (pendingMonitorStackPointer > 0) {
-			res = pendingMonitors[--pendingMonitorStackPointer];
-			pendingMonitors[pendingMonitorStackPointer] = null;
+		if (pendingMonitorStackPointer_g > 0) {
+			res = pendingMonitors_g[--pendingMonitorStackPointer_g];
+			pendingMonitors_g[pendingMonitorStackPointer_g] = null;
 		}
 		pushAddress(res);
 		break;
@@ -4665,8 +4666,8 @@ static int collectGarbage(Address, Address, int);
 		Address obj = popAddress();
 		boolean res = false;
 		int i;
-		for (i = 0 ; i < pendingMonitorStackPointer ; i++) {
-			if (pendingMonitors[i] == obj) {
+		for (i = 0 ; i < pendingMonitorStackPointer_g ; i++) {
+			if (pendingMonitors_g[i] == obj) {
 				res = true;
 				break;
 			}
@@ -4828,8 +4829,8 @@ static int collectGarbage(Address, Address, int);
 /*end[KERNEL_SQUAWK]*/
 
 	default: {
-		/*fprintf(stderr, "*** Undefined native method: *** %d\n", iparm);*/
-		pushInt(iparm);
+		/*fprintf(stderr, "*** Undefined native method: *** %d\n", iparm_g);*/
+		pushInt(iparm_g);
 		call(com_sun_squawk_VM_undefinedNativeMethod);
 		break;
 	}
@@ -5691,7 +5692,7 @@ static int collectGarbage(Address, Address, int);
 	buf[pos++] = ' ';
 	pos += printJavaStringBuf(java_lang_Throwable_detailMessage(exception), buf + pos, 999 - pos);
 	buf[pos] = 0;
-	printStackTracePrim(-1, ip, fp, buf, null);
+	printStackTracePrim(-1, ip_g, fp_g, buf, null);
 }
 #else
 #define PRINTSTACK() /**/
@@ -5716,7 +5717,7 @@ static int collectGarbage(Address, Address, int);
 		}
 		fatalInterpreterError("");
 	} else {
-		__attribute__((unused)) UWord oldip = (UWord)ip;
+		__attribute__((unused)) UWord oldip = (UWord)ip_g;
 		Address exception = popAddress();
 		nullCheck((Address)exception);
 		PRINTSTACK();
@@ -5756,18 +5757,21 @@ static int collectGarbage(Address, Address, int);
 	nullCheck(obj);
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
 	assn = getClassOrAssociation(obj);
-	if (unlikely(MONITOR_CACHE_SIZE == 0 || associationToKlass(assn) != assn || pendingMonitorStackPointer == MONITOR_CACHE_SIZE ||
-	             !(hi(obj, com_sun_squawk_GC_ramStart) && loeq(obj, com_sun_squawk_GC_ramEnd)))) {
+	if (unlikely(MONITOR_CACHE_SIZE == 0
+	             || associationToKlass(assn) != assn
+	             || pendingMonitorStackPointer_g == MONITOR_CACHE_SIZE
+	             || !(hi(obj, com_sun_squawk_GC_ramStart)
+	                  && loeq(obj, com_sun_squawk_GC_ramEnd)))) {
 		pushAddress(obj);
 		call(com_sun_squawk_VM_monitorenter);
 	} else {
-		pendingMonitors[pendingMonitorStackPointer++] = obj;
+		pendingMonitors_g[pendingMonitorStackPointer_g++] = obj;
 	}
 }
 
 #ifdef INTERPRETER_STATS
-#define updatePendingMonitorAccesses() pendingMonitorAccesses++
-#define updatePendingMonitorHits() pendingMonitorHits++
+#define updatePendingMonitorAccesses() pendingMonitorAccesses_g++
+#define updatePendingMonitorHits() pendingMonitorHits_g++
 #else
 #define updatePendingMonitorAccesses()
 #define updatePendingMonitorHits()
@@ -5788,15 +5792,18 @@ static int collectGarbage(Address, Address, int);
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
 	assn = getClassOrAssociation(obj);
 	updatePendingMonitorAccesses();
-	if (unlikely(MONITOR_CACHE_SIZE == 0 || associationToKlass(assn) != assn || pendingMonitorStackPointer == 0 ||
-	             !(hi(obj, com_sun_squawk_GC_ramStart) && loeq(obj, com_sun_squawk_GC_ramEnd)))) {
+	if (unlikely(MONITOR_CACHE_SIZE == 0
+	             || associationToKlass(assn) != assn
+	             || pendingMonitorStackPointer_g == 0
+	             || !(hi(obj, com_sun_squawk_GC_ramStart)
+	                  && loeq(obj, com_sun_squawk_GC_ramEnd)))) {
 		pushAddress(obj);
 		call(com_sun_squawk_VM_monitorexit);
 	} else {
 		__attribute__((unused)) Address obj2 =
-			pendingMonitors[--pendingMonitorStackPointer];
+			pendingMonitors_g[--pendingMonitorStackPointer_g];
 		assumeInterp(obj == obj2);
-		pendingMonitors[pendingMonitorStackPointer] = null;
+		pendingMonitors_g[pendingMonitorStackPointer_g] = null;
 		updatePendingMonitorHits();
 	}
 }

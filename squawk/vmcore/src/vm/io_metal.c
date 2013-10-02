@@ -33,22 +33,10 @@ long long rebuildLongParam(int i1, int i2) {
 /**************************************************************************
  * Sleep support
  **************************************************************************/
-#ifndef JAVA
-/* NOTE: FORMIC does not have a mechanism for sleeping (at least yet) */
-int deepSleepEnabled = 0;           // indicates whether the feature is currently enabled (=1)
-#endif /* JAVA */
-int sleepManagerRunning = 1;        // assume that sleepManager is running until it calls WAIT_FOR_DEEP_SLEEP
-int outstandingDeepSleepEvent = 0;  // whether the sleep manager thread should be unblocked at the next reschedule
-long long storedDeepSleepWakeupTarget; // The millis that the next deep sleep should end at
-long long minimumDeepSleepMillis = 0x7FFFFFFFFFFFFFFFLL; // minimum time we're prepared to deep sleep for: avoid deep sleeping initially.
-long long totalShallowSleepTime;    // total time the SPOT has been shallow sleeping
-#ifndef __MICROBLAZE__
-int shallow_sleep_clock_mode = SHALLOW_SLEEP_CLOCK_MODE_NORMAL;
-#endif
 
 static void setDeepSleepEventOutstanding(long long target) {
-    storedDeepSleepWakeupTarget = target;
-    outstandingDeepSleepEvent = 1;
+    storedDeepSleepWakeupTarget_g = target;
+    outstandingDeepSleepEvent_g = 1;
     diagnosticWithValue("setDeepSleepEventOutstanding  - hi", (int)(target >> 32));
     diagnosticWithValue("setDeepSleepEventOutstanding  - lo", (int)(target & 0xFFFFFFFFL));
 }
@@ -62,8 +50,9 @@ void osMilliSleep(long long millisecondsToWait) {
         target = 0x7FFFFFFFFFFFFFFFLL; // overflow detected
     }
 #ifndef JAVA
-    if ((millisecondsToWait < 0x7FFFFFFFFFFFFFFFLL) && deepSleepEnabled &&
-         !sleepManagerRunning && (millisecondsToWait >= minimumDeepSleepMillis)) {
+/* NOTE: FORMIC does not have a mechanism for sleeping (at least yet) */
+    if ((millisecondsToWait < 0x7FFFFFFFFFFFFFFFLL) && deepSleepEnabled_g &&
+         !sleepManagerRunning && (millisecondsToWait >= minimumDeepSleepMillis_g)) {
         setDeepSleepEventOutstanding(target);
     } else
 #endif
@@ -80,10 +69,9 @@ void osMilliSleep(long long millisecondsToWait) {
  * ****************************************************************
  */
 
+#ifndef __MICROBLAZE__
 // set in java_irq_hndl() (.c or .s)
 volatile long long last_device_interrupt_time;
-
-unsigned int java_irq_status = 0; // bit set = that irq has outstanding interrupt request
 
 struct irqRequest {
         int eventNumber;
@@ -92,16 +80,16 @@ struct irqRequest {
 };
 typedef struct irqRequest IrqRequest;
 
-IrqRequest *irqRequests;
+__trhread IrqRequest *irqRequests;
 
 extern void java_irq_hndl();
 
 extern void setup_java_interrupts();
 
 // Forward declarations
-#ifndef __MICROBLAZE__
 int getEvent(int, int);
-#endif
+
+unsigned int java_irq_status = 0; // bit set = that irq has outstanding interrupt request
 static int check_irq(int irq_mask, int clear_flag);
 
 /*
@@ -110,7 +98,6 @@ static int check_irq(int irq_mask, int clear_flag);
  *
  * @return the event number
  */
-#ifndef __MICROBLAZE__
 int storeIrqRequest (int irq_mask) {
     IrqRequest* newRequest = (IrqRequest*)malloc(sizeof(IrqRequest));
     if (newRequest == NULL) {
@@ -142,7 +129,6 @@ int storeIrqRequest (int irq_mask) {
     diagnosticWithValue("    - eventNumber", newRequest->eventNumber);
     return newRequest->eventNumber;
 }
-#endif
 
 /* ioPostEvent is a no-op for us */
 static void ioPostEvent(void) { }
@@ -151,11 +137,9 @@ static void ioPostEvent(void) { }
  * If there are outstanding irqRequests and one of them is for an interrupt that has
  * occurred return its eventNumber. Otherwise return 0
  */
-#ifndef __MICROBLAZE__
 int checkForEvents() {
     return getEvent(false, false);
 }
-#endif
 
 static void printOutstandingEvents() {
 	IrqRequest* current = irqRequests;
@@ -171,7 +155,6 @@ static void printOutstandingEvents() {
  * also remove the event from the queue. If no requests match the interrupt status
  * return 0.
  */
-#ifndef __MICROBLAZE__
 int getEvent(int removeEventFlag, int fiqOnly) {
     int res = 0;
     int device_type;
@@ -215,7 +198,7 @@ int getEvent(int removeEventFlag, int fiqOnly) {
     }
 
      if (res == 0) {
-      if (outstandingDeepSleepEvent) {
+      if (outstandingDeepSleepEvent_g) {
         sleepManagerRunning = 1;
         res = WAIT_FOR_DEEP_SLEEP_EVENT_NUMBER;
       }
@@ -232,7 +215,7 @@ int getEvent(int removeEventFlag, int fiqOnly) {
   if (removeEventFlag) {
     // always clear the deep sleep event, as we will want to reconsider
     // whether deep sleep is appropriate after any event.
-    outstandingDeepSleepEvent = 0;
+    outstandingDeepSleepEvent_g = 0;
   }
 
     if (res == 0) {
@@ -243,7 +226,6 @@ int getEvent(int removeEventFlag, int fiqOnly) {
     }
     return res;
 }
-#endif
 
 /**
  * Check if an irq bit is set in the status, return 1 if yes
@@ -282,7 +264,6 @@ int retValue = 0;  // holds the value to be returned on the next "get result" ca
  * @param  receive
  * @return the operation result
  */
-#ifndef __MICROBLAZE__
 static void ioExecute(void) {
 //  int     context = com_sun_squawk_ServiceOperation_context;
     int     op      = com_sun_squawk_ServiceOperation_op;
@@ -446,7 +427,7 @@ static void ioExecute(void) {
         }
 
         case ChannelConstants_WAIT_FOR_DEEP_SLEEP: {
-            minimumDeepSleepMillis = rebuildLongParam(i1, i2);
+            minimumDeepSleepMillis_g = rebuildLongParam(i1, i2);
             sleepManagerRunning = 0;
             res = WAIT_FOR_DEEP_SLEEP_EVENT_NUMBER;
             diagnosticWithValue("WAIT_FOR_DEEP_SLEEP -- ", i2);
@@ -454,33 +435,27 @@ static void ioExecute(void) {
         }
 
         case ChannelConstants_DEEP_SLEEP_TIME_MILLIS_HIGH: {
-            res = (int) (storedDeepSleepWakeupTarget >> 32);
+            res = (int) (storedDeepSleepWakeupTarget_g >> 32);
             break;
         }
 
         case ChannelConstants_DEEP_SLEEP_TIME_MILLIS_LOW: {
-            res = (int) (storedDeepSleepWakeupTarget & 0xFFFFFFFF);
+            res = (int) (storedDeepSleepWakeupTarget_g & 0xFFFFFFFF);
             break;
         }
 
         case ChannelConstants_TOTAL_SHALLOW_SLEEP_TIME_MILLIS_HIGH: {
-            res = (int) (totalShallowSleepTime >> 32);
+            res = (int) (totalShallowSleepTime_g >> 32);
             break;
         }
 
         case ChannelConstants_TOTAL_SHALLOW_SLEEP_TIME_MILLIS_LOW: {
-            res = (int) (totalShallowSleepTime & 0xFFFFFFFF);
+            res = (int) (totalShallowSleepTime_g & 0xFFFFFFFF);
             break;
         }
 
         case ChannelConstants_SET_MINIMUM_DEEP_SLEEP_TIME: {
-            minimumDeepSleepMillis = rebuildLongParam(i1, i2);
-            res = 0;
-            break;
-        }
-
-        case ChannelConstants_SET_SHALLOW_SLEEP_CLOCK_MODE: {
-            shallow_sleep_clock_mode = i1;
+            minimumDeepSleepMillis_g = rebuildLongParam(i1, i2);
             res = 0;
             break;
         }
@@ -497,7 +472,8 @@ static void ioExecute(void) {
 
         case ChannelConstants_SET_DEEP_SLEEP_ENABLED: {
 #ifndef JAVA
-            deepSleepEnabled = i1;
+/* NOTE: FORMIC does not have a mechanism for sleeping (at least yet) */
+            deepSleepEnabled_g = i1;
 #endif /* JAVA */
             res = 0;
             break;
@@ -534,4 +510,4 @@ static void ioExecute(void) {
     }
     com_sun_squawk_ServiceOperation_result = res;
 }
-#endif
+#endif /* __MICROBLAZE__ */

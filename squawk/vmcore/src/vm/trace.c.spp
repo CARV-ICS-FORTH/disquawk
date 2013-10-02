@@ -24,8 +24,6 @@
 
 #if TRACE
 
-int lastThreadID = -2;
-
 /**
  * Open the trace file if not already opened.
  *
@@ -33,21 +31,22 @@ int lastThreadID = -2;
  *         was already open
  */
 boolean openTraceFile() {
-    if (!traceFileOpen) {
+    if (!traceFileOpen_g) {
 /*if[!MICROBLAZE_BUILD]*/
-        if (traceFile == NULL) {
-            traceFile = fopen(inKernelMode() ? "ktrace" : "trace", "w");
+        if (traceFile_g == NULL) {
+            traceFile_g = fopen(inKernelMode() ? "ktrace" : "trace", "w");
         }
-        fprintf(traceFile, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*\n"),
+        fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*\n"),
                 com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
                 com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd,
                 SQUAWK_64 ? 64 : 32);
 /*else[MICROBLAZE_BUILD]*/
-//      fprintf(traceFile, format("*TRACE*:*ROM*:%A:%A:*%d*\n"),
+//      fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*%d*\n"),
 //              com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
 //              SQUAWK_64 ? 64 : 32);
 /*end[MICROBLAZE_BUILD]*/
-        traceFileOpen = true;
+        lastThreadID_g = -2;
+        traceFileOpen_g = true;
         return true;
     } else {
         return false;
@@ -100,9 +99,9 @@ typedef struct {
 void decodeInstruction(DecodedInstruction *instruction, ByteAddress traceIP) {
     int opcode;
 #ifdef MACROIZE
-    ByteAddress ip;  // local version of IP
+    ByteAddress ip_g;  // local version of IP
 #endif /* MACROIZE */
-    ip = traceIP;
+    ip_g = traceIP;
     opcode = fetchUByte();
 
     // Initialize the return struct for the common case
@@ -295,7 +294,7 @@ void traceLocalsAndStack(int opcode, ByteAddress traceMP, UWordAddress traceFP, 
     int nlocals = getLocalCount(traceMP);
     int nstack = getStackCount(traceMP);
     if (opcode == OPC_EXTEND || opcode == OPC_EXTEND0) {
-        fprintf(traceFile, format("%d:%d,%d:"), nlocals, nstack, (traceSP - sl));
+        fprintf(traceFile_g, format("%d:%d,%d:"), nlocals, nstack, (traceSP - sl_g));
     } else {
         UWordAddress p   = traceFP;
         UWordAddress sp0 = traceFP - nlocals;
@@ -312,24 +311,24 @@ void traceLocalsAndStack(int opcode, ByteAddress traceMP, UWordAddress traceFP, 
             UWord value = getUWordTyped(p, 0, 0);
 #endif
             if (value == DEADBEEF) {
-                fprintf(traceFile, "X");
+                fprintf(traceFile_g, "X");
             } else {
-                fprintf(traceFile, format("%A"), value);
+                fprintf(traceFile_g, format("%A"), value);
             }
 #if TYPEMAP
-            fprintf(traceFile, "#%d", getType(p));
+            fprintf(traceFile_g, "#%d", getType(p));
 #endif /* TYPEMAP */
             --p;
             if (p == sp0) {
-                fprintf(traceFile, ":");
+                fprintf(traceFile_g, ":");
 #if !ROM_REVERSE_PARAMETERS
                 p = traceSP - 1;
 #endif
             } else if (p >= xsp) {
-                fprintf(traceFile, ",");
+                fprintf(traceFile_g, ",");
             }
         }
-        fprintf(traceFile, ":");
+        fprintf(traceFile_g, ":");
     }
 }
 
@@ -376,21 +375,21 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
                 repetitions++;
             } else {
                 if (repetitions != 0) {
-                    fprintf(traceFile, format(":\"%d"), repetitions);
+                    fprintf(traceFile_g, format(":\"%d"), repetitions);
                     repetitions = 0;
                 }
-                fprintf(traceFile, format(":%A@%d"), frame.MP, frame.PC);
+                fprintf(traceFile_g, format(":%A@%d"), frame.MP, frame.PC);
             }
         } else {
             if (previousFrame.MP == frame.MP && previousFrame.PC == frame.PC) {
                 repetitions++;
             } else {
                 if (repetitions != 0) {
-                    fprintf(traceFile, format("*STACKTRACE*:\"%d:%d:%d\n"),
+                    fprintf(traceFile_g, format("*STACKTRACE*:\"%d:%d:%d\n"),
                             repetitions, my_bid, my_cid);
                     repetitions = 0;
                 }
-                fprintf(traceFile, format("*STACKTRACE*:%A:%d:%d:%d\n"),
+                fprintf(traceFile_g, format("*STACKTRACE*:%A:%d:%d:%d\n"),
                         frame.MP, frame.PC, my_bid, my_cid);
             }
         }
@@ -408,9 +407,9 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
 
     if (repetitions != 0) {
         if (forThreadSwitch) {
-            fprintf(traceFile, format(":\"%d"), repetitions);
+            fprintf(traceFile_g, format(":\"%d"), repetitions);
         } else {
-            fprintf(traceFile, format("*STACKTRACE*:\"%d\n"), repetitions);
+            fprintf(traceFile_g, format("*STACKTRACE*:\"%d\n"), repetitions);
         }
     }
 }
@@ -429,7 +428,7 @@ void trace(ByteAddress traceIP, UWordAddress traceFP,
 //void trace(ByteAddress traceIP, UWordAddress traceFP, UWordAddress traceSP) {
 /*end[MICROBLAZE_BUILD]*/
 #ifndef MACROIZE
-    ByteAddress saveIP = ip;   // save the global IP
+    ByteAddress saveIP = ip_g;   // save the global IP
 #endif /* MACROIZE */
     DecodedInstruction instruction;
     int pc;                    // bytecode offset from start of method
@@ -446,17 +445,17 @@ void trace(ByteAddress traceIP, UWordAddress traceFP,
     }
 
     // Don't trace the service thread if requested not to
-    if (threadID == 0 && !traceServiceThread) {
+    if (threadID == 0 && !traceServiceThread_g) {
         return;
     }
 
     // Write THREADSWITCH line
-    if (openTraceFile() || threadID != lastThreadID) {
-        lastThreadID = threadID;
+    if (openTraceFile() || threadID != lastThreadID_g) {
+        lastThreadID_g = threadID;
 
-        fprintf(traceFile, "*THREADSWITCH*:%d", threadID);
+        fprintf(traceFile_g, "*THREADSWITCH*:%d", threadID);
         traceFrames(-1, traceIP, traceFP, true);
-        fprintf(traceFile, "\n");
+        fprintf(traceFile_g, "\n");
     }
 
     // Decode the next instruction
@@ -481,25 +480,25 @@ void trace(ByteAddress traceIP, UWordAddress traceFP,
 
     // Write out the first part of the trace line which has the following ':' separated components:
 /*if[MICROBLAZE_BUILD]*/
-    fprintf(traceFile, format("*TRACE*:%d:%d:%A:%d:%x:"), threadID, level,
+    fprintf(traceFile_g, format("*TRACE*:%d:%d:%A:%d:%x:"), threadID, level,
             traceMP-(uint32_t)com_sun_squawk_VM_bootstrapStart, pc, opcode);
 /*else[MICROBLAZE_BUILD]*/
-//  fprintf(traceFile, format("*TRACE*:%d:%d:%A:%d:"), threadID, level, traceMP, pc);
+//  fprintf(traceFile_g, format("*TRACE*:%d:%d:%A:%d:"), threadID, level, traceMP, pc);
 /*end[MICROBLAZE_BUILD]*/
 
     // Write out the decoded instruction
 #if TYPEMAP
-        fprintf(traceFile, "%d#%d,%d", instruction.opcode, instruction.mutationType, instruction.prefix);
+        fprintf(traceFile_g, "%d#%d,%d", instruction.opcode, instruction.mutationType, instruction.prefix);
 #else
-        fprintf(traceFile, "%d,%d", instruction.opcode, instruction.prefix);
+        fprintf(traceFile_g, "%d,%d", instruction.opcode, instruction.prefix);
 #endif /* TYPEMAP */
     switch (instruction.tag) {
-        case 0: fprintf(traceFile, ":");                                        break;
-        case 1: fprintf(traceFile, ",%d:", instruction.operand.i);              break;
-        case 2: fprintf(traceFile, format(",%L:"), instruction.operand.l);      break;
+        case 0: fprintf(traceFile_g, ":");                                        break;
+        case 1: fprintf(traceFile_g, ",%d:", instruction.operand.i);              break;
+        case 2: fprintf(traceFile_g, format(",%L:"), instruction.operand.l);      break;
 /*if[FLOATS]*/
-        case 3: fprintf(traceFile, ",%f:" , ib2f(instruction.operand.i));       break;
-        case 4: fprintf(traceFile, format(",%D:"), lb2d(instruction.operand.l));break;
+        case 3: fprintf(traceFile_g, ",%f:" , ib2f(instruction.operand.i));       break;
+        case 4: fprintf(traceFile_g, format(",%D:"), lb2d(instruction.operand.l));break;
 /*end[FLOATS]*/
         default: shouldNotReachHere();
     }
@@ -508,20 +507,20 @@ void trace(ByteAddress traceIP, UWordAddress traceFP,
     traceLocalsAndStack(instruction.opcode, traceMP, traceFP, traceSP);
 
     // Write out the stack pointer, branch count, and remaining number of stack words and complete the trace line
-    fprintf(traceFile, format("%A:%L:%d\n"), traceSP, getBranchCount(), (traceSP - sl));
-    fflush(traceFile);
+    fprintf(traceFile_g, format("%A:%L:%d\n"), traceSP, getBranchCount(), (traceSP - sl_g));
+    fflush(traceFile_g);
 
 #ifndef MACROIZE
     // Restore the value of the global IP
-    ip = saveIP;
+    ip_g = saveIP;
 #endif /* MACROIZE */
 }
 
 //void closeTraceFile(void) {
-//    if(traceFileOpen) {
-//        fprintf(traceFile, "\n+++ Trace file closed +++\n");
-//        traceFileOpen = false;
-//        fclose(traceFile);
+//    if(traceFileOpen_g) {
+//        fprintf(traceFile_g, "\n+++ Trace file closed +++\n");
+//        traceFileOpen_g = false;
+//        fclose(traceFile_g);
 //    }
 //}
 
@@ -541,18 +540,18 @@ void printStackTracePrim(int opcode, ByteAddress traceIP, UWordAddress traceFP, 
 
     // Print the first line of the trace
     assume(msg != null);
-    fprintf(traceFile, format("*STACKTRACESTART*:%L:%s"), getBranchCount(), msg);
+    fprintf(traceFile_g, format("*STACKTRACESTART*:%L:%s"), getBranchCount(), msg);
     if (mnemonic != null) {
-        fprintf(traceFile, ":%s\n", mnemonic);
+        fprintf(traceFile_g, ":%s\n", mnemonic);
     } else {
-        fprintf(traceFile, "\n");
+        fprintf(traceFile_g, "\n");
     }
 
     // Print the frames
     traceFrames(opcode, traceIP, traceFP, false);
 
-    fprintf(traceFile, "*STACKTRACEEND*\n");
-    fflush(traceFile);
+    fprintf(traceFile_g, "*STACKTRACEEND*\n");
+    fflush(traceFile_g);
 }
 
 /**
@@ -574,10 +573,10 @@ void printProfileStackTrace(ByteAddress traceIP, UWordAddress traceFP, int lastO
  */
 void printStackTrace(const char *msg) {
 #ifndef MACROIZE
-    ByteAddress lastIP = ip;
-    UWordAddress lastFP = fp;
+    ByteAddress lastIP = ip_g;
+    UWordAddress lastFP = fp_g;
 #endif /* MACROIZE */
-    printStackTracePrim(-1, lastIP, lastFP, msg, null);
+    printStackTracePrim(-1, lastIP_g, lastFP_g, msg, null);
 }
 
 #else /* not TRACE */

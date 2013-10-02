@@ -48,7 +48,7 @@ INLINE void returnIntResult(int value) {
  * @param value the long value to return to the VM
  */
 INLINE void returnLongResult(jlong value) {
-    internalLowResult = (int)value;
+    internalLowResult_g = (int)value;
 /*if[MICROBLAZE_BUILD]*/
     com_sun_squawk_ServiceOperation_result = 0;
 /*else[MICROBLAZE_BUILD]*/
@@ -236,7 +236,7 @@ void cioExecute(void) {
         }
 
         case ChannelConstants_INTERNAL_LOW_RESULT: {
-            com_sun_squawk_ServiceOperation_result = internalLowResult;
+            com_sun_squawk_ServiceOperation_result = internalLowResult_g;
             break;
         }
 

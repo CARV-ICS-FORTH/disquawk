@@ -86,28 +86,25 @@ NORETURN void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddr
 NORETURN void fatalVMError0(char *msg, boolean cleanup) {
 	// allocate AR_FORMIC_CORES_PER_BOARD inFatalVMError's in the bss
 	// segment (one for each core)
-/*if[!MICROBLAZE_BUILD]*/
-	// In microblaze this is defined as a global in globals.h
-	static __thread boolean inFatalVMError = false;
-/*end[MICROBLAZE_BUILD]*/
 	NORETURN void stopVM0(int, boolean);
 
 	if (msg == null) {
 		msg = "fatal VM error";
 	}
-	if (inFatalVMError) {
+	if (inFatalVMError_g) {
 		fprintf(stderr, "Recursive call to fatalVMError(%s)\n", msg);
 		fflush(stderr);
 		exit(1);
 	} else {
 		fprintf(stderr, "%s\n", msg);
 		fflush(stderr);
-		inFatalVMError = true;
+		inFatalVMError_g = true;
 #if TRACE
 		printStackTrace(msg);
 #endif
 /*if[!MACROIZE]*/
-		fatalInterpreterError0("Last interpreter values:\n", -1, iparm, ip, fp, sp, "-", -1);
+		fatalInterpreterError0("Last interpreter values:\n", -1,
+		                       iparm_g, ip_g, fp_g, sp_g, "-", -1);
 /*end[MACROIZE]*/
 	}
 	stopVM0(-1, false);
@@ -140,10 +137,10 @@ NORETURN void fatalVMError(char *msg) {
  */
 /*if[MACROIZE]*/
 #define fatalInterpreterError(_msg) \
-    fatalInterpreterError0(_msg, opcode, iparm, ip, fp, sp, __FILE__, __LINE__)
+    fatalInterpreterError0(_msg, opcode, iparm_g, ip_g, fp_g, sp_g, __FILE__, __LINE__)
 /*else[MACROIZE]*/
 //#define fatalInterpreterError(_msg) \
-//  fatalInterpreterError0(_msg,      0, iparm, ip, fp, sp, __FILE__, __LINE__)
+//  fatalInterpreterError0(_msg,      0, iparm_g, ip_g, fp_g, sp_g, __FILE__, __LINE__)
 /*end[MACROIZE]*/
 
 void printJavaStrSafely(Address value, char* valueName);

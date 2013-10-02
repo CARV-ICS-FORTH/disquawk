@@ -42,232 +42,265 @@
  * a system to be built with several separate VM execution contexts.
  */
 typedef struct globalsStruct {
-    Address     _memory;                     /* The buffer containing ROM, NVM, RAM and serviceChunk */
-    Address     _memoryEnd;                  /* The end of the memory buffer. */
-    UWord       _memorySize;                 /* The size (in bytes) of the memory buffer. */
+	Address     _memory;                     /* The buffer containing ROM, NVM, RAM and serviceChunk */
+	Address     _memoryEnd;                  /* The end of the memory buffer. */
+	UWord       _memorySize;                 /* The size (in bytes) of the memory buffer. */
 
 #ifndef MACROIZE
-    int          _iparm;                     /* The immediate operand value of the current bytecode. */
-    ByteAddress  _ip;                        /* The instruction pointer. */
-    UWordAddress _fp;                        /* The frame pointer. */
-    UWordAddress _sp;                        /* The stack pointer. */
+	int          _iparm;                     /* The immediate operand value of the current bytecode. */
+	ByteAddress  _ip;                        /* The instruction pointer. */
+	UWordAddress _fp;                        /* The frame pointer. */
+	UWordAddress _sp;                        /* The stack pointer. */
 #else
 #if TRACE
-    ByteAddress  _lastIP;
-    UWordAddress _lastFP;
+	ByteAddress  _lastIP;
+	UWordAddress _lastFP;
 #endif /* TRACE */
 #endif /* MACROIZE */
 
-    UWordAddress _sl;                        /* The stack limit. */
-    UWordAddress _ss;                        /* The stack start. */
-    int          _bc;                        /* The branch counter. */
+	UWordAddress _sl;                        /* The stack limit. */
+	UWordAddress _ss;                        /* The stack start. */
+	int          _bc;                        /* The branch counter. */
 
-    ByteAddress  _saved_ip;                  /* The saved instruction pointer. */
-    UWordAddress _saved_fp;                  /* The saved frame pointer. */
-    UWordAddress _saved_sp;                  /* The saved stack pointer. */
+	ByteAddress  _saved_ip;                  /* The saved instruction pointer. */
+	UWordAddress _saved_fp;                  /* The saved frame pointer. */
+	UWordAddress _saved_sp;                  /* The saved stack pointer. */
 
-    int         _Ints[GLOBAL_INT_COUNT];     /* Storage for the primitive typed Java globals. */
-    Address     _Addrs[GLOBAL_ADDR_COUNT];   /* Storage for the primitive typed Java globals. */
-    Address     _Oops[GLOBAL_OOP_COUNT];     /* Storage for the reference typed Java globals. */
-    Address     _Buffers[MAX_BUFFERS];       /* Buffers that are allocated by native code. */
-    int         _BufferCount;                /* Number of buffers that are currently allocated by native code. */
+	int         _Ints[GLOBAL_INT_COUNT];     /* Storage for the primitive typed Java globals. */
+	Address     _Addrs[GLOBAL_ADDR_COUNT];   /* Storage for the primitive typed Java globals. */
+	Address     _Oops[GLOBAL_OOP_COUNT];     /* Storage for the reference typed Java globals. */
+	Address     _Buffers[MAX_BUFFERS];       /* Buffers that are allocated by native code. */
+	int         _BufferCount;                /* Number of buffers that are currently allocated by native code. */
 #ifndef JAVA
-    FILE       *_streams[MAX_STREAMS];       /* The file streams to which the VM printing directives sent. */
+	FILE       *_streams[MAX_STREAMS];       /* The file streams to which the VM printing directives sent. */
 #endif /* JAVA */
-    int         _currentStream;              /* The currently selected stream */
-    int         _internalLowResult;          /* Value for INTERNAL_LOW_RESULT */
+	int         _currentStream;              /* The currently selected stream */
+	int         _internalLowResult;          /* Value for INTERNAL_LOW_RESULT */
 
 #if KERNEL_SQUAWK
-    /* Nothing yet... */
+	/* Nothing yet... */
 #endif
 
 #if PLATFORM_TYPE_DELEGATING
-    jclass      _channelIO_clazz;            /* JNI handle to com.sun.squawk.vm.ChannelIO. */
-    jmethodID   _channelIO_execute;          /* JNI handle to com.sun.squawk.vm.ChannelIO.execute(...) */
+	jclass      _channelIO_clazz;            /* JNI handle to com.sun.squawk.vm.ChannelIO. */
+	jmethodID   _channelIO_execute;          /* JNI handle to com.sun.squawk.vm.ChannelIO.execute(...) */
 #endif
 
 #if PLATFORM_TYPE_SOCKET
-    char       *_ioport;                     /* The [host and] port number of the optional I/O server. */
-    int         _iosocket;                   /* The socket number of the optional I/O server. */
-    int         _result_low;                 /* The low 32 bits of the last result */
-    int         _result_high;                /* The high 32 bits of the last result */
-    jlong       _io_ops_time;
-    int         _io_ops_count;
+	char       *_ioport;                     /* The [host and] port number of the optional I/O server. */
+	int         _iosocket;                   /* The socket number of the optional I/O server. */
+	int         _result_low;                 /* The low 32 bits of the last result */
+	int         _result_high;                /* The high 32 bits of the last result */
+	jlong       _io_ops_time;
+	int         _io_ops_count;
 #endif /* PLATFORM_TYPE_SOCKET */
 
-    void*       _nativeFuncPtr;               /* Ptr to the function that is being called via NativeUnsafe.call, or null */
+	void*       _nativeFuncPtr;              /* Ptr to the function that is being called via NativeUnsafe.call, or null */
 
 #ifdef PROFILING
-    int         _sampleFrequency;            /* The profile sample frequency */
-    jlong       _instructionCount;
+	int         _sampleFrequency;            /* The profile sample frequency */
+	jlong       _instructionCount;
 #endif /* PROFILING */
 
 #if TRACE
-    FILE       *_traceFile;                  /* The trace file name */
-    boolean     _traceFileOpen;              /* Specifies if the trace file has been opened. */
-    boolean     _traceServiceThread;         /* Specifies if execution on the service thread is to be traced. */
-    int         _traceLastThreadID;          /* Specifies the thread ID at the last call to trace() */
+	FILE       *_traceFile;                  /* The trace file name */
+	boolean     _traceFileOpen;              /* Specifies if the trace file has been opened. */
+	boolean     _traceServiceThread;         /* Specifies if execution on the service thread is to be traced. */
+	int         _traceLastThreadID;          /* Specifies the thread ID at the last call to trace() */
 
-    int         _total_extends;              /* Total number of extends */
-    int         _total_slots;                /* Total number of slots cleared */
+	int         _total_extends;              /* Total number of extends */
+	int         _total_slots;                /* Total number of slots cleared */
 
-    int         _statsFrequency;             /* The statistics output frequency */
+	int         _lastThreadID;
+
+	int         _statsFrequency;             /* The statistics output frequency */
 #endif /* TRACE */
 
 #if defined(PROFILING) | TRACE
-    jlong       _lastStatCount;
+	jlong       _lastStatCount;
 #endif /* PROFILING */
 
-    Address     _cachedClassState[CLASS_CACHE_SIZE > 0 ? CLASS_CACHE_SIZE : 1];
-    Address     _cachedClass     [CLASS_CACHE_SIZE > 0 ? CLASS_CACHE_SIZE : 1];
+	Address     _cachedClassState[CLASS_CACHE_SIZE > 0 ? CLASS_CACHE_SIZE : 1];
+	Address     _cachedClass     [CLASS_CACHE_SIZE > 0 ? CLASS_CACHE_SIZE : 1];
 #ifdef INTERPRETER_STATS
-    int         _cachedClassAccesses;
-    int         _cachedClassHits;
+	int         _cachedClassAccesses;
+	int         _cachedClassHits;
 #endif /* INTERPRETER_STATS */
 
-    Address    *_pendingMonitors;
-    int         _pendingMonitorStackPointer;
+	Address    *_pendingMonitors;
+	int         _pendingMonitorStackPointer;
 #ifdef INTERPRETER_STATS
-    int         _pendingMonitorAccesses;
-    int         _pendingMonitorHits;
+	int         _pendingMonitorAccesses;
+	int         _pendingMonitorHits;
 #endif /* INTERPRETER_STATS */
 
-#ifdef JAVA
 	boolean     _inFatalVMError;
 	char        _service_stack[SERVICE_CHUNK_SIZE] __attribute__((aligned(MM_PAGE_SIZE)));
-#endif /* JAVA */
+	boolean     _squawk_inStop;
 
+#if PLATFORM_TYPE_DELEGATING
+	JNIEnv     *_JNI_env;                    /* The pointer to the
+	                                          * table of JNI function
+	                                          * pointers. */
+	JavaVM     *_jvm;                        /* Handle to the JVM
+	                                          * created via the
+	                                          * Invocation API. This
+	                                          * will be null if Squawk
+	                                          * was called from Java
+	                                          * code. */
+#endif
+
+	int         _interruptsDisabled;         /* Depth-count: for
+	                                          * correct interrupt
+	                                          * state changes */
+
+#if KERNEL_SQUAWK
+	boolean     _kernelMode;                 /* If true, kernel
+	                                          * support for interrupts
+	                                          * is enabled */
+	int         _kernelSignal;               /* Signal number used for
+	                                          * entering kernel
+	                                          * mode */
+	int         _kernelSignalCounter;        /* Count for number of
+	                                          * signals received and
+	                                          * not yet processed. */
+	boolean     _kernelSendNotify;           /* Control whether to
+	                                          * notify potential
+	                                          * (user) waiters on
+	                                          * return */
+#endif /* KERNEL_SQUAWK */
+
+#ifndef __MICROBLAZE__
+	int         _deepSleepEnabled;           /* indicates whether the
+	                                          * feature is currently
+	                                          * enabled (=1) */
+#endif
+	int         _sleepManagerRunning;        /* assume that
+	                                          * sleepManager is
+	                                          * running until it calls
+	                                          * WAIT_FOR_DEEP_SLEEP */
+	int         _outstandingDeepSleepEvent;  /* whether the sleep
+	                                          * manager thread should
+	                                          * be unblocked at the
+	                                          * next reschedule */
+	long long   _storedDeepSleepWakeupTarget;/* The millis that the
+	                                          * next deep sleep should
+	                                          * end at */
+	long long   _minimumDeepSleepMillis;     /* minimum time we're
+	                                          * prepared to deep sleep
+	                                          * for: avoid deep
+	                                          * sleeping initially. */
+	long long   _totalShallowSleepTime;      /* total time the SPOT
+	                                          * has been shallow
+	                                          * sleeping */
+
+	boolean     _notrap;
 
 } Globals;
 
 /*=======================================================================*\
  *                          Truly global globals                         *
-\*=======================================================================*/
+ \*=======================================================================*/
 
 /* keep it thread/core local */
 #ifdef JAVA
 /* The pointer to the global execution context */
 Globals *gps[AR_FORMIC_CORES_PER_BOARD];
 #define gp gps[my_cid]
-/* The user mode execution context */
-Globals userGlobals[AR_FORMIC_CORES_PER_BOARD];
 #else
 __thread Globals *gp;         /* The pointer to the global execution context */
-__thread Globals userGlobals; /* The user mode execution context */
 #endif /* JAVA */
 
 #if KERNEL_SQUAWK
-Globals kernelGlobals;    /* The kernel mode execution context */
-#define defineGlobal(x) gp->_##x
-#else
-#ifdef JAVA
-#define defineGlobal(x) gp->_##x
-#else
-#define defineGlobal(x) userGlobals._##x
-#endif	/* JAVA */
+__thread Globals kernelGlobals;    /* The kernel mode execution context */
 #endif	/* KERNEL_SQUAWK */
 
+#define defineGlobal(x) gp->_##x
 #define defineGlobalContext(c,x) c._##x
 
-#if PLATFORM_TYPE_DELEGATING
-JNIEnv     *JNI_env;                    /* The pointer to the table of JNI function pointers. */
-
-JavaVM     *jvm;                        /* Handle to the JVM created via the Invocation API. This will be null if Squawk was called from Java code. */
-#endif
-
-int         interruptsDisabled;         /* Depth-count:  for correct interrupt state changes */
-
-#if KERNEL_SQUAWK
-boolean     kernelMode;                 /* If true, kernel support for interrupts is enabled */
-int         kernelSignal;               /* Signal number used for entering kernel mode */
-int         kernelSignalCounter;        /* Count for number of signals received and not yet processed. */
-boolean     kernelSendNotify;           /* Control whether to notify potential (user) waiters on return */
-#endif /* KERNEL_SQUAWK */
-
-boolean     notrap;
 
 /*=======================================================================*\
  *                             Virtual globals                           *
-\*=======================================================================*/
+ \*=======================================================================*/
 
-#define memory                              defineGlobal(memory)
-#define memoryEnd                           defineGlobal(memoryEnd)
-#define memorySize                          defineGlobal(memorySize)
+#define memory_g                            defineGlobal(memory)
+#define memoryEnd_g                         defineGlobal(memoryEnd)
+#define memorySize_g                        defineGlobal(memorySize)
 
 #ifndef MACROIZE
-#define iparm                               defineGlobal(iparm)
-#define ip                                  defineGlobal(ip)
-#define fp                                  defineGlobal(fp)
-#define sp                                  defineGlobal(sp)
+#define iparm_g                             defineGlobal(iparm)
+#define ip_g                                defineGlobal(ip)
+#define fp_g                                defineGlobal(fp)
+#define sp_g                                defineGlobal(sp)
 #else
 #if TRACE
-#define lastIP                              defineGlobal(lastIP)
-#define lastFP                              defineGlobal(lastFP)
+#define lastIP_g                            defineGlobal(lastIP)
+#define lastFP_g                            defineGlobal(lastFP)
 #endif /* TRACE */
 #endif /* MACROIZE */
 
-#define saved_ip                            defineGlobal(saved_ip)
-#define saved_fp                            defineGlobal(saved_fp)
-#define saved_sp                            defineGlobal(saved_sp)
+#define saved_ip_g                          defineGlobal(saved_ip)
+#define saved_fp_g                          defineGlobal(saved_fp)
+#define saved_sp_g                          defineGlobal(saved_sp)
 
-#define sl                                  defineGlobal(sl)
-#define ss                                  defineGlobal(ss)
-#define bc                                  defineGlobal(bc)
-#define internalLowResult                   defineGlobal(internalLowResult)
-#define Ints                                defineGlobal(Ints)
-#define Addrs                               defineGlobal(Addrs)
-#define Oops                                defineGlobal(Oops)
-#define Buffers                             defineGlobal(Buffers)
-#define BufferCount                         defineGlobal(BufferCount)
+#define sl_g                                defineGlobal(sl)
+#define ss_g                                defineGlobal(ss)
+#define bc_g                                defineGlobal(bc)
+#define internalLowResult_g                 defineGlobal(internalLowResult)
+#define Ints_g                              defineGlobal(Ints)
+#define Addrs_g                             defineGlobal(Addrs)
+#define Oops_g                              defineGlobal(Oops)
+#define Buffers_g                           defineGlobal(Buffers)
+#define BufferCount_g                       defineGlobal(BufferCount)
 
 #if KERNEL_SQUAWK
-    /* Nothing yet... */
+/* Nothing yet... */
 #endif
 
 #if PLATFORM_TYPE_SOCKET
-#define ioport                              defineGlobal(ioport)
-#define iosocket                            defineGlobal(iosocket)
-#define result_low                          defineGlobal(result_low)
-#define result_high                         defineGlobal(result_high)
-#define io_ops_time                         defineGlobal(io_ops_time)
-#define io_ops_count                        defineGlobal(io_ops_count)
+#define ioport_g                            defineGlobal(ioport)
+#define iosocket_g                          defineGlobal(iosocket)
+#define result_low_g                        defineGlobal(result_low)
+#define result_high_g                       defineGlobal(result_high)
+#define io_ops_time_g                       defineGlobal(io_ops_time)
+#define io_ops_count_g                      defineGlobal(io_ops_count)
 #endif /* PLATFORM_TYPE_SOCKET */
 
-#define cachedClassState                    defineGlobal(cachedClassState)
-#define cachedClass                         defineGlobal(cachedClass)
+#define cachedClassState_g                  defineGlobal(cachedClassState)
+#define cachedClass_g                       defineGlobal(cachedClass)
 #ifdef INTERPRETER_STATS
-#define cachedClassAccesses                 defineGlobal(cachedClassAccesses)
-#define cachedClassHits                     defineGlobal(cachedClassHits)
+#define cachedClassAccesses_g               defineGlobal(cachedClassAccesses)
+#define cachedClassHits_g                   defineGlobal(cachedClassHits)
 #endif /* INTERPRETER_STATS */
 
-#define pendingMonitors                     defineGlobal(pendingMonitors)
-#define pendingMonitorStackPointer          defineGlobal(pendingMonitorStackPointer)
+#define pendingMonitors_g                   defineGlobal(pendingMonitors)
+#define pendingMonitorStackPointer_g        defineGlobal(pendingMonitorStackPointer)
 #ifdef INTERPRETER_STATS
-#define pendingMonitorAccesses              defineGlobal(pendingMonitorAccesses)
-#define pendingMonitorHits                  defineGlobal(pendingMonitorHits)
+#define pendingMonitorAccesses_g            defineGlobal(pendingMonitorAccesses)
+#define pendingMonitorHits_g                defineGlobal(pendingMonitorHits)
 #endif /* INTERPRETER_STATS */
 
 #ifndef JAVA
-#define streams                             defineGlobal(streams)
-#define currentStream                       defineGlobal(currentStream)
+#define streams_g                           defineGlobal(streams)
+#define currentStream_g                     defineGlobal(currentStream)
 #endif /* JAVA */
 
 #if PLATFORM_TYPE_DELEGATING
-#define channelIO_clazz                     defineGlobal(channelIO_clazz)
-#define channelIO_execute                   defineGlobal(channelIO_execute)
+#define channelIO_clazz_g                   defineGlobal(channelIO_clazz)
+#define channelIO_execute_g                 defineGlobal(channelIO_execute)
 #endif /* PLATFORM_TYPE_DELEGATING */
 
-#define nativeFuncPtr                       defineGlobal(nativeFuncPtr)
+#define nativeFuncPtr_g                     defineGlobal(nativeFuncPtr)
 
 #ifndef JAVA
 #define STREAM_COUNT                        (sizeof(Streams) / sizeof(FILE*))
 #endif /* JAVA */
 
 #if TRACE
-#define traceFile                           defineGlobal(traceFile)
-#define traceFileOpen                       defineGlobal(traceFileOpen)
-#define traceServiceThread                  defineGlobal(traceServiceThread)
-#define traceLastThreadID                   defineGlobal(traceLastThreadID)
+#define traceFile_g                         defineGlobal(traceFile)
+#define traceFileOpen_g                     defineGlobal(traceFileOpen)
+#define traceServiceThread_g                defineGlobal(traceServiceThread)
+#define traceLastThreadID_g                 defineGlobal(traceLastThreadID)
 #define setLongCounter(high, low, x)        { high = (int)(x >> 32); low = (int)(x);}
 #define getLongCounter(high, low)           ((((ujlong)(unsigned)high) << 32) | ((unsigned)low))
 #define getBranchCount()                    getLongCounter(branchCountHigh, branchCountLow)
@@ -275,62 +308,92 @@ boolean     notrap;
 #define getTraceEnd()                       getLongCounter(traceEndHigh, traceEndLow)
 #define setTraceStart(x)                    setLongCounter(traceStartHigh, traceStartLow, (x)); if ((x) == 0) { com_sun_squawk_VM_tracing = true; }
 #define setTraceEnd(x)                      setLongCounter(traceEndHigh, traceEndLow, (x))
-#define statsFrequency                      defineGlobal(statsFrequency)
-#define total_extends                       defineGlobal(total_extends)
-#define total_slots                         defineGlobal(total_slots)
+#define total_extends_g                     defineGlobal(total_extends)
+#define total_slots_g                       defineGlobal(total_slots)
+#define statsFrequency_g                    defineGlobal(statsFrequency)
+#define lastThreadID_g                      defineGlobal(lastThreadID)
 #else
 #define getBranchCount()                    ((jlong)-1L)
 #endif /* TRACE */
 
 #ifdef PROFILING
-#define sampleFrequency                     defineGlobal(sampleFrequency)
-#define instructionCount                    defineGlobal(instructionCount)
+#define sampleFrequency_g                   defineGlobal(sampleFrequency)
+#define instructionCount_g                  defineGlobal(instructionCount)
 #endif /* PROFILING */
 
 #if defined(PROFILING) | TRACE
-#define lastStatCount                       defineGlobal(lastStatCount)
+#define lastStatCount_g                     defineGlobal(lastStatCount)
 #endif /* PROFILING */
 
-#ifdef JAVA
-#define inFatalVMError                      defineGlobal(inFatalVMError)
-#define service_stack                       defineGlobal(service_stack)
-#endif /* JAVA */
+#define inFatalVMError_g                    defineGlobal(inFatalVMError)
+#define service_stack_g                     defineGlobal(service_stack)
+#define squawk_inStop_g                     defineGlobal(squawk_inStop)
+
+#if PLATFORM_TYPE_DELEGATING
+#define JNI_env_g                           defineGlobal(JNI_env)
+#define jvm_g                               defineGlobal(jvm)
+#endif
+
+#define interruptsDisabled_g                defineGlobal(interruptsDisabled)
+
+#if KERNEL_SQUAWK
+#define kernelMode_g                        defineGlobal(kernelMode)
+#define kernelSignal_g                      defineGlobal(kernelSignal)
+#define kernelSignalCounter_g               defineGlobal(kernelSignalCounter)
+#define kernelSendNotify_g                  defineGlobal(kernelSendNotify)
+#endif /* KERNEL_SQUAWK */
+
+#ifndef __MICROBLAZE__
+#define deepSleepEnabled_g                  defineGlobal(deepSleepEnabled)
+#endif /* __MICROBLAZE__ */
+
+#define sleepManagerRunning_g               defineGlobal(sleepManagerRunning)
+#define outstandingDeepSleepEvent_g         defineGlobal(outstandingDeepSleepEvent)
+#define storedDeepSleepWakeupTarget_g       defineGlobal(storedDeepSleepWakeupTarget)
+#define minimumDeepSleepMillis_g            defineGlobal(minimumDeepSleepMillis)
+#define totalShallowSleepTime_g             defineGlobal(totalShallowSleepTime)
+
+
+#define notrap_g                            defineGlobal(notrap)
 
 /**
  * Initialize/re-initialize the globals to their defaults.
  */
 int initializeGlobals(Globals *globals) {
-    gp = globals;
-    memset(gp, 0, sizeof(Globals));
+	gp = globals;
+	memset(gp, 0, sizeof(Globals));
 
-    /*
-     * Initialize the variables that have non-zero defaults.
-     */
-    com_sun_squawk_VM_extendsEnabled = true;
-    interruptsDisabled = 0;      /* enabled by default */
-    runningOnServiceThread = true;
-    pendingMonitors = &Oops[ROM_GLOBAL_OOP_COUNT];
+	/*
+	 * Initialize the variables that have non-zero defaults.
+	 */
+	com_sun_squawk_VM_extendsEnabled = true;
+	interruptsDisabled_g = 0;      /* enabled by default */
+	runningOnServiceThread = true;
+	pendingMonitors_g = &Oops_g[ROM_GLOBAL_OOP_COUNT];
 
 #ifndef JAVA
-    streams[com_sun_squawk_VM_STREAM_STDOUT] = stdout;
-    streams[com_sun_squawk_VM_STREAM_STDERR] = stderr;
-    currentStream = com_sun_squawk_VM_STREAM_STDERR;
+	streams_g[com_sun_squawk_VM_STREAM_STDOUT] = stdout;
+	streams_g[com_sun_squawk_VM_STREAM_STDERR] = stderr;
+	currentStream_g = com_sun_squawk_VM_STREAM_STDERR;
 
 #if TRACE
-    setTraceStart(TRACESTART);
-    setTraceEnd(TRACESTART);
-    traceLastThreadID = -2;
-    traceServiceThread = true;
+	setTraceStart(TRACESTART);
+	setTraceEnd(TRACESTART);
+	traceLastThreadID_g = -2;
+	traceServiceThread_g = true;
 #endif /* TRACE */
 
 #endif /* JAVA */
 
 #if PLATFORM_TYPE_SOCKET
-    ioport = null;
-    iosocket = -1;
+	ioport = null;
+	iosocket = -1;
 #endif
 
-    return 0;
+	sleepManagerRunning_g    = 1;
+	minimumDeepSleepMillis_g = 0x7FFFFFFFFFFFFFFFLL;
+
+	return 0;
 }
 
 /**
@@ -338,30 +401,30 @@ int initializeGlobals(Globals *globals) {
  */
 void printGlobals() {
 #ifndef JAVA
-    FILE *vmOut = streams[currentStream];
+	FILE *vmOut = streams[currentStream_g];
 #endif  /* JAVA */
 #if TRACE
-    int i;
+	int i;
 
-    // Print the global integers
-    fprintf(vmOut, "Global ints:\n");
-    for (i = 0; i != GLOBAL_INT_COUNT; ++i) {
-        fprintf(vmOut, "  %s = %d\n", getGlobalIntName(i), Ints[i]);
-    }
+	// Print the global integers
+	fprintf(vmOut, "Global ints:\n");
+	for (i = 0; i != GLOBAL_INT_COUNT; ++i) {
+		fprintf(vmOut, "  %s = %d\n", getGlobalIntName(i), Ints_g[i]);
+	}
 
-    // Print the global oops
-    fprintf(vmOut, "Global oops:\n");
-    for (i = 0; i != GLOBAL_OOP_COUNT; ++i) {
-        fprintf(vmOut, format("  %s = %A\n"), getGlobalOopName(i), Oops[i]);
-    }
+	// Print the global oops
+	fprintf(vmOut, "Global oops:\n");
+	for (i = 0; i != GLOBAL_OOP_COUNT; ++i) {
+		fprintf(vmOut, format("  %s = %A\n"), getGlobalOopName(i), Oops_g[i]);
+	}
 
-    // Print the global addresses
-    fprintf(vmOut, "Global addresses:\n");
-    for (i = 0; i != GLOBAL_ADDR_COUNT; ++i) {
-        fprintf(vmOut, format("  %s = %A\n"), getGlobalAddrName(i), Addrs[i]);
-    }
+	// Print the global addresses
+	fprintf(vmOut, "Global addresses:\n");
+	for (i = 0; i != GLOBAL_ADDR_COUNT; ++i) {
+		fprintf(vmOut, format("  %s = %A\n"), getGlobalAddrName(i), Addrs_g[i]);
+	}
 #else
-    fprintf(vmOut, "printGlobals() requires tracing\n");
+	fprintf(vmOut, "printGlobals() requires tracing\n");
 #endif /* TRACE */
 }
 
@@ -377,23 +440,23 @@ void printGlobals() {
 # define setStream(x)
 #else
 int setStream(int stream) {
-    int result = currentStream;
-    currentStream = stream;
-    if (streams[currentStream] == null) {
-        switch (currentStream) {
+	int result = currentStream_g;
+	currentStream_g = stream;
+	if (streams_g[currentStream_g] == null) {
+		switch (currentStream_g) {
 #if com_sun_squawk_Klass_ENABLE_DYNAMIC_CLASSLOADING
-            case com_sun_squawk_VM_STREAM_SYMBOLS: {
-                streams[currentStream] = fopen("squawk_dynamic.sym", "w");
-                break;
-            }
+		case com_sun_squawk_VM_STREAM_SYMBOLS: {
+			streams_g[currentStream_g] = fopen("squawk_dynamic.sym", "w");
+			break;
+		}
 #endif /* ENABLE_DYNAMIC_CLASSLOADING */
-            default: {
-                NORETURN void fatalVMError(char *msg);
-                fatalVMError("Bad INTERNAL_SETSTREAM");
-            }
-        }
-    }
-    return result;
+		default: {
+			NORETURN void fatalVMError(char *msg);
+			fatalVMError("Bad INTERNAL_SETSTREAM");
+		}
+		}
+	}
+	return result;
 }
 #endif /* JAVA */
 
@@ -404,18 +467,18 @@ int setStream(int stream) {
 # define finalizeStreams()
 #else
 void finalizeStreams() {
-    int i;
-    for (i = 0 ; i < MAX_STREAMS ; i++) {
-        FILE *file = streams[i];
-        if (file != null) {
-            fflush(file);
+	int i;
+	for (i = 0 ; i < MAX_STREAMS ; i++) {
+		FILE *file = streams_g[i];
+		if (file != null) {
+			fflush(file);
 #ifndef FLASH_MEMORY
-            if (file != stdout && file != stderr) {
-                fclose(file);
-            }
+			if (file != stdout && file != stderr) {
+				fclose(file);
+			}
 #endif /* FLASH_MEMORY */
-        }
-    }
+		}
+	}
 }
 #endif /* JAVA */
 

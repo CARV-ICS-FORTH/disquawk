@@ -175,7 +175,7 @@ INLINE boolean setArrayLength(Address _oop, int _size);
                 if (BADSETTYPE && $ea == (Address)BADSETTYPE) {
                     openTraceFile();
                     fprintf(
-                            traceFile,
+                            traceFile_g,
                             format("setType @ %A is %c,  [ea - rom = %A]\n"),
                             $ea,
                             getTypeMnemonic($type),

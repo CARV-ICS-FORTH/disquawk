@@ -159,7 +159,18 @@ INLINE jlong sysTimeMillis(void) {
  * @param end      one byte past the end of the region
  * @param readonly specifies if read-only protection is to be enabled or disabled
  */
-INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}
+INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {
+  // Install ART code region and the heap
+  ar_art_install_region(1,                         // region ID
+                        MM_MB_VA_CODE_PAGE,        // base
+                        // size (Till the start of the stack)
+                        MM_MB_VA_STACK_PAGE-MM_MB_VA_CODE_PAGE,
+                        1,                         // cacheable
+                        readonly,                  // read only
+                        1,                         // executable
+                        1,                         // user accessible
+                        1);                        // privileged accessible
+}
 
 /**
  * Cannot determine what the purpose of this function is. This

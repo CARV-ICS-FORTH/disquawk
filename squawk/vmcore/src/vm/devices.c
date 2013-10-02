@@ -30,14 +30,14 @@
  * Check that processor interrupts are disabled.
  */
 INLINE void assumeInterruptsAreDisabled() {
-	assume(interruptsDisabled != 0);
+	assume(interruptsDisabled_g != 0);
 }
 
 /**
  * Check that processor interrupts are enabled.
  */
 INLINE void assumeInterruptsAreEnabled() {
-	assume(interruptsDisabled == 0);
+	assume(interruptsDisabled_g == 0);
 }
 
 /**
@@ -45,7 +45,7 @@ INLINE void assumeInterruptsAreEnabled() {
  */
 INLINE void disableInterrupts() {
 	os_disableInterrupts();
-	interruptsDisabled ++;
+	interruptsDisabled_g ++;
 }
 
 /**
@@ -53,11 +53,11 @@ INLINE void disableInterrupts() {
  */
 INLINE int enableInterrupts() {
 	assumeInterruptsAreDisabled();
-	interruptsDisabled  --;
-	if (interruptsDisabled == 0) {
+	interruptsDisabled_g  --;
+	if (interruptsDisabled_g == 0) {
 		os_enableInterrupts();
 	}
-	return interruptsDisabled;
+	return interruptsDisabled_g;
 }
 
 /**
