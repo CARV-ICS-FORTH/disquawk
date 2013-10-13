@@ -31,26 +31,26 @@
  *         was already open
  */
 boolean openTraceFile() {
-    if (!traceFileOpen_g) {
+	if (!traceFileOpen_g) {
 /*if[!MICROBLAZE_BUILD]*/
-        if (traceFile_g == NULL) {
-            traceFile_g = fopen(inKernelMode() ? "ktrace" : "trace", "w");
-        }
-        fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*\n"),
-                com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
-                com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd,
-                SQUAWK_64 ? 64 : 32);
+		if (traceFile_g == NULL) {
+			traceFile_g = fopen(inKernelMode() ? "ktrace" : "trace", "w");
+		}
+		fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*:%d:%d\n"),
+		        com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
+		        com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd,
+		        SQUAWK_64 ? 64 : 32, my_bid, my_cid);
 /*else[MICROBLAZE_BUILD]*/
-//      fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*%d*\n"),
+//      fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*%d*:%d:%d\n"),
 //              com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
 //              SQUAWK_64 ? 64 : 32);
 /*end[MICROBLAZE_BUILD]*/
-        lastThreadID_g = -2;
-        traceFileOpen_g = true;
-        return true;
-    } else {
-        return false;
-    }
+		lastThreadID_g = -2;
+		traceFileOpen_g = true;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 /**
@@ -58,34 +58,34 @@ boolean openTraceFile() {
  */
 typedef struct {
 
-    /**
-     * Specifies if the instruction has no operands (0), an int operand (1), a long operand (2), a float operand(3) or a double operand (4)
-     */
-    int tag;
+	/**
+	 * Specifies if the instruction has no operands (0), an int operand (1), a long operand (2), a float operand(3) or a double operand (4)
+	 */
+	int tag;
 
-    /**
-     * The WIDE_* or ESCAPE_* prefix of the instruction or -1 if neither applies.
-     */
-    int prefix;
+	/**
+	 * The WIDE_* or ESCAPE_* prefix of the instruction or -1 if neither applies.
+	 */
+	int prefix;
 
-    /**
-     * The opcode of the instruction.
-     */
-    int opcode;
+	/**
+	 * The opcode of the instruction.
+	 */
+	int opcode;
 
-    /**
-     * The int/float/long/double operand.
-     */
-    union {
-        int i;
-        jlong l;
-    } operand;
+	/**
+	 * The int/float/long/double operand.
+	 */
+	union {
+		int i;
+		jlong l;
+	} operand;
 
 #if TYPEMAP
-    /**
-     * The mutation type of the instruction.
-     */
-    char mutationType;
+	/**
+	 * The mutation type of the instruction.
+	 */
+	char mutationType;
 #endif /* TYPEMAP */
 
 } DecodedInstruction;
@@ -97,171 +97,171 @@ typedef struct {
  * @param traceIP      the instruction pointer which is currently at the start of an instruction
  */
 void decodeInstruction(DecodedInstruction *instruction, ByteAddress traceIP) {
-    int opcode;
+	int opcode;
 #ifdef MACROIZE
-    ByteAddress ip_g;  // local version of IP
+	ByteAddress ip_g;  // local version of IP
 #endif /* MACROIZE */
-    ip_g = traceIP;
-    opcode = fetchUByte();
+	ip_g = traceIP;
+	opcode = fetchUByte();
 
-    // Initialize the return struct for the common case
-    (*instruction).tag = 1;
-    (*instruction).prefix = -1;
+	// Initialize the return struct for the common case
+	(*instruction).tag = 1;
+	(*instruction).prefix = -1;
 #if TYPEMAP
-    (*instruction).mutationType = getMutationType();
+	(*instruction).mutationType = getMutationType();
 #endif /* TYPEMAP */
 
-    // Sanity
-    (*instruction).opcode = -1;
+	// Sanity
+	(*instruction).opcode = -1;
 
-    switch (opcode) {
-        case OPC_WIDE_M1: {
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte();
-            (*instruction).operand.i =  0xFFFFFF00|fetchUByte();
-            break;
-        }
-        case OPC_WIDE_0: {
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte();
-            (*instruction).operand.i = fetchUByte();
-            break;
-        }
-        case OPC_WIDE_1: {
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte();
-            (*instruction).operand.i = 0x100|fetchUByte();
-            break;
-        }
-        case OPC_WIDE_SHORT: {
-            int fparm;
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte();
-            fetchShort();
-            (*instruction).operand.i = fparm;
-            break;
-        }
-        case OPC_WIDE_INT: {
-            int fparm;
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte();
-            fetchInt();
-            (*instruction).operand.i = fparm;
-            break;
-        }
-        case OPC_ESCAPE: {
-            int eopcode = fetchUByte()+256;
-            (*instruction).opcode = eopcode;
-            switch (eopcode) {
+	switch (opcode) {
+	case OPC_WIDE_M1: {
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte();
+		(*instruction).operand.i =  0xFFFFFF00|fetchUByte();
+		break;
+	}
+	case OPC_WIDE_0: {
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte();
+		(*instruction).operand.i = fetchUByte();
+		break;
+	}
+	case OPC_WIDE_1: {
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte();
+		(*instruction).operand.i = 0x100|fetchUByte();
+		break;
+	}
+	case OPC_WIDE_SHORT: {
+		int fparm;
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte();
+		fetchShort();
+		(*instruction).operand.i = fparm;
+		break;
+	}
+	case OPC_WIDE_INT: {
+		int fparm;
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte();
+		fetchInt();
+		(*instruction).operand.i = fparm;
+		break;
+	}
+	case OPC_ESCAPE: {
+		int eopcode = fetchUByte()+256;
+		(*instruction).opcode = eopcode;
+		switch (eopcode) {
 /*if[FLOATS]*/
-                case OPC_CONST_FLOAT: {
-                    int fparm;
-                    fetchInt();
-                    (*instruction).tag = 3;
-                    (*instruction).operand.i = fparm;
-                    break;
-                }
-                case OPC_CONST_DOUBLE: {
-                    jlong flparm;
-                    fetchLong();
-                    (*instruction).tag = 4;
-                    (*instruction).operand.l = flparm;
-                    break;
-                }
+		case OPC_CONST_FLOAT: {
+			int fparm;
+			fetchInt();
+			(*instruction).tag = 3;
+			(*instruction).operand.i = fparm;
+			break;
+		}
+		case OPC_CONST_DOUBLE: {
+			jlong flparm;
+			fetchLong();
+			(*instruction).tag = 4;
+			(*instruction).operand.l = flparm;
+			break;
+		}
 /*end[FLOATS]*/
-                default: {
-                    (*instruction).prefix = opcode;
-                    if (opcodeHasWide(eopcode)) {
-                        (*instruction).operand.i = fetchUByte();
-                    } else {
-                        (*instruction).tag = 0;
-                    }
-                    break;
-                }
-            }
-            break;
-        }
-        case OPC_ESCAPE_WIDE_M1: {
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte()+256;
-            (*instruction).operand.i =  0xFFFFFF00|fetchUByte();
-            break;
-        }
-        case OPC_ESCAPE_WIDE_0: {
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte()+256;
-            (*instruction).operand.i = fetchUByte();
-            break;
-            break;
-        }
-        case OPC_ESCAPE_WIDE_1: {
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte()+256;
-            (*instruction).operand.i = 0x100|fetchUByte();
-            break;
-        }
-        case OPC_ESCAPE_WIDE_SHORT: {
-            int fparm;
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte()+256;
-            fetchShort();
-            (*instruction).operand.i = fparm;
-            break;
-        }
-        case OPC_ESCAPE_WIDE_INT: {
-            int fparm;
-            (*instruction).prefix = opcode;
-            (*instruction).opcode = fetchUByte()+256;
-            fetchInt();
-            (*instruction).operand.i = fparm;
-            break;
-        }
-        case OPC_CONST_BYTE: {
-            (*instruction).opcode = opcode;
-            (*instruction).operand.i = fetchByte();
-            break;
-        }
-        case OPC_CONST_SHORT: {
-            int fparm;
-            fetchShort();
-            (*instruction).opcode = opcode;
-            (*instruction).operand.i = fparm;
-            break;
-        }
-        case OPC_CONST_CHAR: {
-            int fparm;
-            fetchUShort();
-            (*instruction).opcode = opcode;
-            (*instruction).operand.i = fparm;
-            break;
-        }
-        case OPC_CONST_INT: {
-            int fparm;
-            fetchInt();
-            (*instruction).opcode = opcode;
-            (*instruction).operand.i = fparm;
-            break;
-        }
-        case OPC_CONST_LONG: {
-            jlong flparm;
-            fetchLong();
-            (*instruction).tag = 2;
-            (*instruction).opcode = opcode;
-            (*instruction).operand.l = flparm;
-            break;
-        }
-        default: {
-            (*instruction).opcode = opcode;
-            if (opcodeHasWide(opcode)) {
-                (*instruction).operand.i = fetchUByte();
-            } else {
-                (*instruction).tag = 0;
-            }
-            break;
-        }
-    }
+		default: {
+			(*instruction).prefix = opcode;
+			if (opcodeHasWide(eopcode)) {
+				(*instruction).operand.i = fetchUByte();
+			} else {
+				(*instruction).tag = 0;
+			}
+			break;
+		}
+		}
+		break;
+	}
+	case OPC_ESCAPE_WIDE_M1: {
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte()+256;
+		(*instruction).operand.i =  0xFFFFFF00|fetchUByte();
+		break;
+	}
+	case OPC_ESCAPE_WIDE_0: {
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte()+256;
+		(*instruction).operand.i = fetchUByte();
+		break;
+		break;
+	}
+	case OPC_ESCAPE_WIDE_1: {
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte()+256;
+		(*instruction).operand.i = 0x100|fetchUByte();
+		break;
+	}
+	case OPC_ESCAPE_WIDE_SHORT: {
+		int fparm;
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte()+256;
+		fetchShort();
+		(*instruction).operand.i = fparm;
+		break;
+	}
+	case OPC_ESCAPE_WIDE_INT: {
+		int fparm;
+		(*instruction).prefix = opcode;
+		(*instruction).opcode = fetchUByte()+256;
+		fetchInt();
+		(*instruction).operand.i = fparm;
+		break;
+	}
+	case OPC_CONST_BYTE: {
+		(*instruction).opcode = opcode;
+		(*instruction).operand.i = fetchByte();
+		break;
+	}
+	case OPC_CONST_SHORT: {
+		int fparm;
+		fetchShort();
+		(*instruction).opcode = opcode;
+		(*instruction).operand.i = fparm;
+		break;
+	}
+	case OPC_CONST_CHAR: {
+		int fparm;
+		fetchUShort();
+		(*instruction).opcode = opcode;
+		(*instruction).operand.i = fparm;
+		break;
+	}
+	case OPC_CONST_INT: {
+		int fparm;
+		fetchInt();
+		(*instruction).opcode = opcode;
+		(*instruction).operand.i = fparm;
+		break;
+	}
+	case OPC_CONST_LONG: {
+		jlong flparm;
+		fetchLong();
+		(*instruction).tag = 2;
+		(*instruction).opcode = opcode;
+		(*instruction).operand.l = flparm;
+		break;
+	}
+	default: {
+		(*instruction).opcode = opcode;
+		if (opcodeHasWide(opcode)) {
+			(*instruction).operand.i = fetchUByte();
+		} else {
+			(*instruction).tag = 0;
+		}
+		break;
+	}
+	}
 
-    assume((*instruction).opcode != -1);
+	assume((*instruction).opcode != -1);
 }
 
 /**
@@ -271,16 +271,16 @@ void decodeInstruction(DecodedInstruction *instruction, ByteAddress traceIP) {
  * @return the number of frames (inclusive) between top of the stack and the frame denoted by traceFP
  */
 int calculateCallDepth(UWordAddress traceFP) {
-    // Determine the call depth level
-    int depth = 0;
-    while (traceFP != 0) {
-        ++depth;
-        traceFP = (UWordAddress)getObject(traceFP, FP_returnFP);
-    }
-    if (depth > 10000) {
-        fprintf(stderr, "**Call depth suspiciously deep [%d] - infinite recursion?**\n", depth);
-    }
-    return depth;
+	// Determine the call depth level
+	int depth = 0;
+	while (traceFP != 0) {
+		++depth;
+		traceFP = (UWordAddress)getObject(traceFP, FP_returnFP);
+	}
+	if (depth > 10000) {
+		fprintf(stderr, "**Call depth suspiciously deep [%d] - infinite recursion?**\n", depth);
+	}
+	return depth;
 }
 
 /**
@@ -291,50 +291,50 @@ int calculateCallDepth(UWordAddress traceFP) {
  * @param traceSP   the current operand stack pointer
  */
 void traceLocalsAndStack(int opcode, ByteAddress traceMP, UWordAddress traceFP, UWordAddress traceSP) {
-    int nlocals = getLocalCount(traceMP);
-    int nstack = getStackCount(traceMP);
-    if (opcode == OPC_EXTEND || opcode == OPC_EXTEND0) {
-        fprintf(traceFile_g, format("%d:%d,%d:"), nlocals, nstack, (traceSP - sl_g));
-    } else {
-        UWordAddress p   = traceFP;
-        UWordAddress sp0 = traceFP - nlocals;
+	int nlocals = getLocalCount(traceMP);
+	int nstack = getStackCount(traceMP);
+	if (opcode == OPC_EXTEND || opcode == OPC_EXTEND0) {
+		fprintf(traceFile_g, format("%d:%d,%d:"), nlocals, nstack, (traceSP - sl_g));
+	} else {
+		UWordAddress p   = traceFP;
+		UWordAddress sp0 = traceFP - nlocals;
 #if ROM_REVERSE_PARAMETERS
-        UWordAddress xsp = traceSP;
+		UWordAddress xsp = traceSP;
 #else
-        UWordAddress xsp = traceFP - nlocals - getStackCount(traceMP) + 1;
+		UWordAddress xsp = traceFP - nlocals - getStackCount(traceMP) + 1;
 #endif
 
-        while (p >= xsp) {
+		while (p >= xsp) {
 #if TYPEMAP
-            UWord value = getUWordTyped(p, 0, getType(p));
+			UWord value = getUWordTyped(p, 0, getType(p));
 #else
-            UWord value = getUWordTyped(p, 0, 0);
+			UWord value = getUWordTyped(p, 0, 0);
 #endif
-            if (value == DEADBEEF) {
-                fprintf(traceFile_g, "X");
-            } else {
-                fprintf(traceFile_g, format("%A"), value);
-            }
+			if (value == DEADBEEF) {
+				fprintf(traceFile_g, "X");
+			} else {
+				fprintf(traceFile_g, format("%A"), value);
+			}
 #if TYPEMAP
-            fprintf(traceFile_g, "#%d", getType(p));
+			fprintf(traceFile_g, "#%d", getType(p));
 #endif /* TYPEMAP */
-            --p;
-            if (p == sp0) {
-                fprintf(traceFile_g, ":");
+			--p;
+			if (p == sp0) {
+				fprintf(traceFile_g, ":");
 #if !ROM_REVERSE_PARAMETERS
-                p = traceSP - 1;
+				p = traceSP - 1;
 #endif
-            } else if (p >= xsp) {
-                fprintf(traceFile_g, ",");
-            }
-        }
-        fprintf(traceFile_g, ":");
-    }
+			} else if (p >= xsp) {
+				fprintf(traceFile_g, ",");
+			}
+		}
+		fprintf(traceFile_g, ":");
+	}
 }
 
 typedef struct {
-    ByteAddress MP;
-    int PC;
+	ByteAddress MP;
+	int PC;
 } TraceFrame;
 
 /**
@@ -347,71 +347,74 @@ typedef struct {
  * @param  forThreadSwitch specifies if this is called for a *THREADSWITCH* trace line
  */
 void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean forThreadSwitch) {
-    int recursionGuard = 0;
+	int recursionGuard = 0;
 
-    TraceFrame previousFrame = { 0, 0 };
-    int repetitions = 0;
+	TraceFrame previousFrame = { 0, 0 };
+	int repetitions = 0;
 
-    while (traceFP != 0) {
-        TraceFrame frame;
+	while (traceFP != 0) {
+		TraceFrame frame;
 
-        // Initialize the method pointer
-        if (opcode == OPC_EXTEND || opcode == OPC_EXTEND0) {
-            // The frame pointer will not be setup before the extend is executed.
-            frame.MP = traceIP;
+		// Initialize the method pointer
+		if (opcode == OPC_EXTEND || opcode == OPC_EXTEND0) {
+			// The frame pointer will not be setup before the extend is executed.
+			frame.MP = traceIP;
 
-            // From now on, the frame pointer is valid
-            opcode = -1;
-        } else {
-            frame.MP = (ByteAddress)getObject(traceFP, FP_method);
-        }
+			// From now on, the frame pointer is valid
+			opcode = -1;
+		} else {
+			frame.MP = (ByteAddress)getObject(traceFP, FP_method);
+		}
 
-        // Get the bytecode offset relative to the start of the method
-        frame.PC = (int)(traceIP - frame.MP);
+		// Get the bytecode offset relative to the start of the method
+		frame.PC = (int)(traceIP - frame.MP);
 //        assume(frame.PC >= 0);
 
-        if (forThreadSwitch) {
-            if (previousFrame.MP == frame.MP && previousFrame.PC == frame.PC) {
-                repetitions++;
-            } else {
-                if (repetitions != 0) {
-                    fprintf(traceFile_g, format(":\"%d"), repetitions);
-                    repetitions = 0;
-                }
-                fprintf(traceFile_g, format(":%A@%d"), frame.MP, frame.PC);
-            }
-        } else {
-            if (previousFrame.MP == frame.MP && previousFrame.PC == frame.PC) {
-                repetitions++;
-            } else {
-                if (repetitions != 0) {
-                    fprintf(traceFile_g, format("*STACKTRACE*:\"%d:%d:%d\n"),
-                            repetitions, my_bid, my_cid);
-                    repetitions = 0;
-                }
-                fprintf(traceFile_g, format("*STACKTRACE*:%A:%d:%d:%d\n"),
-                        frame.MP, frame.PC, my_bid, my_cid);
-            }
-        }
+		if (forThreadSwitch) {
+			if (previousFrame.MP == frame.MP && previousFrame.PC == frame.PC) {
+				repetitions++;
+			} else {
+				if (repetitions != 0) {
+					fprintf(traceFile_g, format(":\"%d"), repetitions);
+					repetitions = 0;
+				}
+				fprintf(traceFile_g, format(":%A@%d"), frame.MP, frame.PC);
+			}
+		} else {
+			if (previousFrame.MP == frame.MP && previousFrame.PC == frame.PC) {
+				repetitions++;
+			} else {
+				if (repetitions != 0) {
+					fprintf(traceFile_g, format("*STACKTRACE*:\"%d\n"),
+					        repetitions);
+					repetitions = 0;
+				}
+				fprintf(traceFile_g, format("*STACKTRACE*:%A:%d\n"),
+				        frame.MP, frame.PC);
+			}
+		}
 
-        recursionGuard++;
-        if (recursionGuard != 0 && (recursionGuard % 100) == 0) {
-            fprintf(stderr, "**Call depth suspiciously deep [%d] - infinite recursion?**\n", recursionGuard);
-        }
+		recursionGuard++;
+		if (recursionGuard != 0 && (recursionGuard % 100) == 0) {
+			fprintf(stderr,
+			        "**Call depth suspiciously deep [%d] - infinite recursion?**\n",
+			        recursionGuard);
+		}
 
-        traceIP = (ByteAddress)getObject(traceFP, FP_returnIP);
-        traceFP = (UWordAddress)getObject(traceFP, FP_returnFP);
+		traceIP = (ByteAddress)getObject(traceFP, FP_returnIP);
+		traceFP = (UWordAddress)getObject(traceFP, FP_returnFP);
 
-        previousFrame = frame;
-    }
+		previousFrame = frame;
+	}
 
-    if (repetitions != 0) {
-        if (forThreadSwitch) {
-            fprintf(traceFile_g, format(":\"%d"), repetitions);
-        } else {
-            fprintf(traceFile_g, format("*STACKTRACE*:\"%d\n"), repetitions);
-        }
-    }
+	if (repetitions != 0) {
+		if (forThreadSwitch) {
+			fprintf(traceFile_g, format(":\"%d"), repetitions);
+		} else {
+			fprintf(traceFile_g, format("*STACKTRACE*:\"%d\n"),
+			        repetitions);
+		}
+	}
 }
 
 /**
@@ -428,91 +431,91 @@ void trace(ByteAddress traceIP, UWordAddress traceFP,
 //void trace(ByteAddress traceIP, UWordAddress traceFP, UWordAddress traceSP) {
 /*end[MICROBLAZE_BUILD]*/
 #ifndef MACROIZE
-    ByteAddress saveIP = ip_g;   // save the global IP
+	ByteAddress saveIP = ip_g;   // save the global IP
 #endif /* MACROIZE */
-    DecodedInstruction instruction;
-    int pc;                    // bytecode offset from start of method
-    int level;                 // current call depth level
-    ByteAddress traceMP;       // current method pointer
-    int threadID;              // numerical thread ID
+	DecodedInstruction instruction;
+	int pc;                    // bytecode offset from start of method
+	int level;                 // current call depth level
+	ByteAddress traceMP;       // current method pointer
+	int threadID;              // numerical thread ID
 
-    // Initialize the thread ID
-    if (com_sun_squawk_VMThread_currentThread != 0) {
-        threadID = currentThreadID;
-    } else {
-        // System thread
-        threadID = -1;
-    }
+	// Initialize the thread ID
+	if (com_sun_squawk_VMThread_currentThread != 0) {
+		threadID = currentThreadID_g;
+	} else {
+		// System thread
+		threadID = -1;
+	}
 
-    // Don't trace the service thread if requested not to
-    if (threadID == 0 && !traceServiceThread_g) {
-        return;
-    }
+	// Don't trace the service thread if requested not to
+	if (threadID == 0 && !traceServiceThread_g) {
+		return;
+	}
 
-    // Write THREADSWITCH line
-    if (openTraceFile() || threadID != lastThreadID_g) {
-        lastThreadID_g = threadID;
+	// Write THREADSWITCH line
+	if (openTraceFile() || threadID != lastThreadID_g) {
+		lastThreadID_g = threadID;
 
-        fprintf(traceFile_g, "*THREADSWITCH*:%d", threadID);
-        traceFrames(-1, traceIP, traceFP, true);
-        fprintf(traceFile_g, "\n");
-    }
+		fprintf(traceFile_g, "*THREADSWITCH*:%d", threadID);
+		traceFrames(-1, traceIP, traceFP, true);
+		fprintf(traceFile_g, "\n");
+	}
 
-    // Decode the next instruction
-    decodeInstruction(&instruction, traceIP);
+	// Decode the next instruction
+	decodeInstruction(&instruction, traceIP);
 
-    // Set up the method pointer
-    if (instruction.opcode == OPC_EXTEND || instruction.opcode == OPC_EXTEND0) {
-        // The frame pointer will not be setup before the extend is executed.
-        traceMP = traceIP;
-        level = 0;
-    } else {
-        assume(traceFP != null);
-        level = -1;
-        traceMP = (ByteAddress)getObject(traceFP, FP_method);
-    }
+	// Set up the method pointer
+	if (instruction.opcode == OPC_EXTEND || instruction.opcode == OPC_EXTEND0) {
+		// The frame pointer will not be setup before the extend is executed.
+		traceMP = traceIP;
+		level = 0;
+	} else {
+		assume(traceFP != null);
+		level = -1;
+		traceMP = (ByteAddress)getObject(traceFP, FP_method);
+	}
 
-    // Calculate the bytecode offset
-    pc = (int)(traceIP - traceMP);
+	// Calculate the bytecode offset
+	pc = (int)(traceIP - traceMP);
 
-    // Determine the call depth level
-    level += calculateCallDepth(traceFP);
+	// Determine the call depth level
+	level += calculateCallDepth(traceFP);
 
-    // Write out the first part of the trace line which has the following ':' separated components:
+	// Write out the first part of the trace line which has the following ':' separated components:
 /*if[MICROBLAZE_BUILD]*/
-    fprintf(traceFile_g, format("*TRACE*:%d:%d:%A:%d:%x:"), threadID, level,
-            traceMP-(uint32_t)com_sun_squawk_VM_bootstrapStart, pc, opcode);
+	fprintf(traceFile_g, format("*TRACE*:%d:%d:%A:%d:%x:"), threadID, level,
+	        traceMP-(uint32_t)com_sun_squawk_VM_bootstrapStart, pc, opcode);
 /*else[MICROBLAZE_BUILD]*/
 //  fprintf(traceFile_g, format("*TRACE*:%d:%d:%A:%d:"), threadID, level, traceMP, pc);
 /*end[MICROBLAZE_BUILD]*/
 
-    // Write out the decoded instruction
+	// Write out the decoded instruction
 #if TYPEMAP
-        fprintf(traceFile_g, "%d#%d,%d", instruction.opcode, instruction.mutationType, instruction.prefix);
+	fprintf(traceFile_g, "%d#%d,%d", instruction.opcode, instruction.mutationType, instruction.prefix);
 #else
-        fprintf(traceFile_g, "%d,%d", instruction.opcode, instruction.prefix);
+	fprintf(traceFile_g, "%d,%d", instruction.opcode, instruction.prefix);
 #endif /* TYPEMAP */
-    switch (instruction.tag) {
-        case 0: fprintf(traceFile_g, ":");                                        break;
-        case 1: fprintf(traceFile_g, ",%d:", instruction.operand.i);              break;
-        case 2: fprintf(traceFile_g, format(",%L:"), instruction.operand.l);      break;
+	switch (instruction.tag) {
+	case 0: fprintf(traceFile_g, ":");                                        break;
+	case 1: fprintf(traceFile_g, ",%d:", instruction.operand.i);              break;
+	case 2: fprintf(traceFile_g, format(",%L:"), instruction.operand.l);      break;
 /*if[FLOATS]*/
-        case 3: fprintf(traceFile_g, ",%f:" , ib2f(instruction.operand.i));       break;
-        case 4: fprintf(traceFile_g, format(",%D:"), lb2d(instruction.operand.l));break;
+	case 3: fprintf(traceFile_g, ",%f:" , ib2f(instruction.operand.i));       break;
+	case 4: fprintf(traceFile_g, format(",%D:"), lb2d(instruction.operand.l));break;
 /*end[FLOATS]*/
-        default: shouldNotReachHere();
-    }
+	default: shouldNotReachHere();
+	}
 
-    // Write out the local and stack values
-    traceLocalsAndStack(instruction.opcode, traceMP, traceFP, traceSP);
+	// Write out the local and stack values
+	traceLocalsAndStack(instruction.opcode, traceMP, traceFP, traceSP);
 
-    // Write out the stack pointer, branch count, and remaining number of stack words and complete the trace line
-    fprintf(traceFile_g, format("%A:%L:%d\n"), traceSP, getBranchCount(), (traceSP - sl_g));
-    fflush(traceFile_g);
+	// Write out the stack pointer, branch count, and remaining number of stack words and complete the trace line
+	fprintf(traceFile_g, format("%A:%L:%d\n"), traceSP, getBranchCount(), (traceSP - sl_g));
+	fflush(traceFile_g);
 
 #ifndef MACROIZE
-    // Restore the value of the global IP
-    ip_g = saveIP;
+	// Restore the value of the global IP
+	ip_g = saveIP;
 #endif /* MACROIZE */
 }
 
@@ -536,22 +539,22 @@ void trace(ByteAddress traceIP, UWordAddress traceFP,
  * @param  msg       the trace message
  */
 void printStackTracePrim(int opcode, ByteAddress traceIP, UWordAddress traceFP, const char* msg, const char* mnemonic) {
-    openTraceFile();
+	openTraceFile();
 
-    // Print the first line of the trace
-    assume(msg != null);
-    fprintf(traceFile_g, format("*STACKTRACESTART*:%L:%s"), getBranchCount(), msg);
-    if (mnemonic != null) {
-        fprintf(traceFile_g, ":%s\n", mnemonic);
-    } else {
-        fprintf(traceFile_g, "\n");
-    }
+	// Print the first line of the trace
+	assume(msg != null);
+	fprintf(traceFile_g, format("*STACKTRACESTART*:%L:%s"), getBranchCount(), msg);
+	if (mnemonic != null) {
+		fprintf(traceFile_g, ":%s\n", mnemonic);
+	} else {
+		fprintf(traceFile_g, "\n");
+	}
 
-    // Print the frames
-    traceFrames(opcode, traceIP, traceFP, false);
+	// Print the frames
+	traceFrames(opcode, traceIP, traceFP, false);
 
-    fprintf(traceFile_g, "*STACKTRACEEND*\n");
-    fflush(traceFile_g);
+	fprintf(traceFile_g, "*STACKTRACEEND*\n");
+	fflush(traceFile_g);
 }
 
 /**
@@ -562,8 +565,8 @@ void printStackTracePrim(int opcode, ByteAddress traceIP, UWordAddress traceFP, 
  * @param  lastOpcode  the opcode of previously executed instruction
  */
 void printProfileStackTrace(ByteAddress traceIP, UWordAddress traceFP, int lastOpcode) {
-    int opcode = getUByteTyped(traceIP, 0, AddressType_BYTECODE);
-    printStackTracePrim(opcode, traceIP, traceFP, "*PROFILE TRACE*", getOpcodeName(lastOpcode));
+	int opcode = getUByteTyped(traceIP, 0, AddressType_BYTECODE);
+	printStackTracePrim(opcode, traceIP, traceFP, "*PROFILE TRACE*", getOpcodeName(lastOpcode));
 }
 
 /**
@@ -573,10 +576,12 @@ void printProfileStackTrace(ByteAddress traceIP, UWordAddress traceFP, int lastO
  */
 void printStackTrace(const char *msg) {
 #ifndef MACROIZE
-    ByteAddress lastIP = ip_g;
-    UWordAddress lastFP = fp_g;
+	ByteAddress lastIP = ip_g;
+	UWordAddress lastFP = fp_g;
+	printStackTracePrim(-1, lastIP, lastFP, msg, null);
+#else
+	printStackTracePrim(-1, lastIP_g, lastFP_g, msg, null);
 #endif /* MACROIZE */
-    printStackTracePrim(-1, lastIP_g, lastFP_g, msg, null);
 }
 
 #else /* not TRACE */
@@ -587,7 +592,10 @@ void printStackTrace(const char *msg) {
  * @param msg the trace message
  */
 void printStackTrace(const char *msg) {
-  fprintf(stderr, "Use -tracing to enable stacktrace here\n\t%s\n", msg);
+#ifndef MACROIZE
+	fprintf(stderr, "IP=%A &IP=%p\n", ip_g, &(ip_g));
+#endif /* MACROIZE */
+	fprintf(stderr, "Use -tracing to enable stacktrace here\n\t%s\n", msg);
 }
 
 #endif /* TRACE */

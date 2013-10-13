@@ -39,9 +39,9 @@ static int             MethodHeader_getOffsetToLastMinfoByte0_LII(Address oop, i
 static int             VM_lookup_b(int, Address);
 static int             VM_lookup_i(int, Address);
 static int             VM_lookup_s(int, Address);
-static int             VM_arrayOopStoreCheck(Address, int, Address);
-static int             VM_findSlot(Address, Address, int);
-static boolean         VM_instanceof(Address, Address);
+INLINE int             VM_arrayOopStoreCheck(Address, int, Address);
+INLINE int             VM_findSlot(Address, Address, int);
+INLINE boolean         VM_instanceof(Address, Address);
 static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
 
 /*-----------------------------------------------------------------------*\
@@ -1073,7 +1073,45 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
 
 /*-----------------------------------------------------------------------*\
  *                                Upcalls                                *
- \*-----------------------------------------------------------------------*/
+\*-----------------------------------------------------------------------*/
+
+/*if[CHECK_SLOT_CLEARING]*/
+/**
+ * Check that there are no 0xDEAFBEEF words in the local variables.
+ */
+/*MAC*/ void checkReferenceSlots() {
+	if (fp_g != null) {
+		int i;
+		Address mp     = getMP();
+		int nparms     = getParmCount(mp);
+		int nlocals    = getLocalCount(mp);
+		int vars       = nlocals + nparms;
+		int oopmapLth  = (vars+7)/8;
+		int oopMapOff  = getOffsetToLastMinfoByte(mp) - oopmapLth;
+		int bitOffset  = (nparms - 1) % 8;
+		int byteOffset = (nparms - 1) / 8;
+		for (i = 0 ; i < nlocals ; i++) {
+			int bite;
+			boolean isOop;
+			bitOffset++;
+			if (bitOffset == 8) {
+				bitOffset = 0;
+				byteOffset++;
+			}
+			bite  = getByte(mp, oopMapOff + byteOffset);
+			isOop = ((bite >> bitOffset) & 1) != 0;
+			if (isOop) {
+				UWord wd = peekLocal(i);
+				if (wd == (UWord)0xDEAFBEEF) {
+					fatalInterpreterError("0xDEAFBEEF found");
+				}
+			}
+		}
+	}
+}
+/*else[CHECK_SLOT_CLEARING]*/
+//#define checkReferenceSlots()
+/*end[CHECK_SLOT_CLEARING]*/
 
 /**
  * Causes the Java method at 'mth' to be invoked without resetting the stack pointer.
@@ -1111,7 +1149,7 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
 #define SDA_HANDLE_BREAKPOINT_CODE_FRAG	  \
 	Address hbp;
 
-if (!runningOnServiceThread &&                                                               \
+if (!runningOnServiceThread_g &&                                                               \
     (hbp = com_sun_squawk_VMThread_hitBreakpoint(newThread)) != null &&                      \
     com_sun_squawk_HitBreakpoint_state(hbp) == com_sun_squawk_HitBreakpoint_EXC_HIT) {       \
 	set_com_sun_squawk_HitBreakpoint_state(hbp, com_sun_squawk_HitBreakpoint_EXC_REPORTING); \
@@ -1157,7 +1195,7 @@ if (!runningOnServiceThread &&                                                  
 	com_sun_squawk_VMThread_otherThread = oldThread;
 	com_sun_squawk_VMThread_currentThread = newThread;
 	if (TRACE)
-		currentThreadID = com_sun_squawk_VMThread_threadNumber(newThread);
+		currentThreadID_g = com_sun_squawk_VMThread_threadNumber(newThread);
 
 	/*
 	 * If the new thread is not the service thread then switch the
@@ -1166,10 +1204,10 @@ if (!runningOnServiceThread &&                                                  
 	 * context of the caller.
 	 */
 	if (newThread != com_sun_squawk_VMThread_serviceThread) {
-		int oldRunningOnServiceThread = runningOnServiceThread;
+		int oldRunningOnServiceThread = runningOnServiceThread_g;
 		Address newIsolate = (Address)com_sun_squawk_VMThread_isolate(newThread);
 
-		runningOnServiceThread = false;
+		runningOnServiceThread_g = false;
 		if (com_sun_squawk_VM_currentIsolate != newIsolate) {
 			com_sun_squawk_VM_currentIsolate = newIsolate;
 			invalidateClassStateCache();
@@ -1186,8 +1224,15 @@ if (!runningOnServiceThread &&                                                  
 		             || pendingMonitorStackPointer_g == 0);
 
 	} else {
-		runningOnServiceThread = true;
+		runningOnServiceThread_g = true;
 		set_sda_bp_set_or_stepping(null); /* coming on to service thread */
+	}
+
+	if (TRACE) {
+		if(runningOnServiceThread_g)
+			printStackTracePrim(-1, ip_g, fp_g, "switched to service thread\n", null);
+		else
+			printStackTracePrim(-1, ip_g, fp_g, "switched back\n", null);
 	}
 
 	/*
@@ -1215,7 +1260,7 @@ if (!runningOnServiceThread &&                                                  
 		assumeInterp(inCode(ip_g));
 
 		SDA_HANDLE_BREAKPOINT_CODE_FRAG
-			}
+	}
 }
 
 /**
@@ -1239,7 +1284,7 @@ if (!runningOnServiceThread &&                                                  
  * Switch to the service thread.
  */
 /*MAC*/ void threadSwitchFor(int $code) {
-	assumeInterp(!runningOnServiceThread);
+	assumeInterp(!runningOnServiceThread_g);
 	com_sun_squawk_VMThread_otherThread = com_sun_squawk_VMThread_serviceThread;
 	threadSwitch($code);
 }
@@ -1259,7 +1304,7 @@ if (!runningOnServiceThread &&                                                  
 	com_sun_squawk_ServiceOperation_i6      = $i6;
 	com_sun_squawk_ServiceOperation_o1      = $o1;
 	com_sun_squawk_ServiceOperation_o2      = $o2;
-	if (runningOnServiceThread) {
+	if (runningOnServiceThread_g) {
 		void cioExecute(void);
 		cioExecute();
 	} else {
@@ -1961,11 +2006,11 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 /*INL*/ void bbtarget_trace() {
 #if TRACE
 	jlong count;
-	int low = (int)((branchCountLow + 1) & 0xFFFFFFFF);
-	branchCountLow = low;
+	int low = (int)((branchCountLow_g + 1) & 0xFFFFFFFF);
+	branchCountLow_g = low;
 	if (low == 0) {
-		UWord high = branchCountHigh + 1;
-		branchCountHigh = high;
+		UWord high = branchCountHigh_g + 1;
+		branchCountHigh_g = high;
 	}
 	count = getBranchCount();
 /*if[!MICROBLAZE_BUILD]*/
@@ -3234,10 +3279,10 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 				);
 		}
 /*end[DEBUG_CODE_ENABLED]*/
-		if (usingServiceStack()) {
+		if (unlikely(usingServiceStack())) {
 			fatalInterpreterError("cannot extend service stack");
 		}
-		if (!com_sun_squawk_VM_extendsEnabled) {
+		if (unlikely(!com_sun_squawk_VM_extendsEnabled)) {
 			fatalInterpreterError("trying to extend stack when extension disabled");
 		}
 
@@ -3247,47 +3292,12 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 		if (TRACE)
 			printStackTracePrim(-1, ip_g, fp_g, "extending stack", null);
 
+		if (unlikely(runningOnServiceThread_g))
+			fatalInterpreterError("Cannot extend service stack from the service thread");
+
 		threadSwitchFor(com_sun_squawk_ServiceOperation_EXTEND);
 	}
 }
-
-/*if[CHECK_SLOT_CLEARING]*/
-/**
- * Check that there are no 0xDEAFBEEF words in the local variables.
- */
-/*MAC*/ void checkReferenceSlots() {
-	if (fp_g != null) {
-		int i;
-		Address mp     = getMP();
-		int nparms     = getParmCount(mp);
-		int nlocals    = getLocalCount(mp);
-		int vars       = nlocals + nparms;
-		int oopmapLth  = (vars+7)/8;
-		int oopMapOff  = getOffsetToLastMinfoByte(mp) - oopmapLth;
-		int bitOffset  = (nparms - 1) % 8;
-		int byteOffset = (nparms - 1) / 8;
-		for (i = 0 ; i < nlocals ; i++) {
-			int bite;
-			boolean isOop;
-			bitOffset++;
-			if (bitOffset == 8) {
-				bitOffset = 0;
-				byteOffset++;
-			}
-			bite  = getByte(mp, oopMapOff + byteOffset);
-			isOop = ((bite >> bitOffset) & 1) != 0;
-			if (isOop) {
-				UWord wd = peekLocal(i);
-				if (wd == (UWord)0xDEAFBEEF) {
-					fatalInterpreterError("0xDEAFBEEF found");
-				}
-			}
-		}
-	}
-}
-/*else[CHECK_SLOT_CLEARING]*/
-//#define checkReferenceSlots()
-/*end[CHECK_SLOT_CLEARING]*/
 
 /**
  * Extend the activation record.
@@ -4346,6 +4356,13 @@ static int collectGarbage(Address, Address, int);
 		break;
 	}
 
+/*if[MICROBLAZE_BUILD]*/
+	case Native_com_sun_squawk_NativeUnsafe_sysGlobalMemoryProtection: {
+		sysGlobalMemoryProtection();
+		break;
+	}
+/*end[MICROBLAZE_BUILD]*/
+
 	case Native_com_sun_squawk_VM_allocate: {
 		int     alth   = popInt();
 		Address klass  = popAddress();
@@ -4673,6 +4690,12 @@ static int collectGarbage(Address, Address, int);
 			}
 		}
 		pushInt(res);
+		break;
+	}
+
+	case Native_com_sun_squawk_VM_initializeLiterals: {
+		void initializeLiterals();
+		initializeLiterals();
 		break;
 	}
 

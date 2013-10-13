@@ -84,8 +84,6 @@ NORETURN void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddr
  * Exits the VM with an error message.
  */
 NORETURN void fatalVMError0(char *msg, boolean cleanup) {
-	// allocate AR_FORMIC_CORES_PER_BOARD inFatalVMError's in the bss
-	// segment (one for each core)
 	NORETURN void stopVM0(int, boolean);
 
 	if (msg == null) {
@@ -107,6 +105,15 @@ NORETURN void fatalVMError0(char *msg, boolean cleanup) {
 		                       iparm_g, ip_g, fp_g, sp_g, "-", -1);
 /*end[MACROIZE]*/
 	}
+#ifdef __MICROBLAZE__
+	unsigned int pc;
+	unsigned int sp;
+	void ar_backtrace(int, int, unsigned int, unsigned int);
+	// Attempt a backtrace of calls that led us here
+	asm("mfs %0, rpc" : "=r"(pc) );
+	asm("add %0, r1, r0" : "=r"(sp) );
+	ar_backtrace(my_bid, my_cid, pc, sp);
+#endif
 	stopVM0(-1, false);
 }
 
@@ -115,6 +122,7 @@ NORETURN void fatalVMError0(char *msg, boolean cleanup) {
  */
 NORETURN void fatalVMError(char *msg) {
     fatalVMError0(msg, true);
+    printf("ABCCCC\n");
 }
 
 #define shouldNotReachHere() { fprintf(stderr, "shouldNotReachHere -- %s:%d\n", __FILE__, __LINE__); fatalVMError(""); }

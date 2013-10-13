@@ -23,19 +23,17 @@
  * information or have any questions.
  */
 
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 #define MAX_STREAMS 4
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 
 #if (defined(ASSUME) && ASSUME != 0) | TRACE
 #define INTERPRETER_STATS 1
 #endif /* ASSUME */
 
-#ifdef JAVA
 /* FIXME: Make a struct for read-only (after initialization) globals
  * to skip copies and double initialization
  */
-#endif	/* JAVA */
 
 /**
  * This struct encapsulates all the globals in the Squawk VM. This allows
@@ -71,9 +69,9 @@ typedef struct globalsStruct {
 	Address     _Oops[GLOBAL_OOP_COUNT];     /* Storage for the reference typed Java globals. */
 	Address     _Buffers[MAX_BUFFERS];       /* Buffers that are allocated by native code. */
 	int         _BufferCount;                /* Number of buffers that are currently allocated by native code. */
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 	FILE       *_streams[MAX_STREAMS];       /* The file streams to which the VM printing directives sent. */
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 	int         _currentStream;              /* The currently selected stream */
 	int         _internalLowResult;          /* Value for INTERNAL_LOW_RESULT */
 
@@ -135,7 +133,6 @@ typedef struct globalsStruct {
 #endif /* INTERPRETER_STATS */
 
 	boolean     _inFatalVMError;
-	char        _service_stack[SERVICE_CHUNK_SIZE] __attribute__((aligned(MM_PAGE_SIZE)));
 	boolean     _squawk_inStop;
 
 #if PLATFORM_TYPE_DELEGATING
@@ -196,20 +193,30 @@ typedef struct globalsStruct {
 
 	boolean     _notrap;
 
-} Globals;
+	char        _service_stack[SERVICE_CHUNK_SIZE] __attribute__((aligned(MM_PAGE_SIZE)));
+} Globals
+#ifdef __MICROBLAZE__
+__attribute__((aligned(MM_CACHELINE_SIZE)))
+#endif
+;
 
 /*=======================================================================*\
  *                          Truly global globals                         *
  \*=======================================================================*/
 
 /* keep it thread/core local */
-#ifdef JAVA
+#ifdef __MICROBLAZE__
+typedef struct {
+	Globals* global_ctx;        /* pointer to the global context */
+	/* Padding to avoid overlapping with other cores */
+	char padding[MM_CACHELINE_SIZE-sizeof(Globals*)];
+} globals_box __attribute__((aligned(MM_CACHELINE_SIZE)));
 /* The pointer to the global execution context */
-Globals *gps[AR_FORMIC_CORES_PER_BOARD];
-#define gp gps[my_cid]
+globals_box gps[AR_FORMIC_CORES_PER_BOARD];
+#define gp gps[my_cid].global_ctx
 #else
 __thread Globals *gp;         /* The pointer to the global execution context */
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 
 #if KERNEL_SQUAWK
 __thread Globals kernelGlobals;    /* The kernel mode execution context */
@@ -280,10 +287,10 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define pendingMonitorHits_g                defineGlobal(pendingMonitorHits)
 #endif /* INTERPRETER_STATS */
 
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 #define streams_g                           defineGlobal(streams)
 #define currentStream_g                     defineGlobal(currentStream)
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 
 #if PLATFORM_TYPE_DELEGATING
 #define channelIO_clazz_g                   defineGlobal(channelIO_clazz)
@@ -292,9 +299,9 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 
 #define nativeFuncPtr_g                     defineGlobal(nativeFuncPtr)
 
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 #define STREAM_COUNT                        (sizeof(Streams) / sizeof(FILE*))
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 
 #if TRACE
 #define traceFile_g                         defineGlobal(traceFile)
@@ -303,11 +310,11 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define traceLastThreadID_g                 defineGlobal(traceLastThreadID)
 #define setLongCounter(high, low, x)        { high = (int)(x >> 32); low = (int)(x);}
 #define getLongCounter(high, low)           ((((ujlong)(unsigned)high) << 32) | ((unsigned)low))
-#define getBranchCount()                    getLongCounter(branchCountHigh, branchCountLow)
-#define getTraceStart()                     getLongCounter(traceStartHigh, traceStartLow)
-#define getTraceEnd()                       getLongCounter(traceEndHigh, traceEndLow)
-#define setTraceStart(x)                    setLongCounter(traceStartHigh, traceStartLow, (x)); if ((x) == 0) { com_sun_squawk_VM_tracing = true; }
-#define setTraceEnd(x)                      setLongCounter(traceEndHigh, traceEndLow, (x))
+#define getBranchCount()                    getLongCounter(branchCountHigh_g, branchCountLow_g)
+#define getTraceStart()                     getLongCounter(traceStartHigh_g, traceStartLow_g)
+#define getTraceEnd()                       getLongCounter(traceEndHigh_g, traceEndLow_g)
+#define setTraceStart(x)                    setLongCounter(traceStartHigh_g, traceStartLow_g, (x)); if ((x) == 0) { com_sun_squawk_VM_tracing = true; }
+#define setTraceEnd(x)                      setLongCounter(traceEndHigh_g, traceEndLow_g, (x))
 #define total_extends_g                     defineGlobal(total_extends)
 #define total_slots_g                       defineGlobal(total_slots)
 #define statsFrequency_g                    defineGlobal(statsFrequency)
@@ -368,10 +375,10 @@ int initializeGlobals(Globals *globals) {
 	 */
 	com_sun_squawk_VM_extendsEnabled = true;
 	interruptsDisabled_g = 0;      /* enabled by default */
-	runningOnServiceThread = true;
+	runningOnServiceThread_g = true;
 	pendingMonitors_g = &Oops_g[ROM_GLOBAL_OOP_COUNT];
 
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 	streams_g[com_sun_squawk_VM_STREAM_STDOUT] = stdout;
 	streams_g[com_sun_squawk_VM_STREAM_STDERR] = stderr;
 	currentStream_g = com_sun_squawk_VM_STREAM_STDERR;
@@ -383,7 +390,7 @@ int initializeGlobals(Globals *globals) {
 	traceServiceThread_g = true;
 #endif /* TRACE */
 
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 
 #if PLATFORM_TYPE_SOCKET
 	ioport = null;
@@ -400,9 +407,9 @@ int initializeGlobals(Globals *globals) {
  * Prints the name and current value of all the globals.
  */
 void printGlobals() {
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 	FILE *vmOut = streams[currentStream_g];
-#endif  /* JAVA */
+#endif  /* __MICROBLAZE__ */
 #if TRACE
 	int i;
 
@@ -436,7 +443,7 @@ void printGlobals() {
  *
  * @vm2c proxy( setStream )
  */
-#ifdef JAVA
+#ifdef __MICROBLAZE__
 # define setStream(x)
 #else
 int setStream(int stream) {
@@ -458,12 +465,12 @@ int setStream(int stream) {
 	}
 	return result;
 }
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 
 /**
  * Closes all the open files used for VM printing.
  */
-#ifdef JAVA
+#ifdef __MICROBLAZE__
 # define finalizeStreams()
 #else
 void finalizeStreams() {
@@ -480,7 +487,7 @@ void finalizeStreams() {
 		}
 	}
 }
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 
 /* These macros are useful for recording the current context
  * (e.g., user or kernel) in a data structure such as a message.

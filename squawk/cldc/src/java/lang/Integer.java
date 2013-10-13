@@ -1,24 +1,24 @@
 /*
- *   
+ *
  *
  * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
  * 2 only, as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included at /legal/license.txt).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa
  * Clara, CA 95054 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -135,13 +135,13 @@ public final class Integer {
 
         return new String(buf, charPos, (33 - charPos));
     }
-    
-    /** 
+
+    /**
      * Append value directly into StringBuffer
      * @param buffer
      * @param i
      * @param radix
-     * @return 
+     * @return
      */
     static StringBuffer toStringBuffer(StringBuffer buffer, int i, int radix) {
         // This strategy first writes characters backwards, then reverses them.
@@ -164,11 +164,11 @@ public final class Integer {
         if (negative) {
             buffer.append('-');
         }
-        
+
         // now reverse in place:
         int end = buffer.length() - 1;
         int count = buffer.length() - start;
-        
+
         for (int j = 0; j < count / 2; j++) {
             char c = buffer.charAt(start + j);
             buffer.setCharAt(start + j, buffer.charAt(end - j));
@@ -524,6 +524,23 @@ public final class Integer {
      */
     public Integer(int value) {
         this.value = value;
+    }
+
+    /**
+     * Constructs a newly allocated {@code Integer} object that
+     * represents the {@code int} value indicated by the
+     * {@code String} parameter. The string is converted to an
+     * {@code int} value in exactly the manner used by the
+     * {@code parseInt} method for radix 10.
+     *
+     * @param      s   the {@code String} to be converted to an
+     *                 {@code Integer}.
+     * @exception  NumberFormatException  if the {@code String} does not
+     *               contain a parsable integer.
+     * @see        java.lang.Integer#parseInt(java.lang.String, int)
+     */
+    public Integer(String s) throws NumberFormatException {
+        this.value = parseInt(s, 10);
     }
 
     /**

@@ -157,7 +157,12 @@ public final class CHeaderFileCreator {
 	 * @return  false if the field was not found, true if it was and verifies correctly
 	 * @throws RuntimeException if the field was found but did not verify
 	 */
-	private boolean verifyFieldOffset(String fieldSpec, int fieldOffset, int fieldTypeID, String fieldName, Klass klass, boolean isStatic) {
+	private boolean verifyFieldOffset(String fieldSpec,
+	                                  int fieldOffset,
+	                                  int fieldTypeID,
+	                                  String fieldName,
+	                                  Klass klass,
+	                                  boolean isStatic) {
 		int fieldCount = klass.getFieldCount(isStatic);
 		boolean found = false;
 		for (int j = 0; j != fieldCount; ++j) {
@@ -183,10 +188,14 @@ public final class CHeaderFileCreator {
 					break;
 				}
 				if (offset != fieldOffset) {
-					throw new RuntimeException("The value of '" + fieldSpec + "' should be " + offset + " not " + fieldOffset);
+					throw new RuntimeException("The value of '" + fieldSpec
+					                           + "' should be " + offset
+					                           + " not " + fieldOffset);
 				}
 				if (fieldTypeID != systemID) {
-					throw new RuntimeException("The CID of '" + fieldSpec + "' should be " + fieldTypeID + " not " + systemID);
+					throw new RuntimeException("The CID of '" + fieldSpec
+					                           + "' should be " + fieldTypeID
+					                           + " not " + systemID);
 				}
 				found = true;
 				break;
@@ -265,7 +274,9 @@ public final class CHeaderFileCreator {
 
 						int offset = squawkMethod.getOffset();
 						if (offset != value) {
-							System.err.println("The value of '" + field + "' should be " + offset + " not " + value);
+							System.err.println("The value of '" + field
+							                   + "' should be " + offset
+							                   + " not " + value);
 							errors = true;
 						}
 						found = true;

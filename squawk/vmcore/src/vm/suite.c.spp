@@ -38,28 +38,28 @@
 #define NUMBER_OF_BYTES_IN_BYTECODE_HEADER (3 * sizeof(UWord))
 
 UWord loadBootstrapSuiteFromFlash(
-						char	*bootstrapSuiteFile,
-                        Address *romStart,
-                        Address *suite,
-                        int     *hash) {
-	 // ROM starts at the flash address set on command line
+	char    *bootstrapSuiteFile,
+	Address *romStart,
+	Address *suite,
+	int     *hash) {
+	// ROM starts at the flash address set on command line
 /*if[MICROBLAZE_BUILD]*/
-  extern int __linker_squawk_suite_start;
-    Address javabytecodesbase = (Address) &__linker_squawk_suite_start;
+	extern int __linker_squawk_suite_start;
+	Address javabytecodesbase = (Address) &__linker_squawk_suite_start;
 /*else[MICROBLAZE_BUILD]*/
 //  Address javabytecodesbase = (Address) atoi(bootstrapSuiteFile);
 /*end[MICROBLAZE_BUILD]*/
-    *suite = (void *)(getUWord(javabytecodesbase, 0) + javabytecodesbase);
-    *hash = (int)getUWord(javabytecodesbase, 1);
-    UWord size=getUWord(javabytecodesbase, 2);
-    *romStart=(void *)(javabytecodesbase + NUMBER_OF_BYTES_IN_BYTECODE_HEADER);
+	*suite = (void *)(getUWord(javabytecodesbase, 0) + javabytecodesbase);
+	*hash = (int)getUWord(javabytecodesbase, 1);
+	UWord size=getUWord(javabytecodesbase, 2);
+	*romStart=(void *)(javabytecodesbase + NUMBER_OF_BYTES_IN_BYTECODE_HEADER);
 
-    diagnosticWithValue("javabytecodesbase: ", (int) javabytecodesbase);
-    diagnosticWithValue("rootOffset: ", (int) *suite);
-    diagnosticWithValue("hash: ", *hash);
-    diagnosticWithValue("suite size: ", size);
-    diagnosticWithValue("romStart: ", (int) *romStart);
-    return size;
+	diagnosticWithValue("javabytecodesbase: ", (int) javabytecodesbase);
+	diagnosticWithValue("rootOffset: ", (int) *suite);
+	diagnosticWithValue("hash: ", *hash);
+	diagnosticWithValue("suite size: ", size);
+	diagnosticWithValue("romStart: ", (int) *romStart);
+	return size;
 }
 
 #else /* FLASH_MEMORY */
@@ -69,9 +69,9 @@ UWord loadBootstrapSuiteFromFlash(
  * of the java.io.DataInputStream class.
  */
 typedef struct {
-    ByteAddress in;  // the byte array
-    UWord size;      // the size of the byte array
-    UWord pos;       // the current read position
+	ByteAddress in;  // the byte array
+	UWord size;      // the size of the byte array
+	UWord pos;       // the current read position
 } DataInputStream;
 
 /**
@@ -81,18 +81,18 @@ typedef struct {
  * @param  file  the name of the file to initialize the stream from
  */
 void DataInputStream_open(DataInputStream *dis, const char *file) {
-    (*dis).size = getFileSize(file);
-    if ((*dis).size == -1) {
-        fprintf(stderr, "No such file '%s'\n", file);
-        stopVM(-1);
-    }
+	(*dis).size = getFileSize(file);
+	if ((*dis).size == -1) {
+		fprintf(stderr, "No such file '%s'\n", file);
+		stopVM(-1);
+	}
 
-    (*dis).in = newBuffer((*dis).size, "DataInputStream_open", true);
-    if (readFile(file, (*dis).in, (*dis).size) != (*dis).size) {
-        printf("Error reading '%s'\n", file);
-        stopVM(-1);
-    }
-    (*dis).pos = 0;
+	(*dis).in = newBuffer((*dis).size, "DataInputStream_open", true);
+	if (readFile(file, (*dis).in, (*dis).size) != (*dis).size) {
+		printf("Error reading '%s'\n", file);
+		stopVM(-1);
+	}
+	(*dis).pos = 0;
 }
 
 /**
@@ -102,7 +102,7 @@ void DataInputStream_open(DataInputStream *dis, const char *file) {
  * @return the number of available bytes
  */
 unsigned int DataInputStream_available(DataInputStream *dis) {
-    return (*dis).size - (*dis).pos;
+	return (*dis).size - (*dis).pos;
 }
 
 /**
@@ -112,7 +112,7 @@ unsigned int DataInputStream_available(DataInputStream *dis) {
  * @return the number of bytes that have been read
  */
 unsigned int DataInputStream_readSoFar(DataInputStream *dis) {
-    return (*dis).pos;
+	return (*dis).pos;
 }
 
 /**
@@ -123,36 +123,36 @@ unsigned int DataInputStream_readSoFar(DataInputStream *dis) {
  * @return the value read
  */
 UWord DataInputStream_readUnsignedByte(DataInputStream *dis, const char *prefix) {
-    UWord value;
+	UWord value;
 
-    if ((*dis).pos >= (*dis).size) {
-        fatalVMError("EOFException");
-    }
+	if ((*dis).pos >= (*dis).size) {
+		fatalVMError("EOFException");
+	}
 
-    value = (*dis).in[(*dis).pos++];
+	value = (*dis).in[(*dis).pos++];
 #if TRACE_SUITE
-    if (prefix != null) {
-        fprintf(stderr, "%s:%u\n", prefix, (value & 0xFF));
-    }
+	if (prefix != null) {
+		fprintf(stderr, "%s:%u\n", prefix, (value & 0xFF));
+	}
 #endif /* TRACE_SUITE */
-    return value & 0xFF;
+	return value & 0xFF;
 }
 
 /**
-* Reads an unsigned short from a DataInputStream.
+ * Reads an unsigned short from a DataInputStream.
  *
  * @param  dis    the DataInputStream to read from
  * @param  prefix the prefix used when tracing this read
  * @return the value read
  */
 UWord DataInputStream_readUnsignedShort(DataInputStream *dis, const char *prefix) {
-    int b1 = DataInputStream_readUnsignedByte(dis, null);
-    int b2 = DataInputStream_readUnsignedByte(dis, null);
-    UWord value = ((b1 << 8) + (b2 << 0)) & 0xFFFF;
+	int b1 = DataInputStream_readUnsignedByte(dis, null);
+	int b2 = DataInputStream_readUnsignedByte(dis, null);
+	UWord value = ((b1 << 8) + (b2 << 0)) & 0xFFFF;
 #if TRACE_SUITE
-    fprintf(stderr, "%s:%u\n", prefix, value);
+	fprintf(stderr, "%s:%u\n", prefix, value);
 #endif /* TRACE_SUITE */
-    return value;
+	return value;
 }
 
 /**
@@ -163,15 +163,15 @@ UWord DataInputStream_readUnsignedShort(DataInputStream *dis, const char *prefix
  * @return the value read
  */
 int DataInputStream_readInt(DataInputStream *dis, const char *prefix) {
-    int b1 = DataInputStream_readUnsignedByte(dis, null);
-    int b2 = DataInputStream_readUnsignedByte(dis, null);
-    int b3 = DataInputStream_readUnsignedByte(dis, null);
-    int b4 = DataInputStream_readUnsignedByte(dis, null);
-    UWord value = ((b1 << 24) + (b2 << 16) + (b3 << 8) + (b4 << 0));
+	int b1 = DataInputStream_readUnsignedByte(dis, null);
+	int b2 = DataInputStream_readUnsignedByte(dis, null);
+	int b3 = DataInputStream_readUnsignedByte(dis, null);
+	int b4 = DataInputStream_readUnsignedByte(dis, null);
+	UWord value = ((b1 << 24) + (b2 << 16) + (b3 << 8) + (b4 << 0));
 #if TRACE_SUITE
-    fprintf(stderr, "%s:%u\n", prefix, value);
+	fprintf(stderr, "%s:%u\n", prefix, value);
 #endif /* TRACE_SUITE */
-    return value;
+	return value;
 }
 
 /**
@@ -184,12 +184,12 @@ int DataInputStream_readInt(DataInputStream *dis, const char *prefix) {
  * @return the value read
  */
 void DataInputStream_readFully(DataInputStream *dis, ByteAddress buf, UWord size, const char *prefix) {
-    unsigned int i = 0;
-    while (i != size) {
-        buf[i++] = DataInputStream_readUnsignedByte(dis, null);
-    }
+	unsigned int i = 0;
+	while (i != size) {
+		buf[i++] = DataInputStream_readUnsignedByte(dis, null);
+	}
 #if TRACE_SUITE
-    fprintf(stderr, format("%s:{read %A bytes}\n"), prefix, size);
+	fprintf(stderr, format("%s:{read %A bytes}\n"), prefix, size);
 #endif /* TRACE_SUITE */
 }
 
@@ -201,12 +201,12 @@ void DataInputStream_readFully(DataInputStream *dis, ByteAddress buf, UWord size
  * @param  prefix the prefix used when tracing this read
  */
 void DataInputStream_skip(DataInputStream *dis, UWord n, const char* prefix) {
-    unsigned int i = 0;
-    while (i++ != n) {
-        DataInputStream_readUnsignedByte(dis, null);
-    }
+	unsigned int i = 0;
+	while (i++ != n) {
+		DataInputStream_readUnsignedByte(dis, null);
+	}
 #if TRACE_SUITE
-    fprintf(stderr, format("%s:{skipped %A bytes}\n"), prefix, n);
+	fprintf(stderr, format("%s:{skipped %A bytes}\n"), prefix, n);
 #endif /* TRACE_SUITE */
 }
 
@@ -216,10 +216,10 @@ void DataInputStream_skip(DataInputStream *dis, UWord n, const char* prefix) {
  * @param dis  the DataInputStream to close
  */
 void DataInputStream_close(DataInputStream *dis) {
-    if ((*dis).in != null) {
-        freeBuffer((*dis).in);
-        (*dis).in = null;
-    }
+	if ((*dis).in != null) {
+		freeBuffer((*dis).in);
+		(*dis).in = null;
+	}
 }
 
 /**
@@ -233,168 +233,168 @@ void DataInputStream_close(DataInputStream *dis) {
  * @return the size of the object memory
  */
 UWord loadBootstrapSuite(const char *file,
-                        Address buffer,
-                        UWord   size,
-                        Address *suite,
-                        int     *hash)
+                         Address buffer,
+                         UWord   size,
+                         Address *suite,
+                         int     *hash)
 {
-    DataInputStream dis;
-    UWord suiteOffset;
-    ByteAddress oopMap;
-    UWord oopMapLength;
-    unsigned int i;
-    int attributes;
-    boolean hasTypemap;
-    int pad, fileSize;
+	DataInputStream dis;
+	UWord suiteOffset;
+	ByteAddress oopMap;
+	UWord oopMapLength;
+	unsigned int i;
+	int attributes;
+	boolean hasTypemap;
+	int pad, fileSize;
 
-    fileSize = getFileSize(file);
-    if (fileSize == -1) {
-        fprintf(stderr, "Bootstrap suite file '%s' not found\n", file);
-        fatalVMError("");
-    } else if (size < fileSize) {
-        fatalVMError("buffer size is too small for bootstrap suite");
-    }
+	fileSize = getFileSize(file);
+	if (fileSize == -1) {
+		fprintf(stderr, "Bootstrap suite file '%s' not found\n", file);
+		fatalVMError("");
+	} else if (size < fileSize) {
+		fatalVMError("buffer size is too small for bootstrap suite");
+	}
 
-    /*
-     * Try to open the suite file.
-     */
-    DataInputStream_open(&dis, file);
+	/*
+	 * Try to open the suite file.
+	 */
+	DataInputStream_open(&dis, file);
 
-    /*
-     * Read 'magic'
-     */
-    if (DataInputStream_readInt(&dis, "magic") != 0xdeadbeef) {
-        fatalVMError("bad magic in bootstrap suite");
-    }
+	/*
+	 * Read 'magic'
+	 */
+	if (DataInputStream_readInt(&dis, "magic") != 0xdeadbeef) {
+		fatalVMError("bad magic in bootstrap suite");
+	}
 
-    /*
-     * Read (and ignore for now) version identifiers
-     */
-    DataInputStream_readUnsignedShort(&dis, "minor_version");
-    DataInputStream_readUnsignedShort(&dis, "major_version");
+	/*
+	 * Read (and ignore for now) version identifiers
+	 */
+	DataInputStream_readUnsignedShort(&dis, "minor_version");
+	DataInputStream_readUnsignedShort(&dis, "major_version");
 
-    /*
-     * Read 'attributes'
-     */
-    attributes = DataInputStream_readInt(&dis, "attributes");
-    hasTypemap = ((attributes & com_sun_squawk_ObjectMemoryFile_ATTRIBUTE_TYPEMAP) != 0);
-    if (((attributes & com_sun_squawk_ObjectMemoryFile_ATTRIBUTE_32BIT) != 0) == SQUAWK_64) {
-        fatalVMError("word size in bootstrap suite is incorrect");
-    }
-    if (((attributes & com_sun_squawk_ObjectMemoryFile_ATTRIBUTE_BIGENDIAN) != 0) != PLATFORM_BIG_ENDIAN) {
-        fatalVMError("endianess in bootstrap suite is incorrect");
-    }
+	/*
+	 * Read 'attributes'
+	 */
+	attributes = DataInputStream_readInt(&dis, "attributes");
+	hasTypemap = ((attributes & com_sun_squawk_ObjectMemoryFile_ATTRIBUTE_TYPEMAP) != 0);
+	if (((attributes & com_sun_squawk_ObjectMemoryFile_ATTRIBUTE_32BIT) != 0) == SQUAWK_64) {
+		fatalVMError("word size in bootstrap suite is incorrect");
+	}
+	if (((attributes & com_sun_squawk_ObjectMemoryFile_ATTRIBUTE_BIGENDIAN) != 0) != PLATFORM_BIG_ENDIAN) {
+		fatalVMError("endianess in bootstrap suite is incorrect");
+	}
 
-    /*
-     * Read and ignore 'parent_hash'
-     */
-    DataInputStream_readInt(&dis, "parent_hash");
+	/*
+	 * Read and ignore 'parent_hash'
+	 */
+	DataInputStream_readInt(&dis, "parent_hash");
 
-    /*
-     * Read the length of 'parent_url' and verify that it is 0
-     */
-    if (DataInputStream_readUnsignedShort(&dis, "parent_url") != 0) {
-        fatalVMError("bootstrap suite should have no parent");
-    }
+	/*
+	 * Read the length of 'parent_url' and verify that it is 0
+	 */
+	if (DataInputStream_readUnsignedShort(&dis, "parent_url") != 0) {
+		fatalVMError("bootstrap suite should have no parent");
+	}
 
-    /*
-     * Read 'root'
-     */
-    suiteOffset = DataInputStream_readInt(&dis, "root");
+	/*
+	 * Read 'root'
+	 */
+	suiteOffset = DataInputStream_readInt(&dis, "root");
 
-    /*
-     * Read 'size'
-     */
-    size = DataInputStream_readInt(&dis, "size");
+	/*
+	 * Read 'size'
+	 */
+	size = DataInputStream_readInt(&dis, "size");
 
-    /*
-     * Read 'oopmap'
-     */
-    oopMapLength = ((size / HDR_BYTES_PER_WORD) + 7) / 8;
-    oopMap = (ByteAddress)buffer + size;
-    DataInputStream_readFully(&dis, oopMap, oopMapLength, "oopmap");
+	/*
+	 * Read 'oopmap'
+	 */
+	oopMapLength = ((size / HDR_BYTES_PER_WORD) + 7) / 8;
+	oopMap = (ByteAddress)buffer + size;
+	DataInputStream_readFully(&dis, oopMap, oopMapLength, "oopmap");
 
-    /*
-     * Skip the padding for 'memory' to be word aligned
-     */
-    pad = roundUpToWord(DataInputStream_readSoFar(&dis)) - DataInputStream_readSoFar(&dis);
-    DataInputStream_skip(&dis, pad, "padding");
+	/*
+	 * Skip the padding for 'memory' to be word aligned
+	 */
+	pad = roundUpToWord(DataInputStream_readSoFar(&dis)) - DataInputStream_readSoFar(&dis);
+	DataInputStream_skip(&dis, pad, "padding");
 
-    /*
-     * Read 'memory'
-     */
-    DataInputStream_readFully(&dis, buffer, size, "memory");
+	/*
+	 * Read 'memory'
+	 */
+	DataInputStream_readFully(&dis, buffer, size, "memory");
 
-    /*
-     * Calculate the hash of the object memory while it is still in canonical form.
-     */
-    *hash = size;
-    for (i = 0; i != size; ++i) {
-        setType((ByteAddress)buffer + i, AddressType_BYTE, 1);
-        *hash += getByte(buffer, i);
-    }
+	/*
+	 * Calculate the hash of the object memory while it is still in canonical form.
+	 */
+	*hash = size;
+	for (i = 0; i != size; ++i) {
+		setType((ByteAddress)buffer + i, AddressType_BYTE, 1);
+		*hash += getByte(buffer, i);
+	}
 
-    /*
-     * Relocate all the pointers in the object memory.
-     */
+	/*
+	 * Relocate all the pointers in the object memory.
+	 */
 #if TRACE_SUITE
-    {
-    FILE *pointers = fopen("squawk.suite.pointers", "w");
-    int cardinality = 0;
+	{
+		FILE *pointers = fopen("squawk.suite.pointers", "w");
+		int cardinality = 0;
 #endif /* TRACE_SUITE */
 
-    for (i = 0; i != oopMapLength; ++i) {
-        int oopMapByte = oopMap[i];
-        int bit;
+		for (i = 0; i != oopMapLength; ++i) {
+			int oopMapByte = oopMap[i];
+			int bit;
 
-        for (bit = 0; bit != 8; ++bit) {
-            if ((oopMapByte & (1 << bit)) != 0) {
-                int offset = (i * 8) + bit;
-                UWord pointer;
-                setType((UWordAddress)buffer + offset, AddressType_UWORD, HDR_BYTES_PER_WORD);
-                pointer = getUWord(buffer, offset);
-                if (pointer != 0) {
-                    setUWord(buffer, offset, pointer + (UWord)buffer);
-                }
+			for (bit = 0; bit != 8; ++bit) {
+				if ((oopMapByte & (1 << bit)) != 0) {
+					int offset = (i * 8) + bit;
+					UWord pointer;
+					setType((UWordAddress)buffer + offset, AddressType_UWORD, HDR_BYTES_PER_WORD);
+					pointer = getUWord(buffer, offset);
+					if (pointer != 0) {
+						setUWord(buffer, offset, pointer + (UWord)buffer);
+					}
 #if TRACE_SUITE
-                ++cardinality;
-                fprintf(pointers, format("%A: %A -> %A\n"), offset*HDR_BYTES_PER_WORD, pointer, pointer + (UWord)buffer);
+					++cardinality;
+					fprintf(pointers, format("%A: %A -> %A\n"), offset*HDR_BYTES_PER_WORD, pointer, pointer + (UWord)buffer);
 #endif /* TRACE_SUITE */
-            }
-        }
-    }
+				}
+			}
+		}
 
 #if TRACE_SUITE
-    fprintf(stderr, "oopmap:{cardinality = %d}\n", cardinality);
-    fclose(pointers);
-    }
+		fprintf(stderr, "oopmap:{cardinality = %d}\n", cardinality);
+		fclose(pointers);
+	}
 #endif /* TRACE_SUITE */
 
 
-    /*
-     * Initialize the suite pointer.
-     */
-    *suite = (ByteAddress)buffer + suiteOffset;
+	/*
+	 * Initialize the suite pointer.
+	 */
+	*suite = (ByteAddress)buffer + suiteOffset;
 
 #if TYPEMAP
-    if (hasTypemap) {
-        ByteAddress p = buffer;
-        int i;
+	if (hasTypemap) {
+		ByteAddress p = buffer;
+		int i;
 
-        for (i = 0; i != size; ++i) {
-            char type = DataInputStream_readUnsignedByte(&dis, "type");
-            setType(p, type, 1);
-            p++;
-        }
-    }
+		for (i = 0; i != size; ++i) {
+			char type = DataInputStream_readUnsignedByte(&dis, "type");
+			setType(p, type, 1);
+			p++;
+		}
+	}
 #endif /* TYPEMAP */
 
-    /*
-     * Close the data input stream.
-     */
-    DataInputStream_close(&dis);
+	/*
+	 * Close the data input stream.
+	 */
+	DataInputStream_close(&dis);
 
-    return size;
+	return size;
 }
 
 #endif /* FLASH_MEMORY */

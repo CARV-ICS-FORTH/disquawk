@@ -17,6 +17,7 @@
 ################################################################################
 # All the available/required flags
 #CFLAGS =\
+	-g \
 	-mcpu=v8.00.b \
 	-mno-xl-soft-mul \
 	-mno-xl-multiply-high \
@@ -34,7 +35,8 @@
 	-D_GNU_SOURCE \
 	-DFLASH_MEMORY \
 	-DARCH_MB \
-	-DJAVA \
+	-DSQUAWK \
+	-DSQUAWK_PREFER_SIZE_OVER_SPEED \
 	-O1 \
 	-O2 \
 	-DMAXINLINE -O3 \
@@ -72,7 +74,7 @@ CFLAGS =\
 	-D_GNU_SOURCE \
 	-DFLASH_MEMORY \
 	-DARCH_MB \
-	-DJAVA \
+	-DSQUAWK \
 	-DMAXINLINE -O3 \
 	-DPLATFORM_TYPE_BARE_METAL \
 	-DMACROIZE \
@@ -93,8 +95,8 @@ LDFLAGS=--format elf32-microblazele --oformat elf32-microblazele
 APP?=../formic-tests/Linpack
 AT?=@
 #APP?=../formic-tests/Double2String
-BUILD_DIR=./build
-RTS_SRC=./vmcore/src/rts/formic
+BUILD_DIR=build
+RTS_SRC=vmcore/src/rts/formic
 ARCH=formic
 BUILDER=./d -override:build-mb.properties
 #BUILDER_FLAGS=-verbose -assume -tracing #This is for debug purposes
@@ -192,10 +194,11 @@ ELF_OBJS = $(MYRMICS_OBJS)\
 # Still not tuned for parallelism
 .NOTPARALLEL:
 
-.PHONY: run clean distclean
+.PHONY: run clean distclean trace tracerun
 
 .SECONDARY: $(ELF_OBJS:$(BUILD_DIR)/obj/%.o=$(BUILD_DIR)/dep/%.d)\
-            $(FLOATINGPOINT_SRCS)
+            $(FLOATINGPOINT_SRCS) vmcore/src/vm/squawk.c \
+            vmcore/src/vm/vm2c.c.spp
 
 all: $(ELF)
 
@@ -204,6 +207,12 @@ include $(APP)/Makefile
 ################################################################################
 # Define the compilation rules
 ################################################################################
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),distclean)
+-include $(ELF_OBJS:$(BUILD_DIR)/obj/%.o=$(BUILD_DIR)/dep/%.d)
+endif
+endif
+
 # preprocess the *.h.spp files
 %.h:%.h.spp build.jar
 	$(AT)echo $(STR_BLD) $@
@@ -217,16 +226,17 @@ include $(APP)/Makefile
 # compile floating point without optimizations to avoid x + 0.0 = x
 # transformations
 $(BUILD_DIR)/obj/vmcore/src/vm/fp/%.o: vmcore/src/vm/fp/%.c \
-                                        vmcore/src/vm/platform.h
+                                       vmcore/src/vm/platform.h \
+                                       $(BUILD_DIR)/dep/vmcore/src/vm/fp/%.d
 	$(AT)echo $(STR_GCC) $<
 	$(AT)mkdir -p $(dir $@)
-	$(AT)mb-gcc -c $(filter-out -O1 -O2  -O3 -DMAXINLINE,$(CFLAGS)) $< -o $@
+	$(AT)mb-gcc -c $(filter-out -O1 -O2 -O3 -DMAXINLINE,$(CFLAGS)) $< -o $@
 
 
 $(BUILD_DIR)/obj/%.o: %.s
 	$(AT)echo $(STR_ASM) $<
 	$(AT)mkdir -p $(dir $@)
-	$(AT)mb-as -defsym JAVA=1 $< -mlittle-endian -o $@
+	$(AT)mb-as -defsym SQUAWK=1 $< -mlittle-endian -o $@
 
 $(BUILD_DIR)/obj/%.o: %.c $(BUILD_DIR)/dep/%.d
 	$(AT)echo $(STR_GCC) $<
@@ -244,19 +254,13 @@ $(BUILD_DIR)/dep/%.d: %.c
 	$(AT)mkdir -p $(dir $@)
 	$(AT)mb-gcc $(CFLAGS) -M -I$(MYRMICS_SRC)/include $< | \
 	 sed 's,[a-zA-Z0-9_\.]*.o:,$(<:%.c=$(BUILD_DIR)/obj/%.o):,' > $@
-
-ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),distclean)
--include $(MYRMICS_OBJS:$(BUILD_DIR)/obj/%.o=$(BUILD_DIR)/dep/%.d)
-endif
-endif
 ################################################################################
 
 
 ################################################################################
 # Create the Formic elf
 ################################################################################
-$(ELF): java.ld $(ELF_OBJS) $(MYRMICS_LINK_ONJS)
+$(ELF): java.ld $(ELF_OBJS) $(MYRMICS_LINK_OBJS)
 	$(AT)echo $(STR_LNK) $@
 	$(AT)mb-ld -N -T $< $(ELF_OBJS) $(LDFLAGS) -Map $(BUILD_DIR)/link.map -o $@
 ################################################################################
@@ -267,10 +271,10 @@ $(ELF): java.ld $(ELF_OBJS) $(MYRMICS_LINK_ONJS)
 ################################################################################
 vmcore/src/vm/squawk.c: \
 	vmcore/src/vm/platform.h\
+	vmcore/src/vm/buildflags.h\
 	vmcore/src/vm/rom.h\
 	$(RTS_SRC)/os.c\
 	vmcore/src/vm/address.c\
-	vmcore/src/vm/buildflags.h\
 	vmcore/src/vm/util.h\
 	vmcore/src/vm/memory.c\
 	vmcore/src/vm/bytecodes.c\
@@ -279,7 +283,12 @@ vmcore/src/vm/squawk.c: \
 	vmcore/src/vm/cio.c\
 	vmcore/src/vm/trace.c\
 	vmcore/src/vm/suite.c\
-	vmcore/src/vm/switch.c
+	vmcore/src/vm/switch.c\
+	vmcore/src/vm/globals.h
+
+vmcore/src/vm/globals.h: \
+	$(MYRMICS_SRC)/include/arch.h
+
 
 vmcore/src/vm/buildflags.h:
 	$(AT)echo "#define BUILD_FLAGS \"$(CFLAGS)\"" > $@
@@ -313,6 +322,12 @@ run: $(ELF)
 	$(AT)$(MYRMICS_SRC)/../../client -pwr_formic -boot formic -elf $(ELF) \
 		| tee run.log
 
+tracerun: $(ELF) map
+	$(AT)echo $(STR_RUN) $<
+	$(AT)rm -f run.log
+	$(AT)$(MYRMICS_SRC)/../../client -pwr_formic -boot formic -elf $(ELF) \
+		| ./traceviewer.rb | tee run.log
+
 # Create the bootstrap suite
 squawk.suite: romizer/classes.jar build.jar
 	$(AT)echo $(STR_BLD) $@
@@ -322,10 +337,16 @@ squawk.suite: romizer/classes.jar build.jar
 		-cp:./cldc/j2meclasses/:./cldc/resources/: -java5cp:./cldc/classes: \
 		./cldc/j2meclasses ./cldc/resources
 
+trace: all_suites.sym run.log
+	$(AT)$(BUILDER) traceviewer -sp: -map:$^
+
 ################################################################################
 # Create the suite maps (useful to translate the traces)
 ################################################################################
-map: squawk.suite.map FormicApp.suite.map
+map: all_suites.sym
+
+all_suites.sym: squawk.suite.map FormicApp.suite.map
+	$(AT)grep -h METHOD $^ > $@
 
 FormicApp.suite.map: FormicApp.suite mapper/classes.jar build.jar
 	$(AT)echo $(STR_BLD) $@
@@ -362,8 +383,6 @@ FormicApp.suite.bin: FormicApp.suite suite_addr.txt squawk.suite.bin \
 # Calculates the size of the elf file.  This is going to be used as
 # the address of the bootstrap suite in memory
 suite_addr.txt: $(MYRMICS_SRC)/linker.java.mb.ld $(ELF_OBJS) $(MYRMICS_LINK_OBJS)
-	$(AT)rm -f java.ld $@
-	$(AT)cp $< java.ld
 	$(AT)echo $(STR_LNK) $@
 	$(AT)mb-ld -N -T $< $(ELF_OBJS) $(LDFLAGS) -Map $(BUILD_DIR)/link.map \
 		-o $(ELF)
@@ -426,6 +445,7 @@ clean:
 			squawk.jar\
 			squawk_*.jar\
 			*.map\
+			all_suites.sym\
 			suite_addr.txt\
 			vm2c/vm2c.input\
 			$(BUILD_DIR)/obj\

@@ -864,6 +864,13 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
   }
 */
 
+// FIXME: this must sync all boards and must work on x86 too
+#ifdef __MICROBLAZE__
+	// Shutdown master
+	if ((my_bid == AR_BOOT_MASTER_BID) && (!my_cid)) {
+		// wait for everyone to reach stopVM0 before shutdown
+		while (ar_cnt_get(0, NOC_COUNTER_WAKEUP3));
+#endif  /* __MICROBLAZE__ */
 	if (!squawk_inStop_g) {
 		squawk_inStop_g = true;
 		finalizeStreams();
@@ -915,6 +922,14 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 	osfinish();
 	squawk_inStop_g = false;
 	exit(exitCode);
+#ifdef __MICROBLAZE__
+	} else {
+		ar_cnt_incr(my_cid, AR_BOOT_MASTER_BID, 0, NOC_COUNTER_WAKEUP3, 1);
+		fprintf(stderr, "** VM on %d:%d stopped\n", my_bid, my_cid);
+		//halt
+		while(1);
+	}
+#endif  /* __MICROBLAZE__ */
 }
 
 /**
@@ -1282,7 +1297,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	// The command line arguments for the JAM start on the next page after the end of the stack for the service thread.
 	com_sun_squawk_VM_argc = argc;
 /*if[MICROBLAZE_BUILD]*/
-	// No need to re-allocate argv
+	// No need to re-allocate argv use it from the stack
 	com_sun_squawk_VM_argv = argv;
 	offset = Address_diff(com_sun_squawk_GC_ramStart, memory_g);
 /*else[MICROBLAZE_BUILD]*/
@@ -1332,6 +1347,9 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	           (char*)com_sun_squawk_VMThread_serviceStack,
 	           (char*)Address_add(com_sun_squawk_VMThread_serviceStack,
 	                              SERVICE_CHUNK_SIZE_MINUS2WORDS));
+	printRange("Globals   ",
+	           (char*)gp,
+	           (char*)gp+sizeof(Globals));
 /*if[MICROBLAZE_BUILD]*/
 	printRange("argv      ",
 	           (char*)com_sun_squawk_VM_argv,
@@ -1848,11 +1866,11 @@ void testUnaligned() {
 		jlong val;
 
 		setUnalignedLong(buf, 0, PATTERN1);
-#ifdef JAVA
+#ifdef __MICROBLAZE__
 		assertEquals8("overwrite", 0l, (tmp[1] & REMAINDER_MASK));
 #else
 		assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
-#endif  /* JAVA */
+#endif  /* __MICROBLAZE__ */
 		val = getUnalignedLong(buf, 0);
 		assertEquals8("getUnalignedLong", PATTERN1, val);
 		swap8(buf);
@@ -1860,11 +1878,11 @@ void testUnaligned() {
 		assertEquals8("swap8", PATTERN1_SWAP, val);
 
 		setUnalignedLong(buf, 0, PATTERN2);
-#ifdef JAVA
+#ifdef __MICROBLAZE__
 		assertEquals8("overwrite", 0l, (tmp[1] & REMAINDER_MASK));
 #else
 		assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
-#endif  /* JAVA */
+#endif  /* __MICROBLAZE__ */
 		val = getUnalignedLong(buf, 0);
 		assertEquals8("getUnalignedLong p2", PATTERN2, val);
 		swap8(buf);
@@ -2065,9 +2083,9 @@ Address Squawk_setup(int argc, char *argv[]) {
 	 */
 /*if[!MICROBLAZE_BUILD]*/
 	sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, true);
-/*end[MICROBLAZE_BUILD]*/
 	/* NOTE: Formic here makes the code/bss segment readonly and not the actual address range */
 	sysToggleMemoryProtection(com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, true);
+/*end[MICROBLAZE_BUILD]*/
 
 	/*
 	 * Return the bootstrap suite.
@@ -2215,7 +2233,8 @@ void Squawk_continue() {
 }
 
 void printRange(char* label, void* start, void* end) {
-	fprintf(stderr, "%s  : %p~%p [size:%d]\r\n", label, start, end, ((char*)end - (char*)start));
+	fprintf(stderr, "%s  : %p~%p [size:%d] %d:%d\n",
+	        label, start, end, ((char*)end - (char*)start), my_bid, my_cid);
 }
 
 int printValueInRange(Address value, char* valueName, Address low, Address high, char* rangeName) {
@@ -2266,6 +2285,8 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
 		fprintf(stderr, "    in GC\n");
 	}
 
+	printf("&romStart: %p\n",&com_sun_squawk_VM_romStart);
+	printf("&ramStart: %p\n",&com_sun_squawk_GC_ramStart);
 #if com_sun_squawk_Klass_ENABLE_DYNAMIC_CLASSLOADING
 	printValueInRange(_ip, "ip", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
 #else
@@ -2331,8 +2352,6 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
  */
 void Squawk_run(int argc, char *argv[]) {
 	Address bootstrapSuite = Squawk_setup(argc, argv);
-
-/* TODO: FIXME: Make the code segment readonly */
 
 //fpTest();
 
@@ -2410,10 +2429,8 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
      * Given that this function should never return this is OK.
      */
 	Globals userGlobals;
-	void initializeLiterals();
 
 	initializeGlobals(&userGlobals);
-	initializeLiterals();
 
 /*if[EMULATOR_LAUNCHER]*/
 	char *executable = argv[0];

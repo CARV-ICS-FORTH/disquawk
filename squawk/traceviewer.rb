@@ -1,18 +1,21 @@
 #!/usr/bin/env ruby
 
 # Check for proper number of command line args.
-expected_args=1
-e_badargs=65
+# expected_args=1
+# e_badargs=65
 
-if ARGV.length < expected_args
-  puts "Usage: #{$0} <trace> [<mapfile> [<mapfile> ...]]"
-  exit e_badargs
-end
+# if ARGV.length < expected_args
+#   puts "Usage: #{$0} pipe|<trace_file> [<mapfile> [<mapfile> ...]]"
+#   exit e_badargs
+# end
 
-trace=ARGV[0].to_s
+# trace=ARGV[0].to_s
 romstart=0;
 
-File.open(trace).each do |line|
+# if (trace.equals?("pipe"))
+
+# File.open(trace).each do |line|
+ARGF.each do |line|
   if line.start_with?("*TRACE*:*ROM*:")
     romstart = line.split(':')[2].to_i+4
     puts line

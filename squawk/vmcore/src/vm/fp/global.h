@@ -35,9 +35,9 @@
 #endif
 
 #include "jni.h"
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 #include <math.h>
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
 
 #include "os_math.h" /* add platform specific method definitions */
 

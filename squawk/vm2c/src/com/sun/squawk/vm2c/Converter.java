@@ -79,10 +79,13 @@ public class Converter {
 	private Name COM_SUN_SQUAWK_UWORD;
 	private Name.Table nameTable;
 
+	public Map<Integer, MethodConverter.Tuple> literalsMap;
+
 	public Converter(Context context) {
 		this.log = Log.instance(context);
 		this.context = context;
 		this.types = Types.instance(context);
+		this.literalsMap = new HashMap<Integer, MethodConverter.Tuple>();
 		methodNames = new HashMap<MethodSymbol, String>();
 		METHOD_COMPARATOR = new Comparator<MethodSymbol>() {
 
@@ -261,7 +264,8 @@ public class Converter {
 
 		out.println("/* Forward declarations. */");
 		emitFunctions(out, true);
-		out.println("Address getObjectForCStringLiteral(int key, int klassIndex, const char *cstr);");
+		out.println("Address getObjectForCStringLiteral(int key);");
+		out.println("Address putObjectForCStringLiteral(int key, int klassIndex, const char *cstr);");
 
 		emitBuiltins(out);
 
@@ -293,14 +297,22 @@ public class Converter {
 	 */
 	private void emitFunctionDeclaration(PrintWriter out, MethodSymbol method) {
 		String retType = asString(method.type.getReturnType());
-		out.print("static ");
+		ProcessedMethod pm = methods.get(method);
+		int shouldInline = pm.getInliningMode();
+
+		if (shouldInline == ProcessedMethod.NEVER_INLINE) {
+			out.print("NOINLINE ");
+		} else if (shouldInline == ProcessedMethod.MUST_INLINE) {
+			out.print("INLINE   ");
+		} else {
+			out.print("static   ");
+		}
 		out.print(retType);
 		for (int i = 15 - retType.length(); i > 0; --i) {
 			out.print(' ');
 		}
 		out.print(' ');
 		if (isRootMethod(method)) {
-			ProcessedMethod pm = methods.get(method);
 			Map<String, String> annotations = new AnnotationParser().parse(pm);
 			String cRoot = annotations.get("root");
 			if (cRoot != null) {
@@ -332,8 +344,8 @@ public class Converter {
 	 */
 	private void emitFunctionDefinition(PrintWriter out, ProcessedMethod method, java.util.List<CallSite> calls) {
 		LineNumberTable lnt = lnt(method.unit);
-		MethodConverter mc = new MethodConverter(method, Converter.this, lnt);
 		log.useSource(lnt.file);
+		MethodConverter mc = new MethodConverter(method, Converter.this, lnt);
 
 		try {
 			for (CallSite call : method.calls) {
@@ -357,6 +369,10 @@ public class Converter {
 			log.errWriter.println("Callers:");
 			printStackTrace(log.errWriter, calls);
 			log.rawError(e.node.pos, e.getMessage());
+		}
+
+		for (Map.Entry<Integer, MethodConverter.Tuple> entry : mc.literals.entrySet()) {
+			literalsMap.put(entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -935,6 +951,7 @@ public class Converter {
 		out.println("\tint slen = strlen(s);");
 		out.println("\twhile (i != length) {");
 		out.println("\t\tAddress object = aload_o(objects, i);");
+//		out.println("\t\t\tfprintf(stderr, \"Look in %s\\n\", (const char *)object);");
 		out.println("\t\tif (strncmp(s, (const char *)object, slen) == 0) {");
 		out.println("\t\t    assume(!GC_inRam_L(object));");
 		out.println("\t\t    return object;");
@@ -946,19 +963,47 @@ public class Converter {
 
 		out.println();
 		out.println("void initializeLiterals() {");
+		out.println("\tint i, j;");
+		out.println();
+		// This should be performed only by one core and all others
+		// should wait till it finishes
+		out.println("\tif (!my_cid) { // If this is the \"MASTER\" core");
 
 		for (Map.Entry<ClassSymbol, Integer> entry : stringLiteralClasses.entrySet()) {
 			ClassSymbol clazz = entry.getKey();
 			int classID = entry.getValue().intValue();
 			String className = clazz.fullname.toString().replace('.', '_');
 			String var = "LITERALS_FOR_" + className;
-			out.println("\tALL_LITERALS[" + classID + "] =  " + var + ";");
+			out.println("\t\tALL_LITERALS[" + classID + "] =  " + var + ";");
 		}
+		for (Map.Entry<Integer, MethodConverter.Tuple> entry : literalsMap.entrySet()) {
+			int key                   = entry.getKey().intValue();
+			MethodConverter.Tuple tmp = entry.getValue();
+			String literal            = tmp.getLiteral();
+			String className          = tmp.getClassName();
+			out.println("\t\tputObjectForCStringLiteral(" + key + ", " + className + ", \"" + literal + "\");");
+		}
+		// TODO: We need to flush the cache here so every core sees the written values
+		out.println();
+		// out.println("\t\t// delay to make sure the cnt is set by the workers");
+		// out.println("\t\tar_timer_busy_wait_msec(100);");
+		out.println("\t\tfor (i = 1; i < AR_FORMIC_CORES_PER_BOARD; i++)");
+		out.println("\t\t\tar_cnt_incr(my_cid, my_bid, i, NOC_COUNTER_WAKEUP3, 1);");
+		out.println();
+		out.println("\t} else { // wait for the \"MASTER\" core");
+		out.println();
+		// Initialize a boot barrier counter
+		out.println("\t\tar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, -1);");
+		// Block on barrier, until master indicates all cores have booted
+		out.println("\t\twhile (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));");
+		out.println();
+		out.println("\t}");
+
 		out.println("}");
 
 
 		out.println();
-		out.println("Address getObjectForCStringLiteral(int key, int klassIndex, const char *cstr) {");
+		out.println("Address putObjectForCStringLiteral(int key, int klassIndex, const char *cstr) {");
 //        out.println("\tstatic boolean initialized = false;");
 		out.println("\tint classKey = key >> 16 & 0xFFFF;");
 		out.println("\tint literalKey = key & 0xFFFF;");
@@ -975,10 +1020,32 @@ public class Converter {
 		out.println("\t\tint length = Array_length(objects);");
 		out.println();
 		out.println("\t\tstr = findCStringInObjects(objects, length, cstr);");
-		out.println("\t\tif (str == null) {");
-		out.println("\t\t    fatalVMError(\"accessing string literal in conditionally compiled out code\");");
-		out.println("\t\t}");
+		// FIXME: this is commented out due to code elimination, we
+		// allow fails here and we catch them later in
+		// getObjectForCStringLiteral
+		// out.println("\t\tif (str == null) {");
+		// out.println("\t\t\tfprintf(stderr, \"Failed to access %s\\n\", cstr);");
+		// out.println("\t\t\tfatalVMError(\"accessing string literal in conditionally compiled out code\");");
+		// out.println("\t\t}");
 		out.println("\t\tliterals[literalKey] = str;");
+		out.println("\t}");
+		out.println("\treturn str;");
+		out.println("}");
+
+
+		out.println();
+		out.println("Address getObjectForCStringLiteral(int key) {");
+//        out.println("\tstatic boolean initialized = false;");
+		out.println("\tint classKey = key >> 16 & 0xFFFF;");
+		out.println("\tint literalKey = key & 0xFFFF;");
+		out.println("\tAddress *literals;");
+		out.println("\tAddress str;");
+		out.println();
+		out.println("\tliterals = ALL_LITERALS[classKey];");
+		out.println("\tstr = literals[literalKey];");
+		out.println("\tif (str == null) {");
+		out.println("\t\t\tfatalVMError(\"accessing string literal in conditionally compiled out code\");");
+		// out.println("\t\tfatalVMError(\"string literals not properly initialized\");");
 		out.println("\t}");
 		out.println("\treturn str;");
 		out.println("}");

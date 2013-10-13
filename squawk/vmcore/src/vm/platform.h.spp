@@ -113,7 +113,7 @@
 #    ifndef FLASH_MEMORY
 #	    include <sys/mman.h>
 #    endif /* FLASH_MEMORY */
-#    if defined __GNUC__ && !defined JAVA
+#    if defined __GNUC__ && !defined SQUAWK
 #        include <unistd.h>
 #        undef  ujlong
 #        ifdef sun
@@ -121,7 +121,7 @@
 #        else /* sun */
 #            define ujlong u_int64_t
 #        endif /* sun */
-#    elif defined JAVA
+#    elif defined SQUAWK
 #        undef  ujlong
 #        define ujlong uint64_t
 #    else /* assume CC */

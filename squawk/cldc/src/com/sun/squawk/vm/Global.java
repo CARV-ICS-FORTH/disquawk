@@ -105,15 +105,15 @@ public final class Global {
         Int("com.sun.squawk.ServiceOperation.result");
         Add("com.sun.squawk.ServiceOperation.addressResult");
 
-        Int("branchCountHigh");
-        Int("branchCountLow");
-        Int("traceStartHigh");
-        Int("traceStartLow");
-        Int("traceEndHigh");
-        Int("traceEndLow");
+        Int("branchCountHigh_g");
+        Int("branchCountLow_g");
+        Int("traceStartHigh_g");
+        Int("traceStartLow_g");
+        Int("traceEndHigh_g");
+        Int("traceEndLow_g");
         Int("com.sun.squawk.VM.tracing");
-        Int("runningOnServiceThread");
-        Int("currentThreadID");
+        Int("runningOnServiceThread_g");
+        Int("currentThreadID_g");
 /*if[GC_com.sun.squawk.CheneyCollector]*/
         Add("cheneyStartMemoryProtect");
         Add("cheneyEndMemoryProtect");

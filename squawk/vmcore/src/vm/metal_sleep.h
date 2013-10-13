@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 /* ----------- defined in io_metal.c: ----------- */
-#ifndef JAVA
+#ifndef SQUAWK
 /* NOTE: FORMIC does not have a mechanism for sleeping (at least yet) */
 extern int deepSleepEnabled;           // indicates whether the feature is currently enabled (=1)
 #endif

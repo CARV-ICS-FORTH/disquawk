@@ -58,6 +58,15 @@ public final class NativeUnsafe {
       return true;
     }
 
+/*if[MICROBLAZE_BUILD]*/
+/*if[JAVA5SYNTAX]*/
+    @Vm2c(proxy="")
+/*end[JAVA5SYNTAX]*/
+    public static boolean sysGlobalMemoryProtection() throws NativePragma {
+      return true;
+    }
+/*end[MICROBLAZE_BUILD]*/
+
     /*-----------------------------------------------------------------------*\
      *                      Storing to/loading from memory                   *
     \*-----------------------------------------------------------------------*/

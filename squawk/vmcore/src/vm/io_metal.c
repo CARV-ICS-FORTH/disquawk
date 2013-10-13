@@ -49,7 +49,7 @@ void osMilliSleep(long long millisecondsToWait) {
     if (target <= 0) {
         target = 0x7FFFFFFFFFFFFFFFLL; // overflow detected
     }
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 /* NOTE: FORMIC does not have a mechanism for sleeping (at least yet) */
     if ((millisecondsToWait < 0x7FFFFFFFFFFFFFFFLL) && deepSleepEnabled_g &&
          !sleepManagerRunning && (millisecondsToWait >= minimumDeepSleepMillis_g)) {
@@ -471,10 +471,10 @@ static void ioExecute(void) {
         }
 
         case ChannelConstants_SET_DEEP_SLEEP_ENABLED: {
-#ifndef JAVA
+#ifndef __MICROBLAZE__
 /* NOTE: FORMIC does not have a mechanism for sleeping (at least yet) */
             deepSleepEnabled_g = i1;
-#endif /* JAVA */
+#endif /* __MICROBLAZE__ */
             res = 0;
             break;
         }
