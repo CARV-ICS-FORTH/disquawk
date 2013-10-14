@@ -33,8 +33,8 @@ import com.sun.cldc.jna.JNAGenDirect;
 import com.sun.cldc.jna.SourceProcessor;
 import com.sun.squawk.builder.launcher.Launcher;
 import com.sun.squawk.builder.platform.Platform;
-import com.sun.squawk.builder.platform.VxWorks_PPC;
-import com.sun.squawk.builder.platform.Windows_X86;
+// import com.sun.squawk.builder.platform.VxWorks_PPC;
+// import com.sun.squawk.builder.platform.Windows_X86;
 import com.sun.squawk.builder.util.DirSet;
 import com.sun.squawk.builder.util.FileSet;
 import com.sun.squawk.builder.util.FileVisitor;
@@ -1937,11 +1937,11 @@ public class Build {
 	 * @return fixed URL
 	 */
 	public String fixURL(String path) {
-		if (getPlatform() instanceof Windows_X86) {
-			if (path.charAt(1) == ':') {
-				path = "/" + path;
-			}
-		}
+		// if (getPlatform() instanceof Windows_X86) {
+		// 	if (path.charAt(1) == ':') {
+		// 		path = "/" + path;
+		// 	}
+		// }
 		return path;
 	}
 
@@ -2528,18 +2528,21 @@ public class Build {
 	private void updateCCompiler(String name) {
 		// CCompiler.Options options = ccompiler.options;
 		log(info, "Build.updateCCompiler(" + name + ")");
-		if (name.equals("msc")) {
-			ccompiler = new MscCompiler(this, platform);
-		} else if (name.equals("gcc")) {
+		// if (name.equals("msc")) {
+		// 	ccompiler = new MscCompiler(this, platform);
+		// } else
+		if (name.equals("gcc")) {
 			ccompiler = new GccCompiler(this, platform);
-		} else if (name.equals("mb-gcc")) {
+		} else
+        if (name.equals("mb-gcc")) {
 			ccompiler = new FormicCompiler(this, platform);
-		} else if (name.equals("gcc-macox")) {
-			ccompiler = new GccMacOSXCompiler(this, platform);
+		// } else if (name.equals("gcc-macox")) {
+		// 	ccompiler = new GccMacOSXCompiler(this, platform);
 		} else if (name.equals("cc")) {
 			ccompiler = new CcCompiler(this, platform);
-		} else if (name.equals("vxworks")) {
-			ccompiler = new GccVxWorksPPCCompiler(this, new VxWorks_PPC(this));
+		// } else
+		// if (name.equals("vxworks")) {
+		// 	ccompiler = new GccVxWorksPPCCompiler(this, new VxWorks_PPC(this));
 		} else {
 			System.out.println("Unknown C compiler '" + name + "' - C compilation disabled");
 			ccompiler = null;
@@ -2862,11 +2865,11 @@ public class Build {
 		}
 
 		// The -tracing, and -assume options are turned on by default if -production was not specified
-		String productionProperty = properties.getProperty("PRODUCTION");
-		if (!production && (productionProperty == null || !productionProperty.equals("true"))) {
-			cOptions.tracing = true;
-			cOptions.assume = true;
-		}
+		// String productionProperty = properties.getProperty("PRODUCTION");
+		// if (!production && (productionProperty == null || !productionProperty.equals("true"))) {
+		// 	cOptions.tracing = true;
+		// 	cOptions.assume = true;
+		// }
 
 		// set up compiler:
 		if (compName == null) {
@@ -2877,12 +2880,12 @@ public class Build {
 		ccompiler.options = cOptions;
 
 		// Natve IO is not implemented yet for windows, so force to delegating...
-		if (getPlatform() instanceof Windows_X86 && !ccompiler.isCrossPlatform()) {
-			if (!getProperty("PLATFORM_TYPE").equals(Options.DELEGATING)) {
-				properties.setProperty("PLATFORM_TYPE", Options.DELEGATING);
-				log(true, "[Forcing PLATFORM_TYPE to DELEGATING on Windows]");
-			}
-		}
+		// if (getPlatform() instanceof Windows_X86 && !ccompiler.isCrossPlatform()) {
+		// 	if (!getProperty("PLATFORM_TYPE").equals(Options.DELEGATING)) {
+		// 		properties.setProperty("PLATFORM_TYPE", Options.DELEGATING);
+		// 		log(true, "[Forcing PLATFORM_TYPE to DELEGATING on Windows]");
+		// 	}
+		// }
 
 		tryPlatformType(cOptions, Options.BARE_METAL);
 		tryPlatformType(cOptions, Options.DELEGATING);

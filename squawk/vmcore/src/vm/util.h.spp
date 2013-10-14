@@ -243,13 +243,7 @@ INLINE boolean isAligned(UWord value, UWord alignment) {
  * @return the resulting Java long
  */
 INLINE jlong makeLong(int high, int low) {
-/*if[MICROBLAZE32_BUILD]*/
-	if (high)
-		printf("Warning #1: getHi invocation\n");
-	return (jlong)low;
-/*else[MICROBLAZE32_BUILD]*/
-//	return (((jlong) high) << 32) | ((unsigned int)low);
-/*end[MICROBLAZE32_BUILD]*/
+	return (((jlong) high) << 32) | ((unsigned int)low);
 }
 
 /**
@@ -259,12 +253,7 @@ INLINE jlong makeLong(int high, int low) {
  * @return the high 32-bits of value
  */
 INLINE int getHi(jlong value) {
-/*if[MICROBLAZE32_BUILD]*/
-	printf("Warning #1: getHi invocation\n");
-	return 0;
-/*else[MICROBLAZE32_BUILD]*/
-//	return (int) (value >> 32);
-/*end[MICROBLAZE32_BUILD]*/
+	return (int) (value >> 32);
 }
 
 /**
@@ -281,15 +270,9 @@ INLINE int getLo(jlong value) {
  *                            Low level operations                           *
 \*---------------------------------------------------------------------------*/
 
-/*if[MICROBLAZE32_BUILD]*/
-INLINE jlong  slll(jlong a, int b)         { return a<<(b&31);                }
-INLINE jlong  sral(jlong a, int b)         { return a>>(b&31);                }
-INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&31);      }
-/*else[MICROBLAZE32_BUILD]*/
-//INLINE jlong  slll(jlong a, int b)         { return a<<(b&63);                }
-//INLINE jlong  sral(jlong a, int b)         { return a>>(b&63);                }
-//INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&63);      }
-/*end[MICROBLAZE32_BUILD]*/
+INLINE jlong  slll(jlong a, int b)         { return a<<(b&63);                }
+INLINE jlong  sral(jlong a, int b)         { return a>>(b&63);                }
+INLINE jlong  srll(jlong a, int b)         { return ((ujlong)a)>>(b&63);      }
 INLINE int    sll(int a, int b)            { return a<<(b&31);                }
 INLINE int    sra(int a, int b)            { return a>>(b&31);                }
 INLINE int    srl(int a, int b)            { return ((unsigned)a)>>(b&31);    }

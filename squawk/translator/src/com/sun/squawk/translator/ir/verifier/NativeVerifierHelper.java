@@ -904,12 +904,10 @@ class NativeVerifierHelper {
 			return;
 		}
 
-/*if[MICROBLAZE_BUILD]*/
 		case com_sun_squawk_NativeUnsafe$sysGlobalMemoryProtection: {
 			Assert.that(frame.isStackEmpty());
 			return;
 		}
-/*end[MICROBLAZE_BUILD]*/
 
 		case Native.com_sun_squawk_VM$addressResult: {
 			Assert.that(frame.isStackEmpty());

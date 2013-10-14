@@ -238,11 +238,7 @@ static Address lookupStaticMethod(int cid, int methodOffset);
 /**
  * The tracing limits.
  */
-/*if[MICROBLAZE32_BUILD]*/
-const jlong MAX_UJLONG = (jlong)0xffffffff;
-/*else[MICROBLAZE32_BUILD]*/
-//const jlong MAX_UJLONG = (jlong)0x7fffffff << 32 | 0xffffffff;
-/*end[MICROBLAZE32_BUILD]*/
+const jlong MAX_UJLONG = (jlong)0x7fffffff << 32 | 0xffffffff;
 #ifndef TRACESTART
 #define TRACESTART MAX_UJLONG
 #endif
@@ -397,7 +393,6 @@ typedef int Type;
  *** case:
  ***/
 
-/*if[!MICROBLAZE32_BUILD]*/
 NOINLINE jlong float2ll_slow(float f) {
 	static const unsigned long LongMin_f = 0xdf000000L;
 	static const unsigned long LongMax_f = 0x5f000000L;
@@ -413,11 +408,7 @@ NOINLINE jlong float2ll_slow(float f) {
 		r = (jlong) f;
 	return r;
 }
-/*else[MICROBLAZE32_BUILD]*/
-//#define float2ll_slow float2l_slow
-/*end[MICROBLAZE32_BUILD]*/
 
-/*if[!MICROBLAZE32_BUILD]*/
 NOINLINE jlong double2ll_slow(double d) {
 #if ARM_FPA
 	static const ujlong LongMin_d = 0x00000000c3e00000LL;
@@ -439,9 +430,6 @@ NOINLINE jlong double2ll_slow(double d) {
 		r = (jlong) d;
 	return r;
 }
-/*else[MICROBLAZE32_BUILD]*/
-//#define double2ll_slow float2l_slow
-/*end[MICROBLAZE32_BUILD]*/
 
 NOINLINE int float2l_slow(float f) {
 	static const unsigned int IntegerMin_f = 0xcf000000L;
@@ -460,7 +448,6 @@ NOINLINE int float2l_slow(float f) {
 	return r;
 }
 
-/*if[!MICROBLAZE32_BUILD]*/
 NOINLINE int double2l_slow(double d) {
 #if ARM_FPA
 	static const ujlong IntegerMin_d = 0x00000000c1e00000LL;
@@ -482,9 +469,6 @@ NOINLINE int double2l_slow(double d) {
 		r = (int) d;
 	return r;
 }
-/*else[MICROBLAZE32_BUILD]*/
-//#define double2l_slow float2l_slow
-/*end[MICROBLAZE32_BUILD]*/
 /*end[FLOATS]*/
 
 /**
@@ -790,20 +774,12 @@ static void printCacheStats() {
 	fprintf(stderr, "----------------------------------");
 #ifdef PROFILING
 	count = instructionCount-lastStatCount;
-/*if[MICROBLAZE32_BUILD]*/
-	fprintf(stderr, " %ld.%02ld M Instructions ", count/1000000, (count % 1000000) / 10000);
-/*else[MICROBLAZE32_BUILD]*/
-//  fprintf(stderr, " %lld.%02lld M Instructions ", count/1000000, (count % 1000000) / 10000);
-/*end[MICROBLAZE32_BUILD]*/
+	fprintf(stderr, " %lld.%02lld M Instructions ", count/1000000, (count % 1000000) / 10000);
 	lastStatCount = instructionCount;
 #else
 #if TRACE
 	count = getBranchCount()-lastStatCount;
-/*if[MICROBLAZE32_BUILD]*/
-	fprintf(stderr, " %ld.02%ld M Branches ", count/1000000, (count % 1000000) / 10000);
-/*else[MICROBLAZE32_BUILD]*/
-//  fprintf(stderr, " %lld.02%lld M Branches ", count/1000000, (count % 1000000) / 10000);
-/*end[MICROBLAZE32_BUILD]*/
+	fprintf(stderr, " %lld.02%lld M Branches ", count/1000000, (count % 1000000) / 10000);
 	lastStatCount = getBranchCount();
 #endif /* TRACE */
 #endif /* PROFILING */
@@ -864,25 +840,63 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
   }
 */
 
+	// wait for everyone to reach stopVM0 before shutdown
+	sysBarrier();
 // FIXME: this must sync all boards and must work on x86 too
-#ifdef __MICROBLAZE__
 	// Shutdown master
-	if ((my_bid == AR_BOOT_MASTER_BID) && (!my_cid)) {
-		// wait for everyone to reach stopVM0 before shutdown
-		while (ar_cnt_get(0, NOC_COUNTER_WAKEUP3));
-#endif  /* __MICROBLAZE__ */
-	if (!squawk_inStop_g) {
-		squawk_inStop_g = true;
-		finalizeStreams();
+	if ((!my_bid) && (!my_cid)) {
+		if (!squawk_inStop_g) {
+			squawk_inStop_g = true;
+			finalizeStreams();
 
-		if (cleanup) {
-			freeBuffers();
-		}
+			if (cleanup) {
+				freeBuffers();
+			}
 /*if[!EMULATOR_LAUNCHER]*/
-		fprintf(stderr, "\n\n");
+			fprintf(stderr, "\n\n");
 #ifndef FLASH_MEMORY
-		printCacheStats();
+			printCacheStats();
 #endif /* !FLASH_MEMORY */
+			fprintf(stderr, "** VM on %d:%d stopped", my_bid, my_cid);
+#ifdef PROFILING
+			fprintf(stderr, format(" after %L instructions"), instructionCount);
+#endif /* PROFILING */
+#if TRACE
+			fprintf(stderr, format(" after %L branches"), getBranchCount());
+#endif /* TRACE */
+			fprintf(stderr, format(": exit code = %d ** "), exitCode);
+#if PLATFORM_TYPE_SOCKET
+			if (ioport != null) {
+				jlong average = (io_ops_count == 0 ? 0 : io_ops_time / io_ops_count);
+				fprintf(stderr, format(" (average time for %d I/O operation: %L ms)"), io_ops_count, average);
+			}
+#endif
+			fprintf(stderr, "\n");
+/*if[MICROBLAZE_BUILD]*/
+			fprintf(stderr, format("End: %L ms\n"), getMilliseconds());
+/*end[MICROBLAZE_BUILD]*/
+			fflush(stderr);
+/*else[EMULATOR_LAUNCHER]*/
+/*end[EMULATOR_LAUNCHER]*/
+
+#ifdef DB_DEBUG
+			db_vm_exiting();
+#endif
+		}
+#ifdef _MSC_VER
+		if (notrap) {
+			_asm{ int 3 };
+		}
+#endif
+
+#if PLATFORM_TYPE_NATIVE
+		IO_shutdown();
+#endif
+
+		osfinish();
+		squawk_inStop_g = false;
+		exit(exitCode);
+	} else {
 		fprintf(stderr, "** VM on %d:%d stopped", my_bid, my_cid);
 #ifdef PROFILING
 		fprintf(stderr, format(" after %L instructions"), instructionCount);
@@ -898,38 +912,9 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 		}
 #endif
 		fprintf(stderr, "\n");
-/*if[MICROBLAZE_BUILD]*/
-		fprintf(stderr, format("End: %L ms\n"), getMilliseconds());
-/*end[MICROBLAZE_BUILD]*/
-		fflush(stderr);
-/*else[EMULATOR_LAUNCHER]*/
-/*end[EMULATOR_LAUNCHER]*/
-
-#ifdef DB_DEBUG
-		db_vm_exiting();
-#endif
-	}
-#ifdef _MSC_VER
-	if (notrap) {
-		_asm{ int 3 };
-	}
-#endif
-
-#if PLATFORM_TYPE_NATIVE
-	IO_shutdown();
-#endif
-
-	osfinish();
-	squawk_inStop_g = false;
-	exit(exitCode);
-#ifdef __MICROBLAZE__
-	} else {
-		ar_cnt_incr(my_cid, AR_BOOT_MASTER_BID, 0, NOC_COUNTER_WAKEUP3, 1);
-		fprintf(stderr, "** VM on %d:%d stopped\n", my_bid, my_cid);
 		//halt
 		while(1);
 	}
-#endif  /* __MICROBLAZE__ */
 }
 
 /**
@@ -1751,15 +1736,11 @@ void verifyBuildFlags() {
 		exit(EXIT_FAILURE); \
 	} \
 
-/*if[!MICROBLAZE32_BUILD]*/
 #define assertEquals8(msg, expected, received)	  \
 	if (received != expected) { \
 		fprintf(stderr, "Test failed. Expected 0x%llx, received 0x%llx at %s:%d\n    %s\n", expected, received, __FILE__, __LINE__, msg); \
 		exit(EXIT_FAILURE); \
 	}
-/*else[MICROBLAZE32_BUILD]*/
-//#define assertEquals8 assertEquals4
-/*end[MICROBLAZE32_BUILD]*/
 
 void testLongs() {
 	const jlong PATTERN1 = 0xAAAAAAAAAAAAAAAALL;
@@ -1770,36 +1751,21 @@ void testLongs() {
 	jlong l1 = makeLong(PATTERN3, PATTERN3);
 	assertEquals8("makeLong() 1", PATTERN1, l1);
 
-/*if[MICROBLAZE32_BUILD]*/
-	assertEquals4("getHi() 1", 0, getHi(l1));
-/*else[MICROBLAZE32_BUILD]*/
-//  assertEquals4("getHi() 1", PATTERN3, getHi(l1));
-/*end[MICROBLAZE32_BUILD]*/
+	assertEquals4("getHi() 1", PATTERN3, getHi(l1));
 	assertEquals4("getLo() 1", PATTERN3, getLo(l1));
 
 	l1 = makeLong(PATTERN3, MAX);
 	assertEquals8("makeLong() 2", PATTERN2, l1);
 
-/*if[MICROBLAZE32_BUILD]*/
-	assertEquals4("getHi() 1", 0, getHi(l1));
-/*else[MICROBLAZE32_BUILD]*/
-//  assertEquals4("getHi() 2", PATTERN3, getHi(l1));
-/*end[MICROBLAZE32_BUILD]*/
+	assertEquals4("getHi() 2", PATTERN3, getHi(l1));
 	assertEquals4("getLo() 2", MAX,      getLo(l1));
 }
 
 void testUnaligned() {
-/*if[MICROBLAZE32_BUILD]*/
-	const jlong PATTERN1 = 0x11223344L;
-	const jlong PATTERN1_SWAP = 0x44332211L;
-	const jlong PATTERN2 = 0xAAAAAAAAL;
-	const jlong PATTERN2_SWAP = 0xAAAAAAAAL;
-/*else[MICROBLAZE32_BUILD]*/
-//  const jlong PATTERN1 = 0x1122334455667788LL;
-//  const jlong PATTERN1_SWAP = 0x8877665544332211LL;
-//  const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
-//  const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
-/*end[MICROBLAZE32_BUILD]*/
+	const jlong PATTERN1 = 0x1122334455667788LL;
+	const jlong PATTERN1_SWAP = 0x8877665544332211LL;
+	const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
+	const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
 	const int   PATTERN3 = 0x55667788;
 	const int   PATTERN3_SWAP = 0x88776655;
 	jlong tmp[2];
@@ -1902,17 +1868,10 @@ void testUnaligned() {
 }
 
 void testWordAt() {
-/*if[MICROBLAZE32_BUILD]*/
-	const jlong PATTERN1 = 0x11223344L;
-	const jlong PATTERN1_SWAP = 0x44332211L;
-	const jlong PATTERN2 = 0xAAAAAAAAL;
-	const jlong PATTERN2_SWAP = 0xAAAAAAAAL;
-/*else[MICROBLAZE32_BUILD]*/
-//  const jlong PATTERN1 = 0x1122334455667788LL;
-//  const jlong PATTERN1_SWAP = 0x8877665544332211LL;
-//  const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
-//  const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
-/*end[MICROBLAZE32_BUILD]*/
+	const jlong PATTERN1 = 0x1122334455667788LL;
+	const jlong PATTERN1_SWAP = 0x8877665544332211LL;
+	const jlong PATTERN2 = 0xAAAAAAAAFFFFFFFFLL;
+	const jlong PATTERN2_SWAP = 0xFFFFFFFFAAAAAAAALL;
 //    const int   PATTERN3 = 0x55667788;
 //    const int   PATTERN3_SWAP = 0x88776655;
 	jlong tmp;

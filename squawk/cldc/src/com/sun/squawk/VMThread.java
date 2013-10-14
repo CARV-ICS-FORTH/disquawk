@@ -2420,19 +2420,25 @@ VM.println("creating stack:");
                     addToRunnableThreadsQueue(currentThread);
                     reschedule();
                 }
-            } else {
+            }
 /*if[SMARTMONITORS]*/
+            else {
                 /*
                  * Remove the monitor if it was not used for a wait() operation.
                  */
                 Assert.that(monitor.owner == null && monitor.monitorQueue == null);
                 if (monitor.condvarQueue == null) {
-                    // TODO: Isn't condvarQueue==null enough? If there is no one currently waiting on the condvar, why keep the monitor around?
-                    //       The monitorWait will retry to aquire the monitor, so it should be safe.  There may be a performance advantage to keeping monitor around though.
+                    // TODO: Isn't condvarQueue==null enough? If there
+                    //       is no one currently waiting on the
+                    //       condvar, why keep the monitor around?
+                    //       The monitorWait will retry to aquire the
+                    //       monitor, so it should be safe.  There may
+                    //       be a performance advantage to keeping
+                    //       monitor around though.
                     //       Consider normal wait+notify chain:
                     //       Thread A Waits:
                     //          1) A.monitorEnter()
-                    //          2) A.montiorWait()
+                    //          2) A.monitorWait()
                     //          3) A.releaseMonitor()
                     //
                     //       Thread B notifies:
@@ -2446,8 +2452,8 @@ VM.println("creating stack:");
 //traceMonitor("monitorExit: GC.removeMonitor: ", monitor, object);
                     GC.removeMonitor(object, !monitor.hasHadWaiter);
                 }
-/*end[SMARTMONITORS]*/
             }
+/*end[SMARTMONITORS]*/
         }
 
         /*

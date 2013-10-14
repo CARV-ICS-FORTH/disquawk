@@ -166,6 +166,37 @@ FLOATINGPOINT_OBJS:=$(FLOATINGPOINT_OBJS:%.c=%.o)
 
 
 ################################################################################
+# Include math gcc intrinsics from the compiler-rt lib to support 64bit types
+################################################################################
+MATHINTRINSICS_SRCS = \
+	truncdfsf2.c \
+	adddf3.c \
+	clzsi2.c \
+	clzdi2.c \
+	comparedf2.c \
+	cmpdi2.c \
+	ctzsi2.c \
+	divdf3.c \
+	divdi3.c \
+	extendsfdf2.c \
+	fixsfdi.c \
+	fixdfdi.c \
+	fixdfsi.c \
+	floatdidf.c \
+	floatdisf.c \
+	floatsidf.c \
+	muldf3.c \
+	muldi3.c \
+	moddi3.c \
+	subdf3.c \
+	udivmoddi4.c \
+	ucmpdi2.c
+MATHINTRINSICS_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(RTS_SRC)/math_intrinsics/,$(MATHINTRINSICS_SRCS))
+MATHINTRINSICS_OBJS:=$(MATHINTRINSICS_OBJS:%.c=%.o)
+################################################################################
+
+
+################################################################################
 # Define "pretty" prints
 ################################################################################
 STR_CLN = "[1m[ [31mCLN [0;1m][0m"
@@ -184,7 +215,9 @@ STR_DEP = "[1m[ [37mDEP [0;1m][0m"
 # Define the target elf file and its dependencies
 ################################################################################
 ELF=${BUILD_DIR}/squawk.elf
-ELF_OBJS = $(MYRMICS_OBJS)\
+ELF_OBJS = \
+	$(MATHINTRINSICS_OBJS)\
+	$(MYRMICS_OBJS)\
 	$(FLOATINGPOINT_OBJS)\
 	$(BUILD_DIR)/obj/squawk_entry_point.o\
 	$(BUILD_DIR)/obj/vmcore/src/vm/squawk.o\
@@ -295,8 +328,7 @@ vmcore/src/vm/buildflags.h:
 
 vmcore/src/vm/rom.h: squawk.suite
 
-# os.c includes os_math.c, as a result there is a dependency
-$(RTS_SRC)/os.c: $(RTS_SRC)/os_math.c
+vmcore/src/rts/formic/jni_md.h: vmcore/src/vm/platform.h
 ################################################################################
 
 
@@ -386,7 +418,8 @@ suite_addr.txt: $(MYRMICS_SRC)/linker.java.mb.ld $(ELF_OBJS) $(MYRMICS_LINK_OBJS
 	$(AT)echo $(STR_LNK) $@
 	$(AT)mb-ld -N -T $< $(ELF_OBJS) $(LDFLAGS) -Map $(BUILD_DIR)/link.map \
 		-o $(ELF)
-	$(AT)mb-objdump -d -S $(ELF) | grep linker_end_code | awk '{print $$8}' \
+	$(AT)mb-objdump -d -S $(ELF) > $(ELF:%.elf=%.dump)
+	$(AT)grep linker_end_code $(ELF:%.elf=%.dump) | awk '{print $$8}' \
 		| tr a-z A-Z | head -n 1 > $@
 	$(AT)rm -rf $(ELF)
 ################################################################################
@@ -457,7 +490,6 @@ clean:
 			../formic-apps/*/classes\
 			$(RTS_SRC)/*.c.spp.preprocessed\
 			$(RTS_SRC)/os.c\
-			$(RTS_SRC)/os_math.c\
 			$(APP)/classes\
 			run.log
 

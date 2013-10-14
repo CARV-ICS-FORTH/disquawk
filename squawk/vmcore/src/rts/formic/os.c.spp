@@ -25,6 +25,12 @@
 #define TRUE 1
 #define FALSE 0
 
+#define TOTAL_CORES \
+	((AR_FORMIC_MAX_X - AR_FORMIC_MIN_X + 1) * \
+	(AR_FORMIC_MAX_Y - AR_FORMIC_MIN_Y + 1) * \
+	(AR_FORMIC_MAX_Z - AR_FORMIC_MIN_Z + 1) * \
+	 AR_FORMIC_CORES_PER_BOARD)
+
 /* Disable non volatile memory */
 #define DEFAULT_NVM_SIZE   0
 
@@ -48,7 +54,7 @@
 
 /* map various functions to myrmics' ones */
 #define fprintf(s, ...) printf(__VA_ARGS__)
-#define fflush(s)
+#define fflush(s)       ar_uart_flush()
 #define strlen          kt_strlen
 #define strncpy         kt_strncpy
 #define strncmp         kt_strncmp
@@ -62,7 +68,7 @@
 /* Myrmics uses the ar_float_sqrt and ar_float_pow as sqrt and pow
  * respectively. However to be consistent with libc those should be
  * sqrtf and powf.
- * Reference os_math.h and os_math.c.spp for more info.
+ * Reference os_math.h and math_intrinsics/ for more info.
  */
 #ifdef pow
 # undef  pow
@@ -210,7 +216,87 @@ unsigned int get_flash_size(void) { return (unsigned int)&__linker_squawk_suite_
 /**
  * Called by Squawk when a back branch occurs.
  */
-INLINE void osbackbranch() {}
+//INLINE void osbackbranch() {}
+#define osbackbranch()
+
+#if 1
+/**
+ * Dissemination barrier (from: Two Algorithms for Barrier
+ * Synchronization) implementation using bitfields and atomic
+ * increment
+ *
+ *   Cores  |  Ticks
+ * ---------+---------
+ *       1  |     11
+ *       8  |    368
+ *      32  |    674
+ *     512  |   1248
+ */
+void sysBarrier() {
+	register int i, tmp, log2_cores;
+	register int partner_cid, partner_bid;
+
+	if(TOTAL_CORES==1)
+		return;
+
+	// This could also be calculated at initialization
+	log2_cores = int_log2(TOTAL_CORES) + TOTAL_CORES%2;
+
+	for (i=0; i<=log2_cores; ++i) {
+		// core + 2^i % P
+		tmp = ((my_bid<<3 | my_cid)+kt_int_pow(2,i+1))%TOTAL_CORES;
+		partner_bid = tmp >> 3;
+		partner_cid = tmp & 0x7;
+		ar_cnt_incr(my_cid, partner_bid, partner_cid, NOC_COUNTER_WAKEUP3, 1<<i);
+		while (!(ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3) & 1<<i));
+	}
+
+	// reset the counter
+	ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, 0);
+}
+#else
+/**
+ * Implements a simple, centralized barrier using the counters
+ *
+ *   Cores  |  Ticks
+ * ---------+---------
+ *       8  |    509
+ *     512  |  22000
+ */
+void sysBarrier() {
+	int i, x, y, z, slave_bid;
+
+	// Compute how many cores should be activated
+
+	// The master/coordinator
+	if((my_bid == AR_BOOT_MASTER_BID) && !my_cid) {
+
+		while (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));
+
+		// Re-Initialize the barrier counter
+		ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, 1-TOTAL_CORES);
+
+		// Make Formic slaves reach their boot barrier
+		for (x = AR_FORMIC_MIN_X; x <= AR_FORMIC_MAX_X; x++)
+			for (y = AR_FORMIC_MIN_Y; y <= AR_FORMIC_MAX_Y; y++)
+				for (z = AR_FORMIC_MIN_Z; z <= AR_FORMIC_MAX_Z; z++)
+					for (i = 0; i < AR_FORMIC_CORES_PER_BOARD; i++) {
+						slave_bid = (x << 4) | (y << 2) | z;
+
+						if (!((slave_bid == my_bid) && (i == my_cid)))
+							ar_cnt_incr(my_cid, slave_bid, i, NOC_COUNTER_WAKEUP3, 1);
+					}
+	} else { // the slaves
+		// Initialize the local barrier counter
+		ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, -1);
+		// Notify master we are here
+		ar_cnt_incr(my_cid, AR_BOOT_MASTER_BID, 0, NOC_COUNTER_WAKEUP3, 1);
+		// Block until master indicates all cores have reached the barrier
+		while (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));
+	}
+}
+#endif
+
 #if 0
 
 /**
@@ -229,9 +315,3 @@ INLINE void osbackbranch() {}
 long sysconf(int code) {}
 
 #endif
-
-// If there are no available math macro implementations include them
-// (this is expected to be slower)
-/*if[!LIBGCC]*/
-#include "os_math.c"
-/*end[LIBGCC]*/

@@ -282,9 +282,7 @@ public class VM implements GlobalStaticFields {
 		 * Initialize the C string literals
 		 */
 		initializeLiterals();
-/*if[MICROBLAZE_BUILD]*/
 		NativeUnsafe.sysGlobalMemoryProtection();
-/*end[MICROBLAZE_BUILD]*/
 
 		vmbufferDecoder  = new VMBufferDecoder();
 		outOfMemoryError = new OutOfMemoryError();

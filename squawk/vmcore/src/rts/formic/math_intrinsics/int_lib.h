@@ -16,6 +16,35 @@
 #ifndef INT_LIB_H
 #define INT_LIB_H
 
+#include "../jni.h"
+
+//zakkak:
+/* This is needed by the compiler-rt to understand that this is a
+ * little endian platform */
+#define _YUGA_LITTLE_ENDIAN 1
+#define _YUGA_BIG_ENDIAN    0
+
+/* Limits for integral types. We have to redefine it because we don't
+ * use stdint.h */
+#undef INT64_C
+#undef UINT32_C
+#undef UINT64_C
+#define INT64_C(c)  c ## LL
+#define UINT32_C(c) c
+#define UINT64_C(c) c ## ULL
+#undef INT32_MIN
+#define INT32_MIN              (-2147483647-1)
+#undef INT32_MAX
+#define INT32_MAX              (2147483647)
+#undef UINT32_MAX
+#define UINT32_MAX             (4294967295U)
+#undef INT64_MIN
+#define INT64_MIN              (-__INT64_C(9223372036854775807)-1)
+#undef INT64_MAX
+#define INT64_MAX              (__INT64_C(9223372036854775807))
+#undef UINT64_MAX
+#define UINT64_MAX             (__UINT64_C(18446744073709551615))
+
 /* Assumption: Signed integral is 2's complement. */
 /* Assumption: Right shift of signed negative is arithmetic shift. */
 /* Assumption: Endianness is little or big (not mixed). */

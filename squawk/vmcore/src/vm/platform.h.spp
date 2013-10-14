@@ -23,6 +23,9 @@
  * information or have any questions.
  */
 
+#ifndef _VMCORE_VM_PLATFORM_H_
+#define _VMCORE_VM_PLATFORM_H_
+
 /*if[!MICROBLAZE_BUILD]*/
 #include <stddef.h>
 #include <stdio.h>
@@ -240,3 +243,5 @@
 #define	min(a, b) 		((a) > (b) ? (b) : (a))
 #define	abs(x)			((x) >= 0 ? (x) : -(x))
 #endif
+
+#endif /* _VMCORE_VM_PLATFORM_H_ */

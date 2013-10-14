@@ -983,22 +983,10 @@ public class Converter {
 			String className          = tmp.getClassName();
 			out.println("\t\tputObjectForCStringLiteral(" + key + ", " + className + ", \"" + literal + "\");");
 		}
+		out.println("\t}");
 		// TODO: We need to flush the cache here so every core sees the written values
 		out.println();
-		// out.println("\t\t// delay to make sure the cnt is set by the workers");
-		// out.println("\t\tar_timer_busy_wait_msec(100);");
-		out.println("\t\tfor (i = 1; i < AR_FORMIC_CORES_PER_BOARD; i++)");
-		out.println("\t\t\tar_cnt_incr(my_cid, my_bid, i, NOC_COUNTER_WAKEUP3, 1);");
-		out.println();
-		out.println("\t} else { // wait for the \"MASTER\" core");
-		out.println();
-		// Initialize a boot barrier counter
-		out.println("\t\tar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, -1);");
-		// Block on barrier, until master indicates all cores have booted
-		out.println("\t\twhile (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));");
-		out.println();
-		out.println("\t}");
-
+		out.println("\tsysBarrier();");
 		out.println("}");
 
 

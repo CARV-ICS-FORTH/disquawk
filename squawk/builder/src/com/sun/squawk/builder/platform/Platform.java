@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -47,30 +47,32 @@ public abstract class Platform {
         String osArch = getHostArchitecture().toLowerCase();
 
 		if (isX86Architecture(osArch)) {
-			if (osName.startsWith("windows")) {
-				return new Windows_X86(env);
-			} else if (osName.startsWith("sunos")) {
-				return new SunOS_X86(env);
-			} else if (osName.startsWith("linux")) {
+			// if (osName.startsWith("windows")) {
+			// 	return new Windows_X86(env);
+			// } else if (osName.startsWith("sunos")) {
+			// 	return new SunOS_X86(env);
+			// } else
+			if (osName.startsWith("linux")) {
 				return new Linux_X86(env);
-			} else if (osName.startsWith("mac os x")) {
-				return new MacOSX_X86(env); 
-			} 
-		}
-		if (osArch.equals("ppc")) {
-			if (osName.startsWith("mac os x")) {
-				return new MacOSX_PPC(env);
-			} else if (osName.startsWith("linux")) {
-				return new Linux_PPC(env);
-            } else if (osName.startsWith("vxworks")) {
-                return new VxWorks_PPC(env);
 			}
+			// else if (osName.startsWith("mac os x")) {
+			// 	return new MacOSX_X86(env);
+			// }
 		}
-		if (osArch.equals("sparc")) {
-			if (osName.startsWith("sunos")) {
-				return new SunOS_Sparc(env);
-			}
-		}
+		// if (osArch.equals("ppc")) {
+		// 	if (osName.startsWith("mac os x")) {
+		// 		return new MacOSX_PPC(env);
+		// 	} else if (osName.startsWith("linux")) {
+		// 		return new Linux_PPC(env);
+        //     } else if (osName.startsWith("vxworks")) {
+        //         return new VxWorks_PPC(env);
+		// 	}
+		// }
+		// if (osArch.equals("sparc")) {
+		// 	if (osName.startsWith("sunos")) {
+		// 		return new SunOS_Sparc(env);
+		// 	}
+		// }
 		throw new RuntimeException("Unsupported/Unknown host os name \"" + osName + "\" and architecture \"" + osArch + "\" combination.");
     }
 
@@ -91,7 +93,7 @@ public abstract class Platform {
     public static String getHostArchitecture() {
         return System.getProperty("os.arch");
     }
-    
+
     /**
      * Returns true on any varient of x86 architectures and OSs
      *
@@ -170,7 +172,7 @@ public abstract class Platform {
     public final String getArchitecture() {
         return getHostArchitecture();
     }
-    
+
     /**
      * Gets a string that describes the concrete Platform.
      *
@@ -204,7 +206,7 @@ public abstract class Platform {
     public boolean isBigEndian() {
         return false;
     }
-    
+
     public boolean isMacOsX() {
         return false;
     }

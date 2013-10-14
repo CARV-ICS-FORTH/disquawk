@@ -25,6 +25,8 @@
 #ifndef _JAVASOFT_JNI_MD_H_
 #define _JAVASOFT_JNI_MD_H_
 
+#include "../../vm/platform.h"
+
 #define JNIEXPORT
 #define JNIIMPORT
 #define JNICALL
