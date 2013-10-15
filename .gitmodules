@@ -1,0 +1,3 @@
+[submodule "squawk/vmcore/src/rts/formic/myrmics"]
+	path = squawk/vmcore/src/rts/formic/myrmics
+	url = /home/zakkak/shark/.git_repos/myrmics.git
