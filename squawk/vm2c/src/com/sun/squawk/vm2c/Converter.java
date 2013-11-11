@@ -403,7 +403,12 @@ public class Converter {
 
 		if (declsOnly) {
 			for (MethodSymbol method : decls) {
-				emitFunctionDeclaration(out, method);
+				Map<String, String> annotations =
+					new AnnotationParser().parse(methods.get(method));
+				String macro = annotations.get("macro");
+				// Don't emit function declarations for MACROs
+				if (macro == null)
+					emitFunctionDeclaration(out, method);
 			}
 		}
 	}
@@ -963,7 +968,6 @@ public class Converter {
 
 		out.println();
 		out.println("void initializeLiterals() {");
-		out.println("\tint i, j;");
 		out.println();
 		// This should be performed only by one core and all others
 		// should wait till it finishes

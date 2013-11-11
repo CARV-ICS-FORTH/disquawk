@@ -45,7 +45,7 @@ static void setDeepSleepEventOutstanding(long long target) {
  * Sleep Squawk for specified milliseconds
  */
 void osMilliSleep(long long millisecondsToWait) {
-    long long target = ((long long) getMilliseconds()) + millisecondsToWait;
+    long long target = ((long long) sysTimeMillis()) + millisecondsToWait;
     if (target <= 0) {
         target = 0x7FFFFFFFFFFFFFFFLL; // overflow detected
     }

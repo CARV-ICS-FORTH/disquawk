@@ -904,7 +904,7 @@ class NativeVerifierHelper {
 			return;
 		}
 
-		case com_sun_squawk_NativeUnsafe$sysGlobalMemoryProtection: {
+		case com_sun_squawk_NativeUnsafe$globalMemoryProtection: {
 			Assert.that(frame.isStackEmpty());
 			return;
 		}
@@ -1015,6 +1015,18 @@ class NativeVerifierHelper {
 
 		case Native.com_sun_squawk_VM$initializeLiterals: {
 			Assert.that(frame.isStackEmpty());
+			return;
+		}
+
+		case Native.com_sun_squawk_VM$getCore: {
+			Assert.that(frame.isStackEmpty());
+			frame.push(INT); // int
+			return;
+		}
+
+		case Native.com_sun_squawk_VM$getIsland: {
+			Assert.that(frame.isStackEmpty());
+			frame.push(INT); // int
 			return;
 		}
 

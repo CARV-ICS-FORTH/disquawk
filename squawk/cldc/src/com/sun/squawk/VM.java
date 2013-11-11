@@ -282,7 +282,7 @@ public class VM implements GlobalStaticFields {
 		 * Initialize the C string literals
 		 */
 		initializeLiterals();
-		NativeUnsafe.sysGlobalMemoryProtection();
+		NativeUnsafe.globalMemoryProtection();
 
 		vmbufferDecoder  = new VMBufferDecoder();
 		outOfMemoryError = new OutOfMemoryError();
@@ -1323,7 +1323,24 @@ public class VM implements GlobalStaticFields {
 		}
 	}
 
+	/**
+	 * Initializes the String literals for this VM instance
+	 */
 	native static void initializeLiterals();
+
+	/**
+	 * Returns the core id running this VM instance.
+	 *
+	 * @return the core id
+	 */
+	native static int getCore();
+
+	/**
+	 * Returns the island (numa/board) id running this VM instance.
+	 *
+	 * @return the island id
+	 */
+	native static int getIsland();
 
 	/*-----------------------------------------------------------------------*\
 	 *                      Floating point operations                        *

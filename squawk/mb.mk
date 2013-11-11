@@ -13,6 +13,26 @@
 
 
 ################################################################################
+# Other variables
+################################################################################
+# Make APP point to a directory containing a Makefile with Formic.suite target
+#APP?=../formic-tests/HelloWorld
+APP?=../formic-tests/Linpack
+AT?=@
+#APP?=../formic-tests/Double2String
+BUILD_DIR=build
+RTS_SRC=vmcore/src/rts/formic
+MYRMICS_SRC=$(RTS_SRC)/myrmics/
+ARCH=formic
+BUILDER=./d -override:build-mb.properties
+#BUILDER_FLAGS=-verbose -assume -tracing #This is for debug purposes
+BUILDER_FLAGS=-comp:mb-gcc -o3 -cflags:-I./$(MYRMICS_SRC)/include
+# The starting address of the suites in memory (this is automatically
+# calculated later)
+SUITES_ADDR:=DEAD
+################################################################################
+
+################################################################################
 # Define the compilation flags
 ################################################################################
 # All the available/required flags
@@ -69,6 +89,7 @@ CFLAGS =\
 	-mxl-float-convert \
 	-mxl-float-sqrt \
 	-Wall \
+	-Wno-unused-function \
 	-I$(MYRMICS_SRC)/include \
 	-I$(RTS_SRC) \
 	-D_GNU_SOURCE \
@@ -88,28 +109,8 @@ LDFLAGS=--format elf32-microblazele --oformat elf32-microblazele
 
 
 ################################################################################
-# Other variables
-################################################################################
-# Make APP point to a directory containing a Makefile with Formic.suite target
-#APP?=../formic-tests/HelloWorld
-APP?=../formic-tests/Linpack
-AT?=@
-#APP?=../formic-tests/Double2String
-BUILD_DIR=build
-RTS_SRC=vmcore/src/rts/formic
-ARCH=formic
-BUILDER=./d -override:build-mb.properties
-#BUILDER_FLAGS=-verbose -assume -tracing #This is for debug purposes
-BUILDER_FLAGS=-comp:mb-gcc -o3 -cflags:-I./$(MYRMICS_SRC)/include
-# The starting address of the suites in memory (this is automatically
-# calculated later)
-SUITES_ADDR:=DEAD
-################################################################################
-
-################################################################################
 # Define the dependencies on MYRMICS
 ################################################################################
-MYRMICS_SRC=$(RTS_SRC)/myrmics/src
 MYRMICS_LINK_OBJS =\
 	arch/mb/vectors.o \
 	arch/mb/boot.o
@@ -351,13 +352,13 @@ vmcore/src/vm/vm2c.c.spp: vm2c/classes.jar cldc/classes.jar \
 run: $(ELF)
 	$(AT)echo $(STR_RUN) $<
 	$(AT)rm -f run.log
-	$(AT)$(MYRMICS_SRC)/../../client -pwr_formic -boot formic -elf $(ELF) \
+	$(AT)$(MYRMICS_SRC)/../client -pwr_formic -boot formic -elf $(ELF) \
 		| tee run.log
 
 tracerun: $(ELF) map
 	$(AT)echo $(STR_RUN) $<
 	$(AT)rm -f run.log
-	$(AT)$(MYRMICS_SRC)/../../client -pwr_formic -boot formic -elf $(ELF) \
+	$(AT)$(MYRMICS_SRC)/../client -pwr_formic -boot formic -elf $(ELF) \
 		| ./traceviewer.rb | tee run.log
 
 # Create the bootstrap suite

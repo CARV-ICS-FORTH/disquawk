@@ -62,7 +62,7 @@ public final class NativeUnsafe {
 /*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
 /*end[JAVA5SYNTAX]*/
-    public static boolean sysGlobalMemoryProtection() throws NativePragma {
+    public static boolean globalMemoryProtection() throws NativePragma {
       return true;
     }
 /*end[MICROBLAZE_BUILD]*/

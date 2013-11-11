@@ -4351,17 +4351,29 @@ static int collectGarbage(Address, Address, int);
 		int value = popInt();
 		int expected = popInt();
 		Address obj = popAddress();
-		int res = sys_compare_and_swap(obj, expected, value);
+		int res = sysCAS(obj, expected, value);
 		pushInt(res);
 		break;
 	}
 
 /*if[MICROBLAZE_BUILD]*/
-	case Native_com_sun_squawk_NativeUnsafe_sysGlobalMemoryProtection: {
+	case Native_com_sun_squawk_NativeUnsafe_globalMemoryProtection: {
 		sysGlobalMemoryProtection();
 		break;
 	}
 /*end[MICROBLAZE_BUILD]*/
+
+	case Native_com_sun_squawk_VM_getCore: {
+		int res = sysGetCore();
+		pushInt(res);
+		break;
+	}
+
+	case Native_com_sun_squawk_VM_getIsland: {
+		int res = sysGetIsland();
+		pushInt(res);
+		break;
+	}
 
 	case Native_com_sun_squawk_VM_allocate: {
 		int     alth   = popInt();

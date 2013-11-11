@@ -842,9 +842,8 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 
 	// wait for everyone to reach stopVM0 before shutdown
 	sysBarrier();
-// FIXME: this must sync all boards and must work on x86 too
 	// Shutdown master
-	if ((!my_bid) && (!my_cid)) {
+	if ((!sysGetIsland()) && (!sysGetCore())) {
 		if (!squawk_inStop_g) {
 			squawk_inStop_g = true;
 			finalizeStreams();
@@ -857,7 +856,7 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 #ifndef FLASH_MEMORY
 			printCacheStats();
 #endif /* !FLASH_MEMORY */
-			fprintf(stderr, "** VM on %d:%d stopped", my_bid, my_cid);
+			fprintf(stderr, "** VM on %d:%d stopped", sysGetIsland(), sysGetCore());
 #ifdef PROFILING
 			fprintf(stderr, format(" after %L instructions"), instructionCount);
 #endif /* PROFILING */
@@ -873,7 +872,7 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 #endif
 			fprintf(stderr, "\n");
 /*if[MICROBLAZE_BUILD]*/
-			fprintf(stderr, format("End: %L ms\n"), getMilliseconds());
+			fprintf(stderr, format("End: %L ms\n"), sysTimeMillis());
 /*end[MICROBLAZE_BUILD]*/
 			fflush(stderr);
 /*else[EMULATOR_LAUNCHER]*/
@@ -897,7 +896,7 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 		squawk_inStop_g = false;
 		exit(exitCode);
 	} else {
-		fprintf(stderr, "** VM on %d:%d stopped", my_bid, my_cid);
+		fprintf(stderr, "** VM on %d:%d stopped", sysGetIsland(), sysGetCore());
 #ifdef PROFILING
 		fprintf(stderr, format(" after %L instructions"), instructionCount);
 #endif /* PROFILING */
@@ -2193,7 +2192,7 @@ void Squawk_continue() {
 
 void printRange(char* label, void* start, void* end) {
 	fprintf(stderr, "%s  : %p~%p [size:%d] %d:%d\n",
-	        label, start, end, ((char*)end - (char*)start), my_bid, my_cid);
+	        label, start, end, ((char*)end - (char*)start), sysGetIsland(), sysGetCore());
 }
 
 int printValueInRange(Address value, char* valueName, Address low, Address high, char* rangeName) {

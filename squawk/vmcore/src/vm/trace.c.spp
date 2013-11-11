@@ -39,7 +39,7 @@ boolean openTraceFile() {
 		fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*:%d:%d\n"),
 		        com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
 		        com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd,
-		        SQUAWK_64 ? 64 : 32, my_bid, my_cid);
+		        SQUAWK_64 ? 64 : 32, sysGetIsland, sysGetCore);
 /*else[MICROBLAZE_BUILD]*/
 //      fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*%d*:%d:%d\n"),
 //              com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,

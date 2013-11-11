@@ -256,6 +256,8 @@ public final class Native {
     public final static int com_sun_squawk_Lisp2Bitmap$testBitFor         = 165;
     public final static int com_sun_squawk_VM$lcmp                        = 166;
     public final static int com_sun_squawk_NativeUnsafe$compareAndSwapInt = 167;
-    public final static int com_sun_squawk_NativeUnsafe$sysGlobalMemoryProtection = 168;
-    public final static int ENTRY_COUNT                                   = 169;
+    public final static int com_sun_squawk_NativeUnsafe$globalMemoryProtection = 168;
+    public final static int com_sun_squawk_VM$getCore                     = 169;
+    public final static int com_sun_squawk_VM$getIsland                   = 170;
+    public final static int ENTRY_COUNT                                   = 171;
 }
