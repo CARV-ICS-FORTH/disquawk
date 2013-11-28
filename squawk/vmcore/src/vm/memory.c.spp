@@ -24,7 +24,7 @@
  */
 
 /*-----------------------------------------------------------------------*\
- *                                     DEFNS                             *
+ *                                   DEFINES                             *
 \*-----------------------------------------------------------------------*/
 
 //#if PLATFORM_UNALIGNED_LOADS
@@ -657,17 +657,19 @@ void checkOneAddress(Address ea, int size, Address addr);
  */
 /*MAC*/ void setObjectAndUpdateWriteBarrier(Address $base, Offset $offset, Address $value) {
 	setObject($base, $offset, $value);
+/* FIXME: Mark object as "shared", since it can escape at anytime. */
+
 /*if[WRITE_BARRIER]*/
 	{
 /*if[MACROIZE]*/
 /*else[MACROIZE]*/
-//              void setBitFor(Address);
+//		void setBitFor(Address);
 /*end[MACROIZE]*/
 		Address ea;
 /*if[SQUAWK_64]*/
 		ea = (&((long *)$base)[$offset]);
 /*else[SQUAWK_64]*/
-//              ea = (&((int *)$base)[$offset]);
+//		ea = (&((int *)$base)[$offset]);
 /*end[SQUAWK_64]*/
 
 		assume(!com_sun_squawk_GC_collecting || loeq(ea, com_sun_squawk_GC_heapStart) || hi(ea, com_sun_squawk_GC_heapEnd));
@@ -1188,6 +1190,11 @@ Address allocate(int size, Address klass, int arrayLength) {
 	Address oop;
 	assume(size >= 0);
 
+#ifdef __MICROBLAZE__
+	// make sure size is a multiple of the cache line size
+	size = roundUp(size, sysGetCachelineSize());
+#endif
+
 	if (unlikely(lt(available, size))) {
 
 		if (available < 0) {
@@ -1209,12 +1216,15 @@ Address allocate(int size, Address klass, int arrayLength) {
 		}
 	}
 
+	// Add the required info (class pointer) in front of the address
+	// we will return
 	if (arrayLength == -1) {
 		oop = Address_add(block, HDR_basicHeaderSize);
 		setObject(oop, HDR_klass, klass);
 	} else {
 		oop = Address_add(block, HDR_arrayHeaderSize);
 		setObject(oop, HDR_klass, klass);
+		// for arrays also add the array length
 		if (!setArrayLength(oop, arrayLength)) {
 			return 0;
 		}

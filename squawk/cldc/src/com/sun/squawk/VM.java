@@ -2559,11 +2559,12 @@ public class VM implements GlobalStaticFields {
 	 *                           As such, this method <b>must not</b> use any local variables.
 	 */
 	public static void collectGarbage(boolean forceFullGC)  throws NotInlinedPragma {
-		if (VMThread.currentThread().isServiceThread()) {
-			GC.collectGarbage(forceFullGC);
-		} else {
-			executeGC(forceFullGC);
-		}
+		// FIXME: We temporarily disable garbage collection
+		// if (VMThread.currentThread().isServiceThread()) {
+		// 	GC.collectGarbage(forceFullGC);
+		// } else {
+		// 	executeGC(forceFullGC);
+		// }
 	}
 
 	/**

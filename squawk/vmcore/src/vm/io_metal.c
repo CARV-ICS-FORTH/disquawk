@@ -293,7 +293,7 @@ static void ioExecute(void) {
             // finish even though they are runnable
             res = getEvent(true, sleepManagerRunning);
             // improve fairness of thread scheduling - see bugzilla #568
-            bc = -TIMEQUANTA;
+            bc_g = -TIMEQUANTA;
             break;
         }
 

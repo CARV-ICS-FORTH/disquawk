@@ -22,6 +22,15 @@
  * additional information or have any questions.
  */
 
+/**
+ * @file   os.c.spp
+ * @author Foivos S. Zakkak <zakkak@ics.forth.gr>
+ * @date   Thu Oct 24 17:58:30 2013
+ *
+ * @brief  Contains
+ *
+ *
+ */
 #define TRUE 1
 #define FALSE 0
 
@@ -34,7 +43,7 @@
 /* Disable non volatile memory */
 #define DEFAULT_NVM_SIZE   0
 
-#define DEFAULT_RAM_SIZE   MM_MB_KERNEL_SIZE
+#define DEFAULT_RAM_SIZE   MM_MB_SLICE_SIZE
 
 /* Try to use the normal C conversions */
 #define C_FP_CONVERSIONS_OK 0
@@ -82,6 +91,43 @@
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
 
+/**
+ * @brief Write back data from the local cache.
+ * Calculates the _home_ board of the address and issues a DMA transfer to its
+ * DRAM erasing the dirty bit on the local cache.
+ *
+ * @param address   The address to b written back.
+ * @param size      The size of the data to write back.
+ * @param blocking  Whether to block and wait for an acknowledgment
+ *
+ * @warning Not tested
+ */
+/* void sysFlushData(void * address, int size, int blocking) {
+ * 	int dst_bid;
+ *
+ * 	// Align to cache line size
+ * 	address &= ~(AR_DMA_ALIGN-1);
+ *
+ * 	dst_bid = 0;
+ * 	ar_dma_with_ack(my_cid,
+ * 	                my_bid, my_cid, address,  // Source
+ * 	                dst_bid, 0xC, address & , // Destination
+ * 	                my_bid, my_cid, ack_cnt,  // Acknowledgment
+ * 	                size, 1, 0, 0);
+ *
+ * 	// wait t
+ * } */
+
+void sysInvalidateCacheLine(void * address) {
+
+}
+
+/**
+ * @brief Terminate process.
+ * Terminates the process and shuts formic off.
+ *
+ * @param status The exit status
+ */
 void exit(int status) {
 	kt_printf("Board=%d Core=%d : Exited with %d\n",
 	          my_bid, my_cid, status);
@@ -110,13 +156,13 @@ extern int __linker_squawk_suite_end;
  */
 INLINE void* sysValloc(size_t size) {
 
-	if (size>MM_MB_KERNEL_SIZE) {
+	if (size>MM_MB_SLICE_SIZE) {
 		fprintf(stderr, "Requesting %d Bytes but there are only %d available\n",
-		        size, MM_MB_KERNEL_SIZE);
+		        size, MM_MB_SLICE_SIZE);
 		return NULL;
 	}
 
-	return (void*)mm_va_kernel_base(my_cid);
+	return (void*)mm_slice_base(my_cid);
 }
 
 /**
@@ -124,11 +170,17 @@ INLINE void* sysValloc(size_t size) {
  *
  * @param ptr to to chunk allocated by sysValloc
  */
-#define sysVallocFree(x)
+#define sysVallocFree(ptr)
 
-INLINE int sysGetPageSize(void) {
-	return MM_PAGE_SIZE;
-}
+/**
+ * @return the page size
+ */
+#define sysGetPageSize() MM_PAGE_SIZE // defined in memory_management.h
+
+/**
+ * @return the cache line size
+ */
+#define sysGetCachelineSize() MM_CACHELINE_SIZE // defined in memory_management.h
 
 /**
  * Return the current time in microseconds.
@@ -141,22 +193,24 @@ jlong sysTimeMicros() {
 }
 
 /**
- * Compare and swap.
- * Returns 1 if succeeded, 0 otherwise
- */
-INLINE int sys_compare_and_swap(void* ptr, int old, int new) {
-	return ar_compare_and_swap(ptr, old, new);
-}
-
-/**
- * Return the current time in milliseconds.
+ * @return the current time in milliseconds.
  */
 INLINE jlong sysTimeMillis(void) {
 	jlong res = sysTimeMicros();
 	res = res / 1000;
 	return res;
 }
-#define getMilliseconds sysTimeMillis
+
+/**
+ * Compare and swap.
+ *
+ * @todo This is dummy, need to implement it right using the JVM design.
+ *
+ * @return 1 if succeeded, 0 otherwise
+ */
+INLINE int sysCAS(void* ptr, int old, int new) {
+	return ar_compare_and_swap(ptr, old, new);
+}
 
 /**
  * Sets a region of memory read-only or reverts it to read & write.
@@ -175,7 +229,7 @@ INLINE void sysGlobalMemoryProtection() {
   ar_art_install_region(1,                         // region ID
                         MM_MB_VA_CODE_PAGE,        // base
                         // size (Till the start of the stack)
-                        MM_MB_VA_STACK_PAGE-MM_MB_VA_CODE_PAGE,
+                        MM_MB_VA_STACK_BASE-MM_MB_VA_CODE_PAGE,
                         1,                         // cacheable
                         1,                         // read only
                         1,                         // executable
@@ -200,18 +254,21 @@ INLINE void sysGlobalMemoryProtection() {
  * Called while Squawk exits. For the eSPOT and bSPOT this function disables
  * interrupts and restarts Squawk.
  */
-void osfinish() {}
+//void osfinish() {}
+#define osfinish()
 
 /**
- * Return the start address of the flash memory
+ * @return the start address of the flash memory
  */
-unsigned int get_flash_base(void) { return 0; }
+//unsigned int get_flash_base(void) { return 0; }
+#define get_flash_base() 0
 
 /**
- * Return the size of the flash memory
+ * @return the size of the flash memory
  */
-//unsigned int get_flash_size(void) { return &__linker_end_bss; }
-unsigned int get_flash_size(void) { return (unsigned int)&__linker_squawk_suite_end; }
+unsigned int get_flash_size(void) {
+	return (unsigned int)&__linker_squawk_suite_end;
+}
 
 /**
  * Called by Squawk when a back branch occurs.
@@ -221,16 +278,19 @@ unsigned int get_flash_size(void) { return (unsigned int)&__linker_squawk_suite_
 
 #if 1
 /**
+ * @brief Global barrier.
  * Dissemination barrier (from: Two Algorithms for Barrier
  * Synchronization) implementation using bitfields and atomic
- * increment
+ * increment.
  *
- *   Cores  |  Ticks
- * ---------+---------
- *       1  |     11
- *       8  |    368
- *      32  |    674
- *     512  |   1248
+ * Performance:
+ *
+ * |  Cores  |  Ticks  |
+ * |--------:|--------:|
+ * |      1  |     11  |
+ * |      8  |    368  |
+ * |     32  |    674  |
+ * |    512  |   1248  |
  */
 void sysBarrier() {
 	register int i, tmp, log2_cores;
@@ -244,7 +304,7 @@ void sysBarrier() {
 
 	for (i=0; i<=log2_cores; ++i) {
 		// core + 2^i % P
-		tmp = ((my_bid<<3 | my_cid)+kt_int_pow(2,i+1))%TOTAL_CORES;
+		tmp = ((my_bid<<3 | my_cid)+(1<<i))%TOTAL_CORES;
 		partner_bid = tmp >> 3;
 		partner_cid = tmp & 0x7;
 		ar_cnt_incr(my_cid, partner_bid, partner_cid, NOC_COUNTER_WAKEUP3, 1<<i);
@@ -256,12 +316,15 @@ void sysBarrier() {
 }
 #else
 /**
+ * @brief Global barrier.
  * Implements a simple, centralized barrier using the counters
  *
- *   Cores  |  Ticks
- * ---------+---------
- *       8  |    509
- *     512  |  22000
+ * Performance:
+ *
+ * |  Cores  |  Ticks  |
+ * |--------:|--------:|
+ * |      8  |    509  |
+ * |    512  |  22000  |
  */
 void sysBarrier() {
 	int i, x, y, z, slave_bid;
@@ -297,21 +360,16 @@ void sysBarrier() {
 }
 #endif
 
-#if 0
+/**
+ * Returns the core id running this VM instance.
+ *
+ * @return the core id
+ */
+#define sysGetCore() my_cid
 
 /**
- * Analogous to sysconf() in UNIX. The function allows Squawk to query the
- * current value of a configurable system variable. A system variable may be
- * device specific so it needs to be re-implemented for each MCU Squawk targets.
+ * Returns the island (numa/board) id running this VM instance.
  *
- * The only parameter that must be implemented is _SC_PAGESIZE which informs the
- * caller of the size of a memory page of the underlying hardware. It is used by
- * Squawk to determine how much memory should be allocated when creating a byte
- * buffer which allocates buffers as a multiple of the memory page size. Both
- * the eSPOT and bSPOT ports of Squawk return a size of 4K. It cannot be
- * determined why 4K was chosen for the bSPOT port since the MCU used by the
- * bSPOT (AT91R40008) does not have an MMU.
+ * @return the island id
  */
-long sysconf(int code) {}
-
-#endif
+#define sysGetIsland() my_bid

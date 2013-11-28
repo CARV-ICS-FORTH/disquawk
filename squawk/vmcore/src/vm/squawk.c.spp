@@ -1335,6 +1335,15 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	           (char*)gp,
 	           (char*)gp+sizeof(Globals));
 /*if[MICROBLAZE_BUILD]*/
+	printRange("stack     ",
+	           (char*)mm_stack_base(my_cid),
+	           (char*)mm_stack_base(my_cid)+MM_MB_VA_STACK_SIZE);
+	printRange("cache     ",
+	           (char*)mm_scache_base(my_cid),
+	           (char*)mm_scache_base(my_cid)+MM_MB_SCACHE_SIZE);
+	printRange("HEAP      ",
+	           (char*)MM_MB_HEAP_BASE,
+	           (char*)MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE);
 	printRange("argv      ",
 	           (char*)com_sun_squawk_VM_argv,
 	           (char*)com_sun_squawk_VM_argv);

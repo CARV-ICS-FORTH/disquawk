@@ -500,7 +500,8 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	private static int calculateMaxHeapSize(int memorySize) {
 		// heapSize = memorySize * (32/33)   <-- 32-bit system
 		// heapSize = memorySize * (64/65)   <-- 64-bit system
-		int heapSize = GC.roundDownToWord((memorySize / (HDR.BITS_PER_WORD + 1)) * HDR.BITS_PER_WORD);
+		int heapSize = GC.roundDownToWord((memorySize / (HDR.BITS_PER_WORD + 1))
+		                                  * HDR.BITS_PER_WORD);
 		Assert.always(memorySize >= heapSize + calculateBitmapSize(heapSize));
 		return heapSize;
 	}
@@ -1980,6 +1981,9 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 		// Mark the objects reachable from the GC roots
 		markRoots();
 
+		// FIXME: Mark shared objects
+		//markShared();
+
 		// Mark the objects reachable from the old generation and the stack chunks
 		if (!isFullCollection()) {
 
@@ -2281,6 +2285,14 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 					kept = sc;
 				}
 			} else {
+
+				/* Actually, I'm not sure if a stack chunk could still
+				 * be "in-use, eg. owner field not null, but
+				 * unreferenced. but check anyway (dw 10-9-2006)
+				 */
+				Assert.shouldNotReachHere(); // if we ever hit this
+											 // assertion then it is
+											 // possible
 /*if[DEBUG_CODE_ENABLED]*/
 				if (tracing()) {
 					VM.print("Lisp2GenerationalCollector::pruneStackChunks - discard ");

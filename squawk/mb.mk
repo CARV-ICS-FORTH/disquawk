@@ -69,6 +69,8 @@ SUITES_ADDR:=DEAD
 	-DKERNEL_SQUAK=true \
 	-DSQUAWK_64=false \
 	-DSQUAWK_64=true \
+	-DWRITE_BARRIER \
+	-DLISP2_BITMAP \
 	-DPLATFORM_BIG_ENDIAN=true \
 	-DPLATFORM_BIG_ENDIAN=false \
 	-DPLATFORM_UNALIGNED_LOADS=true \
@@ -100,9 +102,10 @@ CFLAGS =\
 	-DPLATFORM_TYPE_BARE_METAL \
 	-DMACROIZE \
 	-DSQUAWK_64=false \
+	-DWRITE_BARRIER \
+	-DLISP2_BITMAP \
 	-DPLATFORM_BIG_ENDIAN=false \
-	-DPLATFORM_UNALIGNED_LOADS=true \
-	-DLISP2_BITMAP
+	-DPLATFORM_UNALIGNED_LOADS=true
 
 LDFLAGS=--format elf32-microblazele --oformat elf32-microblazele
 ################################################################################

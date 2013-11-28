@@ -150,6 +150,10 @@ Notes:
     3. cldc/src/com/sun/squawk/vm/Native.java
     4. cldc/src/com/sun/squawk/NativeUnsafe.java
        CAUTION: the arguments here should be popped in reverse order
+  * GC is temporarily disabled, to enable it change the Files
+    1. cldc/src/com/sun/squawk/ServiceOperation.java
+    2. cldc/src/com/sun/squawk/VM.java
+    3. cldc/src/com/sun/squawk/VMThread.java
 
 To build the builder:
 ---------------------

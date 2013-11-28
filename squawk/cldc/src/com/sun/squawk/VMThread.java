@@ -258,9 +258,16 @@ public final class VMThread implements GlobalStaticFields {
 	 * @param   name the thread name, or null. If null, thread name generated from threadNumber.
 	 */
 	public VMThread(Thread apiThread, String name) {
+		int core;
+/*if[MICROBLAZE_BUILD]*/
+		int island;
+/*end[MICROBLAZE_BUILD]*/
+
 		Assert.always(apiThread != null);
 		this.apiThread    = apiThread;
-		this.threadNumber = nextThreadNumber++;
+		/* We keep a thread counter per core and precede it with the
+		 * core id.  This way we have a unique identifier accross all
+		 * cores. */
 		this.state        = NEW;
 		this.stackSize    = INITIAL_STACK_SIZE;
 /*if[ENABLE_MULTI_ISOLATE]*/
@@ -279,13 +286,21 @@ public final class VMThread implements GlobalStaticFields {
 /*end[ENABLE_MULTI_ISOLATE]*/
 
 		if (currentThread != null) {
-			priority = (byte)currentThread.getPriority();
-			if (priority > MAX_PRIORITY) {
+			core   = VM.getCore();
+/*if[MICROBLAZE_BUILD]*/
+			island = VM.getIsland();
+			this.threadNumber = (island << 25) + (core << 22 ) + nextThreadNumber++;
+/*else[MICROBLAZE_BUILD]*/
+//			this.threadNumber = (core << 22) + nextThreadNumber++;
+/*end[MICROBLAZE_BUILD]*/
+			this.priority = (byte)currentThread.getPriority();
+			if (this.priority > MAX_PRIORITY) {
 				// don't inherit system priority
-				priority = NORM_PRIORITY;
+				this.priority = NORM_PRIORITY;
 			}
 		} else {
-			priority = NORM_PRIORITY;
+			this.threadNumber = nextThreadNumber++;
+			this.priority = NORM_PRIORITY;
 		}
 
 		if (name != null) {
@@ -888,7 +903,8 @@ public final class VMThread implements GlobalStaticFields {
 	long time;
 
 	/**
-	 * The numeric identifier of the thread. This is only unique within this thread's isolate.
+	 * The numeric identifier of the thread.
+	 * This is only unique within this thread's isolate.
 	 */
 	private final int threadNumber;
 
@@ -1552,11 +1568,12 @@ public final class VMThread implements GlobalStaticFields {
 
 
 	private static void threadGC(boolean userThread, boolean fullGC) {
-		if (userThread) {
-			VM.collectGarbage(fullGC);
-		} else {
-			GC.collectGarbage(fullGC);
-		}
+		// FIXME: We temporarily disable garbage collection
+		// if (userThread) {
+		// 	VM.collectGarbage(fullGC);
+		// } else {
+		// 	GC.collectGarbage(fullGC);
+		// }
 	}
 
 	/**
@@ -2288,6 +2305,7 @@ public final class VMThread implements GlobalStaticFields {
 	static Monitor retryMonitor(Object object) {
 		// see if we can get montitor now.
 		Monitor monitor = getMonitor(object);
+		// FIXME: monitor.owner check / update must be atomic (test and set)
 		while (monitor.owner != null) {
 //traceMonitor("retryMonitor: Woke up without lock. retry: ", monitor, object);
 
@@ -2323,6 +2341,7 @@ public final class VMThread implements GlobalStaticFields {
 	static void monitorEnter(Object object) {
 		currentThread.checkInvarients();
 		Monitor monitor = getMonitor(object);
+		// FIXME: monitor.owner check / update must be atomic (test and set)
 		if (monitor.owner == null) {
 //traceMonitor("monitorEnter:  1st lock", monitor, object);
 			/*
@@ -2407,6 +2426,7 @@ public final class VMThread implements GlobalStaticFields {
 		 * Try to restart a thread if the nesting depth is zero
 		 */
 		if (--monitor.depth == 0) {
+/*if[SMARTMONITORS]*/
 			if (releaseMonitor(monitor)) {
 				/*
 				 * Let waiting thread try to execute. If a waiting thread has >= priority to current thread,
@@ -2418,7 +2438,6 @@ public final class VMThread implements GlobalStaticFields {
 					reschedule();
 				}
 			}
-/*if[SMARTMONITORS]*/
 			else {
 				/*
 				 * Remove the monitor if it was not used for a wait() operation.
@@ -2450,6 +2469,8 @@ public final class VMThread implements GlobalStaticFields {
 					GC.removeMonitor(object, !monitor.hasHadWaiter);
 				}
 			}
+/*else[SMARTMONITORS]*/
+//			releaseMonitor(monitor);
 /*end[SMARTMONITORS]*/
 		}
 
