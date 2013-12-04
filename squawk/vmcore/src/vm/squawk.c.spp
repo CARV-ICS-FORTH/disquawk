@@ -44,6 +44,11 @@ const char *format(const char* fmt);
 #include "io_native.h"
 /*end[MICROBLAZE_BUILD]*/
 
+/*
+ * Include the type definitions and operations on machine word sized quantities
+ */
+#include "address.c"
+
 #include "os.c"
 
 /*if[MICROBLAZE_BUILD]*/
@@ -115,11 +120,6 @@ void diagnosticWithValue(char * msg, int val) {
 #else
 #define TYPEMAP false
 #endif
-
-/*
- * Include the type definitions and operations on machine word sized quantities
- */
-#include "address.c"
 
 /*
  * Forward refs.
@@ -256,6 +256,7 @@ NORETURN void stopVM(int);
 /*
  * Include all the globals.
  */
+#include "softcache.h"
 #include "globals.h"
 
 /*
@@ -1304,6 +1305,24 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	assume(isWordAligned((UWord)com_sun_squawk_GC_ramStart));
 	assume(isWordAligned((UWord)com_sun_squawk_VMThread_serviceStack));
 
+
+/*if[MICROBLAZE_BUILD]*/
+	/*
+	 * setup the software cache
+	 */
+#ifdef NATIVE_SOFTWARE_CACHE
+	sc_initialize();
+#else  /* NATIVE_SOFTWARE_CACHE */
+	com_sun_squawk_SoftwareCache_cacheStart =
+		(Address)roundUp((UWord)mm_scache_base(my_cid), pageSize);
+	com_sun_squawk_SoftwareCache_cacheEnd   =
+		(Address)roundDown(
+			(UWord)com_sun_squawk_SoftwareCache_cacheStart + MM_MB_SCACHE_SIZE,
+			pageSize);
+#endif /* NATIVE_SOFTWARE_CACHE */
+/*end[MICROBLAZE_BUILD]*/
+
+
 /*if[DEBUG_CODE_ENABLED]*/
 	printRange("ROM       ",
 	           (char*)com_sun_squawk_VM_romStart,
@@ -1338,9 +1357,11 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	printRange("stack     ",
 	           (char*)mm_stack_base(my_cid),
 	           (char*)mm_stack_base(my_cid)+MM_MB_VA_STACK_SIZE);
+#ifndef NATIVE_SOFTWARE_CACHE
 	printRange("cache     ",
-	           (char*)mm_scache_base(my_cid),
-	           (char*)mm_scache_base(my_cid)+MM_MB_SCACHE_SIZE);
+	           (char*)com_sun_squawk_SoftwareCache_cacheStart,
+	           (char*)com_sun_squawk_SoftwareCache_cacheEnd);
+#endif /* NATIVE_SOFTWARE_CACHE */
 	printRange("HEAP      ",
 	           (char*)MM_MB_HEAP_BASE,
 	           (char*)MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE);
@@ -2099,10 +2120,10 @@ void Squawk_continue() {
 #endif /* TRACE */
 
 #ifdef MACROIZE
-	int          iparm_g;             /* The immediate operand value of the current bytecode. */
-	ByteAddress  ip_g;                /* The instruction pointer. */
-	UWordAddress fp_g;                /* The frame pointer. */
-	UWordAddress sp_g;                /* The stack pointer. */
+	int          iparm_g = 0; /* The immediate operand value of the current bytecode. */
+	ByteAddress  ip_g;        /* The instruction pointer. */
+	UWordAddress fp_g;        /* The frame pointer. */
+	UWordAddress sp_g;        /* The stack pointer. */
 #if SDA_DEBUGGER
 	int sda_bp_set_or_stepping = false;     /* TRUE if we have any breakpoints set or are in a stepping mode [optimisation] */
 #endif /* SDA_DEBUGGER */

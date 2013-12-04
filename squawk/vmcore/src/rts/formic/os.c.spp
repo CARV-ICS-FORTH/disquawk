@@ -373,3 +373,18 @@ void sysBarrier() {
  * @return the island id
  */
 #define sysGetIsland() my_bid
+
+/**
+ * Calculatates the address's home core and island
+ *
+ * @param  addr   The address to find its home
+ * @param  core   The home core (output)
+ * @param  island The home island (output)
+ * @return Writes `core` and `island`
+ */
+INLINE void sysHomeOfAddress(Address addr, int* core, int* island) {
+#ifdef __MICROBLAZE__
+	*island = ((unsigned int)addr >> 26);
+	*core   = ((unsigned int)addr >> 23) && 7;
+#endif
+}

@@ -40,15 +40,40 @@
  * a system to be built with several separate VM execution contexts.
  */
 typedef struct globalsStruct {
-	Address     _memory;                     /* The buffer containing ROM, NVM, RAM and serviceChunk */
-	Address     _memoryEnd;                  /* The end of the memory buffer. */
-	UWord       _memorySize;                 /* The size (in bytes) of the memory buffer. */
+	Address     _memory;        /* The buffer containing ROM, NVM, RAM and serviceChunk */
+	Address     _memoryEnd;     /* The end of the memory buffer. */
+	UWord       _memorySize;    /* The Size (In bytes) of the memory buffer. */
+
+#ifdef NATIVE_SOFTWARE_CACHE
+#ifdef __MICROBLAZE__
+	/** The cache directory. */
+	sc_object_st      *_cacheDirectory;
+	/** Start address of the allocated memory to the software cache. */
+	Address           _cacheStart;
+	/** End address of the allocated memory to the software cache. */
+	Address           _cacheEnd;
+	/** Size of the software cache in bytes. */
+	int               _cacheSize;
+	/** The next allocation address. */
+	Address           _cacheAllocTop;
+	/** The allocation address for read-only Objects. */
+	Address           _cacheROAllocTop;
+	/** Counter for the number of flushes due to full cache. */
+	int               _cacheFlushes;
+	/** Counts how many times the cache was cleared. */
+	int               _cacheClears;
+	/** Counter for the number of cached objects. */
+	int               _cacheObjects;
+	/** Bitmap for pending write back DMAs. */
+	int               _cachePendingWBs;
+#endif /* __MICROBLAZE__ */
+#endif /* NATIVE_SOFTWARE_CACHE */
 
 #ifndef MACROIZE
-	int          _iparm;                     /* The immediate operand value of the current bytecode. */
-	ByteAddress  _ip;                        /* The instruction pointer. */
-	UWordAddress _fp;                        /* The frame pointer. */
-	UWordAddress _sp;                        /* The stack pointer. */
+	int          _iparm; /* The immediate operand value of the current bytecode. */
+	ByteAddress  _ip;    /* The instruction pointer. */
+	UWordAddress _fp;    /* The frame pointer. */
+	UWordAddress _sp;    /* The stack pointer. */
 #else
 #if TRACE
 	ByteAddress  _lastIP;
@@ -56,21 +81,34 @@ typedef struct globalsStruct {
 #endif /* TRACE */
 #endif /* MACROIZE */
 
-	UWordAddress _sl;                        /* The stack limit. */
-	UWordAddress _ss;                        /* The stack start. */
-	int          _bc;                        /* The branch counter. */
+	UWordAddress _sl;           /* The stack limit. */
+	UWordAddress _ss;           /* The stack start. */
+	int          _bc;           /* The branch counter. */
 
-	ByteAddress  _saved_ip;                  /* The saved instruction pointer. */
-	UWordAddress _saved_fp;                  /* The saved frame pointer. */
-	UWordAddress _saved_sp;                  /* The saved stack pointer. */
+	ByteAddress  _saved_ip;     /* The saved instruction pointer. */
+	UWordAddress _saved_fp;     /* The saved frame pointer. */
+	UWordAddress _saved_sp;     /* The saved stack pointer. */
 
-	int         _Ints[GLOBAL_INT_COUNT];     /* Storage for the primitive typed Java globals. */
-	Address     _Addrs[GLOBAL_ADDR_COUNT];   /* Storage for the primitive typed Java globals. */
-	Address     _Oops[GLOBAL_OOP_COUNT];     /* Storage for the reference typed Java globals. */
-	Address     _Buffers[MAX_BUFFERS];       /* Buffers that are allocated by native code. */
-	int         _BufferCount;                /* Number of buffers that are currently allocated by native code. */
+	int         _Ints[GLOBAL_INT_COUNT];     /* Storage for the
+	                                          * primitive typed Java
+	                                          * globals. */
+	Address     _Addrs[GLOBAL_ADDR_COUNT];   /* Storage for the
+	                                          * primitive typed Java
+	                                          * globals. */
+	Address     _Oops[GLOBAL_OOP_COUNT];     /* Storage for the
+	                                          * reference typed Java
+	                                          * globals. */
+	Address     _Buffers[MAX_BUFFERS];       /* Buffers that are
+	                                          * allocated by native
+	                                          * code. */
+	int         _BufferCount;                /* Number of buffers that
+	                                          * are currently
+	                                          * allocated by native
+	                                          * code. */
 #ifndef __MICROBLAZE__
-	FILE       *_streams[MAX_STREAMS];       /* The file streams to which the VM printing directives sent. */
+	FILE       *_streams[MAX_STREAMS];       /* The file streams to
+	                                          * which the VM printing
+	                                          * directives sent. */
 #endif /* __MICROBLAZE__ */
 	int         _currentStream;              /* The currently selected stream */
 	int         _internalLowResult;          /* Value for INTERNAL_LOW_RESULT */
@@ -93,25 +131,31 @@ typedef struct globalsStruct {
 	int         _io_ops_count;
 #endif /* PLATFORM_TYPE_SOCKET */
 
-	void*       _nativeFuncPtr;              /* Ptr to the function that is being called via NativeUnsafe.call, or null */
+	void*       _nativeFuncPtr;     /* Ptr to the function that is
+	                                 * being called via
+	                                 * NativeUnsafe.call, or null */
 
 #ifdef PROFILING
-	int         _sampleFrequency;            /* The profile sample frequency */
+	int         _sampleFrequency;   /* The profile sample frequency */
 	jlong       _instructionCount;
 #endif /* PROFILING */
 
 #if TRACE
-	FILE       *_traceFile;                  /* The trace file name */
-	boolean     _traceFileOpen;              /* Specifies if the trace file has been opened. */
-	boolean     _traceServiceThread;         /* Specifies if execution on the service thread is to be traced. */
-	int         _traceLastThreadID;          /* Specifies the thread ID at the last call to trace() */
+	FILE       *_traceFile;          /* The trace file name */
+	boolean     _traceFileOpen;      /* Specifies if the trace file
+	                                  * has been opened. */
+	boolean     _traceServiceThread; /* Specifies if execution on the
+	                                  * service thread is to be
+	                                  * traced. */
+	int         _traceLastThreadID;  /* Specifies the thread ID at the
+	                                  * last call to trace() */
 
-	int         _total_extends;              /* Total number of extends */
-	int         _total_slots;                /* Total number of slots cleared */
+	int         _total_extends;      /* Total number of extends */
+	int         _total_slots;        /* Total number of slots cleared */
 
 	int         _lastThreadID;
 
-	int         _statsFrequency;             /* The statistics output frequency */
+	int         _statsFrequency;     /* The statistics output frequency */
 #endif /* TRACE */
 
 #if defined(PROFILING) | TRACE
@@ -233,6 +277,21 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define memory_g                            defineGlobal(memory)
 #define memoryEnd_g                         defineGlobal(memoryEnd)
 #define memorySize_g                        defineGlobal(memorySize)
+
+#ifdef NATIVE_SOFTWARE_CACHE
+#ifdef __MICROBLAZE__
+#define cacheDirectory_g                    defineGlobal(cacheDirectory)
+#define cacheStart_g                        defineGlobal(cacheStart)
+#define cacheEnd_g                          defineGlobal(cacheEnd)
+#define cacheSize_g                         defineGlobal(cacheSize)
+#define cacheAllocTop_g                     defineGlobal(cacheAllocTop)
+#define cacheROAllocTop_g                   defineGlobal(cacheROAllocTop)
+#define cacheFlushes_g                      defineGlobal(cacheFlushes)
+#define cacheClears_g                       defineGlobal(cacheClears)
+#define cacheObjects_g                      defineGlobal(cacheObjects)
+#define cachePendingWBs_g                   defineGlobal(cachePendingWBs)
+#endif /* __MICROBLAZE__ */
+#endif /* NATIVE_SOFTWARE_CACHE */
 
 #ifndef MACROIZE
 #define iparm_g                             defineGlobal(iparm)

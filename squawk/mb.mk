@@ -76,6 +76,7 @@ SUITES_ADDR:=DEAD
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DPLATFORM_UNALIGNED_LOADS=false \
 	-DLISP2_BITMAP \
+	-DNATIVE_SOFTWARE_CACHE
 # What we use
 # THESE MUST AGREE WITH build-mb.properties file
 CFLAGS =\
@@ -105,7 +106,8 @@ CFLAGS =\
 	-DWRITE_BARRIER \
 	-DLISP2_BITMAP \
 	-DPLATFORM_BIG_ENDIAN=false \
-	-DPLATFORM_UNALIGNED_LOADS=true
+	-DPLATFORM_UNALIGNED_LOADS=true \
+	-DNATIVE_SOFTWARE_CACHE
 
 LDFLAGS=--format elf32-microblazele --oformat elf32-microblazele
 ################################################################################
