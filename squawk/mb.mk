@@ -11,6 +11,7 @@
 #                                                                              #
 ################################################################################
 
+PATH+=:/opt/Xilinx/12.4/ISE_DS/EDK/gnu/microblaze/lin64/bin/
 
 ################################################################################
 # Other variables
@@ -109,6 +110,21 @@ CFLAGS =\
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DNATIVE_SOFTWARE_CACHE
 
+# MYRMICS specific flags (normally in myrmics/include/arch.h)
+# NOTE: You must make clean and rebuild after changing this
+CFLAGS+=-DAR_CONFIGURE_THROUGH_MAKE=1 \
+		-DAR_BOOT_MASTER_BID=0x00 \
+		-DAR_ARM0_BID=-1 \
+		-DAR_ARM1_BID=-1 \
+		-DAR_XUP_BID=-1 \
+		-DAR_FORMIC_CORES_PER_BOARD=1 \
+		-DAR_FORMIC_MIN_X=0 \
+		-DAR_FORMIC_MIN_Y=0 \
+		-DAR_FORMIC_MIN_Z=0 \
+		-DAR_FORMIC_MAX_X=0 \
+		-DAR_FORMIC_MAX_Y=0 \
+		-DAR_FORMIC_MAX_Z=0
+
 LDFLAGS=--format elf32-microblazele --oformat elf32-microblazele
 ################################################################################
 
@@ -121,7 +137,6 @@ MYRMICS_LINK_OBJS =\
 	arch/mb/boot.o
 MYRMICS_OBJS =\
 	arch/mb/exec.o \
-	arch/mb/atomic.o \
 	arch/mb/cache.o \
 	arch/mb/uart.o \
 	arch/mb/math.o \
