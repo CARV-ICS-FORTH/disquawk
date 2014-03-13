@@ -1,0 +1,469 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>Squawk Bytecode Instruction Descriptions</title>
+</head>
+<body BGCOLOR=#eeeeff text=#000000 LINK=#0000ff VLINK=#000077 ALINK=#ff0000>
+<table width=100%><tr>
+<td> <a href="Instructions.doc.html">Contents</a> | <a href="Instructions2.doc2.html">Prev</a> | <a href="Instructions2.doc4.html">Next</a> | <a href="Instructions2.index.html">Index</a> </td>
+<td align=right><i><i>Squawk Bytecode Instruction Set</i></i></td>
+</tr></table>
+
+<hr><br>
+
+<a href="Instructions2.doc1.html">A</a>
+<a href="Instructions2.doc2.html">B</a>
+<a href="Instructions2.doc3.html">C</a>
+<a href="Instructions2.doc4.html">D</a>
+<a href="Instructions2.doc5.html">E</a>
+<a href="Instructions2.doc6.html">F</a>
+<a href="Instructions2.doc7.html">G</a>
+<a href="Instructions2.doc8.html">I</a>
+<a href="Instructions2.doc9.html">L</a>
+<a href="Instructions2.doc10.html">M</a>
+<a href="Instructions2.doc11.html">N</a>
+<a href="Instructions2.doc12.html">O</a>
+<a href="Instructions2.doc13.html">P</a>
+<a href="Instructions2.doc14.html">R</a>
+<a href="Instructions2.doc15.html">S</a>
+<a href="Instructions2.doc16.html">T</a>
+<a href="Instructions2.doc17.html">U</a>
+<a href="Instructions2.doc18.html">W</a>
+<a href="Instructions2.doc19.html">X</a>
+
+<hr><a name="catch"><h2>catch</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Start an exception handler
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>catch</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>catch</i> = 83 (0x53)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+_ =&gt; <i>exception</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="checkcast"><h2>checkcast</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Check that object is of given type
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>checkcast</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>checkcast</i> = 240 (0xf0)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>reference</i>, <i>class</i> =&gt; ..., <i>reference</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_clinit"><h2>class_clinit</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Initialize the current class, if it has not been initialized already
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_clinit</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_clinit</i> = 236 (0xec)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+_ =&gt; _
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_getstatic_i"><h2>class_getstatic_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push <code>int</code> or <code>float</code> static field from the current class
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_getstatic_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_getstatic_i</i> = 136 (0x88)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_getstatic_l"><h2>class_getstatic_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push <code>long</code> or <code>double</code> static field from current class
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_getstatic_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_getstatic_l</i> = 138 (0x8a)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_getstatic_o"><h2>class_getstatic_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push <code>reference</code> static field from the current class
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_getstatic_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_getstatic_o</i> = 137 (0x89)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_monitorenter"><h2>class_monitorenter</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Enter monitor for current class
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_monitorenter</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_monitorenter</i> = 230 (0xe6)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+_ =&gt; _
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_monitorexit"><h2>class_monitorexit</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Exit monitor for current class
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_monitorexit</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_monitorexit</i> = 231 (0xe7)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+_ =&gt; _
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_putstatic_i"><h2>class_putstatic_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>int</code> or <code>float</code> static field from the current class
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_putstatic_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_putstatic_i</i> = 142 (0x8e)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_putstatic_l"><h2>class_putstatic_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>long</code> or <code>double</code> static field from current class
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_putstatic_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_putstatic_l</i> = 144 (0x90)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="class_putstatic_o"><h2>class_putstatic_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>reference</code> static field from the current class
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>class_putstatic_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>class_putstatic_o</i> = 143 (0x8f)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="const_&lt;i&gt;"><h2>const_&lt;i&gt;</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push <code>int</code> constant
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>const_&lt;i&gt;</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>const_m1</i> = 85 (0x55)
+<br>
+<i>const_0</i> = 0 (0x00)
+<br>
+<i>const_1</i> = 1 (0x01)
+<br>
+<i>const_2</i> = 2 (0x02)
+<br>
+<i>const_3</i> = 3 (0x03)
+<br>
+<i>const_4</i> = 4 (0x04)
+<br>
+<i>const_5</i> = 5 (0x05)
+<br>
+<i>const_6</i> = 6 (0x06)
+<br>
+<i>const_7</i> = 7 (0x07)
+<br>
+<i>const_8</i> = 8 (0x08)
+<br>
+<i>const_9</i> = 9 (0x09)
+<br>
+<i>const_10</i> = 10 (0x0a)
+<br>
+<i>const_11</i> = 11 (0x0b)
+<br>
+<i>const_12</i> = 12 (0x0c)
+<br>
+<i>const_13</i> = 13 (0x0d)
+<br>
+<i>const_14</i> = 14 (0x0e)
+<br>
+<i>const_15</i> = 15 (0x0f)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="const_byte"><h2>const_byte</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push 8 bit constant onto the stack
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>const_byte</i></td></tr>
+<tr><td><i>value</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>const_byte</i> = 86 (0x56)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="const_char"><h2>const_char</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push an unsigned 16 bit constant (or <code>char</code>) onto the stack
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>const_char</i></td></tr>
+<tr><td><i>valuebyte1</i></td></tr>
+<tr><td><i>valuebyte2</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>const_char</i> = 88 (0x58)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="const_int"><h2>const_int</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push 32 bit constant onto the stack
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>const_int</i></td></tr>
+<tr><td><i>valuebyte1</i></td></tr>
+<tr><td><i>valuebyte2</i></td></tr>
+<tr><td><i>valuebyte3</i></td></tr>
+<tr><td><i>valuebyte4</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>const_int</i> = 89 (0x59)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="const_long"><h2>const_long</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push 64 bit constant onto the stack
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>const_long</i></td></tr>
+<tr><td><i>valuebyte1</i></td></tr>
+<tr><td><i>valuebyte2</i></td></tr>
+<tr><td><i>valuebyte3</i></td></tr>
+<tr><td><i>valuebyte4</i></td></tr>
+<tr><td><i>valuebyte5</i></td></tr>
+<tr><td><i>valuebyte6</i></td></tr>
+<tr><td><i>valuebyte7</i></td></tr>
+<tr><td><i>valuebyte8</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>const_long</i> = 90 (0x5a)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="const_null"><h2>const_null</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push <code>null</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>const_null</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>const_null</i> = 84 (0x54)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="const_short"><h2>const_short</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Push 16 bit constant onto the stack
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>const_short</i></td></tr>
+<tr><td><i>valuebyte1</i></td></tr>
+<tr><td><i>valuebyte2</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>const_short</i> = 87 (0x57)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr>
+<a href="Instructions2.doc2.html">Prev</a> | <a href="Instructions2.doc4.html">Next</a>
+</body></html>

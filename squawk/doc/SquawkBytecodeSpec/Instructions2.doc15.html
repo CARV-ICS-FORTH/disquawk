@@ -1,0 +1,302 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>Squawk Bytecode Instruction Descriptions</title>
+</head>
+<body BGCOLOR=#eeeeff text=#000000 LINK=#0000ff VLINK=#000077 ALINK=#ff0000>
+<table width=100%><tr>
+<td> <a href="Instructions.doc.html">Contents</a> | <a href="Instructions2.doc14.html">Prev</a> | <a href="Instructions2.doc16.html">Next</a> | <a href="Instructions2.index.html">Index</a> </td>
+<td align=right><i><i>Squawk Bytecode Instruction Set</i></i></td>
+</tr></table>
+
+<hr><br>
+
+<a href="Instructions2.doc1.html">A</a>
+<a href="Instructions2.doc2.html">B</a>
+<a href="Instructions2.doc3.html">C</a>
+<a href="Instructions2.doc4.html">D</a>
+<a href="Instructions2.doc5.html">E</a>
+<a href="Instructions2.doc6.html">F</a>
+<a href="Instructions2.doc7.html">G</a>
+<a href="Instructions2.doc8.html">I</a>
+<a href="Instructions2.doc9.html">L</a>
+<a href="Instructions2.doc10.html">M</a>
+<a href="Instructions2.doc11.html">N</a>
+<a href="Instructions2.doc12.html">O</a>
+<a href="Instructions2.doc13.html">P</a>
+<a href="Instructions2.doc14.html">R</a>
+<a href="Instructions2.doc15.html">S</a>
+<a href="Instructions2.doc16.html">T</a>
+<a href="Instructions2.doc17.html">U</a>
+<a href="Instructions2.doc18.html">W</a>
+<a href="Instructions2.doc19.html">X</a>
+
+<hr><a name="shl_i"><h2>shl_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Shift left <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>shl_i</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>shl_i</i> = 201 (0xc9)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="shl_l"><h2>shl_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Shift left <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>shl_l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>shl_l</i> = 220 (0xdc)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="shr_i"><h2>shr_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Arithmetic shift right <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>shr_i</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>shr_i</i> = 202 (0xca)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="shr_l"><h2>shr_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Arithmetic shift right <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>shr_l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>shr_l</i> = 221 (0xdd)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="store"><h2>store</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store single word value into local variable
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>store</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>store</i> = 94 (0x5e)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="store_&lt;i&gt;"><h2>store_&lt;i&gt;</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store single word value into local variable
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>store_&lt;i&gt;</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>store_0</i> = 48 (0x30)
+<br>
+<i>store_1</i> = 49 (0x31)
+<br>
+<i>store_2</i> = 50 (0x32)
+<br>
+<i>store_3</i> = 51 (0x33)
+<br>
+<i>store_4</i> = 52 (0x34)
+<br>
+<i>store_5</i> = 53 (0x35)
+<br>
+<i>store_6</i> = 54 (0x36)
+<br>
+<i>store_7</i> = 55 (0x37)
+<br>
+<i>store_8</i> = 56 (0x38)
+<br>
+<i>store_9</i> = 57 (0x39)
+<br>
+<i>store_10</i> = 58 (0x3a)
+<br>
+<i>store_11</i> = 59 (0x3b)
+<br>
+<i>store_12</i> = 60 (0x3c)
+<br>
+<i>store_13</i> = 61 (0x3d)
+<br>
+<i>store_14</i> = 62 (0x3e)
+<br>
+<i>store_15</i> = 63 (0x3f)
+<br>
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="store_i2"><h2>store_i2</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store double word value into local variable
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>store_i2</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>store_i2</i> = 95 (0x5f)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="storeparm"><h2>storeparm</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store single word value to parameter
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>storeparm</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>storeparm</i> = 98 (0x62)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="storeparm_i2"><h2>storeparm_i2</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store double word value to parameter
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>storeparm_i2</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>storeparm_i2</i> = 99 (0x63)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="sub_i"><h2>sub_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Subtract <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>sub_i</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>sub_i</i> = 197 (0xc5)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="sub_l"><h2>sub_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Subtract <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>sub_l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>sub_l</i> = 212 (0xd4)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr>
+<a href="Instructions2.doc14.html">Prev</a> | <a href="Instructions2.doc16.html">Next</a>
+</body></html>

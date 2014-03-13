@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>Squawk Bytecode Instruction Descriptions</title>
+</head>
+<body BGCOLOR=#eeeeff text=#000000 LINK=#0000ff VLINK=#000077 ALINK=#ff0000>
+<table width=100%><tr>
+<td> <a href="Instructions.doc.html">Contents</a> | <a href="Instructions2.doc12.html">Prev</a> | <a href="Instructions2.doc14.html">Next</a> | <a href="Instructions2.index.html">Index</a> </td>
+<td align=right><i><i>Squawk Bytecode Instruction Set</i></i></td>
+</tr></table>
+
+<hr><br>
+
+<a href="Instructions2.doc1.html">A</a>
+<a href="Instructions2.doc2.html">B</a>
+<a href="Instructions2.doc3.html">C</a>
+<a href="Instructions2.doc4.html">D</a>
+<a href="Instructions2.doc5.html">E</a>
+<a href="Instructions2.doc6.html">F</a>
+<a href="Instructions2.doc7.html">G</a>
+<a href="Instructions2.doc8.html">I</a>
+<a href="Instructions2.doc9.html">L</a>
+<a href="Instructions2.doc10.html">M</a>
+<a href="Instructions2.doc11.html">N</a>
+<a href="Instructions2.doc12.html">O</a>
+<a href="Instructions2.doc13.html">P</a>
+<a href="Instructions2.doc14.html">R</a>
+<a href="Instructions2.doc15.html">S</a>
+<a href="Instructions2.doc16.html">T</a>
+<a href="Instructions2.doc17.html">U</a>
+<a href="Instructions2.doc18.html">W</a>
+<a href="Instructions2.doc19.html">X</a>
+
+<hr><a name="pop_1"><h2>pop_1</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Pop one word from the stack
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>pop_1</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>pop_1</i> = 226 (0xe2)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="pop_2"><h2>pop_2</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Pop two words from the stack
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>pop_2</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>pop_2</i> = 227 (0xe3)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield0_b"><h2>putfield0_b</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assigns a <code>byte</code> value to an instance field of the object in parameter 0.
+That is, the object accessed via <code>loadparm_0</code>.
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield0_b</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield0_b</i> = 163 (0xa3)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield0_i"><h2>putfield0_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assigns a <code>int</code> value to an instance field of the object in parameter 0.
+That is, the object accessed via <code>loadparm_0</code>.
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield0_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield0_i</i> = 162 (0xa2)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield0_l"><h2>putfield0_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assigns a <code>long</code> value to an instance field of the object in parameter 0.
+That is, the object accessed via <code>loadparm_0</code>.
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield0_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield0_l</i> = 166 (0xa6)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield0_o"><h2>putfield0_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assigns a <code>reference</code> value to an instance field of the object in parameter 0.
+That is, the object accessed via <code>loadparm_0</code>.
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield0_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield0_o</i> = 165 (0xa5)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield0_s"><h2>putfield0_s</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assigns a <code>short</code> value to an instance field of the object in parameter 0.
+That is, the object accessed via <code>loadparm_0</code>.
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield0_s</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield0_s</i> = 164 (0xa4)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield_b"><h2>putfield_b</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>byte</code> instance field
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield_b</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield_b</i> = 158 (0x9e)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>reference</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield_i"><h2>putfield_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>int</code> instance field
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield_i</i> = 157 (0x9d)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>reference</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield_l"><h2>putfield_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>long</code> instance field
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield_l</i> = 161 (0xa1)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>reference</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield_o"><h2>putfield_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>reference</code> instance field
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield_o</i> = 160 (0xa0)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>reference</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putfield_s"><h2>putfield_s</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>short</code> instance field
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putfield_s</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putfield_s</i> = 159 (0x9f)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>reference</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putstatic_i"><h2>putstatic_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>int</code> or <code>float</code> static field
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putstatic_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putstatic_i</i> = 139 (0x8b)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i>, <i>class</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putstatic_l"><h2>putstatic_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>long</code> or <code>double</code> static field
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putstatic_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putstatic_l</i> = 141 (0x8d)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i>, <i>class</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="putstatic_o"><h2>putstatic_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Assign <code>reference</code> static field
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>putstatic_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>putstatic_o</i> = 140 (0x8c)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i>, <i>class</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr>
+<a href="Instructions2.doc12.html">Prev</a> | <a href="Instructions2.doc14.html">Next</a>
+</body></html>

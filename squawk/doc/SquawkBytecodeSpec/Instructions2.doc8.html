@@ -1,0 +1,825 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>Squawk Bytecode Instruction Descriptions</title>
+</head>
+<body BGCOLOR=#eeeeff text=#000000 LINK=#0000ff VLINK=#000077 ALINK=#ff0000>
+<table width=100%><tr>
+<td> <a href="Instructions.doc.html">Contents</a> | <a href="Instructions2.doc7.html">Prev</a> | <a href="Instructions2.doc9.html">Next</a> | <a href="Instructions2.index.html">Index</a> </td>
+<td align=right><i><i>Squawk Bytecode Instruction Set</i></i></td>
+</tr></table>
+
+<hr><br>
+
+<a href="Instructions2.doc1.html">A</a>
+<a href="Instructions2.doc2.html">B</a>
+<a href="Instructions2.doc3.html">C</a>
+<a href="Instructions2.doc4.html">D</a>
+<a href="Instructions2.doc5.html">E</a>
+<a href="Instructions2.doc6.html">F</a>
+<a href="Instructions2.doc7.html">G</a>
+<a href="Instructions2.doc8.html">I</a>
+<a href="Instructions2.doc9.html">L</a>
+<a href="Instructions2.doc10.html">M</a>
+<a href="Instructions2.doc11.html">N</a>
+<a href="Instructions2.doc12.html">O</a>
+<a href="Instructions2.doc13.html">P</a>
+<a href="Instructions2.doc14.html">R</a>
+<a href="Instructions2.doc15.html">S</a>
+<a href="Instructions2.doc16.html">T</a>
+<a href="Instructions2.doc17.html">U</a>
+<a href="Instructions2.doc18.html">W</a>
+<a href="Instructions2.doc19.html">X</a>
+
+<hr><a name="i2b"><h2>i2b</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Convert <code>int</code> to <code>byte</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>i2b</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>i2b</i> = 208 (0xd0)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="i2c"><h2>i2c</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Convert <code>int</code> to <code>char</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>i2c</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>i2c</i> = 210 (0xd2)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="i2l"><h2>i2l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Convert <code>int</code> to <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>i2l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>i2l</i> = 224 (0xe0)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="i2s"><h2>i2s</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Convert <code>int</code> to <code>short</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>i2s</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>i2s</i> = 209 (0xd1)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="if_&lt;cond&gt;_i"><h2>if_&lt;cond&gt;_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Branch if <code>int</code> comparison with zero succeeds
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>if_&lt;cond&gt;_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>if_eq_i</i> = 109 (0x6d)
+<br>
+<i>if_ne_i</i> = 110 (0x6e)
+<br>
+<i>if_lt_i</i> = 111 (0x6f)
+<br>
+<i>if_le_i</i> = 112 (0x70)
+<br>
+<i>if_gt_i</i> = 113 (0x71)
+<br>
+<i>if_ge_i</i> = 114 (0x72)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Only the input value for this instruction can be on the stack for any backward branch.
+</blockquote>
+<hr><a name="if_&lt;cond&gt;_l"><h2>if_&lt;cond&gt;_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Branch if <code>long</code> comparison with zero succeeds
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>if_&lt;cond&gt;_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>if_eq_l</i> = 121 (0x79)
+<br>
+<i>if_ne_l</i> = 122 (0x7a)
+<br>
+<i>if_lt_l</i> = 123 (0x7b)
+<br>
+<i>if_le_l</i> = 124 (0x7c)
+<br>
+<i>if_gt_l</i> = 125 (0x7d)
+<br>
+<i>if_ge_l</i> = 126 (0x7e)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Only the input value for this instruction can be on the stack for any backward branch.
+</blockquote>
+<hr><a name="if_cmp&lt;cond&gt;_i"><h2>if_cmp&lt;cond&gt;_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Branch if <code>int</code> comparison succeeds
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>if_cmp&lt;cond&gt;_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>if_cmpeq_i</i> = 115 (0x73)
+<br>
+<i>if_cmpne_i</i> = 116 (0x74)
+<br>
+<i>if_cmplt_i</i> = 117 (0x75)
+<br>
+<i>if_cmple_i</i> = 118 (0x76)
+<br>
+<i>if_cmpgt_i</i> = 119 (0x77)
+<br>
+<i>if_cmpge_i</i> = 120 (0x78)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Only the input values for this instruction can be on the stack for any backward branch.
+</blockquote>
+<hr><a name="if_cmp&lt;cond&gt;_l"><h2>if_cmp&lt;cond&gt;_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Branch if <code>long</code> comparison succeeds
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>if_cmp&lt;cond&gt;_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>if_cmpeq_l</i> = 127 (0x7f)
+<br>
+<i>if_cmpne_l</i> = 128 (0x80)
+<br>
+<i>if_cmplt_l</i> = 129 (0x81)
+<br>
+<i>if_cmple_l</i> = 130 (0x82)
+<br>
+<i>if_cmpgt_l</i> = 131 (0x83)
+<br>
+<i>if_cmpge_l</i> = 132 (0x84)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Only the input values for this instruction can be on the stack for any backward branch.
+</blockquote>
+<hr><a name="if_cmp&lt;cond&gt;_o"><h2>if_cmp&lt;cond&gt;_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Branch if <code>reference</code> comparison succeeds
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>if_cmp&lt;cond&gt;_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>if_cmpeq_o</i> = 107 (0x6b)
+<br>
+<i>if_cmpne_o</i> = 108 (0x6c)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Only the input values for this instruction can be on the stack for any backward branch.
+</blockquote>
+<hr><a name="if_eq_o"><h2>if_eq_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Branch if <code>reference</code> is null
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>if_eq_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>if_eq_o</i> = 105 (0x69)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Only the input value for this instruction can be on the stack for any backward branch.
+</blockquote>
+<hr><a name="if_ne_o"><h2>if_ne_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Branch if <code>reference</code> is not null
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>if_ne_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>if_ne_o</i> = 106 (0x6a)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Only the input value for this instruction can be on the stack for any backward branch.
+</blockquote>
+<hr><a name="inc"><h2>inc</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Increment a single word local variable by 1
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>inc</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>inc</i> = 100 (0x64)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="incparm"><h2>incparm</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Increment a single word parameter by 1
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>incparm</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>incparm</i> = 102 (0x66)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+... =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="instanceof"><h2>instanceof</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Determine if object is of given type
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>instanceof</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>instanceof</i> = 239 (0xef)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>reference</i>, <i>class</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokenative_i"><h2>invokenative_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke native method with return type <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokenative_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokenative_i</i> = 179 (0xb3)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>] =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokenative_l"><h2>invokenative_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke native method with return type <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokenative_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokenative_l</i> = 181 (0xb5)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>] =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokenative_o"><h2>invokenative_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke native method with return type <code>reference</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokenative_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokenative_o</i> = 182 (0xb6)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>] =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokenative_v"><h2>invokenative_v</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke native method with return type <code>void</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokenative_v</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokenative_v</i> = 180 (0xb4)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>] =&gt; _
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokeslot_i"><h2>invokeslot_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke method from vtable with return type <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokeslot_i</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokeslot_i</i> = 185 (0xb9)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>,] <i>reference</i>, <i>index</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+This instruction invokes the method out of the vtable for the given object
+at the given index.  Used with <code>findslot</code> to replace Java's
+<code>invokeinterface</code>.
+</blockquote>
+<hr><a name="invokeslot_l"><h2>invokeslot_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke method from vtable with return type <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokeslot_l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokeslot_l</i> = 187 (0xbb)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>,] <i>reference</i>, <i>index</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+This instruction invokes the method out of the vtable for the given object
+at the given index.  Used with <code>findslot</code> to replace Java's
+<code>invokeinterface</code>.
+</blockquote>
+<hr><a name="invokeslot_o"><h2>invokeslot_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke method from vtable with return type <code>reference</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokeslot_o</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokeslot_o</i> = 188 (0xbc)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>,] <i>reference</i>, <i>index</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+This instruction invokes the method out of the vtable for the given object
+at the given index.  Used with <code>findslot</code> to replace Java's
+<code>invokeinterface</code>.
+</blockquote>
+<hr><a name="invokeslot_v"><h2>invokeslot_v</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke method from vtable with return type <code>void</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokeslot_v</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokeslot_v</i> = 186 (0xba)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>,] <i>reference</i>, <i>index</i> =&gt; _
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+This instruction invokes the method out of the vtable for the given object
+at the given index.  Used with <code>findslot</code> to replace Java's
+<code>invokeinterface</code>.
+</blockquote>
+<hr><a name="invokestatic_i"><h2>invokestatic_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke static method with return type <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokestatic_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokestatic_i</i> = 171 (0xab)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>class</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokestatic_l"><h2>invokestatic_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke static method with return type <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokestatic_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokestatic_l</i> = 173 (0xad)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>class</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokestatic_o"><h2>invokestatic_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke static method with return type <code>reference</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokestatic_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokestatic_o</i> = 174 (0xae)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>class</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokestatic_v"><h2>invokestatic_v</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke static method with return type <code>void</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokestatic_v</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokestatic_v</i> = 172 (0xac)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>class</i> =&gt; _
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokesuper_i"><h2>invokesuper_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke superclass method with return type <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokesuper_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokesuper_i</i> = 175 (0xaf)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>reference</i>, <i>class</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokesuper_l"><h2>invokesuper_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke superclass method with return type <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokesuper_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokesuper_l</i> = 177 (0xb1)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>reference</i>, <i>class</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokesuper_o"><h2>invokesuper_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke superclass method with return type <code>reference</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokesuper_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokesuper_o</i> = 178 (0xb2)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>reference</i>, <i>class</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokesuper_v"><h2>invokesuper_v</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke superclass method with return type <code>void</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokesuper_v</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokesuper_v</i> = 176 (0xb0)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>reference</i>, <i>class</i> =&gt; _
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokevirtual_i"><h2>invokevirtual_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke virtual method with return type <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokevirtual_i</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokevirtual_i</i> = 167 (0xa7)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>reference</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokevirtual_l"><h2>invokevirtual_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke virtual method with return type <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokevirtual_l</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokevirtual_l</i> = 169 (0xa9)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>reference</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokevirtual_o"><h2>invokevirtual_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke virtual method with return type <code>reference</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokevirtual_o</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokevirtual_o</i> = 170 (0xaa)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>reference</i> =&gt; <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="invokevirtual_v"><h2>invokevirtual_v</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Invoke virtual method with return type <code>void</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>invokevirtual_v</i></td></tr>
+<tr><td><i>index</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>invokevirtual_v</i> = 168 (0xa8)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+[[... <i>arg2</i>], <i>arg1</i>], <i>reference</i> =&gt; _
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr>
+<a href="Instructions2.doc7.html">Prev</a> | <a href="Instructions2.doc9.html">Next</a>
+</body></html>

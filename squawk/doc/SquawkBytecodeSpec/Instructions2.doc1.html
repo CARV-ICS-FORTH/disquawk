@@ -1,0 +1,372 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>Squawk Bytecode Instruction Descriptions</title>
+</head>
+<body BGCOLOR=#eeeeff text=#000000 LINK=#0000ff VLINK=#000077 ALINK=#ff0000>
+<table width=100%><tr>
+<td> <a href="Instructions.doc.html">Contents</a> | <a href="Instructions.doc.html">Prev</a> | <a href="Instructions2.doc2.html">Next</a> | <a href="Instructions2.index.html">Index</a> </td>
+<td align=right><i><i>Squawk Bytecode Instruction Set</i></i></td>
+</tr></table>
+
+<hr><br>
+
+<a href="Instructions2.doc1.html">A</a>
+<a href="Instructions2.doc2.html">B</a>
+<a href="Instructions2.doc3.html">C</a>
+<a href="Instructions2.doc4.html">D</a>
+<a href="Instructions2.doc5.html">E</a>
+<a href="Instructions2.doc6.html">F</a>
+<a href="Instructions2.doc7.html">G</a>
+<a href="Instructions2.doc8.html">I</a>
+<a href="Instructions2.doc9.html">L</a>
+<a href="Instructions2.doc10.html">M</a>
+<a href="Instructions2.doc11.html">N</a>
+<a href="Instructions2.doc12.html">O</a>
+<a href="Instructions2.doc13.html">P</a>
+<a href="Instructions2.doc14.html">R</a>
+<a href="Instructions2.doc15.html">S</a>
+<a href="Instructions2.doc16.html">T</a>
+<a href="Instructions2.doc17.html">U</a>
+<a href="Instructions2.doc18.html">W</a>
+<a href="Instructions2.doc19.html">X</a>
+
+<hr><a name="add_i"><h2>add_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Add <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>add_i</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>add_i</i> = 196 (0xc4)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="add_l"><h2>add_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Add <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>add_l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>add_l</i> = 211 (0xd3)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="aload_b"><h2>aload_b</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Load element of type <code>byte</code> from array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>aload_b</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>aload_b</i> = 242 (0xf2)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i> =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="aload_c"><h2>aload_c</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Load element of type <code>char</code> from array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>aload_c</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>aload_c</i> = 244 (0xf4)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i> =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="aload_i"><h2>aload_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Load element of type <code>int</code> from array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>aload_i</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>aload_i</i> = 241 (0xf1)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i> =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="aload_l"><h2>aload_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Load element of type <code>long</code> from array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>aload_l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>aload_l</i> = 246 (0xf6)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i> =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="aload_o"><h2>aload_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Load element of type <code>reference</code> from array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>aload_o</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>aload_o</i> = 245 (0xf5)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i> =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="aload_s"><h2>aload_s</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Load element of type <code>short</code> from array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>aload_s</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>aload_s</i> = 243 (0xf3)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i> =&gt; ..., <i>value</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="and_i"><h2>and_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Boolean AND <code>int</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>and_i</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>and_i</i> = 198 (0xc6)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="and_l"><h2>and_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Boolean AND <code>long</code>
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>and_l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>and_l</i> = 216 (0xd8)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>value1</i>, <i>value2</i> =&gt; ..., <i>result</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="arraylength"><h2>arraylength</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Get the length of an array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>arraylength</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>arraylength</i> = 232 (0xe8)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i> =&gt; ..., <i>length</i>
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+FIXME: Not done yet!
+</blockquote>
+<hr><a name="astore_b"><h2>astore_b</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store element of type <code>byte</code> to array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>astore_b</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>astore_b</i> = 248 (0xf8)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="astore_i"><h2>astore_i</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store element of type <code>int</code> to array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>astore_i</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>astore_i</i> = 247 (0xf7)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="astore_l"><h2>astore_l</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store element of type <code>long</code> to array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>astore_l</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>astore_l</i> = 251 (0xfb)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr><a name="astore_o"><h2>astore_o</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store element of type <code>reference</code> to array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>astore_o</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>astore_o</i> = 250 (0xfa)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Only the inputs to this instruction may be on the stack prior to its execution.
+</blockquote>
+<hr><a name="astore_s"><h2>astore_s</h2>
+<p><b>Operation</b></p>
+<blockquote>
+Store element of type <code>short</code> to array
+</blockquote>
+<p><b>Format</b></p>
+<blockquote>
+<Table Border="1"><tr><td><i>astore_s</i></td></tr></Table>
+</blockquote>
+<p><b>Forms</b></p>
+<blockquote>
+<i>astore_s</i> = 249 (0xf9)
+</blockquote>
+<p><b>Operand Stack</b></p>
+<blockquote>
+..., <i>arrayref</i>, <i>index</i>, <i>value</i> =&gt; ...
+</blockquote>
+<p><b>Description</b></p>
+<blockquote>
+Just like the corresponding Java bytecode.
+</blockquote>
+<hr>
+<a href="Instructions.doc.html">Prev</a> | <a href="Instructions2.doc2.html">Next</a>
+</body></html>
