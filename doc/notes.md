@@ -154,6 +154,8 @@ Notes:
     1. cldc/src/com/sun/squawk/ServiceOperation.java
     2. cldc/src/com/sun/squawk/VM.java
     3. cldc/src/com/sun/squawk/VMThread.java
+  * Memory allocation is implemented in the following files;
+    1. vmcore/src/vm/memory.c.spp
 
 To build the builder:
 ---------------------
