@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -137,11 +137,14 @@ public class DebuggerSupport {
             Offset offset = VM.getOffsetInRom(address).bytesToWords();
             id = offset.toInt();
             Assert.that(id > 0);
+// Formic doesn't have NVM
+/*if[!MICROBLAZE_BUILD]*/
         } else if (GC.inNvm(address)) {
             // NVM object IDs are relative to beginning of NVM plus the size of ROM
             int romSizeInWords = VM.getRomEnd().diff(VM.getRomStart()).bytesToWords().toInt();
             Offset offset = GC.getOffsetInNvm(address).bytesToWords();
             id = offset.toInt() + romSizeInWords;
+/*end[MICROBLAZE_BUILD]*/
         } else {
             id = 0;
         }
@@ -161,9 +164,18 @@ public class DebuggerSupport {
         if (id <= romSizeInWords) {
             Offset offset = Offset.fromPrimitive(id).wordsToBytes();
             return VM.getObjectInRom(offset);
+// Formic doesn't have NVM
+/*if[!MICROBLAZE_BUILD]*/
         } else {
             Offset offset = Offset.fromPrimitive(id - romSizeInWords).wordsToBytes();
             return GC.getObjectInNvm(offset);
+/*else[MICROBLAZE_BUILD]*/
+//      } else {
+//          Assert.shouldNotReachHere("no NVM in Formic",
+//                                    "DebuggerSupport.java",
+//                                    174);
+//          return null;
+/*end[MICROBLAZE_BUILD]*/
         }
     }
 
@@ -285,7 +297,7 @@ public class DebuggerSupport {
         }
         NativeUnsafe.setLongAtWord(ks, wordOffset, value);
     }
-    
+
     /**
      * Gets the class in which a given method was defined.s
      *
@@ -359,7 +371,7 @@ public class DebuggerSupport {
     \*-----------------------------------------------------------------------*/
 
     static final boolean DEBUG_STACK_INSPECTION = false;
-    
+
     /**
      * Get execution state of non-running thread. This is different from the saved execution point recorded by breakpoints, stepping,
      * exception handling, etc.
@@ -373,7 +385,7 @@ public class DebuggerSupport {
         if (!thread.isAlive()) {
             return null;
         }
-        
+
         Object stack = thread.getStack();
         Address fp = NativeUnsafe.getAddress(stack, SC.lastFP);
         if (fp.isZero()) {
@@ -404,7 +416,7 @@ public class DebuggerSupport {
         if (!thread.isAlive()) {
             return 0;
         }
-        
+
         Object stack = thread.getStack();
         boolean isInnerMostActivation = false;
 
@@ -415,7 +427,7 @@ public class DebuggerSupport {
             }
             isInnerMostActivation = true;
         }
-        
+
         Object mp    = from.mp;
         Offset bci   = from.bci;
         Offset frame = from.frame;
@@ -480,7 +492,7 @@ public class DebuggerSupport {
         inspector.postInspection();
         return inspectedFrames;
     }
-    
+
 // NOT USED:
     /**
      * Counts the number of inner most frames on a call stack representing the
@@ -572,7 +584,7 @@ public class DebuggerSupport {
                     VM.println("   slot " + (isTwoWordLongLocal ? slot + 1 : slot) + ": type = " + type.getInternalName() + " isParameter = " + isParameter + ", value = 0x" + Long.toString(value, 16));
                 }
                 inspector.inspectSlot(isParameter, (isTwoWordLongLocal ? slot + 1 : slot), type, value);
-                
+
                 if (setter != null && setter.shouldSetSlot((isTwoWordLongLocal ? slot + 1 : slot), type)) {
                     long newVal = setter.newPrimValue();
                     if (skipSlot) {
@@ -703,17 +715,17 @@ public class DebuggerSupport {
         public Object getResult() {
             return null;
         }
-        
+
         /**
          * Figure out the type map for the given frameNo and method pointer.
-         * 
+         *
          * The default implementation decodes the typemap in the method object, but that only includes
-         * ref/prim types (Object vs int). The debugger agent (SDA) gets more specific type info from the 
+         * ref/prim types (Object vs int). The debugger agent (SDA) gets more specific type info from the
          * the debugger proxy.
-         * 
+         *
          * @param frameNo
          * @param mp
-         * @param parameterCount 
+         * @param parameterCount
          * @return a klass array with one klass per physical word (eg. longs and doubles will have two entries)
          */
         public Klass[] getTypeMap(int frameNo, Object mp, int parameterCount) {
@@ -744,13 +756,13 @@ public class DebuggerSupport {
          * @return  true if the slot should be set
          */
         public abstract boolean shouldSetSlot(int slot, Klass type);
-        
+
         /**
          * Returns the new primitive value for the slot last checked by shouldSetSlot.
          * @return new value
          */
         public abstract long newPrimValue();
-                
+
         /**
          * Returns the new reference value for the slot last checked by shouldSetSlot.
          * @return new value
@@ -758,7 +770,7 @@ public class DebuggerSupport {
         public abstract Object newObjValue();
 
     }
-    
+
     /**
      * Count the number of frames on the stack, while <code>thread</code> is temporarily suspended.
      *
@@ -828,7 +840,7 @@ public class DebuggerSupport {
     }
 
 /*end[DEBUG_CODE_ENABLED]*/
-    
+
     private DebuggerSupport() {
     }
 }
