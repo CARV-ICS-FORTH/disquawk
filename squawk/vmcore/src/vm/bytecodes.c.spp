@@ -69,23 +69,23 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
  * @return its class state or null if not found
  */
 /*MAC*/ void addClassState(Address $klass, Address $state) {
-	int i;
-
 	cachedClass_g[cachedClassIndex_g]      = $klass;
 	cachedClassState_g[cachedClassIndex_g] = $state;
 
 	cachedClassIndex_g = (cachedClassIndex_g + 1) % CLASS_CACHE_SIZE;
 }
 
-/* This is the original implementation 8/
-   /* // shift all cached classes
+/* This is the original implementation */
+   /* int i;
+   *
+   * // shift all cached classes
    * for (i = CLASS_CACHE_SIZE-1 ; i > 0  ; --i) {
    * 	cachedClass_g[i]      = cachedClass_g[i-1];
    * 	cachedClassState_g[i] = cachedClassState_g[i-1];
    * }
    * // and add to the start (0)
-   * cachedClass_g[0]      = $klass;
-   * cachedClassState_g[0] = $state; */
+   * cachedClass_g[0]      = \$klass;
+   * cachedClassState_g[0] = \$state; */
 
 /**
  * Get a cached class state.
@@ -1214,8 +1214,10 @@ if (!runningOnServiceThread_g &&                                                
 	 * context of the caller.
 	 */
 	if (newThread != com_sun_squawk_VMThread_serviceThread) {
+/*if[ENABLE_MULTI_ISOLATE]*/
 		int oldRunningOnServiceThread = runningOnServiceThread_g;
 		Address newIsolate = (Address)com_sun_squawk_VMThread_isolate(newThread);
+/*end[ENABLE_MULTI_ISOLATE]*/
 
 		runningOnServiceThread_g = false;
 /*if[ENABLE_MULTI_ISOLATE]*/
