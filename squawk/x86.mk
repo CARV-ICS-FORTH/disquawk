@@ -34,9 +34,6 @@ include $(APP)/Makefile
 run: squawk FormicApp.suite
 	$(AT)./squawk -suite:FormicApp $(MAIN)
 
-map: squawk.suite.map FormicApp.suite.map
-
-
 # Create the Application suite map (useful to translate the traces)
 FormicApp.suite.map: FormicApp.suite mapper/classes.jar build.jar
 	$(AT)echo $(STR_MAP) $@
@@ -48,10 +45,13 @@ build.jar build-commands.jar: $(shell find builder/src -name "*.java")
 	$(AT)cd builder; sh bld.sh;
 
 
-# builds the squawk executable for x86 platforms
-squawk: romizer/classes.jar vm2c/classes.jar build.jar
-	$(AT)echo $(STR_ROM) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) rom cldc
+################################################################################
+# Build several squawk "tools"
+################################################################################
+# Rebuild the builder if needed
+build.jar build-commands.jar: $(shell find builder/src -name "*.java")
+	$(AT)echo $(STR_BLD) $@
+	$(AT)cd builder; sh bld.sh;
 
 romizer/classes.jar: $(shell find romizer/src -name "*.java") build.jar
 	$(AT)echo $(STR_BLD) romizer
@@ -61,16 +61,16 @@ vm2c/classes.jar: $(shell find vm2c/src -name "*.java") build.jar
 	$(AT)echo $(STR_BLD) vm2c
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) vm2c
 
-# Create the bootstrap suite
-squawk.suite: romizer/classes.jar build.jar
+mapper/classes.jar: $(shell find mapper/src -name "*.java") build.jar
+	$(AT)echo $(STR_BLD) mapper
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) mapper
+################################################################################
+
+# builds the squawk executable for x86 platforms
+squawk: romizer/classes.jar vm2c/classes.jar cldc/classes.jar \
+        $(shell find cldc/src -name "*.java")  build.jar
 	$(AT)echo $(STR_ROM) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -o:squawk -arch:Formic -endian:little -cp:./cldc/j2meclasses/:./cldc/resources/: -java5cp:./cldc/classes: ./cldc/j2meclasses ./cldc/resources
-
-# Create the bootstrap suite map (useful to translate the traces)
-squawk.suite.map: squawk.suite mapper/classes.jar build.jar
-	$(AT)echo $(STR_MAP) $@
-	$(AT)$(BUILDER) map -notypemap $<
-
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) rom cldc
 
 clean:
 	$(AT)echo $(STR_CLN)

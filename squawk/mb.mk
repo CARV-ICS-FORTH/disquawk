@@ -382,7 +382,7 @@ tracerun: $(ELF) map
 		| ./traceviewer.rb | tee run.log
 
 # Create the bootstrap suite
-squawk.suite: romizer/classes.jar build.jar
+squawk.suite: romizer/classes.jar cldc/classes.jar build.jar
 	$(AT)echo $(STR_BLD) $@
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize \
 		-DPLATFORM_TYPE_DELEGATING=false -DPLATFORM_TYPE_NATIVE=false \
