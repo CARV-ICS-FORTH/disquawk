@@ -44,7 +44,7 @@ typedef struct globalsStruct {
 	Address     _memoryEnd;     /* The end of the memory buffer. */
 	UWord       _memorySize;    /* The Size (In bytes) of the memory buffer. */
 
-#ifdef NATIVE_SOFTWARE_CACHE
+#ifdef SC_NATIVE
 #ifdef __MICROBLAZE__
 	/** The cache directory. */
 	sc_object_st      *_cacheDirectory;
@@ -66,8 +66,10 @@ typedef struct globalsStruct {
 	int               _cacheObjects;
 	/** Bitmap for pending write back DMAs. */
 	int               _cachePendingWBs;
+#else
+#error SC_NATIVE is only supported on Formic
 #endif /* __MICROBLAZE__ */
-#endif /* NATIVE_SOFTWARE_CACHE */
+#endif /* SC_NATIVE */
 
 #ifndef MACROIZE
 	int          _iparm; /* The immediate operand value of the current bytecode. */
@@ -164,6 +166,7 @@ typedef struct globalsStruct {
 
 	Address     _cachedClassState[CLASS_CACHE_SIZE > 0 ? CLASS_CACHE_SIZE : 1];
 	Address     _cachedClass     [CLASS_CACHE_SIZE > 0 ? CLASS_CACHE_SIZE : 1];
+	int         _cachedClassIndex;
 #ifdef INTERPRETER_STATS
 	int         _cachedClassAccesses;
 	int         _cachedClassHits;
@@ -278,7 +281,7 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define memoryEnd_g                         defineGlobal(memoryEnd)
 #define memorySize_g                        defineGlobal(memorySize)
 
-#ifdef NATIVE_SOFTWARE_CACHE
+#ifdef SC_NATIVE
 #ifdef __MICROBLAZE__
 #define cacheDirectory_g                    defineGlobal(cacheDirectory)
 #define cacheStart_g                        defineGlobal(cacheStart)
@@ -290,8 +293,10 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define cacheClears_g                       defineGlobal(cacheClears)
 #define cacheObjects_g                      defineGlobal(cacheObjects)
 #define cachePendingWBs_g                   defineGlobal(cachePendingWBs)
+#else
+#error SC_NATIVE is only supported on Formic
 #endif /* __MICROBLAZE__ */
-#endif /* NATIVE_SOFTWARE_CACHE */
+#endif /* SC_NATIVE */
 
 #ifndef MACROIZE
 #define iparm_g                             defineGlobal(iparm)
@@ -334,6 +339,7 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 
 #define cachedClassState_g                  defineGlobal(cachedClassState)
 #define cachedClass_g                       defineGlobal(cachedClass)
+#define cachedClassIndex_g                  defineGlobal(cachedClassIndex)
 #ifdef INTERPRETER_STATS
 #define cachedClassAccesses_g               defineGlobal(cachedClassAccesses)
 #define cachedClassHits_g                   defineGlobal(cachedClassHits)

@@ -1310,16 +1310,29 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	/*
 	 * setup the software cache
 	 */
-#ifdef NATIVE_SOFTWARE_CACHE
+#ifdef SC_NATIVE
+
+#ifndef SC_PER_CORE
+	if ( my_cid == 0 )
+#endif  /* SC_PER_CORE */
 	sc_initialize();
-#else  /* NATIVE_SOFTWARE_CACHE */
+
+#else  /* SC_NATIVE */
+
+#ifndef SC_PER_CORE
+	if ( my_cid == 0 ) {
+#endif  /* SC_PER_CORE */
 	com_sun_squawk_SoftwareCache_cacheStart =
 		(Address)roundUp((UWord)mm_scache_base(my_cid), pageSize);
 	com_sun_squawk_SoftwareCache_cacheEnd   =
 		(Address)roundDown(
 			(UWord)com_sun_squawk_SoftwareCache_cacheStart + MM_MB_SCACHE_SIZE,
 			pageSize);
-#endif /* NATIVE_SOFTWARE_CACHE */
+#ifndef SC_PER_CORE
+	}
+#endif  /* SC_PER_CORE */
+
+#endif /* SC_NATIVE */
 /*end[MICROBLAZE_BUILD]*/
 
 
@@ -1357,11 +1370,11 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	printRange("stack     ",
 	           (char*)mm_stack_base(my_cid),
 	           (char*)mm_stack_base(my_cid)+MM_MB_VA_STACK_SIZE);
-#ifndef NATIVE_SOFTWARE_CACHE
+#ifndef SC_NATIVE
 	printRange("cache     ",
 	           (char*)com_sun_squawk_SoftwareCache_cacheStart,
 	           (char*)com_sun_squawk_SoftwareCache_cacheEnd);
-#endif /* NATIVE_SOFTWARE_CACHE */
+#endif /* SC_NATIVE */
 	printRange("HEAP      ",
 	           (char*)MM_MB_HEAP_BASE,
 	           (char*)MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE);
@@ -2308,14 +2321,20 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
 	if (userStack) {
 		Address thread = getObject(ss_g, SC_owner);
 
-		printValueInRange(thread, "thread", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM");
-		printStrSafely(com_sun_squawk_VMThread_name(thread), "thread name", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "RAM or ROM");
+		printValueInRange(thread, "thread", com_sun_squawk_GC_ramStart,
+		                  com_sun_squawk_GC_ramEnd, "RAM");
+		printStrSafely(com_sun_squawk_VMThread_name(thread),
+		               "thread name", com_sun_squawk_VM_romStart,
+		               com_sun_squawk_GC_ramEnd, "RAM or ROM");
 #if com_sun_squawk_Klass_DEBUG_CODE_ENABLED
 		{
 			Address isolate = com_sun_squawk_VMThread_isolate(thread);
-			if (printValueInRange(isolate, "isolate", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM")) {
-				printStrSafely(com_sun_squawk_Isolate_mainClassName(isolate), "isolate main class",
-				               com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM");
+			if (printValueInRange(isolate, "isolate",
+			                      com_sun_squawk_GC_ramStart,
+			                      com_sun_squawk_GC_ramEnd, "RAM")) {
+				printStrSafely(com_sun_squawk_Isolate_mainClassName(isolate),
+				               "isolate main class", com_sun_squawk_GC_ramStart,
+				               com_sun_squawk_GC_ramEnd, "RAM");
 			}
 		}
 #endif

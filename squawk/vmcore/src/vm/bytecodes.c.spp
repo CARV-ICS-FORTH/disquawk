@@ -70,13 +70,22 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
  */
 /*MAC*/ void addClassState(Address $klass, Address $state) {
 	int i;
-	for (i = CLASS_CACHE_SIZE-1 ; i > 0  ; --i) {
-		cachedClass_g[i]      = cachedClass_g[i-1];
-		cachedClassState_g[i] = cachedClassState_g[i-1];
-	}
-	cachedClass_g[0]      = $klass;
-	cachedClassState_g[0] = $state;
+
+	cachedClass_g[cachedClassIndex_g]      = $klass;
+	cachedClassState_g[cachedClassIndex_g] = $state;
+
+	cachedClassIndex_g = (cachedClassIndex_g + 1) % CLASS_CACHE_SIZE;
 }
+
+/* This is the original implementation 8/
+   /* // shift all cached classes
+   * for (i = CLASS_CACHE_SIZE-1 ; i > 0  ; --i) {
+   * 	cachedClass_g[i]      = cachedClass_g[i-1];
+   * 	cachedClassState_g[i] = cachedClassState_g[i-1];
+   * }
+   * // and add to the start (0)
+   * cachedClass_g[0]      = $klass;
+   * cachedClassState_g[0] = $state; */
 
 /**
  * Get a cached class state.
@@ -129,6 +138,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 		res |= (UWord)cachedClass_g[i];
 		cachedClass_g[i] = null;
 	}
+	cachedClassIndex_g = 0;
 	return res == 0;
 }
 
@@ -646,7 +656,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 
 /*-----------------------------------------------------------------------*\
  *                             Utility code                              *
- \*-----------------------------------------------------------------------*/
+\*-----------------------------------------------------------------------*/
 
 /**
  * Gets the current method pointer.
@@ -1208,6 +1218,7 @@ if (!runningOnServiceThread_g &&                                                
 		Address newIsolate = (Address)com_sun_squawk_VMThread_isolate(newThread);
 
 		runningOnServiceThread_g = false;
+/*if[ENABLE_MULTI_ISOLATE]*/
 		if (com_sun_squawk_VM_currentIsolate != newIsolate) {
 			com_sun_squawk_VM_currentIsolate = newIsolate;
 			invalidateClassStateCache();
@@ -1215,6 +1226,9 @@ if (!runningOnServiceThread_g &&                                                
 		} else if (oldRunningOnServiceThread) {
 			set_sda_bp_set_or_stepping(newIsolate); /* coming off of service thread */
 		}
+/*else[ENABLE_MULTI_ISOLATE]*/
+//		set_sda_bp_set_or_stepping(newIsolate); /* coming off of service thread */
+/*end[ENABLE_MULTI_ISOLATE]*/
 
 		/*
 		 * If not simply switching back from the service thread to its caller
@@ -1999,9 +2013,9 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
  \*-----------------------------------------------------------------------*/
 
 /**
- * Modifies the global 'tracing' flag if a user specified backward branch threshold
- * has been met. This function also stops the VM if another user specified
- * threshold has been met.
+ * Modifies the global 'tracing' flag if a user specified backward
+ * branch threshold has been met. This function also stops the VM if
+ * another user specified threshold has been met.
  */
 /*INL*/ void bbtarget_trace() {
 #if TRACE
@@ -2022,7 +2036,8 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 		com_sun_squawk_VM_tracing = true;
 	}
 	if (count >= getTraceEnd()) {
-		fprintf(stderr, format("\n** Reached branch count limit %L **\n"), getBranchCount());
+		fprintf(stderr, format("\n** Reached branch count limit %L **\n"),
+		        getBranchCount());
 		stopVM(-1);
 	}
 #endif
@@ -2215,7 +2230,8 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  \*-----------------------------------------------------------------------*/
 
 /**
- * Gets the class that a putstatic or getstatic instruction operates on.
+ * Gets the class that a putstatic or getstatic instruction operates
+ * on.
  *
  * @param inCP    specifies if the class whose field to be accessed is
  *                the current class or is on the stack
@@ -2501,7 +2517,9 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  * @return the object
  */
 /*DEF*/ Address getInstanceFieldOop(boolean $oopIn0) {
-	return $oopIn0 ? (Address)getParmTyped(0, AddressType_REF) : popAddress();
+	return $oopIn0 ?
+		(Address)getParmTyped(0, AddressType_REF) :
+		popAddress();
 }
 
 /*-----------------------------------------------------------------------*\

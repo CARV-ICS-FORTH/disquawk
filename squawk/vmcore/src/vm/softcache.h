@@ -55,7 +55,7 @@ typedef struct sc_object sc_object_st;
 // http://easycalculation.com/prime-number.php to find the next
 // smallest (nearest) prime number
 #define SC_HASHTABLE_SIZE 94651
-#define SC_DIRECTORY_SIZE SC_HASHTABLE_SIZE * (2*sizeof(int))
+#define SC_DIRECTORY_SIZE SC_HASHTABLE_SIZE * (2*sizeof(void*))
 #define SC_CACHE_SIZE     SC_HASHTABLE_SIZE * MM_CACHELINE_SIZE
 
 // The size of a Klass object rounded up to cache line size

@@ -77,7 +77,8 @@ SUITES_ADDR:=DEAD
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DPLATFORM_UNALIGNED_LOADS=false \
 	-DLISP2_BITMAP \
-	-DNATIVE_SOFTWARE_CACHE
+	-DSC_NATIVE \
+	-DSC_PER_CORE
 # What we use
 # THESE MUST AGREE WITH build-mb.properties file
 CFLAGS =\
@@ -108,7 +109,8 @@ CFLAGS =\
 	-DLISP2_BITMAP \
 	-DPLATFORM_BIG_ENDIAN=false \
 	-DPLATFORM_UNALIGNED_LOADS=true \
-	-DNATIVE_SOFTWARE_CACHE
+	-DSC_NATIVE \
+	-DSC_PER_CORE
 
 # MYRMICS specific flags (normally in myrmics/include/arch.h)
 # NOTE: You must make clean and rebuild after changing this

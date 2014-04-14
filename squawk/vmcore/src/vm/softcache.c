@@ -62,18 +62,19 @@ struct sc_object {
 /**
  * The first hash function
  *
+ * We can safely ignore the 6 LSBs since objects are cache line
+ * aligned
+ *
+ * A simple mod after shifting to the right is still ignoring/dropping
+ * the 9 MSBs that in our implementation denote the home board and
+ * core id of the address. Since all VMs use the same garbage
+ * collector we expect objects from different cores to have the "same"
+ * address at their home node. To resolve this issue we need to put
+ * those 9 MSBs in the equation
+ *
  * @param key The key to hash
  */
 INLINE int sc_dir_hash(UWord key) {
-	// We can safely ignore the 6 LSBs since objects are cache line
-	// aligned
-
-	// A simple mod after shifting to the right is still
-	// ignoring/dropping the 9 MSBs that in our implementation denote
-	// the home board and core id of the address. Since all VMs use
-	// the same garbage collector we expect objects from different
-	// cores to have the "same" address at their home. To resolve this
-	// issue we need to put those 9 MSBs in the equation
 	key = (key >> 20) ^ (key >> 6);
 
 	return key % SC_HASHTABLE_SIZE;
@@ -82,12 +83,12 @@ INLINE int sc_dir_hash(UWord key) {
 /**
  * The second hash function, used to resolve collisions
  *
+ * On collisions we can use the home board and core id info (9MSBs)
+ * this way Objects from different homes will follow different probes
+ *
  * @param key The key to hash
  */
 INLINE int sc_dir_hash2(UWord key) {
-	// On collisions we can use the home board and core id info
-	// (9MSBs) this way Objects from different homes will follow
-	// different probes
 	return key >> 23;
 }
 
@@ -196,10 +197,12 @@ INLINE void sc_dir_ro_clear() {
 void sc_initialize() {
 	cacheDirectory_g  = (sc_object_st*)roundUp((UWord)mm_scache_base(my_cid),
 	                                           MM_CACHELINE_SIZE);
-	cacheStart_g      = (Address)roundUp((UWord)cacheDirectory_g + SC_DIRECTORY_SIZE,
-	                                     MM_CACHELINE_SIZE);
-	cacheEnd_g        = (Address)roundDown((UWord)cacheStart_g + SC_CACHE_SIZE,
-	                                       MM_CACHELINE_SIZE);
+	cacheStart_g      =
+		(Address)roundUp((UWord)cacheDirectory_g + SC_DIRECTORY_SIZE,
+		                 MM_CACHELINE_SIZE);
+	cacheEnd_g        =
+		(Address)roundDown((UWord)cacheStart_g + SC_CACHE_SIZE,
+		                   MM_CACHELINE_SIZE);
 	cacheSize_g       = cacheEnd_g - cacheStart_g;
 	cacheAllocTop_g   = cacheStart_g;
 	cacheROAllocTop_g = cacheEnd_g;
@@ -207,12 +210,14 @@ void sc_initialize() {
 	cacheObjects_g    = 0;
 	cachePendingWBs_g = 0;
 
+#if 0
 	fprintf(stderr, "+------------------ SOFTWARE-CACHE -------------------\n");
 	printRange("| Directory", cacheDirectory_g,
 	           (Address)cacheDirectory_g + SC_DIRECTORY_SIZE);
 	printRange("| Cache", cacheStart_g, cacheEnd_g);
 	fprintf(stderr, "| CacheSize = %d\n", cacheSize_g);
 	fprintf(stderr, "+-----------------------------------------------------\n");
+#endif
 }
 
 /**
@@ -220,18 +225,27 @@ void sc_initialize() {
  *
  * @param from The object to fetch
  * @param to   The address in the cache to store the copy
- * @param size The size of the object
+ * @param size The size of the object (must be less than 1MB)
  */
 void sc_fetch(Address from, Address to, int size) {
 	int cnt = 0;
-	// Calculate the core id of the destination from the to address
+	// Calculate the core id of the source from the from address
 	int from_cid;
-	// Calculate the board id of the destination from the to address
+	// Calculate the board id of the source from the from address
 	int from_bid;
 
 	sysHomeOfAddress(from, &from_cid, &from_bid);
+
+#ifdef SC_PER_CORE
+	// Make sure we do not cache our own objects
 	assume(from_cid != sysGetCore() && from_bid != sysGetIsland());
-	// make sure size <= 1MB
+#else  /* SC_PER_CORE */
+	// Make sure we do not cache our board's objects
+	assume(from_bid != sysGetIsland());
+#endif  /* SC_PER_CORE */
+
+	// make sure size <= 1MB, this is the upper limit for a DMA
+	// transfer
 	assume( size > 0 && size <= 0x100000);
 
 	// TODO: Find a counter to request the acknowledgment to
@@ -239,7 +253,7 @@ void sc_fetch(Address from, Address to, int size) {
 
 	// TODO: Check if we can start a new DMA
 
-	// Init counter to -size
+	// Init ACK counter to -size
 	ar_cnt_set(my_cid, cnt, -size);
 	// Issue the DMA
 	ar_dma_with_ack(my_cid,   // my core id
@@ -273,8 +287,16 @@ void sc_write_back(Address from, Address to, int size) {
 	int to_bid;
 
 	sysHomeOfAddress(to, &to_cid, &to_bid);
+#ifdef SC_PER_CORE
+	// Make sure we do not cache our own objects
 	assume(to_cid != sysGetCore() && to_bid != sysGetIsland());
-	// make sure size <= 1MB
+#else  /* SC_PER_CORE */
+	// Make sure we do not cache our board's objects
+	assume(to_bid != sysGetIsland());
+#endif  /* SC_PER_CORE */
+
+	// make sure size <= 1MB, this is the upper limit for a DMA
+	// transfer
 	assume( size > 0 && size <= 0x100000);
 
 	// Find an available counter to use, using the bitmap
@@ -292,15 +314,18 @@ void sc_write_back(Address from, Address to, int size) {
 	// if we did not enter the previous loop find the available counter
 	if (cnt == 32) {
 		// Find the first available counter
-		for (cnt=0;
-		     (cachePendingWBs_g & (1 << cnt));
-		     ++cnt);
+		for (cnt=0; (cachePendingWBs_g & (1 << cnt)); ++cnt) {
+			;
+		}
 
 		// Mark the counter as used
 		cachePendingWBs_g |= 1<<cnt;
 	}
 
-	// TODO: Check if we can start a new DMA
+	// Wait until our DMA engine can support at least one more DMA
+	while ( !(ar_ni_status_get(my_cid) & 0xFF) ) {
+		;
+	}
 
 	// Init counter to -size
 	cnt += SC_DMA_WB_CNT_START;
@@ -332,7 +357,9 @@ INLINE void sc_wait_pending() {
 
 	// go through the counters and spin on non zero
 	for (cnt = 0; cnt < 32; ++cnt) {
-		while ( ar_cnt_get(my_cid, SC_DMA_WB_CNT_START + cnt) != 0 );
+		while ( ar_cnt_get(my_cid, SC_DMA_WB_CNT_START + cnt) != 0 ) {
+			;
+		}
 	}
 
 	cachePendingWBs_g = 0;
@@ -345,11 +372,11 @@ INLINE void sc_wait_pending() {
  *                      (i.e. the total number of bytes to be allocated).
  * @return a pointer to the allocated memory or NULL if the allocation failed
  */
-#ifdef NATIVE_SOFTWARE_CACHE
+#ifdef SC_NATIVE
 INLINE Address sc_alloc(int size) {
 	Address ret       = cacheAllocTop_g;
-	Offset  available = Address_diff(cacheROAllocTop_g,
-	                                 ret);
+	Offset  available = Address_diff(cacheROAllocTop_g, ret);
+
 	assume(size >= 0 && size <= com_sun_squawk_SoftwareCache_cacheSize);
 
 #ifdef __MICROBLAZE__
@@ -372,7 +399,7 @@ INLINE Address sc_alloc(int size) {
 
 	return (Address)ret;
 }
-#else /* NATIVE_SOFTWARE_CACHE */
+#else /* SC_NATIVE */
 INLINE Address sc_alloc(int size) {
 	Address ret       = com_sun_squawk_SoftwareCache_allocTop;
 	Offset  available = Address_diff(com_sun_squawk_SoftwareCache_cacheEnd,
@@ -399,7 +426,7 @@ INLINE Address sc_alloc(int size) {
 
 	return (Address)ret;
 }
-#endif /* NATIVE_SOFTWARE_CACHE*/
+#endif /* SC_NATIVE*/
 
 /**
  * Allocate a chunk of memory from the software cache for a read-only
@@ -494,7 +521,7 @@ INLINE Address sc_put(Address obj) {
                                            // until we find a way to
                                            // know the object's size a
                                            // priori
-	if (ret == NULL) { // there is not enough space left
+	if ( unlikely(ret == NULL) ) { // there is not enough space left
 		// Write back any dirty objects
 		sc_flush();
 		cacheFlushes_g++;
@@ -502,7 +529,7 @@ INLINE Address sc_put(Address obj) {
 		sc_clear();
 		// Try to allocate again
 		ret = sc_alloc(sysGetCachelineSize());
-		if (ret == NULL) { // there is still not enough space
+		if ( unlikely(ret == NULL) ) { // there is still not enough space
 			// also clear the read-only cached objects
 			sc_ro_clear();
 			cacheClears_g++;
