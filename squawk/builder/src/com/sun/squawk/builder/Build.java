@@ -1416,7 +1416,13 @@ public class Build {
 
 					copy(phoneMeSourceRoot + "midp/src/protocol/http/classes", "imp/phoneme", "imp/src", "javax/microedition/io");
 					cp(new File(phoneMeSourceRoot + "midp/src/ams/ams_api/reference/classes", "javax/microedition/midlet/MIDletStateChangeException.java"), new File("imp/phoneme", "javax/microedition/midlet/MIDletStateChangeException.java"), false);
-					cp(new File(phoneMeSourceRoot + "midp/src/ams/ams_api/reference/classes", "javax/microedition/midlet/package.html"),                    new File("imp/phoneme", "javax/microedition/midlet/package.html"), false);
+					if (runJavadoc) {
+						cp(new File(phoneMeSourceRoot + "midp/src/ams/ams_api/reference/classes",
+						            "javax/microedition/midlet/package.html"),
+						   new File("imp/phoneme",
+						            "javax/microedition/midlet/package.html"),
+						   false);
+					}
 					cp(new File(phoneMeSourceRoot + "midp/src/ams/ams_api/reference/classes", "com/sun/midp/midlet/MIDletTunnel.java"), new File("imp/phoneme", "com/sun/midp/midlet/MIDletTunnel.java"), false);
 					copy(phoneMeSourceRoot + "midp/src/rms/rms_api/classes", "imp/phoneme", "imp/src", "javax/microedition/rms");
 					copy(phoneMeSourceRoot + "midp/src/rms/rms_api/reference/classes", "imp/phoneme", "imp/src", "javax/microedition/rms");
@@ -1484,8 +1490,12 @@ public class Build {
 			setDescription("filter that converts method addresses in a garbage collector trace to signatures");
 
 		// Add the "ht2html" command
-		addJavaCommand("ht2html", "hosted-support/classes:mapper/classes:cldc/classes", false, "", "com.sun.squawk.ht2html.Main", "mapper").
-			setDescription("converts a heap trace to a set of HTML files");
+		addJavaCommand("ht2html",
+		               "hosted-support/classes:mapper/classes:cldc/classes",
+		               false,
+		               "",
+		               "com.sun.squawk.ht2html.Main",
+		               "mapper").setDescription("converts a heap trace to a set of HTML files");
 
 		// Add the "rom" command
 		addCommand(new RomCommand(this)).dependsOn("SwitchDotC");
@@ -2196,8 +2206,10 @@ public class Build {
 				try {writer.close();} catch (IOException e) {}
 				try {reader.close();} catch (IOException e) {}
 			} else {
-				DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(from)));
-				OutputStream output = new BufferedOutputStream(new FileOutputStream(to, append));
+				DataInputStream input = new DataInputStream(
+					new BufferedInputStream(new FileInputStream(from)));
+				OutputStream output = new BufferedOutputStream(
+					new FileOutputStream(to, append));
 
 				byte[] content = new byte[(int)from.length()];
 				input.readFully(content);
@@ -2961,7 +2973,7 @@ public class Build {
 	 * @param   packages     the names of the packages whose sources are to be processed
 	 */
 	public void javadoc(File baseDir, String classPath, File[] srcDirs, String packages) {
-		File docDir = mkdir(new File("docs"), "Javadoc");
+		File docDir = mkdir(new File("doc"), "Javadoc");
 		File javadocDir = mkdir(docDir, baseDir.getName());
 
 		log(info, "[running javadoc (output dir: " + javadocDir + ") ...]");
@@ -3048,7 +3060,8 @@ public class Build {
 	}
 
 	/**
-	 * Runs javadoc and doccheck doclet over a set of sources that have just been compiled.
+	 * Runs javadoc and doccheck doclet over a set of sources that
+	 * have just been compiled.
 	 *
 	 * @param classPath the class path that was used to compile the sources
 	 * @param baseDir   the directory under which the "preprocessed" and "classes" directories exist
@@ -3267,13 +3280,6 @@ public class Build {
 			FileSet.Selector selector = new FileSet.AndSelector(JAVA_SOURCE_SELECTOR, outOfDate);
 			FileSet fs = new FileSet(sourceDir, selector);
 			preprocessor.execute(fs, preprocessedDir);
-
-			FileSet htmlFiles = new FileSet(sourceDir, HTML_SELECTOR);
-			for (Iterator iterator = htmlFiles.list().iterator(); iterator.hasNext();) {
-				File htmlFile = (File) iterator.next();
-				File toHtmlFile = htmlFiles.replaceBaseDir(htmlFile, preprocessedDir);
-				cp(htmlFile, toHtmlFile, false);
-			}
 
 		}
 

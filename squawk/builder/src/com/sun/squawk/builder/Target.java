@@ -199,7 +199,8 @@ public final class Target extends Command {
      * {@inheritDoc}
      */
     public void run(String[] args) {
-        env.javac(getCompileClassPath(null), getPreverifiedClassPath(null), baseDir, srcDirs, j2me, extraArgs, preprocess);
+        env.javac(getCompileClassPath(null), getPreverifiedClassPath(null),
+                  baseDir, srcDirs, j2me, extraArgs, preprocess);
     }
 
     public String getCompileClassPath(List<String> targetExceptions) {
