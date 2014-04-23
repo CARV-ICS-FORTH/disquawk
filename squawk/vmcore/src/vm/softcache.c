@@ -195,20 +195,23 @@ INLINE void sc_dir_ro_clear() {
  * function in this file.
  */
 void sc_initialize() {
-	cacheDirectory_g  = (sc_object_st*)roundUp((UWord)mm_scache_base(my_cid),
+	cacheDirectory_g   = (sc_object_st*)roundUp((UWord)mm_scache_base(my_cid),
 	                                           MM_CACHELINE_SIZE);
-	cacheStart_g      =
+	cacheStart_g       =
 		(Address)roundUp((UWord)cacheDirectory_g + SC_DIRECTORY_SIZE,
 		                 MM_CACHELINE_SIZE);
-	cacheEnd_g        =
+	cacheEnd_g         =
 		(Address)roundDown((UWord)cacheStart_g + SC_CACHE_SIZE,
 		                   MM_CACHELINE_SIZE);
-	cacheSize_g       = cacheEnd_g - cacheStart_g;
-	cacheAllocTop_g   = cacheStart_g;
-	cacheROAllocTop_g = cacheEnd_g;
-	cacheFlushes_g    = 0;
-	cacheObjects_g    = 0;
-	cachePendingWBs_g = 0;
+	cacheSize_g        = cacheEnd_g - cacheStart_g;
+	cacheAllocTop_g    = cacheStart_g;
+	cacheROAllocTop_g  = cacheEnd_g;
+	cacheROThreshold_g =
+		(Address)roundUp((UWord)(cacheEnd_g - (cacheSize_g / 2)),
+		                 MM_CACHELINE_SIZE);
+	cacheFlushes_g     = 0;
+	cacheObjects_g     = 0;
+	cachePendingWBs_g  = 0;
 
 #if 0
 	fprintf(stderr, "+------------------ SOFTWARE-CACHE -------------------\n");
@@ -306,13 +309,17 @@ void sc_write_back(Address from, Address to, int size) {
 			// if the counter is zero the DMA finished and we can use
 			// the counter
 			if ( ar_cnt_get(my_cid, SC_DMA_WB_CNT_START + cnt) == 0 ) {
-				break;
+				// Mark the counter as available
+				cachePendingWBs_g ^= 1<<cnt;
+//				break;
 			}
 		}
 	}
 
-	// if we did not enter the previous loop find the available counter
+	// if we did not enter the previous loop find the first available
+	// counter
 	if (cnt == 32) {
+		assume(cachePendingWBs_g != 0xFFFFFFFF);
 		// Find the first available counter
 		for (cnt=0; (cachePendingWBs_g & (1 << cnt)); ++cnt) {
 			;
@@ -356,8 +363,8 @@ INLINE void sc_wait_pending() {
 	int cnt;
 
 	// go through the counters and spin on non zero
-	for (cnt = 0; cnt < 32; ++cnt) {
-		while ( ar_cnt_get(my_cid, SC_DMA_WB_CNT_START + cnt) != 0 ) {
+	for (cnt = SC_DMA_WB_CNT_START; cnt < (SC_DMA_WB_CNT_START + 32); ++cnt) {
+		while ( ar_cnt_get(my_cid, cnt) != 0 ) {
 			;
 		}
 	}
@@ -436,11 +443,21 @@ INLINE Address sc_alloc(int size) {
  */
 INLINE Address sc_ro_alloc() {
 	Address ret       = Address_sub(cacheROAllocTop_g, SC_KLASS_SIZE);
-	Offset  available = Address_diff(cacheROAllocTop_g, cacheAllocTop_g);
+	Offset  available;
 
+	// if there are RW cache objects in the "RO section" of the cache
+	if (unlikely(lt(cacheROThreshold_g, cacheAllocTop_g))) {
+		// diff with cacheAllocTop_g
+		available = Address_diff(cacheROAllocTop_g, cacheAllocTop_g);
+	} else {
+		// else diff with cacheROThreshold_g to avoid using "precious"
+		// memory for RO objects
+		available = Address_diff(cacheROAllocTop_g, cacheROThreshold_g);
+	}
+
+	// If there is not enough space return NULL and let the caller
+	// handle it
 	if (unlikely(lt(available, SC_KLASS_SIZE))) {
-		// If there is not enough space return NULL and let the caller
-		// handle it
 		return NULL;
 	}
 
