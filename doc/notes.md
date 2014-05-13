@@ -145,7 +145,7 @@ Notes:
   * Bootstrap suite is loaded by loadBootstrapSuiteFromFlash in
     vmcore/src/vm/suite.c
   * To add a native method one must change:
-    1. vmcore/src/vm/bytecodes.c.spp
+    1. vmcore/src/vm/bytecodes.c[.spp]
     2. translator/src/com/sun/squawk/translator/ir/verifier/NativeVerifierHelper.java
     3. cldc/src/com/sun/squawk/vm/Native.java
     4. cldc/src/com/sun/squawk/NativeUnsafe.java
@@ -155,7 +155,14 @@ Notes:
     2. cldc/src/com/sun/squawk/VM.java
     3. cldc/src/com/sun/squawk/VMThread.java
   * Memory allocation is implemented in the following files;
-    1. vmcore/src/vm/memory.c.spp
+    1. vmcore/src/vm/memory.c[.spp]
+  * To get the class size (in bytes) one can see the *.map at the end
+    (Class statistics)
+  * To see the instance size of each class (in words) one must:
+    1. uncomment the printlns in decodeInstance() in
+    mapper/src/com/sun/squawk/ObjectMemoryMapper.java
+    2. make -f mb.mk map | tee temp.out
+    3. egrep '^class [a-zA-Z]' temp.out | sort | uniq
 
 To build the builder:
 ---------------------

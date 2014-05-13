@@ -1599,7 +1599,10 @@ public class ObjectMemoryMapper {
         if (fieldDefs != null && klass == Klass.KLASS) {
             Klass defClass = VM.asKlass(oop);
             fieldDefs.add(defClass);
+//            System.out.println(defClass + " -- size =" + Klass.getInstanceSize(defClass));
         }
+//        else
+//            System.out.println(klass + " -- size =" + Klass.getInstanceSize(klass));
 
         Assert.always(suiteKlass != null);
         if (klass == suiteKlass) {
