@@ -48,6 +48,16 @@ ARGF.each do |line|
       puts line.gsub(/\n/, '')+"\tfailed"
     end
   else
-    puts line
+    # match ar_backtrace prints "0x01/0 [0] F=    9884 PC=    98F8 fs=48 1:0"
+    res = line.match(%r{(?'pre'0x\h{2}/[[:digit:]] \[[[:space:]]*[[:digit:]]+\]) F= {,8}(?'fptr'\h{,8}) PC=(?'pc' {,8}\h{,8}).*})
+    if res
+      # Find function in dump file (objectdump)
+      cmd = "egrep -i '^0*#{res[:fptr]}' ./build/squawk.dump"
+      l = %x[#{cmd}]
+      func_name = l.match(%r{\h* <(?'function'\w+)>})[:function]
+      puts res[:pre]+" "+res[:pc]+" "+func_name
+    else
+      puts line
+    end
   end
 end
