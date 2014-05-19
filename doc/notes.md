@@ -129,7 +129,7 @@ xmd.tcl contents:
 
 GDB:
 ----
-  Open xmd (connect, stop, dow, don't run but stp)
+  Open xmd (connect, stop, dow, don't run but stop)
   mb-gdb foo.elf (target remote localhost:1234)
 
 
