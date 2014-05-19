@@ -11,7 +11,7 @@
 #                                                                              #
 ################################################################################
 
-PATH+=:/opt/Xilinx/12.4/ISE_DS/EDK/gnu/microblaze/lin64/bin/
+PATH+=:/opt/Xilinx/12.4/ISE_DS/EDK/gnu/microblaze/lin64/bin
 
 ################################################################################
 # Other variables
@@ -77,8 +77,7 @@ SUITES_ADDR:=DEAD
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DPLATFORM_UNALIGNED_LOADS=false \
 	-DLISP2_BITMAP \
-	-DSC_NATIVE \
-	-DSC_PER_CORE
+	-DSC_NATIVE
 # What we use
 # THESE MUST AGREE WITH build-mb.properties file
 CFLAGS =\
@@ -101,16 +100,15 @@ CFLAGS =\
 	-DFLASH_MEMORY \
 	-DARCH_MB \
 	-DSQUAWK \
-	-DMAXINLINE -O3 \
 	-DPLATFORM_TYPE_BARE_METAL \
-	-DMACROIZE \
 	-DSQUAWK_64=false \
 	-DWRITE_BARRIER \
 	-DLISP2_BITMAP \
 	-DPLATFORM_BIG_ENDIAN=false \
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DSC_NATIVE \
-	-DSC_PER_CORE
+	-DMACROIZE \
+	-DMAXINLINE -O3 \
 
 # MYRMICS specific flags (normally in myrmics/include/arch.h)
 # NOTE: You must make clean and rebuild after changing this
@@ -155,7 +153,6 @@ MYRMICS_OBJS =\
 	kt/ascii85.o \
 	dbg/trace.o \
 	dbg/stats.o \
-	noc/init.o \
 	noc/message.o \
 	noc/dma.o \
 	mm/slab.o \
