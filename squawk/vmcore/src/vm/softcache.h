@@ -34,31 +34,43 @@
  * bit and the 1-5 bits to store the acknowledgment counter for the
  * object if there is a pending DMA transfer for it
  */
-#define SC_DIRTY_MASK   0x1
-//#define SC_CNT_MASK     0x3E
-#define SC_ADDRESS_MASK ~(SC_DIRTY_MASK)
+#define SC_DIRTY_MASK   0x01 // 0000 0001
+#define SC_CNT_MASK     0x3E // 0011 1110
+#define SC_ADDRESS_MASK ~((SC_CNT_MASK) & (SC_DIRTY_MASK))
 
 /**
  * For the write back DMA acknowledgments we use the hardware counters
- * 90-122
+ * NOC_MAX_COUNTERS-32 ~ NOC_MAX_COUNTERS
+ * We can only issue 32 DMAs from our engine so 32 counters are enough.
  */
-#define SC_DMA_WB_CNT_START 90
+#define SC_DMA_WB_CNT_START ((NOC_MAX_COUNTERS)-32)
+/**
+ * For the fetch DMA acknowledgments we use the hardware counters
+ * SC_DMA_WB_CNT_START-32 ~ SC_DMA_WB_CNT_START
+ * Support up to 32 outstanding fetches (this leaves us with only 59
+ * free counters)
+ */
+#define SC_DMA_FE_CNT_START ((SC_DMA_WB_CNT_START)-32)
 
 /**
  * A node of the directory.
  */
 typedef struct sc_object sc_object_st;
 
-// The hash-table size must be the closest prime to the lines that can
-// fit in the cache. To calculate this value use the
+// The hash-table size must be the closest prime to the cache-lines
+// that can fit in the cache. To calculate this value use the
 // cache_memory/(cache_line+sizeof(2*(void*))) formula and pass it to
 // http://easycalculation.com/prime-number.php to find the next
-// smallest (nearest) prime number
+// smaller (nearest) prime number
 #define SC_HASHTABLE_SIZE 94651
-#define SC_DIRECTORY_SIZE SC_HASHTABLE_SIZE * (2*sizeof(void*))
-#define SC_CACHE_SIZE     SC_HASHTABLE_SIZE * MM_CACHELINE_SIZE
+#define SC_DIRECTORY_SIZE (SC_HASHTABLE_SIZE * (2*sizeof(void*)))
+#define SC_CACHE_SIZE     (SC_HASHTABLE_SIZE * MM_CACHELINE_SIZE)
 
-// The size of a Klass object rounded up to cache line size
-#define SC_KLASS_SIZE     64
+// The size of a Klass object instance (72) rounded up to cache line size
+#define SC_KLASS_SIZE     128
+
+void sc_initialize();
+Address sc_get(Address obj);
+extern inline Address sc_translate(Address obj);
 
 #endif /* __SOFTCACHE_H__ */

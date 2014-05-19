@@ -68,6 +68,8 @@ typedef struct globalsStruct {
 	int               _cacheObjects;
 	/** Bitmap for pending write back DMAs. */
 	int               _cachePendingWBs;
+	/** Bitmap for pending fetch DMAs. */
+	int               _cachePendingFEs;
 #else
 #error SC_NATIVE is only supported on Formic
 #endif /* __MICROBLAZE__ */
@@ -296,6 +298,7 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define cacheClears_g                       defineGlobal(cacheClears)
 #define cacheObjects_g                      defineGlobal(cacheObjects)
 #define cachePendingWBs_g                   defineGlobal(cachePendingWBs)
+#define cachePendingFEs_g                   defineGlobal(cachePendingFEs)
 #else
 #error SC_NATIVE is only supported on Formic
 #endif /* __MICROBLAZE__ */
