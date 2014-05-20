@@ -1252,6 +1252,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	// RAM starts on the next page after the end of NVM
 /*if[MICROBLAZE_BUILD]*/
 	com_sun_squawk_GC_ramStart = (Address)roundUp((UWord)memory_g, pageSize);
+	com_sun_squawk_GC_ramStart = sc_prefix(com_sun_squawk_GC_ramStart);
 /*else[MICROBLAZE_BUILD]*/
 //	com_sun_squawk_GC_ramStart =
 //		(Address)roundUp((UWord)com_sun_squawk_GC_nvmEnd, pageSize);
@@ -1265,7 +1266,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	// block allocate for the stack. This length is later used in Thread.initializeThreading()
 	// to format the stack as a Java object of type Klass.LOCAL_ARRAY
 
-	/* NOTE: This is the original core */
+	/* NOTE: This is the original code */
 //	com_sun_squawk_VMThread_serviceStack =
 //		Address_add(roundUp((UWord)com_sun_squawk_GC_ramEnd, pageSize), TWOWORDS);
 
@@ -1295,7 +1296,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 /*end[MICROBLAZE_BUILD]*/
 
 	// Ensure that the buffer did not overflow
-	assumeAlways(loeq(Address_add(memory_g, offset), memoryEnd_g));
+	assumeAlways(loeq(sc_translate(Address_add(memory_g, offset)), memoryEnd_g));
 
 	// Ensure all the buffers start at word aligned addresses.
 	assume(isWordAligned((UWord)com_sun_squawk_VM_romStart));
@@ -2284,8 +2285,6 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
 		fprintf(stderr, "    in GC\n");
 	}
 
-	printf("&romStart: %p\n",&com_sun_squawk_VM_romStart);
-	printf("&ramStart: %p\n",&com_sun_squawk_GC_ramStart);
 #if com_sun_squawk_Klass_ENABLE_DYNAMIC_CLASSLOADING
 	printValueInRange(_ip, "ip", com_sun_squawk_VM_romStart, com_sun_squawk_GC_ramEnd, "code");
 #else

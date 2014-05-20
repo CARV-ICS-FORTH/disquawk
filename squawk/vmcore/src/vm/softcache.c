@@ -253,6 +253,25 @@ INLINE int sc_is_cacheable(Address obj) {
 }
 
 /**
+ * Takes an address and prefixes it with the caller's board id
+ *
+ * @param obj The object to prefix
+ *
+ * @return the prefixed address
+ */
+inline Address sc_prefix(Address obj){
+
+	/* printf("Pref: 0x%p\n", obj);
+	 * printf("Start: 0x%p\n", MM_MB_HEAP_BASE);
+	 * printf("End: 0x%p\n", MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE); */
+	/* Assert obj is in the HEAP */
+	assume( hieq(obj, (Address)MM_MB_HEAP_BASE) );
+	assume( lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) );
+
+	return (Address)((UWord)obj | (my_bid << 27));
+}
+
+/**
  * Takes an address and translates it to the local representation if
  * it is cacheable or masks it to remove the board id info if it is
  * local

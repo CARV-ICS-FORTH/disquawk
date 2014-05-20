@@ -127,7 +127,7 @@
          * @return true if bit <code>n</code> corresponds with a word in the bitmap
          */
 /*MAC*/ boolean isNthBitInRange(UWord $n) {
-/*fprintf(stderr, format("isNthBitInRange:\n  base\t= %A\n  bmap\t= %A\n  n\t= %A\n  bmw\t= %A\n"), bitmapBase, bitmap, $n, getAddressOfBitmapWordForNthBit($n));*/
+/* fprintf(stderr, format("isNthBitInRange:\n  base\t= %A\n  bmap\t= %A\n  n\t= %A\n  bmw\t= %A\n"), bitmapBase, bitmap, $n, getAddressOfBitmapWordForNthBit($n)); */
             return hieq(getAddressOfBitmapWordForNthBit($n), bitmap) && lo(getAddressOfBitmapWordForNthBit($n), bitmapEnd);
         }
 
@@ -196,6 +196,7 @@
          * @return the index of the bit in the bitmap for <code>ea</code>
          */
 /*MAC*/ UWord asBitIndex(Address $ea) {
+            $ea = sc_translate($ea);
             return (((UWord)$ea) >> HDR_LOG2_BYTES_PER_WORD);
         }
 
@@ -216,7 +217,7 @@
          * @return the address corresponding to the first bit in the word at <code>bitmapWordPtr</code>
          */
 /*MAC*/ Address getAddressForBitmapWord(Address $bitmapWordPtr) {
-            return (Address)(((UWord)Address_diff($bitmapWordPtr, bitmapBase) << HDR_LOG2_BITS_PER_BYTE) << HDR_LOG2_BYTES_PER_WORD);
+            return sc_prefix((Address)(((UWord)Address_diff($bitmapWordPtr, bitmapBase) << HDR_LOG2_BITS_PER_BYTE) << HDR_LOG2_BYTES_PER_WORD));
         }
 
         /**
@@ -392,8 +393,4 @@
         }
 
 NOINLINE static boolean collectGarbage(Address this, Address allocTop, boolean forceFullGC);
-/*if[MICROBLAZE_BUILD]*/
-NOINLINE Address copyObjectGraph(Address this, Address object, Address cb, Address allocTop);
-/*else[MICROBLAZE_BUILD]*/
-//NOINLINE static Address copyObjectGraph(Address this, Address object, Address cb, Address allocTop);
-/*end[MICROBLAZE_BUILD]*/
+NOINLINE static Address copyObjectGraph(Address this, Address object, Address cb, Address allocTop);

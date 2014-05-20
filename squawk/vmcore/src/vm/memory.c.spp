@@ -401,6 +401,9 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @return       the value specified by 'oop' and 'offset'
  */
 /*MAC*/ signed char getByteTyped(Address $base, Offset $offset, char $type) {
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
 	return *((signed char *)checkType(&((signed char *)$base)[$offset], $type, 1));
 }
 
@@ -413,6 +416,9 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @return       the value specified by 'oop' and 'offset'
  */
 /*MAC*/ unsigned char getUByteTyped(Address $base, Offset $offset, char $type) {
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
 	return *((unsigned char *)checkType(&((unsigned char *)$base)[$offset], $type, 1));
 }
 
@@ -425,7 +431,11 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @param value  the value
  */
 /*MAC*/ void setByteTyped(Address $base, Offset $offset, char $type, signed char $value) {
-	signed char *ea = &((signed char *)$base)[$offset];
+	signed char *ea;
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
+	ea = &((signed char *)$base)[$offset];
 	setType(ea, $type, 1);
 	*ea = $value;
 	checkPostWrite(ea, 1);
@@ -440,6 +450,9 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @return       the value
  */
 /*MAC*/ short getShortTyped(Address $base, Offset $offset, char $type) {
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
 	return *((short *)checkType(&((short *)$base)[$offset], $type, 2));
 }
 
@@ -452,6 +465,9 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @return       the value
  */
 /*MAC*/ unsigned short getUShortTyped(Address $base, Offset $offset, char $type) {
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
 	return *((unsigned short *)checkType(&((unsigned short *)$base)[$offset], $type, 2));
 }
 
@@ -464,7 +480,11 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @param value  the value
  */
 /*MAC*/ void setShortTyped(Address $base, Offset $offset, char $type, short $value) {
-	short *ea = &((short *)$base)[$offset];
+	short *ea;
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
+	ea = &((short *)$base)[$offset];
 	setType(ea, $type, 2);
 	*ea = $value;
 	checkPostWrite(ea, 2);
@@ -479,6 +499,9 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @return       the value specified by 'oop' and 'offset'
  */
 /*MAC*/ int getIntTyped(Address $base, Offset $offset, char $type) {
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
 	return *((int *)checkType(&((int *)$base)[$offset], $type, 4));
 }
 
@@ -491,7 +514,11 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @param value  the value
  */
 /*MAC*/ void setIntTyped(Address $base, Offset $offset, char $type, int $value) {
-	int *ea = &((int *)$base)[$offset];
+	int *ea;
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
+	ea = &((int *)$base)[$offset];
 	setType(ea, $type, 4);
 	*ea = $value;
 	checkPostWrite(ea, 4);
@@ -506,6 +533,9 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @return       the value
  */
 /*MAC*/ jlong getLongAtWordTyped(Address $base, Offset $offset, char $type) {
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
 	return *((jlong *)checkType(&((UWordAddress)$base)[$offset], $type, 8));
 }
 
@@ -518,7 +548,11 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @param value  the value
  */
 /*MAC*/ void setLongAtWordTyped(Address $base, Offset $offset, char $type, jlong $value) {
-	jlong *ea = (jlong *)&((UWordAddress)$base)[$offset];
+	jlong *ea;
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
+	ea = (jlong *)&((UWordAddress)$base)[$offset];
 	setType(ea, $type, 8);
 	*ea = $value;
 	checkPostWrite(ea, 8);
@@ -533,6 +567,9 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @return       the value
  */
 /*MAC*/ jlong getLongTyped(Address $base, Offset $offset, char $type) {
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
 	return *((jlong *)checkType(&((jlong *)$base)[$offset], $type, 8));
 }
 
@@ -545,7 +582,11 @@ void checkOneAddress(Address ea, int size, Address addr);
  * @param value  the value
  */
 /*MAC*/ void setLongTyped(Address $base, Offset $offset, char $type, jlong $value) {
-	jlong *ea = (jlong *)&((jlong *)$base)[$offset];
+	jlong *ea ;
+/*if[MICROBLAZE_BUILD]*/
+	$base = sc_translate($base);
+/*end[MICROBLAZE_BUILD]*/
+	ea = (jlong *)&((jlong *)$base)[$offset];
 	setType(ea, $type, 8);
 	*ea = $value;
 	checkPostWrite(ea, 8);
@@ -815,7 +856,7 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
 			setByteTyped(ea, 6, AddressType_ANY, (char)b1);
 			setByteTyped(ea, 7, AddressType_ANY, (char)b0);
 		} else {
-#ifdef __MICROBLAZE__
+/*if[MICROBLAZE_BUILD]*/
 			setByteTyped(ea, 0, AddressType_ANY, (char)b4);
 			setByteTyped(ea, 1, AddressType_ANY, (char)b5);
 			setByteTyped(ea, 2, AddressType_ANY, (char)b6);
@@ -824,7 +865,7 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
 			setByteTyped(ea, 5, AddressType_ANY, (char)b1);
 			setByteTyped(ea, 6, AddressType_ANY, (char)b2);
 			setByteTyped(ea, 7, AddressType_ANY, (char)b3);
-#else
+/*else[MICROBLAZE_BUILD]*/
 			setByteTyped(ea, 0, AddressType_ANY, (char)b0);
 			setByteTyped(ea, 1, AddressType_ANY, (char)b1);
 			setByteTyped(ea, 2, AddressType_ANY, (char)b2);
@@ -833,7 +874,7 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
 			setByteTyped(ea, 5, AddressType_ANY, (char)b5);
 			setByteTyped(ea, 6, AddressType_ANY, (char)b6);
 			setByteTyped(ea, 7, AddressType_ANY, (char)b7);
-#endif /* __MICROBLAZE__ */
+/*end[MICROBLAZE_BUILD]*/
 		}
 	}
 	setAssume(value == getUnalignedLong(base, offset));
@@ -1194,10 +1235,10 @@ Address allocate(int size, Address klass, int arrayLength) {
 	Address oop;
 	assume(size >= 0);
 
-#ifdef __MICROBLAZE__
+/*if[MICROBLAZE_BUILD]*/
 	// make sure size is a multiple of the cache line size
 	size = roundUp(size, sysGetCachelineSize());
-#endif
+/*end[MICROBLAZE_BUILD]*/
 
 	if (unlikely(lt(available, size))) {
 
@@ -1234,9 +1275,10 @@ Address allocate(int size, Address klass, int arrayLength) {
 		}
 	}
 	com_sun_squawk_GC_allocTop = Address_add(block, size);
-	zeroWords(oop, com_sun_squawk_GC_allocTop);
+	zeroWords(sc_translate(oop), sc_translate(com_sun_squawk_GC_allocTop));
 	com_sun_squawk_GC_newCount++;
 	/*traceAllocation(oop, size);*/
+
 	return oop;
 }
 
@@ -1298,6 +1340,9 @@ void copyBytes(Address src, int srcPos, Address dst, int dstPos, int length, boo
 /*if[DEBUG_CODE_ENABLED]*/
 	assume(!nvmDst);
 /*end[DEBUG_CODE_ENABLED]*/
+	/* Translate the given addresses */
+	src = sc_translate(src);
+	dst = sc_translate(dst);
 /*else[MICROBLAZE_BUILD]*/
 //          if (nvmDst) {
 //              sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, false);
@@ -1307,7 +1352,8 @@ void copyBytes(Address src, int srcPos, Address dst, int dstPos, int length, boo
 	checkPostWrite(Address_add(dst, dstPos), length);
 /*if[!MICROBLAZE_BUILD]*/
 	if (nvmDst) {
-		sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd, true);
+		sysToggleMemoryProtection(com_sun_squawk_GC_nvmStart,
+		                          com_sun_squawk_GC_nvmEnd, true);
 	}
 /*end[MICROBLAZE_BUILD]*/
 }

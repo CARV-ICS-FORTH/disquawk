@@ -3497,7 +3497,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
  * declarations of static methods.
  */
 /*if[MICROBLAZE_BUILD]*/
-extern Address copyObjectGraph(Address, Address, Address, Address);
+static Address copyObjectGraph(Address, Address, Address, Address);
 /*else[MICROBLAZE_BUILD]*/
 //      static Address copyObjectGraph(Address, Address, Address, Address);
 /*end[MICROBLAZE_BUILD]*/

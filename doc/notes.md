@@ -147,9 +147,9 @@ Notes:
   * To add a native method one must change:
     1. vmcore/src/vm/bytecodes.c[.spp]
     2. translator/src/com/sun/squawk/translator/ir/verifier/NativeVerifierHelper.java
+       CAUTION: the arguments here should be popped in reverse order
     3. cldc/src/com/sun/squawk/vm/Native.java
     4. cldc/src/com/sun/squawk/NativeUnsafe.java
-       CAUTION: the arguments here should be popped in reverse order
   * GC is temporarily disabled, to enable it change the Files
     1. cldc/src/com/sun/squawk/ServiceOperation.java
     2. cldc/src/com/sun/squawk/VM.java
@@ -163,6 +163,8 @@ Notes:
     mapper/src/com/sun/squawk/ObjectMemoryMapper.java
     2. make -f mb.mk map | tee temp.out
     3. egrep '^class [a-zA-Z]' temp.out | sort | uniq
+  * Shift operations are using barrel-shift and take 1 or 2 cycles
+    (depending on the microblaze configuration)
 
 To build the builder:
 ---------------------

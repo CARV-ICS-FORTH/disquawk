@@ -17,13 +17,19 @@ romstart=0;
 # File.open(trace).each do |line|
 ARGF.each do |line|
   if line.start_with?("*TRACE*:*ROM*:")
-    romstart = line.split(':')[2].to_i+4
+    romstart = line.split(':')[2].to_i
     puts line
   elsif line.start_with?("*STACKTRACE*:") and not line.include?("\"")
     offset = line.split(':')[1].to_i-romstart
     flag = 0
     begin
-      cmd = "grep '#{offset} :.*method'"
+      # if offset < 0
+      #   puts "rom= " + romstart.to_s
+      #   puts "off= " + offset.to_s
+      #   puts "par= " + line.split(':')[1]
+      #   puts "par= " + line.split(':')[1].to_i(16).to_s
+      # end
+      cmd = "grep 'METHOD\.#{offset}'"
       if ARGV.length > 1
         i = 1
         begin
@@ -34,18 +40,19 @@ ARGF.each do |line|
         cmd << " *.map"
       end
 
+      # puts cmd
       l = %x[#{cmd}]
-      tokens = l.split(/.* #{offset}.*method /)
+      tokens = l.split(/=/)
       if tokens.length > 1
         puts line.gsub(/\n/, '')+"\t"+tokens[1].split[1]
         flag = 3
       else
-        offset -= 760
+#        offset -= 760
         flag += 1
       end
     end until flag > 1
     if flag == 2
-      puts line.gsub(/\n/, '')+"\tfailed"
+      puts line.gsub(/\n/, '')+"\tfailed ("+offset.to_s+")"
     end
   else
     # match ar_backtrace prints "0x01/0 [0] F=    9884 PC=    98F8 fs=48 1:0"

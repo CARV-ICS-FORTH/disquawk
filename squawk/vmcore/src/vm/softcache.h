@@ -72,5 +72,6 @@ typedef struct sc_object sc_object_st;
 void sc_initialize();
 Address sc_get(Address obj);
 extern inline Address sc_translate(Address obj);
+extern inline Address sc_prefix(Address obj);
 
 #endif /* __SOFTCACHE_H__ */

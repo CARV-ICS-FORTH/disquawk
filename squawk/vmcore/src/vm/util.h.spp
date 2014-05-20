@@ -125,7 +125,6 @@ NORETURN void fatalVMError0(char *msg, boolean cleanup) {
  */
 NORETURN void fatalVMError(char *msg) {
     fatalVMError0(msg, true);
-    printf("ABCCCC\n");
 }
 
 #define shouldNotReachHere() { fprintf(stderr, "shouldNotReachHere -- %s:%d\n", __FILE__, __LINE__); fatalVMError(""); }

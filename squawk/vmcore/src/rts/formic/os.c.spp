@@ -281,12 +281,14 @@ unsigned int get_flash_size(void) {
 //INLINE void osbackbranch() {}
 #define osbackbranch()
 
-#if 1
+#ifdef ATOMIC_BARRIER
 /**
  * @brief Global barrier.
  * Dissemination barrier (from: Two Algorithms for Barrier
  * Synchronization) implementation using bitfields and atomic
  * increment.
+ *
+ * NOTE: NOT WORKING for sparse cores (i.e. 1 core per board).
  *
  * Performance:
  *
