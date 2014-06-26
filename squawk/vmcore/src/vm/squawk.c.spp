@@ -1313,19 +1313,16 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	 */
 #ifdef SC_NATIVE
 
-	if ( my_cid == 0 )
-		sc_initialize();
+	sc_initialize();
 
 #else  /* SC_NATIVE */
 
-	if ( my_cid == 0 ) {
-		com_sun_squawk_SoftwareCache_cacheStart =
-			(Address)roundUp((UWord)mm_scache_base(my_cid), pageSize);
-		com_sun_squawk_SoftwareCache_cacheEnd   =
-			(Address)roundDown(
-				(UWord)com_sun_squawk_SoftwareCache_cacheStart + MM_MB_SCACHE_SIZE,
-				pageSize);
-	}
+	com_sun_squawk_SoftwareCache_cacheStart =
+		(Address)roundUp((UWord)mm_scache_base(my_cid), pageSize);
+	com_sun_squawk_SoftwareCache_cacheEnd   =
+		(Address)roundDown(
+			(UWord)com_sun_squawk_SoftwareCache_cacheStart + MM_MB_SCACHE_SIZE,
+			pageSize);
 
 #endif /* SC_NATIVE */
 /*end[MICROBLAZE_BUILD]*/
