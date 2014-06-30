@@ -23,6 +23,8 @@ public class DataMovement {
 
 	public static void main(String[] args) {
 
+		// Check simple objects
+
 		Integer temp  = new Integer(5120);
 		int     addr  = Address.fromObject(temp).toUWord().toPrimitive();
 
@@ -44,6 +46,35 @@ public class DataMovement {
 			System.out.println("remote = "+temp2+
 			                   "&remote = "+Integer.toHexString(addr2));
 		}
+
+		// Now check arrays
+
+		Integer[] arr  = new Integer[4];
+		arr[0] = new Integer(1024);
+		arr[1] = new Integer(2048);
+		arr[2] = new Integer(4096);
+		arr[3] = new Integer(5192);
+		addr   = Address.fromObject(arr).toUWord().toPrimitive();
+
+		// Add some delay to make sure the write is performed on both
+		// nodes
+		for(int i=0; i<10000; ++i) {
+		}
+
+		bid   = ((addr >>> 27) == 1) ? 0 : 1;
+		addr2 = (bid << 27) + (addr & 0x7FFFFFF);
+		Integer[] arr2 = (Integer[])Address.fromPrimitive(addr2).toObject();
+
+		if (arr2[1].intValue() == arr[1].intValue())
+			System.out.println("[1;32mPASS[0m");
+		else {
+			System.out.println("[1;31mFAIL[0m");
+			System.out.println("local = "+arr[1]+
+			                   "&local = "+Integer.toHexString(addr));
+			System.out.println("remote = "+arr2[1]+
+			                   "&remote = "+Integer.toHexString(addr2));
+		}
+
 	}
 
 }
