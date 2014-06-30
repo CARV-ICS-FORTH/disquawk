@@ -1,6 +1,7 @@
 /*
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle Corporation. All Rights Reserved.
+ * Copyright 2014 FORTH-ICS. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
  * This code is free software; you can redistribute it and/or modify
@@ -747,7 +748,8 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 #if ASSUME
 /*MAC*/ Address getClassOrAssociation(Address $oop) {
 	/* Catches an attempt to dereference a forwarding pointer */
-	assume(com_sun_squawk_GC_collecting || ((UWord)getObject($oop, HDR_klass) & HDR_headerTagMask) == 0);
+	assume(com_sun_squawk_GC_collecting ||
+	       ((UWord)getObject($oop, HDR_klass) & HDR_headerTagMask) == 0);
 	return getObject($oop, HDR_klass);
 }
 #else

@@ -1382,5 +1382,3 @@ void checkOneAddress(Address ea, int size, Address addr) {
 	}
 }
 #endif /* BAD_ADDRESS */
-
-#include "softcache.c"

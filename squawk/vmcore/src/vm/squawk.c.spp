@@ -514,12 +514,12 @@ void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
 		}
 	}
 
-/*if[!MICROBLAZE_BUILD]*/
+#if !defined(__MICROBLAZE__) || defined(ASSUME)
 	/*
 	 * Zero the bytes in the buffer.
 	 */
 	memset(buffer, 0, (int)size);
-/*end[MICROBLAZE_BUILD]*/
+#endif
 
 	/*
 	 * Register the buffer.
@@ -582,6 +582,11 @@ void freeBuffers() {
  * Include the switch and bytecode routines.
  */
 #include "bytecodes.c"
+
+/*
+ * Include the software cache.
+ */
+#include "softcache.c"
 
 /*
  * Include java code translated into C code.
