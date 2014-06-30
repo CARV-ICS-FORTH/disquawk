@@ -108,8 +108,10 @@ CFLAGS =\
 	-DPLATFORM_BIG_ENDIAN=false \
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DSC_NATIVE \
-	-DMACROIZE \
-	-DMAXINLINE -O3 \
+	-DASSUME \
+
+	# -DMACROIZE \
+	# -DMAXINLINE -O3 \
 
 # MYRMICS specific flags (normally in myrmics/include/arch.h)
 # NOTE: You must make clean and rebuild after changing this
@@ -124,7 +126,7 @@ CFLAGS+=-DAR_CONFIGURE_THROUGH_MAKE=1 \
 		-DAR_FORMIC_MIN_Z=0 \
 		-DAR_FORMIC_MAX_X=0 \
 		-DAR_FORMIC_MAX_Y=0 \
-		-DAR_FORMIC_MAX_Z=0
+		-DAR_FORMIC_MAX_Z=1
 
 LDFLAGS=--format elf32-microblazele --oformat elf32-microblazele
 ################################################################################
@@ -331,6 +333,7 @@ vmcore/src/vm/squawk.c: \
 	vmcore/src/vm/address.c\
 	vmcore/src/vm/util.h\
 	vmcore/src/vm/memory.c\
+	vmcore/src/vm/softcache.c\
 	vmcore/src/vm/bytecodes.c\
 	vmcore/src/vm/lisp2.c\
 	vmcore/src/vm/vm2c.c\
