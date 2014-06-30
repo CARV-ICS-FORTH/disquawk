@@ -136,6 +136,14 @@
 /*end[KERNEL_SQUAWK]*/
 #endif /* _MSC_VER */
 
+#ifdef __MICROBLAZE__
+#    ifdef MAXINLINE
+#        define INLINE __attribute__((always_inline))
+#    else
+#        define INLINE inline
+#    endif
+#endif /* __MICROBLAZE__ */
+
 #ifndef INLINE
 #    define INLINE inline static
 #endif
