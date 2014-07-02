@@ -56,6 +56,8 @@ typedef struct globalsStruct {
 	int               _cacheSize;
 	/** The next allocation address. */
 	Address           _cacheAllocTop;
+	/** Temp pointer to the last allocated cache-line if it was not used. */
+	Address           _cacheAllocTemp;
 	/** The allocation address for read-only Objects. */
 	Address           _cacheROAllocTop;
 	/** The allocation threshold/limit address for read-only Objects. */
@@ -292,6 +294,7 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define cacheEnd_g                          defineGlobal(cacheEnd)
 #define cacheSize_g                         defineGlobal(cacheSize)
 #define cacheAllocTop_g                     defineGlobal(cacheAllocTop)
+#define cacheAllocTemp_g                    defineGlobal(cacheAllocTemp)
 #define cacheROAllocTop_g                   defineGlobal(cacheROAllocTop)
 #define cacheROThreshold_g                  defineGlobal(cacheROThreshold)
 #define cacheFlushes_g                      defineGlobal(cacheFlushes)

@@ -23,6 +23,7 @@
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
  */
+#include "../platform.h"
 #include "global.h"
 
 INLINE float ib2f(int i)                { union  uu1 x; x.i = i; return x.f;         }

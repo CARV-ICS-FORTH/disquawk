@@ -198,23 +198,39 @@ INLINE void sc_dir_ro_clear() {
  * function in this file.
  */
 void sc_initialize() {
+	/* The cache directory. */
 	cacheDirectory_g   = (sc_object_st*)roundUp((UWord)mm_scache_base(my_cid),
 	                                            MM_CACHELINE_SIZE);
+	/* Start address of the allocated memory to the software cache. */
 	cacheStart_g       =
 		(Address)roundUp((UWord)cacheDirectory_g + SC_DIRECTORY_SIZE,
 		                 MM_CACHELINE_SIZE);
+	/* End address of the allocated memory to the software cache. */
 	cacheEnd_g         =
 		(Address)roundDown((UWord)cacheStart_g + SC_CACHE_SIZE,
 		                   MM_CACHELINE_SIZE);
+	/* Size of the software cache in bytes. */
 	cacheSize_g        = cacheEnd_g - cacheStart_g;
+	/* The next allocation address. */
 	cacheAllocTop_g    = cacheStart_g;
+	/* Temp pointer to the last allocated cache-line if it was not used. */
+	cacheAllocTemp_g   = NULL;
+	/* The allocation address for read-only Objects. */
 	cacheROAllocTop_g  = cacheEnd_g;
+	/* The allocation threshold/limit address for read-only Objects. */
 	cacheROThreshold_g =
 		(Address)roundUp((UWord)(cacheEnd_g - (cacheSize_g / 2)),
 		                 MM_CACHELINE_SIZE);
+	/* Counter for the number of flushes due to full cache. */
 	cacheFlushes_g     = 0;
+	/* Counts how many times the cache was cleared. */
+	cacheClears_g      = 0;
+	/* Counter for the number of cached objects. */
 	cacheObjects_g     = 0;
+	/* Bitmap for pending write back DMAs. */
 	cachePendingWBs_g  = 0;
+	/* Bitmap for pending fetch DMAs. */
+	cachePendingFEs_g  = 0;
 
 	sc_dir_clear();
 	sc_dir_ro_clear();
@@ -246,9 +262,9 @@ INLINE int sc_is_cacheable(Address obj) {
 		return 0;
 
 	sysHomeOfAddress(obj, &bid);
-	if ( bid != sysGetIsland() ) {
-		printf("Obj 0x%p home=%d my home=%d\n", obj, bid, sysGetIsland());
-	}
+	/* if ( bid != sysGetIsland() ) {
+	 * 	printf("Obj %p home=%d my home=%d\n", obj, bid, sysGetIsland());
+	 * } */
 	return ( bid != sysGetIsland() );
 }
 
@@ -261,9 +277,9 @@ INLINE int sc_is_cacheable(Address obj) {
  */
 inline Address sc_prefix(Address obj){
 
-	/* printf("Pref: 0x%p\n", obj);
-	 * printf("Start: 0x%p\n", MM_MB_HEAP_BASE);
-	 * printf("End: 0x%p\n", MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE); */
+	/* printf("Pref: %p\n", obj);
+	 * printf("Start: %p\n", MM_MB_HEAP_BASE);
+	 * printf("End: %p\n", MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE); */
 	/* Assert obj is in the HEAP */
 	assume( hieq(obj, (Address)MM_MB_HEAP_BASE) );
 	assume( lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) );
@@ -276,26 +292,29 @@ inline Address sc_prefix(Address obj){
  * it is cacheable or masks it to remove the board id info if it is
  * local
  *
- * @param obj The object to check
+ * @param obj      The object to check
  *
  * @return the translated or masked address
  */
 inline Address sc_translate(Address obj){
 
-//	printf("Trans: 0x%p\n", obj);
+//	printf("Trans: %p\n", obj);
 	/* Check if it is local */
 	if (sc_is_cacheable(obj)) {
-		printf("0x%p is cacheable\n", obj);
+		/* printf("%p is cacheable\n", obj); */
 		/* If not, check if it is cached and if not, cache it */
 		obj = sc_get(obj);
 		/* Assert obj is in the cache */
-		assume( hieq(obj, cacheStart_g) && lt(obj, cacheEnd_g) );
+		assume( hieq(obj, cacheStart_g) );
+		assume(   lt(obj, cacheEnd_g)   );
 	} else if ((UWord)obj & (~0x7FFFFFF)) {
 		/* If it is local, strip the tag */
 		obj = (Address)((UWord)obj & 0x7FFFFFF);
 		/* Assert obj is in the HEAP */
-		assume( hieq(obj, (Address)MM_MB_HEAP_BASE) &&
-		              lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) );
+		assume( hieq(obj, (Address)MM_MB_HEAP_BASE) ||
+		        hieq(obj, (Address)cacheStart_g) );
+		assume( lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) ||
+		        lt(obj, (Address)cacheEnd_g) );
 	}
 
 	return obj;
@@ -329,6 +348,7 @@ INLINE void sc_fetch(Address from, Address to, int size) {
 			if ( ar_cnt_get(my_cid, SC_DMA_FE_CNT_START + cnt) == 0 ) {
 				// Mark the counter as available
 				cachePendingFEs_g ^= 1<<cnt;
+				// Break if we are fine with a single counter
 //				break;
 			}
 		}
@@ -359,10 +379,14 @@ INLINE void sc_fetch(Address from, Address to, int size) {
 	ar_cnt_set(my_cid, cnt, -size);
 	// Get the object's home node cid and bid
 	sysHomeOfAddress(from, &from_bid);
+	// DMAs are working on cache-line granularity (64B). So we mask
+	// the from address accordingly to take the pure, cache-aligned
+	// address (offset) on the remote node.
+	from = (Address)((UWord)from & 0x7FFFFC0);
 	// Issue the DMA
 	ar_dma_with_ack(my_cid,   // my core id
 	                from_bid, // source board id
-	                0xC,      // source core id
+	                0,      // source core id, HACK: ATM fetch from the cache, untill the flush/invalidate mechanisms are ready.
 	                (int)from,// source address
 	                my_bid,   // destination board id
 	                my_cid,   // destination core id
@@ -375,6 +399,18 @@ INLINE void sc_fetch(Address from, Address to, int size) {
 	                0,        // force clean on dst
 	                0);       // write through
 
+//	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, my_bid, to);
+
+	// FIXME: We are not sure the DMA reached completion (probably
+	// not), so for the moment let's just spin here. Note that this
+	// must be fixed in order to make prefetching work efficiently
+	while ( ar_cnt_get(my_cid, cnt) != 0 ) {
+		;
+	}
+	// Mark the counter as available
+	cachePendingFEs_g ^= 1<<cnt;
+
+	return;
 }
 
 /**
@@ -523,7 +559,7 @@ INLINE Address sc_alloc(int size) {
 	return (Address)ret;
 }
 #else /* SC_NATIVE */
-INLINE Address sc_alloc(int size) {
+INLINE Address sc_alloc(unsigned int size) {
 	Address ret       = com_sun_squawk_SoftwareCache_allocTop;
 	Offset  available = Address_diff(com_sun_squawk_SoftwareCache_cacheEnd,
 	                                 ret);
@@ -639,6 +675,140 @@ INLINE void sc_ro_clear() {
 }
 
 /**
+ * Allocate a chunk of zeroed memory from the software cache
+ *
+ * @param   size        the length in bytes of the object and its header
+ *                      (i.e. the total number of bytes to be allocated). If 0
+ *                      it will allocate one cache-line.
+ * @return  a pointer to the allocated memory
+ */
+INLINE Address sc_malloc(unsigned int size){
+	Address ret;
+
+	size = size ? size : sysGetCachelineSize();
+	ret  = sc_alloc(size);
+
+	if ( unlikely(ret == NULL) ) { // there is not enough space left
+		// Write back any dirty objects
+		sc_flush();
+		cacheFlushes_g++;
+		// clear the cache but keep the read-only objects
+		sc_clear();
+		// Try to allocate again
+		ret = sc_alloc(size);
+
+		if ( unlikely(ret == NULL) ) { // there is still not enough space
+			// also clear the read-only cached objects
+			sc_ro_clear();
+			cacheClears_g++;
+			// Try to allocate again
+			ret = sc_alloc(size);
+			assume(ret!=NULL);
+		}
+	}
+
+	return ret;
+}
+
+/**
+ * Get the address at which the body of an object starts given the
+ * address, 'ret', of the block of memory allocated (cache-line
+ * aligned) for the object.
+ *
+ * A cache-line containing an object looks like this:
+ * +-----------------+---------------------------------------------+
+ * | Klass reference | Object instance                             |
+ * +-----------------+---------------------------------------------+
+ *                   ^
+ *                   | Offset = 4 B
+ *
+ * A cache-line containing an array looks like this:
+ * +-----------------+-----------------+---------------------------+
+ * | Array Length    | Klass reference | Object instances          |
+ * +-----------------+-----------------+---------------------------+
+ *                                     ^
+ *                                     | Offset = 8 B
+ *
+ * A cache-line containing a method looks like this:
+ * +---------------+----------------+--------------+-----------------+-------------+
+ * | Method header | Defining Class | Array Length | Klass reference | Method Body |
+ * +---------------+----------------+--------------+-----------------+-------------+
+ *                                                                   ^
+ *                                                                   | Offset = 12 B
+ *
+ * To find out the type of object stored in the cache-line we use
+ * the header tag as defined in
+ * cldc/src/com/sun/squawk/vm/HDR.java
+ *
+ * This is actually a clone of blockToOop from
+ * cldc/src/com/sun/squawk/GC.java
+ */
+INLINE Address sc_block_to_oop(Address obj, Address oop) {
+	int size, length;
+	switch ((*(int*)oop) & HDR_headerTagMask) {
+
+	case HDR_basicHeaderTag:  // Object Instance
+
+		// Check if we brought the whole instance or not
+		size = com_sun_squawk_Klass_instanceSizeBytes((Address)*(int*)oop);
+		/* printf("Klass size = %d\n", size); */
+
+		// If the instance size is larger than the cache-line we need
+		// to fetch the rest
+		if ( unlikely(size > sysGetCachelineSize()) ) {
+			cacheAllocTemp_g = oop;
+			oop = sc_malloc(size);
+			// Fetch data
+			sc_fetch(obj, oop, size);
+		}
+
+		oop += 4;
+		break;
+
+	case HDR_arrayHeaderTag:  // Array
+
+		// Check if we brought the whole instance or not
+		length = (*(int*)oop) >> 2;
+		size   =
+			length * com_sun_squawk_Klass_instanceSizeBytes(
+				com_sun_squawk_Klass_componentType((Address)*(int*)(oop+4)));
+		/* printf("Array [%d] size = %d\n", length, size); */
+
+		// If the instance size times the array elements is larger
+		// than the cache-line we need to fetch the rest
+		if ( unlikely(size > sysGetCachelineSize()) ) {
+			// TODO: Do something smarter for arrays (don't bring the
+			// whole array if we don't need it)
+			cacheAllocTemp_g = oop;
+			oop = sc_malloc(size);
+			// Fetch data
+			sc_fetch(obj, oop, size);
+		}
+
+		oop += 8;
+		break;
+
+	case HDR_methodHeaderTag: // Method
+		/* printf("%p is a method!\n", oop); */
+		// TODO: What's the size of a method? Did we bring the whole method?
+		oop += ((*(int*)oop) >> HDR_headerTagBits) * HDR_BYTES_PER_WORD;
+
+		// HACK: crash on method header accesses, until we fully
+		// understand their usage
+		fatalVMError("Method header");
+
+		break;
+
+	default:
+		fatalVMError("Wrong header tag");
+		break;
+
+	}
+
+	return oop;
+}
+
+/**
  * Fetches an object to cache it.  Allocates the appropriate space and
  * updates the cache directory.
  *
@@ -649,41 +819,38 @@ INLINE void sc_ro_clear() {
 INLINE Address sc_put(Address obj) {
 	Address   ret;
 
-	// Allocate memory
-	ret = sc_alloc(sysGetCachelineSize()); // use the cache line size
-                                           // until we find a way to
-                                           // know the object's size a
-                                           // priori
-	if ( unlikely(ret == NULL) ) { // there is not enough space left
-		// Write back any dirty objects
-		sc_flush();
-		cacheFlushes_g++;
-		// clear the cache but keep the read-only objects
-		sc_clear();
-		// Try to allocate again
-		ret = sc_alloc(sysGetCachelineSize());
-
-		if ( unlikely(ret == NULL) ) { // there is still not enough space
-			// also clear the read-only cached objects
-			sc_ro_clear();
-			cacheClears_g++;
-			// Try to allocate again
-			ret = sc_alloc(sysGetCachelineSize());
-			assume(ret!=NULL);
-		}
+	if ( unlikely(cacheAllocTemp_g != NULL) ) {
+		// If the last allocated cache-line was not used, try using it
+		// now
+		ret = cacheAllocTemp_g;
+		cacheAllocTemp_g = NULL;
+	} else {
+		// Allocate memory. We use the cache line size since we don't
+		// know the object's size a priori
+		ret = sc_malloc(sysGetCachelineSize());
 	}
 
 	// Fetch data
 	sc_fetch(obj, ret, sysGetCachelineSize());
 
-	// TODO: Check if the object's Klass is here
+	// The object's Klass is always here and resides in the ROM so
+	// there is no need for ext.ra fetches.
 
-	// TODO: Check if we brought the whole object or not
+	/* int i;
+	 * for (i=0; i<16; ++i) {
+	 * 	printf("Dump %p: %p\n", (((int*)ret)+i), *(((int*)ret)+i));
+	 * } */
+
+	// Make sure the whole object is here and move the pointer to the
+	// proper offset from the cache-line head
+	ret = sc_block_to_oop(obj, ret);
 
 	// Update the directory
 	sc_dir_insert((UWord)obj, (UWord)ret);
 
 	cacheObjects_g++;
+
+	/* printf("Put %p\n", ret); */
 
 	return ret;
 }
@@ -699,15 +866,17 @@ INLINE Address sc_put(Address obj) {
 Address sc_get(Address obj) {
 	Address   ret;
 
-	printf("Searching for 0x%p\n", obj);
-	ar_panic("sc_get");
+	/* printf("Searching for %p\n", obj); */
 
 	// Check if it is cached
 	ret = sc_dir_lookup((UWord)obj);
 	if (ret == NULL) { // miss
+		/* printf(" %p not found\n", obj); */
 		// Cache the object
 		ret = sc_put(obj);
 	}
+
+	/* printf(" %p found at %p\n", obj, ret); */
 
 	return ret;
 }
