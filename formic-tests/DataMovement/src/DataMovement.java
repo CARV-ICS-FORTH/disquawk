@@ -37,6 +37,7 @@ public class DataMovement {
 		int     addr2 = (bid << 27) + (addr & 0x7FFFFFF);
 		Integer temp2 = (Integer)Address.fromPrimitive(addr2).toObject();
 
+		System.out.print("Object transfer...");
 		if (temp2.intValue() == temp.intValue())
 			System.out.println("[1;32mPASS[0m");
 		else {
@@ -58,13 +59,14 @@ public class DataMovement {
 
 		// Add some delay to make sure the write is performed on both
 		// nodes
-		for(int i=0; i<10000; ++i) {
+		for(int i=0; i<20000; ++i) {
 		}
 
 		bid   = ((addr >>> 27) == 1) ? 0 : 1;
 		addr2 = (bid << 27) + (addr & 0x7FFFFFF);
 		Integer[] arr2 = (Integer[])Address.fromPrimitive(addr2).toObject();
 
+		System.out.print("Array transfer...");
 		if (arr2[1].intValue() == arr[1].intValue())
 			System.out.println("[1;32mPASS[0m");
 		else {
@@ -72,6 +74,36 @@ public class DataMovement {
 			System.out.println("local = "+arr[1]+
 			                   "&local = "+Integer.toHexString(addr));
 			System.out.println("remote = "+arr2[1]+
+			                   "&remote = "+Integer.toHexString(addr2));
+		}
+
+		// Now check large arrays
+
+		Integer[] larr = new Integer[131072];
+		larr[0]        = new Integer(1024);
+		larr[1]        = new Integer(2048);
+		larr[2]        = new Integer(4096);
+		larr[3]        = new Integer(5192);
+		larr[1024]     = new Integer(1234);
+		addr           = Address.fromObject(larr).toUWord().toPrimitive();
+
+		// Add some delay to make sure the write is performed on both
+		// nodes
+		for(int i=0; i<20000; ++i) {
+		}
+
+		bid   = ((addr >>> 27) == 1) ? 0 : 1;
+		addr2 = (bid << 27) + (addr & 0x7FFFFFF);
+		Integer[] larr2 = (Integer[])Address.fromPrimitive(addr2).toObject();
+
+		System.out.print("Large array transfer...");
+		if (larr2[1024].intValue() == larr[1024].intValue()) {
+			System.out.println("[1;32mPASS[0m");
+		} else {
+			System.out.println("[1;31mFAIL[0m");
+			System.out.println("local = "+larr[1024]+
+			                   "&local = "+Integer.toHexString(addr));
+			System.out.println("remote = "+larr2[1024]+
 			                   "&remote = "+Integer.toHexString(addr2));
 		}
 
