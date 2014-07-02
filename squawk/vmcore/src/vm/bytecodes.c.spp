@@ -690,8 +690,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the length
  */
 /*MAC*/ int getArrayLength(Address $oop) {
-	assume((int)(getUWord($oop, HDR_length) >> 2) >= 0);
-	return (int)(getUWord($oop, HDR_length) >> 2);
+	int length = (int)(getUWord($oop, HDR_length) >> 2);
+	assume(length >= 0);
+	return length;
 }
 
 /**
