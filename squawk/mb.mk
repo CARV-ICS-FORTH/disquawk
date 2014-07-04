@@ -108,10 +108,8 @@ CFLAGS =\
 	-DPLATFORM_BIG_ENDIAN=false \
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DSC_NATIVE \
-	-DASSUME \
-
-	# -DMACROIZE \
-	# -DMAXINLINE -O3 \
+	-DMACROIZE \
+	-DMAXINLINE -O3 \
 
 # MYRMICS specific flags (normally in myrmics/include/arch.h)
 # NOTE: You must make clean and rebuild after changing this
@@ -513,7 +511,6 @@ clean:
 			../formic-tests/*/classes\
 			../formic-apps/*/classes\
 			$(RTS_SRC)/*.c.spp.preprocessed\
-			$(RTS_SRC)/os.c\
 			$(APP)/classes\
 			run.log
 
