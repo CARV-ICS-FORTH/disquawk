@@ -767,10 +767,10 @@ INLINE Address sc_block_to_oop(Address obj, Address oop) {
 
 	case HDR_arrayHeaderTag:  // Array
 
-		// Check if we brought the whole instance or not
+		// Check if we brought the whole array or not
 		length = (*(int*)oop) >> 2;
 		size   =
-			length * com_sun_squawk_Klass_instanceSizeBytes(
+			length * getDataSize(
 				com_sun_squawk_Klass_componentType((Address)*(int*)(oop+4)));
 		/* printf("Array [%d] size = %d\n", length, size); */
 
