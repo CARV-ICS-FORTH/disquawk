@@ -144,12 +144,11 @@ Notes:
   * The VM is started from squawk.c[.spp]
   * Bootstrap suite is loaded by loadBootstrapSuiteFromFlash in
     vmcore/src/vm/suite.c
-  * To add a native method one must change:
-    1. vmcore/src/vm/bytecodes.c[.spp]
-    2. translator/src/com/sun/squawk/translator/ir/verifier/NativeVerifierHelper.java
-       CAUTION: the arguments here should be popped in reverse order
-    3. cldc/src/com/sun/squawk/vm/Native.java
-    4. cldc/src/com/sun/squawk/NativeUnsafe.java
+  * To add a native method one must:
+    1. Add 'throws NativePragma' to his function 
+    2. Probably edit vmcore/src/vm/bytecodes.c[.spp] to implement it
+       (or proxy it)
+    3. run 'make -f mb.mk natives_gen'
   * GC is temporarily disabled, to enable it change the Files
     1. cldc/src/com/sun/squawk/ServiceOperation.java
     2. cldc/src/com/sun/squawk/VM.java

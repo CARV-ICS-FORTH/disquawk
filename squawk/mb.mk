@@ -31,6 +31,9 @@ BUILDER_FLAGS=-comp:mb-gcc -o3 -cflags:-I./$(MYRMICS_SRC)/include
 # The starting address of the suites in memory (this is automatically
 # calculated later)
 SUITES_ADDR:=DEAD
+# Some auto-generated files for native declarations
+NATIVE_JAVA=cldc/src/com/sun/squawk/vm/Native.java
+NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/NativeVerifierHelper.java
 ################################################################################
 
 ################################################################################
@@ -108,10 +111,8 @@ CFLAGS =\
 	-DPLATFORM_BIG_ENDIAN=false \
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DSC_NATIVE \
-	-DASSUME \
-
-	# -DMACROIZE \
-	# -DMAXINLINE -O3 \
+	-DMACROIZE \
+	-DMAXINLINE -O3 \
 
 # MYRMICS specific flags (normally in myrmics/include/arch.h)
 # NOTE: You must make clean and rebuild after changing this
@@ -250,13 +251,13 @@ ELF_OBJS = \
 # Still not tuned for parallelism
 .NOTPARALLEL:
 
-.PHONY: run clean distclean trace tracerun
+.PHONY: run clean distclean trace tracerun natives_gen
 
 .SECONDARY: $(ELF_OBJS:$(BUILD_DIR)/obj/%.o=$(BUILD_DIR)/dep/%.d)\
             $(FLOATINGPOINT_SRCS) vmcore/src/vm/squawk.c \
             vmcore/src/vm/vm2c.c.spp
 
-all: $(ELF)
+default: $(ELF)
 
 include $(APP)/Makefile
 
@@ -265,7 +266,7 @@ include $(APP)/Makefile
 ################################################################################
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),distclean)
--include $(ELF_OBJS:$(BUILD_DIR)/obj/%.o=$(BUILD_DIR)/dep/%.d)
+-include $($(filter-out $(BUILD_DIR)/obj/vmcore/src/vm/squawk.o,$(ELF_OBJS)):$(BUILD_DIR)/obj/%.o=$(BUILD_DIR)/dep/%.d)
 endif
 endif
 
@@ -305,7 +306,7 @@ $(BUILD_DIR)/obj/%.o: $(APP)/%.c
 	$(AT)mkdir -p $(dir $@)
 	$(AT)mb-gcc -c $(CFLAGS) -I$(MYRMICS_SRC)/include $< -o $@
 
-$(BUILD_DIR)/dep/%.d: %.c
+$(BUILD_DIR)/dep/%.d: %.c vmcore/src/vm/platform.h
 	$(AT)echo $(STR_DEP) $@
 	$(AT)mkdir -p $(dir $@)
 	$(AT)mb-gcc $(CFLAGS) -M -I$(MYRMICS_SRC)/include $< | \
@@ -323,7 +324,7 @@ $(ELF): java.ld $(ELF_OBJS) $(MYRMICS_LINK_OBJS)
 
 
 ################################################################################
-# Some dependencies
+# Manually define some dependencies
 ################################################################################
 vmcore/src/vm/squawk.c: \
 	vmcore/src/vm/platform.h\
@@ -473,10 +474,6 @@ build.jar build-commands.jar: $(shell find builder/src -name "*.java")
 	$(AT)echo $(STR_BLD) $@
 	$(AT)cd builder; sh bld.sh;
 
-romizer/classes.jar: $(shell find romizer/src -name "*.java") build.jar
-	$(AT)echo $(STR_BLD) romizer
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) romizer
-
 vm2c/classes.jar: $(shell find vm2c/src -name "*.java") build.jar
 	$(AT)echo $(STR_BLD) vm2c
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) vm2c
@@ -485,9 +482,28 @@ cldc/classes.jar: $(shell find cldc/src -name "*.java") build.jar
 	$(AT)echo $(STR_BLD) cldc
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) cldc
 
+romizer/classes.jar: $(shell find romizer/src -name "*.java") build.jar cldc/classes.jar
+	$(AT)echo $(STR_BLD) romizer
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) romizer
+
 mapper/classes.jar: $(shell find mapper/src -name "*.java") build.jar
 	$(AT)echo $(STR_BLD) mapper
 	$(AT)$(BUILDER) $(BUILDER_FLAGS) mapper
+################################################################################
+
+################################################################################
+# Run this target whenever you add new native functions
+# (annotated with throws NativePragma) anywhere in the cldc/src folder
+################################################################################
+natives_gen: $(shell find cldc/src -name "*.java") build.jar build-commands.jar
+	$(AT)echo $(STR_RUN) $@
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) cldc
+	$(AT)rm -f $(NATIVE_JAVA)
+	$(AT)java -cp ./cldc/classes:./build-commands.jar com.sun.squawk.builder.gen.NativeGen 0 > $(NATIVE_JAVA)
+	$(AT)chmod -w $(NATIVE_JAVA)
+	$(AT)rm -f $(NATIVE_VERIFIER_JAVA)
+	$(AT)java -cp ./cldc/classes:./build-commands.jar com.sun.squawk.builder.gen.NativeGen 2 > $(NATIVE_VERIFIER_JAVA)
+	$(AT)chmod -w $(NATIVE_VERIFIER_JAVA)
 ################################################################################
 
 
@@ -513,7 +529,6 @@ clean:
 			../formic-tests/*/classes\
 			../formic-apps/*/classes\
 			$(RTS_SRC)/*.c.spp.preprocessed\
-			$(RTS_SRC)/os.c\
 			$(APP)/classes\
 			run.log
 
