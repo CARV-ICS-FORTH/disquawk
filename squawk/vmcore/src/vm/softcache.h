@@ -59,7 +59,7 @@ typedef struct sc_object sc_object_st;
 
 // The hash-table size must be the closest prime to the cache-lines
 // that can fit in the cache. To calculate this value use the
-// cache_memory/(cache_line+sizeof(2*(void*))) formula and pass it to
+// cache_memory/(cache_line_size+sizeof(2*(void*))) formula and pass it to
 // http://easycalculation.com/prime-number.php to find the next
 // smaller (nearest) prime number
 #define SC_HASHTABLE_SIZE 94651
