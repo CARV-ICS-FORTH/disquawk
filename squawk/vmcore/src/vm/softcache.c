@@ -320,7 +320,7 @@ inline Address sc_translate(Address obj) {
 	/* Check if it is local */
 	if (!sc_is_in_heap(obj)) {
 		/* printf("translating : %p\n", obj);
-		 * ar_backtrace_wrapper(); */
+		 * ar_backtrace(); */
 		return obj;
 	} else if (unlikely(sc_is_cacheable(obj))) {
 		/* printf("%p is cacheable\n", obj); */

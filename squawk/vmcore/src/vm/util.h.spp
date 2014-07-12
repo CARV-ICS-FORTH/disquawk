@@ -106,12 +106,7 @@ NORETURN void fatalVMError0(char *msg, boolean cleanup) {
 #endif
 	}
 #ifdef __MICROBLAZE__
-	unsigned int pc;
-	unsigned int sp;
-	// Attempt a backtrace of calls that led us here
-	asm("mfs %0, rpc" : "=r"(pc) );
-	asm("add %0, r1, r0" : "=r"(sp) );
-	ar_backtrace(my_bid, my_cid, pc, sp, NULL);
+	ar_backtrace();
 #endif
 	stopVM0(-1, false);
 }
