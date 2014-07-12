@@ -628,6 +628,461 @@ void checkOneAddress(Address ea, int size, Address addr);
 }
 #endif
 
+#ifdef __MICROBLAZE__
+/*-----------------------------------------------------------------------*\
+ *                  Memory addressing (local clones)                     *
+\*-----------------------------------------------------------------------*/
+
+#if ASSUME
+/**
+ * Checks whether an address is in the HEAP
+ *
+ * @param addr the address to check
+ */
+/*MAC*/ void checkLocal(Address $addr) {
+	if ( ((UWord)$addr & 0x4000000) != 0 ) {
+		printf("NOT translating : %p\n", $addr);
+		assume(0);
+	}
+}
+#else /* ASSUME */
+#define checkLocal(x)
+#endif /* ASSUME */
+
+/**
+ * Given a base address and offset to a byte value, returns the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in bytes) from 'base' at which to write
+ * @param type   the expected type of the value about to be read from the effective address
+ * @return       the value specified by 'oop' and 'offset'
+ */
+/*MAC*/ signed char getLocalByteTyped(Address $base, Offset $offset, char $type) {
+	checkLocal($base);
+
+	return *((signed char *)checkType(&((signed char *)$base)[$offset], $type, 1));
+}
+
+/**
+ * Given a base address and offset to a byte value, sets the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in bytes) from 'base' at which to write
+ * @param type   the type of the value about to be written to the effective address
+ * @param value  the value
+ */
+/*MAC*/ void setLocalByteTyped(Address $base, Offset $offset, char $type, signed char $value) {
+	signed char *ea;
+	checkLocal($base);
+	ea = &((signed char *)$base)[$offset];
+	setType(ea, $type, 1);
+	*ea = $value;
+	checkPostWrite(ea, 1);
+}
+
+/**
+ * Given a base address and offset to a short value, returns the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 16 bit words) from 'base' at which to write
+ * @param type   the expected type of the value about to be read from the effective address
+ * @return       the value
+ */
+/*MAC*/ short getLocalShortTyped(Address $base, Offset $offset, char $type) {
+	checkLocal($base);
+
+	return *((short *)checkType(&((short *)$base)[$offset], $type, 2));
+}
+
+/**
+ * Given a base address and offset to a short value, sets the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 16 bit words) from 'base' at which to write
+ * @param type   the type of the value about to be written to the effective address
+ * @param value  the value
+ */
+/*MAC*/ void setLocalShortTyped(Address $base, Offset $offset, char $type, short $value) {
+	short *ea;
+	checkLocal($base);
+	ea = &((short *)$base)[$offset];
+	setType(ea, $type, 2);
+	*ea = $value;
+	checkPostWrite(ea, 2);
+}
+
+/**
+ * Given a base address and offset to an integer value, returns the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 32 bit words) from 'base' at which to write
+ * @param type   the expected type of the value about to be read from the effective address
+ * @return       the value specified by 'oop' and 'offset'
+ */
+/*MAC*/ int getLocalIntTyped(Address $base, Offset $offset, char $type) {
+	checkLocal($base);
+
+	return *((int *)checkType(&((int *)$base)[$offset], $type, 4));
+}
+
+/**
+ * Given a base address and offset to an integer value, sets the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 32 bit words) from 'base' at which to write
+ * @param type   the type of the value about to be written to the effective address
+ * @param value  the value
+ */
+/*MAC*/ void setLocalIntTyped(Address $base, Offset $offset, char $type, int $value) {
+	int *ea;
+	checkLocal($base);
+	ea = &((int *)$base)[$offset];
+	setType(ea, $type, 4);
+	*ea = $value;
+	checkPostWrite(ea, 4);
+}
+
+/**
+ * Given a base address and offset to a 64 bit value, return the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 64 bit words) from 'base' at which to write
+ * @param type   the expected type of the value about to be read from the effective address
+ * @return       the value
+ */
+/*MAC*/ jlong getLocalLongTyped(Address $base, Offset $offset, char $type) {
+	checkLocal($base);
+
+	return *((jlong *)checkType(&((jlong *)$base)[$offset], $type, 8));
+}
+
+/**
+ * Given a base address and offset to a 64 bit value, set the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 64 bit words) from 'base' at which to write
+ * @param type   the type of the value about to be written to the effective address
+ * @param value  the value
+ */
+/*MAC*/ void setLocalLongTyped(Address $base, Offset $offset, char $type, jlong $value) {
+	jlong *ea ;
+	checkLocal($base);
+	ea = (jlong *)&((jlong *)$base)[$offset];
+	setType(ea, $type, 8);
+	*ea = $value;
+	checkPostWrite(ea, 8);
+}
+
+/**
+ * Given a base address and offset to a 64 bit value, returns the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from 'base' at which to write
+ * @param type   the expected type of the value about to be read from the effective address
+ * @return       the value
+ */
+/*MAC*/ jlong getLocalLongAtWordTyped(Address $base, Offset $offset, char $type) {
+	checkLocal($base);
+
+	return *((jlong *)checkType(&((UWordAddress)$base)[$offset], $type, 8));
+}
+
+/**
+ * Given a base address and offset to a 64 bit value, sets the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from 'base' at which to write
+ * @param type   the type of the value about to be written to the effective address
+ * @param value  the value
+ */
+/*MAC*/ void setLocalLongAtWordTyped(Address $base, Offset $offset, char $type, jlong $value) {
+	jlong *ea;
+	checkLocal($base);
+	ea = (jlong *)&((UWordAddress)$base)[$offset];
+	setType(ea, $type, 8);
+	*ea = $value;
+	checkPostWrite(ea, 8);
+}
+
+/**
+ * Given a base address and offset to a byte value, returns the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in bytes) from 'base' at which to write
+ * @param type   the expected type of the value about to be read from the effective address
+ * @return       the value specified by 'oop' and 'offset'
+ */
+/*MAC*/ unsigned char getLocalUByteTyped(Address $base, Offset $offset, char $type) {
+	checkLocal($base);
+
+	return *((unsigned char *)checkType(&((unsigned char *)$base)[$offset], $type, 1));
+}
+
+/**
+ * Given a base address and offset to a UWord value, return the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from 'base' at which to write
+ * @param type   the expected type of the value about to be read from the effective address
+ * @return       the value
+ */
+#if SQUAWK_64
+/*MAC*/ UWord getLocalUWordTyped(Address $base, Offset $offset, char $type) {
+	return (UWord)getLocalLongTyped($base, $offset, $type);
+}
+#else
+/*MAC*/ UWord getLocalUWordTyped(Address $base, Offset $offset, char $type) {
+	return (UWord)getLocalIntTyped($base, $offset, $type);
+}
+#endif
+
+/**
+ * Given a base address and offset to a UWord value, set the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from 'base' at which to write
+ * @param type   the type of the value about to be written to the effective address
+ * @param value  the value
+ */
+#if SQUAWK_64
+/*MAC*/ void setLocalUWordTyped(Address $base, Offset $offset, char $type, UWord $value) {
+	setLocalLongTyped($base, $offset, $type, (UWord)$value);
+}
+#else
+/*MAC*/ void setLocalUWordTyped(Address $base, Offset $offset, char $type, UWord $value) {
+	setLocalIntTyped($base, $offset, $type, (UWord)$value);
+}
+#endif
+
+/**
+ * Given a base address and offset to a short value, returns the corresponding value.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 16 bit words) from 'base' at which to write
+ * @param type   the expected type of the value about to be read from the effective address
+ * @return       the value
+ */
+/*MAC*/ unsigned short getLocalUShortTyped(Address $base, Offset $offset, char $type) {
+	checkLocal($base);
+
+	return *((unsigned short *)checkType(&((unsigned short *)$base)[$offset], $type, 2));
+}
+
+/**
+ * Gets a signed 8 bit value from memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in bytes) from 'base' from which to load
+ * @return the value
+ */
+/*MAC*/ int getLocalByte(Address $base, Offset $offset) {
+	return getLocalByteTyped($base, $offset, AddressType_BYTE);
+}
+
+/**
+ * Gets a UWord value from memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from 'base' from which to load
+ * @return the value
+ */
+/*MAC*/ UWord getLocalUWord(Address $base, Offset $offset) {
+	return getLocalUWordTyped($base, $offset, AddressType_UWORD);
+}
+
+/**
+ * Sets a UWord value in memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from oop at which to write
+ * @param value  the value to write
+ */
+/*MAC*/ void setLocalUWord(Address $base, Offset $offset, UWord $value) {
+	setLocalUWordTyped($base, $offset, AddressType_UWORD, $value);
+	setAssume($value == getLocalUWord($base, $offset));
+}
+
+/**
+ * Gets a signed 16 bit value from memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 16 bit words) from 'base' from which to load
+ * @return the value
+ */
+/*MAC*/ int getLocalShort(Address $base, Offset $offset) {
+	return getLocalShortTyped($base, $offset, AddressType_SHORT);
+}
+
+
+/**
+ * Gets a 64 bit value from memory using a UWord offset.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from 'base' from which to load
+ * @return the value
+ */
+/*MAC*/ jlong getLocalLongAtWord(Address $base, Offset $offset) {
+	if (SQUAWK_64 || PLATFORM_UNALIGNED_64_LOADS) {
+		return getLocalLongAtWordTyped($base, $offset, AddressType_LONG);
+	} else {
+		const int highOffset = (PLATFORM_BIG_ENDIAN) ? $offset     : $offset + 1;
+		const int lowOffset  = (PLATFORM_BIG_ENDIAN) ? $offset + 1 : $offset;
+		const unsigned int high = getLocalIntTyped($base, highOffset, AddressType_LONG);
+		const unsigned int low  = getLocalIntTyped($base, lowOffset,  AddressType_LONG2);
+
+		/*Some strange MSC 6.0 bug prevents the following line from working:
+		  return (jlong)(((jlong)high) << 32 | (((jlong)low) & 0xFFFFFFFF)); */
+
+		/* But, for some reason, the following two lines do: */
+		const jlong res = makeLong(high, low);
+		return res;
+	}
+}
+
+/**
+ * Sets a 64 bit value in memory at a UWord offset.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from 'base' at which to write
+ * @param value  the value to write
+ */
+/*MAC*/ void setLocalLongAtWord(Address $base, Offset $offset, jlong $value) {
+	if (SQUAWK_64 || PLATFORM_UNALIGNED_64_LOADS) {
+		setLocalLongAtWordTyped($base, $offset, AddressType_LONG, $value);
+	} else {
+		const int highOffset = (PLATFORM_BIG_ENDIAN) ? $offset     : $offset + 1;
+		const int lowOffset  = (PLATFORM_BIG_ENDIAN) ? $offset + 1 : $offset;
+		setLocalIntTyped($base, highOffset, AddressType_LONG,  (int)($value >> 32));
+		setLocalIntTyped($base, lowOffset,  AddressType_LONG2, (int) $value);
+	}
+	setAssume($value == getLocalLongAtWord($base, $offset));
+}
+
+/**
+ * Gets an unsigned 8 bit value from memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in bytes) from 'base' from which to load
+ * @return the value
+ */
+/*MAC*/ int getLocalUByte(Address $base, Offset $offset) {
+	return getLocalUByteTyped($base, $offset, AddressType_BYTE);
+}
+
+/**
+ * Gets a pointer from memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from 'base' from which to load
+ * @return the value
+ */
+/*MAC*/ Address getLocalObject(Address $base, Offset $offset) {
+	return (Address)getLocalUWordTyped($base, $offset, AddressType_REF);
+}
+
+/**
+ * Sets a pointer value in memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in UWords) from oop at which to write
+ * @param value  the value to write
+ */
+/*MAC*/ void setLocalObject(Address $base, Offset $offset, Address $value) {
+	setLocalUWordTyped($base, $offset, AddressType_REF, (UWord)$value);
+	setAssume($value == getLocalObject($base, $offset));
+}
+
+/**
+ * Gets a signed 32 bit value from memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 32 bit words) from 'base' from which to load
+ * @return the value
+ */
+/*MAC*/ int getLocalInt(Address $base, Offset $offset) {
+	return getLocalIntTyped($base, $offset, AddressType_INT);
+}
+
+/**
+ * Sets a 32 bit value in memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in 32 bit words) from 'base' at which to write
+ * @param value  the value to write
+ */
+/*MAC*/ void setLocalInt(Address $base, Offset $offset, int $value) {
+	setLocalIntTyped($base, $offset, AddressType_INT, $value);
+	setAssume($value == getLocalInt($base, $offset));
+}
+
+/**
+ * Gets a 64 bit value from memory using a byte offset.
+ *
+ * @param base   the base address
+ * @param offset the offset (in bytes) from 'base' from which to load
+ * @return the value
+ */
+INLINE_UNALIGNED jlong getLocalUnalignedLong(Address base, Offset offset) {
+	signed char *ea = &((signed char *)base)[offset];
+	if (PLATFORM_UNALIGNED_64_LOADS || (!PLATFORM_UNALIGNED_LOADS && isAligned((UWord)ea, 8))) {
+		return getLocalLongTyped(ea, 0, AddressType_ANY);
+	} else if (PLATFORM_UNALIGNED_LOADS) {
+		/* optimize for 32-bit registers */
+		unsigned int first  = getLocalIntTyped((Address)ea, 0, AddressType_ANY);
+		unsigned int second = getLocalIntTyped((Address)ea, 1, AddressType_ANY);
+		if (PLATFORM_BIG_ENDIAN) {
+			return ((jlong)first << 32) | second;
+		} else {
+			return ((jlong)second << 32) | first;
+		}
+	} else {
+		unsigned int lo, hi;
+		unsigned int b1 = getLocalUByteTyped(ea, 0, AddressType_ANY);
+		unsigned int b2 = getLocalUByteTyped(ea, 1, AddressType_ANY);
+		unsigned int b3 = getLocalUByteTyped(ea, 2, AddressType_ANY);
+		unsigned int b4 = getLocalUByteTyped(ea, 3, AddressType_ANY);
+		unsigned int b5 = getLocalUByteTyped(ea, 4, AddressType_ANY);
+		unsigned int b6 = getLocalUByteTyped(ea, 5, AddressType_ANY);
+		unsigned int b7 = getLocalUByteTyped(ea, 6, AddressType_ANY);
+		unsigned int b8 = getLocalUByteTyped(ea, 7, AddressType_ANY);
+		if (PLATFORM_BIG_ENDIAN) {
+			lo =  (b5 << 24) | (b6 << 16) | (b7 << 8) | b8;
+			hi =  (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+		} else {
+			lo =  (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
+			hi =  (b8 << 24) | (b7 << 16) | (b6 << 8) | b5;
+		}
+		return ((jlong)hi << 32) | lo;
+	}
+}
+
+#else
+#   define getLocalByteTyped       getByteTyped
+#   define getLocalShortTyped      getShortTyped
+#   define getLocalIntTyped        getIntTyped
+#   define setLocalIntTyped        setIntTyped
+#   define getLocalLongTyped       getLongTyped
+#   define setLocalLongTyped       setLongTyped
+#   define getLocalLongAtWordTyped getLongAtWordTyped
+#   define setLocalLongAtWordTyped setLongAtWordTyped
+#   define getLocalUWordTyped      getUWordTyped
+#   define setLocalUWordTyped      setUWordType
+#   define getLocalUByte           getUByte
+#   define getLocalUWord           getUWord
+#   define setLocalUWord           setUWord
+#   define getLocalShort           getShort
+#   define getLocalLongAtWord      getLongAtWord
+#   define setLocalLongAtWord      setLongAtWord
+#   define setLocalByteTyped       setByteTyped
+#   define getLocalUByteTyped      getUByteTyped
+#   define getLocalUShortTyped     getUShortTyped
+#   define setLocalShortTyped      setShortTyped
+#   define getLocalObject          getObject
+#   define setLocalObject          setObject
+#   define getLocalInt           getInt
+#   define setLocalInt           setInt
+#   define getLocalUnalignedLong getUnalignedLong
+#endif /* __MICROBLAZE__ */
 
 /*-----------------------------------------------------------------------*\
  *                           Memory access interface                     *
@@ -779,6 +1234,30 @@ INLINE_UNALIGNED void setUnalignedShort(Address base, Offset offset, int value) 
 		}
 	}
 	setAssume((value & 0xFFFF) == getUnalignedShort(base, offset));
+}
+
+/**
+ * Gets a signed 32 bit value from memory.
+ *
+ * @param base   the base address
+ * @param offset the offset (in bytes) from 'base' from which to load
+ * @return the value
+ */
+INLINE_UNALIGNED int getLocalUnalignedInt(Address base, Offset offset) {
+	signed char *ea = &((signed char *)base)[offset];
+	if (PLATFORM_UNALIGNED_LOADS) {
+		return getLocalIntTyped(ea, 0, AddressType_ANY);
+	} else {
+		int b1 = getLocalUByteTyped(ea, 0, AddressType_ANY);
+		int b2 = getLocalUByteTyped(ea, 1, AddressType_ANY);
+		int b3 = getLocalUByteTyped(ea, 2, AddressType_ANY);
+		int b4 = getLocalUByteTyped(ea, 3, AddressType_ANY);
+		if (PLATFORM_BIG_ENDIAN) {
+			return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+		} else {
+			return (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
+		}
+	}
 }
 
 /**
@@ -1128,7 +1607,12 @@ void swap4(Address address) {
 		setByteTyped(address, 2, AddressType_ANY, (char)b1);
 		setByteTyped(address, 3, AddressType_ANY, (char)b0);
 	} else {
-		setIntTyped(address, 0, type, SWAP4_VAL(getIntTyped(address, 0, AddressType_ANY)));
+		setIntTyped(address,
+		            0,
+		            type,
+		            SWAP4_VAL(getIntTyped(address,
+		                                  0,
+		                                  AddressType_ANY)));
 	}
 }
 
@@ -1174,7 +1658,7 @@ void swap8(Address address) {
 /*MAC*/ void swap(Address $address, int $dataSize) {
 	/*fprintf(stderr, format("swap(%A, %d)\n"), $address, $dataSize);*/
 	switch ($dataSize) {
-	case 1:               break;
+	case 1:                  break;
 	case 2: swap2($address); break;
 	case 4: swap4($address); break;
 	case 8: swap8($address); break;
@@ -1307,7 +1791,7 @@ Address allocate(int size, Address klass, int arrayLength) {
  * invoke this method on a possibly forwarded Klass object.
  */
 /*MAC*/ int getDataSize(Address $klass) {
-	switch (com_sun_squawk_Klass_id($klass)) {
+	switch (com_sun_squawk_Klass_id_local($klass)) {
 	case CID_BOOLEAN:
 	case CID_BYTECODE:
 	case CID_BYTE: {

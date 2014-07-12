@@ -49,9 +49,9 @@ UWord loadBootstrapSuiteFromFlash(
 /*else[MICROBLAZE_BUILD]*/
 //  Address javabytecodesbase = (Address) atoi(bootstrapSuiteFile);
 /*end[MICROBLAZE_BUILD]*/
-	*suite = (void *)(getUWord(javabytecodesbase, 0) + javabytecodesbase);
-	*hash = (int)getUWord(javabytecodesbase, 1);
-	UWord size=getUWord(javabytecodesbase, 2);
+	*suite = (void *)(getLocalUWord(javabytecodesbase, 0) + javabytecodesbase);
+	*hash = (int)getLocalUWord(javabytecodesbase, 1);
+	UWord size=getLocalUWord(javabytecodesbase, 2);
 	*romStart=(void *)(javabytecodesbase + NUMBER_OF_BYTES_IN_BYTECODE_HEADER);
 
 	diagnosticWithValue("javabytecodesbase: ", (int) javabytecodesbase);

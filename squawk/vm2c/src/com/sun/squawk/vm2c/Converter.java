@@ -515,6 +515,16 @@ public class Converter {
 			out.println("\t\tfatalVMError(\"array index out of bounds exception\");");
 			out.println("\t}");
 			out.println("}");
+			// Array index out of bounds check (includes null pointer check)
+			out.println();
+			out.println("INLINE void arrayLocalBoundsCheck(Address oop, int index) {");
+			out.println("\tUWord length;");
+			out.println("\tnullPointerCheck(oop);");
+			out.println("\tlength = getLocalArrayLength(oop);");
+			out.println("\tif (unlikely(((UWord)index) >= length)) {");
+			out.println("\t\tfatalVMError(\"array index out of bounds exception\");");
+			out.println("\t}");
+			out.println("}");
 		}
 
 		// Array loads
@@ -552,6 +562,12 @@ public class Converter {
 		out.println("Address aload_o(Address oop, int index) {");
 		out.println("\tarrayBoundsCheck(oop, index);");
 		out.println("\treturn getObject(oop, index);");
+		out.println("}");
+
+		out.println();
+		out.println("Address aload_o_local(Address oop, int index) {");
+		out.println("\tarrayLocalBoundsCheck(oop, index);");
+		out.println("\treturn getLocalObject(oop, index);");
 		out.println("}");
 
 		// Array stores
@@ -955,7 +971,7 @@ public class Converter {
 		out.println("\tint i = 0;");
 		out.println("\tint slen = strlen(s);");
 		out.println("\twhile (i != length) {");
-		out.println("\t\tAddress object = aload_o(objects, i);");
+		out.println("\t\tAddress object = aload_o_local(objects, i);");
 //		out.println("\t\t\tfprintf(stderr, \"Look in %s\\n\", (const char *)object);");
 		out.println("\t\tif (strncmp(s, (const char *)object, slen) == 0) {");
 		out.println("\t\t    assume(!GC_inRam_L(object));");
@@ -1006,10 +1022,10 @@ public class Converter {
 		out.println("\tstr = literals[literalKey];");
 		out.println("\tif (str == null) {");
 		out.println("\t\tAddress bootstrapSuite = com_sun_squawk_ObjectMemory_root(aload_o(com_sun_squawk_GC_readOnlyObjectMemories, 0));");
-		out.println("\t\tAddress classes = com_sun_squawk_Suite_classes(bootstrapSuite);");
-		out.println("\t\tAddress klass = aload_o(classes, klassIndex);");
-		out.println("\t\tAddress objects = com_sun_squawk_Klass_objects(klass);");
-		out.println("\t\tint length = Array_length(objects);");
+		out.println("\t\tAddress classes = com_sun_squawk_Suite_classes_local(bootstrapSuite);");
+		out.println("\t\tAddress klass = aload_o_local(classes, klassIndex);");
+		out.println("\t\tAddress objects = com_sun_squawk_Klass_objects_local(klass);");
+		out.println("\t\tint length = getLocalArrayLength(objects);");
 		out.println();
 		out.println("\t\tstr = findCStringInObjects(objects, length, cstr);");
 		// FIXME: this is commented out due to code elimination, we

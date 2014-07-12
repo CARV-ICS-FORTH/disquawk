@@ -29,6 +29,7 @@
 /*else[MACROIZE]*/
 //#define nextbytecode() return
 //INLINE int     getArrayLength(Address oop);
+//INLINE int     getLocalArrayLength(Address oop);
 //INLINE Address getMP();
 /*end[MACROIZE]*/
 
@@ -121,7 +122,8 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return true if it does.
  */
 /*MAC*/ boolean needsInitializing(Address $klass) {
-	if (com_sun_squawk_Klass_modifiers($klass) & com_sun_squawk_Modifier_KLASS_MUSTCLINIT) {
+	if (com_sun_squawk_Klass_modifiers_local($klass) &
+	    com_sun_squawk_Modifier_KLASS_MUSTCLINIT) {
 		return VM_getClassStateREAL($klass) == null;
 	}
 	return false;
@@ -153,7 +155,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*DEF*/ signed char fetchByte() {
-	return getByteTyped(ip_g++, 0, AddressType_BYTECODE);
+	return getLocalByteTyped(ip_g++, 0, AddressType_BYTECODE);
 }
 
 /**
@@ -162,7 +164,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*DEF*/ unsigned char fetchUByte() {
-	return getUByteTyped(ip_g++, 0, AddressType_BYTECODE);
+	return getLocalUByteTyped(ip_g++, 0, AddressType_BYTECODE);
 }
 
 /**
@@ -170,7 +172,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void fetchShort() {
 	if (PLATFORM_UNALIGNED_LOADS) {
-		fparm = getShortTyped(ip_g, 0, AddressType_BYTECODE);
+		fparm = getLocalShortTyped(ip_g, 0, AddressType_BYTECODE);
 		ip_g += sizeof(short);
 	} else {
 		if (PLATFORM_BIG_ENDIAN) {
@@ -190,7 +192,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void fetchUShort() {
 	if (PLATFORM_UNALIGNED_LOADS) {
-		fparm = getUShortTyped(ip_g, 0, AddressType_BYTECODE);
+		fparm = getLocalUShortTyped(ip_g, 0, AddressType_BYTECODE);
 		ip_g += sizeof(unsigned short);
 	} else {
 		int b1 = fetchUByte();
@@ -208,7 +210,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void fetchInt() {
 	if (PLATFORM_UNALIGNED_LOADS) {
-		fparm = getIntTyped(ip_g, 0, AddressType_BYTECODE);
+		fparm = getLocalIntTyped(ip_g, 0, AddressType_BYTECODE);
 		ip_g += sizeof(int);
 	} else {
 		int b1 = fetchUByte();
@@ -230,10 +232,10 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*DEF*/ void fetchLong() {
 	if (PLATFORM_UNALIGNED_64_LOADS) {
-		flparm = getLongTyped(ip_g, 0, AddressType_BYTECODE);
+		flparm = getLocalLongTyped(ip_g, 0, AddressType_BYTECODE);
 		ip_g += sizeof(jlong);
 	} else {
-		flparm = getUnalignedLong(ip_g, 0);
+		flparm = getLocalUnalignedLong(ip_g, 0);
 		ip_g += sizeof(jlong);
 	}
 }
@@ -241,7 +243,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 
 /*-----------------------------------------------------------------------*\
  *                          Operand stack                                *
- \*-----------------------------------------------------------------------*/
+\*-----------------------------------------------------------------------*/
 
 #if ASSUME
 /**
@@ -253,7 +255,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	/* if (loeq(sp_g, sl_g)) fprintf(stderr, format("sp_g=%A, sl_g=%A, ss_g=%A\n"), sp_g, sl_g, ss_g); */
 	assume(sp_g > sl_g);
 	assume(getUWord(ss_g, SC_guard) == 0);
-	if (ss_g == com_sun_squawk_VMThread_serviceStack) {
+	if (usingServiceStack()) {
 		assume(loeq(sp_g, Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE)));
 	} else {
 		assume(loeq(sp_g, &ss_g[getArrayLength(ss_g)]));
@@ -263,6 +265,20 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 #else
 #define checkPush()
 #endif /* ASSUME */
+
+#if ASSUME && defined(__MICROBLAZE__)
+/*MAC*/ void checkLocalPush() {
+/*if[REVERSE_PARAMETERS]*/
+	/* if (loeq(sp_g, sl_g)) fprintf(stderr, format("sp_g=%A, sl_g=%A, ss_g=%A\n"), sp_g, sl_g, ss_g); */
+	assume(sp_g > sl_g);
+	assume(getLocalUWord(ss_g, SC_guard) == 0);
+	assume(usingServiceStack());
+	assume(loeq(sp_g, &ss_g[getLocalArrayLength(ss_g)]));
+/*end[REVERSE_PARAMETERS]*/
+}
+#else
+#define checkLocalPush()
+#endif /* ASSUME && __MICROBLAZE__ */
 
 /**
  * Pushes an int value onto the runtime stack.
@@ -295,6 +311,16 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	checkPush();
 	setObject(--sp_g, 0, $value);
 }
+
+#ifdef __MICROBLAZE__
+/**
+ * Pushes an address onto the runtime stack -- always downwards.
+ */
+/*MAC*/ void downLocalPushAddress(Address $value) {
+	checkLocalPush();
+	setLocalObject(--sp_g, 0, $value);
+}
+#endif /* __MICROBLAZE__ */
 
 /**
  * Pushes an address onto the runtime stack.
@@ -625,7 +651,6 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  */
 /*MAC*/ jlong getParmLong(int $n) {
 	return getLongAtWord(fp_g, FP_parm0 + $n);
-
 }
 
 /**
@@ -644,8 +669,19 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	/* use the unsigned bounds check trick: */
 	assume((unsigned int) $index < (unsigned int)getArrayLength($oop));
 }
+
+#   ifdef __MICROBLAZE__
+/*DEF*/ void localBoundsAssume(Address $oop, int $index) {
+	assume($oop);
+	/* use the unsigned bounds check trick: */
+	assume((unsigned int) $index < (unsigned int)getLocalArrayLength($oop));
+}
+#   else /* __MICROBLAZE__ */
+#       define localBoundsAssume boundsAssume
+#   endif /* __MICROBLAZE__ */
 #else
 /*DEF*/ void boundsAssume(Address $oop, int $index) {}
+/*DEF*/ void localBoundsAssume(Address $oop, int $index) {}
 #endif /* ASSUME */
 
 
@@ -670,7 +706,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * Gets the current class pointer.
  */
 /*MAC*/ Address getCP() {
-	return getObject(getMP(), HDR_methodDefiningClass);
+	return getLocalObject(getMP(), HDR_methodDefiningClass);
 }
 
 /**
@@ -680,7 +716,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the object
  */
 /*MAC*/ Address getKlassObject(int $index) {
-	return ((Address *)com_sun_squawk_Klass_objects(getCP()))[$index];
+	return ((Address *)com_sun_squawk_Klass_objects_local(getCP()))[$index];
 }
 
 /**
@@ -704,9 +740,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ Address getStaticMethod(Address $cls, int $index) {
 	Address stable;
 	assume($cls);
-	stable = com_sun_squawk_Klass_staticMethods($cls);
+	stable = com_sun_squawk_Klass_staticMethods_local($cls);
 	assume(stable);
-	assume((unsigned int)$index < (unsigned int)getArrayLength(stable));
+	assume((unsigned int)$index < (unsigned int)getLocalArrayLength(stable));
 	return ((Address *)stable)[$index];
 }
 
@@ -740,6 +776,37 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	return true;
 }
 
+#ifdef __MICROBLAZE__
+/**
+ * Gets the length of a local array object.
+ *
+ * @param  oop the pointer to the array.
+ * @return the length
+ */
+/*MAC*/ int getLocalArrayLength(Address $oop) {
+	int length = (int)(getLocalUWord($oop, HDR_length) >> 2);
+	assume(length >= 0);
+	return length;
+}
+
+/**
+ * Sets the length of a local array object.
+ *
+ * @param oop the pointer to the array
+ * @param size the length
+ * @return false if length was too large
+ */
+/*MAC*/ boolean setLocalArrayLength(Address $oop, int $size) {
+	assume($size >= 0);
+	if ($size > 0x3FFFFFF) {
+		return false;
+	}
+	setLocalUWord($oop, HDR_length, ($size << HDR_headerTagBits) | HDR_arrayHeaderTag);
+	return true;
+}
+
+#endif /* __MICROBLAZE__ */
+
 /**
  * Gets the Klass or the ObjectAssociation of an object.
  *
@@ -766,7 +833,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the Klass, or the klass refered to by the association
  */
 /*MAC*/ Address associationToKlass(Address $oop) {
-	return com_sun_squawk_Klass_self($oop);
+	return com_sun_squawk_Klass_self_local($oop);
 }
 
 /**
@@ -778,6 +845,37 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ Address getClass(Address $oop) {
 	return com_sun_squawk_Klass_self(getClassOrAssociation($oop));
 }
+
+#ifdef __MICROBLAZE__
+/**
+ * Gets the Klass or the ObjectAssociation of an object.
+ *
+ * @param  oop the pointer to the object.
+ * @return the Klass ot the ObjectAssociation
+ */
+#if ASSUME
+/*MAC*/ Address getLocalClassOrAssociation(Address $oop) {
+	/* Catches an attempt to dereference a forwarding pointer */
+	assume(com_sun_squawk_GC_collecting ||
+	       ((UWord)getLocalObject($oop, HDR_klass) & HDR_headerTagMask) == 0);
+	return getLocalObject($oop, HDR_klass);
+}
+#else
+/*MAC*/ Address getLocalClassOrAssociation(Address $oop) {
+	return getLocalObject($oop, HDR_klass);
+}
+#endif
+
+/**
+ * Gets the class of an object.
+ *
+ * @param  oop the pointer to the object.
+ * @return the class
+ */
+/*MAC*/ Address getLocalClass(Address $oop) {
+	return com_sun_squawk_Klass_self_local(getLocalClassOrAssociation($oop));
+}
+#endif /* __MICROBLAZE__ */
 
 /*
  * Decodes a counter from the minfo area.
@@ -792,7 +890,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*MAC*/ int getb0(Address $mp) {
-	return getUByte($mp, HDR_methodInfoStart);
+	return getLocalUByte($mp, HDR_methodInfoStart);
 }
 
 /**
@@ -802,7 +900,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the value
  */
 /*MAC*/ int getb1(Address $mp) {
-	return getUByte($mp, HDR_methodInfoStart - 1);
+	return getLocalUByte($mp, HDR_methodInfoStart - 1);
 }
 
 /**
@@ -1006,7 +1104,7 @@ int printJavaString(Address str) {
 #ifdef UNICODE
 		Address cls = getClass(str);
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
-		if (com_sun_squawk_Klass_id(cls) == com_sun_squawk_StringOfBytes) {
+		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
 			unsigned char *chars = (unsigned char *)str;
 /*if[MICROBLAZE_BUILD]*/
@@ -1018,7 +1116,7 @@ int printJavaString(Address str) {
 #ifdef UNICODE
 		} else {
 			unsigned short *chars = (unsigned short *)str;
-			if (com_sun_squawk_Klass_id(cls) != com_sun_squawk_String) {
+			if (com_sun_squawk_Klass_id_local(cls) != com_sun_squawk_String) {
 				fatalVMError("com_sun_squawk_VM_printString was not passed a string");
 			}
 			for (i = 0; i < length; i++) {
@@ -1058,7 +1156,7 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
 #ifdef UNICODE
 		Address cls = getClass(str);
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
-		if (com_sun_squawk_Klass_id(cls) == com_sun_squawk_StringOfBytes) {
+		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
 			unsigned char *chars = (unsigned char *)str;
 			int min = length;
@@ -1070,7 +1168,7 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
 #ifdef UNICODE
 		} else {
 			unsigned short *chars = (unsigned short *)str;
-			if (com_sun_squawk_Klass_id(cls) != com_sun_squawk_String) {
+			if (com_sun_squawk_Klass_id_local(cls) != com_sun_squawk_String) {
 				fatalVMError("com_sun_squawk_VM_printString was not passed a string");
 			}
 			for (i = 0; i < length && i < bufLength; i++) {
@@ -1133,8 +1231,8 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
  */
 /*MAC*/ void callNoReset(Address $mth) {
 	assumeInterp($mth != 0);
-	assumeInterp(((UWord)getObject($mth, HDR_klass) & HDR_headerTagMask) == 0);
-	assumeInterp(com_sun_squawk_Klass_id(getClass($mth)) == CID_BYTECODE_ARRAY);
+	assumeInterp(((UWord)getLocalObject($mth, HDR_klass) & HDR_headerTagMask) == 0);
+	assumeInterp(com_sun_squawk_Klass_id_local(getLocalClass($mth)) == CID_BYTECODE_ARRAY);
 	assumeInterp(inCode($mth));
 	checkReferenceSlots();
 	downPushAddress(ip_g);
@@ -1266,7 +1364,7 @@ if (!runningOnServiceThread_g &&                                                
 /*if[REVERSE_PARAMETERS]*/
 		call(com_sun_squawk_VM_callRun);
 /*else[REVERSE_PARAMETERS]*/
-//		downPushAddress(ip_g);         /* don't call call() ... */
+//		downLocalPushAddress(ip_g);         /* don't call call() ... */
 //		ip_g = com_sun_squawk_VM_callRun;   /* because resetStackPointer() will not work */
 /*end[REVERSE_PARAMETERS]*/
 		/*fprintf(stderr, "callRun: fp = %d sp=%d ip=%d tid = %d\n", fp_g, sp_g, ip_g, com_sun_squawk_VMThread_threadNumber(newThread));*/
@@ -1782,7 +1880,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 
 /*-----------------------------------------------------------------------*\
  *                          Access to locals                             *
- \*-----------------------------------------------------------------------*/
+\*-----------------------------------------------------------------------*/
 
 /**
  * Pushes a single word local.
@@ -3117,7 +3215,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address oop = popAddress();
 	boundsCheck(oop, index);
 	if ((value != 0)
-	    && (com_sun_squawk_Klass_id(getClass(oop)) != CID_OBJECT_ARRAY)
+	    && (com_sun_squawk_Klass_id_local(getClass(oop)) != CID_OBJECT_ARRAY)
 	    && VM_arrayOopStoreCheck(oop, index, value)) {
 		call(com_sun_squawk_VM_arrayStoreException);
 	} else {
@@ -3256,9 +3354,9 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	int nlocals, nstack;
 	assumeInterp(com_sun_squawk_VM_extendsEnabled);
 	assumeInterp(inCode(mp));
-	downPushAddress(fp_g);                      /* Save caller's frame pointer. */
-	downPushAddress(mp);                        /* Method address.              */
-	fp_g = sp_g;                                /* Setup new frame pointer.     */
+	downPushAddress(fp_g);      /* Save caller's frame pointer. */
+	downPushAddress(mp);        /* Method address.              */
+	fp_g = sp_g;                /* Setup new frame pointer.     */
 	assumeInterp(getMP() == mp);
 	nlocals = getLocalCount(mp);
 	nstack  = getStackCount(mp);
@@ -3766,7 +3864,7 @@ static int collectGarbage(Address, Address, int);
 		Address str = popAddress();
 		Address cls = getClass(str);
 		boundsAssume(str, off);
-		if (com_sun_squawk_Klass_id(cls) == com_sun_squawk_StringOfBytes) {
+		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 			pushInt(getUByte(str, off));
 		} else {
 			pushInt(getUShort(str, off));
@@ -5939,12 +6037,15 @@ static int collectGarbage(Address, Address, int);
 		if (likely(!needsInitializing(klass))) {
 /*if[FINALIZATION]*/
 			boolean hasFinalizer = false;
-			hasFinalizer = (com_sun_squawk_Klass_modifiers(klass) & com_sun_squawk_Modifier_HASFINALIZER) != 0;
+			hasFinalizer = (com_sun_squawk_Klass_modifiers_local(klass) &
+			                com_sun_squawk_Modifier_HASFINALIZER) != 0;
 			/* if the class does not have a finalizer */
 			if (!hasFinalizer) {
 /*end[FINALIZATION]*/
 				/* Then this inline code will do the work faster */
-				int allocSize    = roundUpToWord(com_sun_squawk_Klass_instanceSizeBytes(klass)) + HDR_basicHeaderSize;
+				int allocSize    =
+					roundUpToWord(com_sun_squawk_Klass_instanceSizeBytes_local(klass)) +
+					HDR_basicHeaderSize;
 				Address oop      = allocateFast(allocSize, klass, -1);
 				if (oop != null) {
 					pushAddress(oop);
@@ -5973,7 +6074,7 @@ static int collectGarbage(Address, Address, int);
 		Address klass = popAddress();
 		int length    = popInt();
 		if (likely(length >= 0)) {
-			Address ctype = com_sun_squawk_Klass_componentType(klass);
+			Address ctype = com_sun_squawk_Klass_componentType_local(klass);
 			int dataSize = getDataSize(ctype);
 			int bodySize = length * dataSize;
 			if (likely(bodySize >= 0)) {

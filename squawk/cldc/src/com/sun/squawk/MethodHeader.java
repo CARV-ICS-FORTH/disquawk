@@ -134,6 +134,9 @@ public class MethodHeader {
      * @param oop the pointer to the method
      * @return the number of parameters
      */
+/*if[JAVA5SYNTAX]*/
+    @Vm2c(proxy="getParmCount")
+/*end[JAVA5SYNTAX]*/
     static int decodeParameterCount(Object oop) throws AllowInlinedPragma {
         int b0 = NativeUnsafe.getUByte(oop, HDR.methodInfoStart);
         if (b0 < 128) {
@@ -149,6 +152,9 @@ public class MethodHeader {
      * @param oop the pointer to the method
      * @return the number of locals
      */
+/*if[JAVA5SYNTAX]*/
+    @Vm2c(proxy="getLocalCount")
+/*end[JAVA5SYNTAX]*/
     static int decodeLocalCount(Object oop) throws AllowInlinedPragma {
         int b0 = NativeUnsafe.getUByte(oop, HDR.methodInfoStart);
         if (b0 < 128) {
@@ -165,6 +171,9 @@ public class MethodHeader {
      * @param oop the pointer to the method
      * @return the number of stack words
      */
+/*if[JAVA5SYNTAX]*/
+    @Vm2c(proxy="getStackCount")
+/*end[JAVA5SYNTAX]*/
     static int decodeStackCount(Object oop) throws AllowInlinedPragma {
         int b0 = NativeUnsafe.getUByte(oop, HDR.methodInfoStart);
         if (b0 < 128) {

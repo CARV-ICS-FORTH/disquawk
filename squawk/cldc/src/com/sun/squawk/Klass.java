@@ -1117,6 +1117,9 @@ T
      * Static version of {@link #getComponentType()} so that garbage collector can
      * invoke this method on a possibly forwarded Klass object.
      */
+/*if[JAVA5SYNTAX]*/
+	@Vm2c(code="return com_sun_squawk_Klass_componentType_local(klass);")
+/*end[JAVA5SYNTAX]*/
     static Klass getComponentType(Klass klass) throws AllowInlinedPragma {
         return klass.componentType;
     }

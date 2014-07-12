@@ -511,7 +511,7 @@ public final class NativeUnsafe {
      * @return the value
      */
 /*if[JAVA5SYNTAX]*/
-    @Vm2c(code="Address cls = com_sun_squawk_Klass_self(getObject(str, HDR_klass)); if (com_sun_squawk_Klass_id(cls) == com_sun_squawk_StringOfBytes) { return getUByte(str, index); } else { return getUShort(str, index); }")
+    @Vm2c(code="Address cls = com_sun_squawk_Klass_self_local(getObject(str, HDR_klass)); if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) { return getUByte(str, index); } else { return getUShort(str, index); }")
 /*end[JAVA5SYNTAX]*/
     public static char charAt(String str, int index) throws NativePragma {
         return str.charAt(index);

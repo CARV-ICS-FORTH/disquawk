@@ -80,22 +80,22 @@ public class NativeGen {
 		System.out.println(" * Copyright 2004 Sun Microsystems, Inc. All Rights Reserved.");
 		System.out.println(" * Copyright 2014 Sun Microsystems, Inc. All Rights Reserved.");
 		System.out.println(" * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER");
-		System.out.println(" * ");
+		System.out.println(" *");
 		System.out.println(" * This code is free software; you can redistribute it and/or modify");
 		System.out.println(" * it under the terms of the GNU General Public License version 2");
 		System.out.println(" * only, as published by the Free Software Foundation.");
-		System.out.println(" * ");
+		System.out.println(" *");
 		System.out.println(" * This code is distributed in the hope that it will be useful, but");
 		System.out.println(" * WITHOUT ANY WARRANTY; without even the implied warranty of");
 		System.out.println(" * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU");
 		System.out.println(" * General Public License version 2 for more details (a copy is");
 		System.out.println(" * included in the LICENSE file that accompanied this code).");
-		System.out.println(" * ");
+		System.out.println(" *");
 		System.out.println(" * You should have received a copy of the GNU General Public License");
 		System.out.println(" * version 2 along with this work; if not, write to the Free Software");
 		System.out.println(" * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA");
 		System.out.println(" * 02110-1301 USA");
-		System.out.println(" * ");
+		System.out.println(" *");
 		System.out.println(" * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo");
 		System.out.println(" * Park, CA 94025 or visit www.sun.com if you need additional");
 		System.out.println(" * information or have any questions.");
@@ -207,7 +207,7 @@ public class NativeGen {
 		System.out.println("     * by a space character. The index of the entry is the native method identifier and the name of the native");
 		System.out.println("     * method is constructed from the first 'n' characters of the name of the previous method concatenated with 'chars'.");
 		System.out.println("     */");
-		System.out.println("    public final static String LINKABLE_NATIVE_METHODS = ");
+		System.out.println("    public final static String LINKABLE_NATIVE_METHODS =");
 		System.out.println();
 
 		String previous = "";
@@ -244,7 +244,7 @@ public class NativeGen {
 			for (int i = 0; i <= indent; ++i) {
 				System.out.print(' ');
 			}
-			System.out.println("\"" + method.substring(substring) + " \" + ");
+			System.out.println("\"" + method.substring(substring) + " \" +");
 
 			previous = method;
 			++id;
