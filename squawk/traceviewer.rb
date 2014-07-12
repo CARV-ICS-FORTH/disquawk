@@ -61,8 +61,12 @@ ARGF.each do |line|
       # Find function in dump file (objectdump)
       cmd = "egrep -i '^0*#{res[:fptr]}' ./build/squawk.dump"
       l = %x[#{cmd}]
-      func_name = l.match(%r{\h* <(?'function'\w+)>})[:function]
-      puts res[:pre]+" "+res[:pc]+" "+func_name
+      begin
+        func_name = l.match(%r{\h* <(?'function'\w+)>})[:function]
+        puts res[:pre]+" "+res[:pc]+" "+func_name
+      rescue
+        puts res[:pre]+" "+res[:pc]+" Not found"
+      end
     else
       puts line
     end

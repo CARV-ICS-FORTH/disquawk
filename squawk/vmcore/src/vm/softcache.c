@@ -199,7 +199,7 @@ INLINE void sc_dir_ro_clear() {
  */
 void sc_initialize() {
 	/* The cache directory. */
-	cacheDirectory_g   = (sc_object_st*)roundUp((UWord)mm_scache_base(my_cid),
+	cacheDirectory_g   = (sc_object_st*)roundUp((UWord)mm_scache_base(sysGetCore()),
 	                                            MM_CACHELINE_SIZE);
 	/* Start address of the allocated memory to the software cache. */
 	cacheStart_g       =
@@ -245,6 +245,19 @@ void sc_initialize() {
 }
 
 /**
+ * Checks if an address is in the heap address space.  Heap addresses
+ * are have at least on of their 6 MSBs set.
+ *
+ * @param addre The address to check
+ *
+ * @return >0 if the address is a heap address
+ *         0 otherwise (true local)
+ */
+INLINE unsigned int sc_is_in_heap(Address addr) {
+	return (UWord)addr & (~0x3FFFFFF);
+}
+
+/**
  * Checks if an address is cacheable in this software cache (whether
  * it is a local object)
  *
@@ -257,15 +270,17 @@ INLINE int sc_is_cacheable(Address obj) {
 	// The object's home node board id
 	int bid;
 
-	// If the object is not in the HEAP
-	if ( lt(obj, MM_MB_HEAP_BASE) )
-		return 0;
+	// Assume that the object is in the HEAP
+	assume(sc_is_in_heap(obj));
 
 	sysHomeOfAddress(obj, &bid);
-	/* if ( bid != sysGetIsland() ) {
-	 * 	printf("Obj %p home=%d my home=%d\n", obj, bid, sysGetIsland());
+	// bid can't be zero
+	assume(bid);
+	/* if ( bid != (sysGetIsland() + 1) ) {
+	 * 	printf("Obj %p home=%d my home=%d\n", obj, bid, sysGetIsland() + 1);
 	 * } */
-	return ( bid != sysGetIsland() );
+
+	return bid && ( bid != (sysGetIsland() + 1) );
 }
 
 /**
@@ -275,7 +290,7 @@ INLINE int sc_is_cacheable(Address obj) {
  *
  * @return the prefixed address
  */
-inline Address sc_prefix(Address obj){
+inline Address sc_prefix(Address obj) {
 
 	/* printf("Pref: %p\n", obj);
 	 * printf("Start: %p\n", MM_MB_HEAP_BASE);
@@ -284,7 +299,10 @@ inline Address sc_prefix(Address obj){
 	assume( hieq(obj, (Address)MM_MB_HEAP_BASE) );
 	assume( lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) );
 
-	return (Address)((UWord)obj | (my_bid << 27));
+	/* assert core 64 doesn't provide global addresses */
+	assume( (sysGetIsland() + 1) < 64 );
+
+	return (Address)(((UWord)obj & 0x3FFFFFF) | ((sysGetIsland() + 1) << 26));
 }
 
 /**
@@ -296,28 +314,27 @@ inline Address sc_prefix(Address obj){
  *
  * @return the translated or masked address
  */
-inline Address sc_translate(Address obj){
+inline Address sc_translate(Address obj) {
 
-//	printf("Trans: %p\n", obj);
+	/* printf("Trans: %p\n", obj); */
 	/* Check if it is local */
-	if (sc_is_cacheable(obj)) {
+	if (!sc_is_in_heap(obj)) {
+		/* printf("translating : %p\n", obj);
+		 * ar_backtrace_wrapper(); */
+		return obj;
+	} else if (unlikely(sc_is_cacheable(obj))) {
 		/* printf("%p is cacheable\n", obj); */
-		/* If not, check if it is cached and if not, cache it */
-		obj = sc_get(obj);
-		/* Assert obj is in the cache */
-		assume( hieq(obj, cacheStart_g) );
-		assume(   lt(obj, cacheEnd_g)   );
-	} else if ((UWord)obj & (~0x7FFFFFF)) {
-		/* If it is local, strip the tag */
-		obj = (Address)((UWord)obj & 0x7FFFFFF);
+		/* It is cacheable, get it from the cache */
+		return sc_get(obj);
+	} else {
+		/* It is in the local heap slice, strip the tag */
+		obj = (Address)(((UWord)obj & 0x3FFFFFF) | MM_MB_HEAP_BASE);
 		/* Assert obj is in the HEAP */
-		assume( hieq(obj, (Address)MM_MB_HEAP_BASE) ||
-		        hieq(obj, (Address)cacheStart_g) );
-		assume( lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) ||
-		        lt(obj, (Address)cacheEnd_g) );
+		assume( hieq(obj, (Address)MM_MB_HEAP_BASE) );
+		assume( lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) );
+		return obj;
 	}
 
-	return obj;
 }
 
 /**
@@ -333,6 +350,7 @@ INLINE void sc_fetch(Address from, Address to, int size) {
 	int from_bid;
 
 	// Make sure we do not cache our own objects
+	assume( sc_is_in_heap(from) );
 	assume( sc_is_cacheable(from) );
 
 	// make sure size <= 1MB, this is the upper limit for a DMA
@@ -345,7 +363,7 @@ INLINE void sc_fetch(Address from, Address to, int size) {
 		for (cnt = 0; cnt < 32; ++cnt) {
 			// if the counter is zero the DMA finished and we can use
 			// the counter
-			if ( ar_cnt_get(my_cid, SC_DMA_FE_CNT_START + cnt) == 0 ) {
+			if ( ar_cnt_get(sysGetCore(), SC_DMA_FE_CNT_START + cnt) == 0 ) {
 				// Mark the counter as available
 				cachePendingFEs_g ^= 1<<cnt;
 				// Break if we are fine with a single counter
@@ -371,40 +389,42 @@ INLINE void sc_fetch(Address from, Address to, int size) {
 	// pushed to the local DMA engine first.
 
 	// Wait until our DMA engine can support at least one more DMA
-	while ( !(ar_ni_status_get(my_cid) & 0xFF) ) {
+	while ( !(ar_ni_status_get(sysGetCore()) & 0xFF) ) {
 		;
 	}
 
 	// Init ACK counter to -size
-	ar_cnt_set(my_cid, cnt, -size);
+	ar_cnt_set(sysGetCore(), cnt, -size);
 	// Get the object's home node cid and bid
 	sysHomeOfAddress(from, &from_bid);
+	// from_bid can't be zero
+	assume(from_bid);
 	// DMAs are working on cache-line granularity (64B). So we mask
 	// the from address accordingly to take the pure, cache-aligned
 	// address (offset) on the remote node.
-	from = (Address)((UWord)from & 0x7FFFFC0);
+	from = (Address)(((UWord)from & 0x3FFFFC0) | MM_MB_HEAP_BASE);
 	// Issue the DMA
-	ar_dma_with_ack(my_cid,   // my core id
-	                from_bid, // source board id
+	ar_dma_with_ack(sysGetCore(),   // my core id
+	                from_bid - 1,   // source board id
 	                0,      // source core id, HACK: ATM fetch from the cache, untill the flush/invalidate mechanisms are ready.
-	                (int)from,// source address
-	                my_bid,   // destination board id
-	                my_cid,   // destination core id
-	                (int)to,  // destination address
-	                my_bid,   // ack board id
-	                my_cid,   // ack core id
-	                cnt,      // ack counter
-	                size,     // data length
-	                0,        // ignore dirty bit on source
-	                0,        // force clean on dst
-	                0);       // write through
+	                (int)from,      // source address
+	                sysGetIsland(), // destination board id
+	                sysGetCore(),   // destination core id
+	                (int)to,        // destination address
+	                sysGetIsland(), // ack board id
+	                sysGetCore(),   // ack core id
+	                cnt,            // ack counter
+	                size,           // data length
+	                0,              // ignore dirty bit on source
+	                0,              // force clean on dst
+	                0);             // write through
 
-//	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, my_bid, to);
+//	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, sysGetIsland(), to);
 
 	// FIXME: We are not sure the DMA reached completion (probably
 	// not), so for the moment let's just spin here. Note that this
 	// must be fixed in order to make prefetching work efficiently
-	while ( ar_cnt_get(my_cid, cnt) != 0 ) {
+	while ( ar_cnt_get(sysGetCore(), cnt) != 0 ) {
 		;
 	}
 	// Mark the counter as available
@@ -426,6 +446,7 @@ void sc_write_back(Address from, Address to, int size) {
 	int to_bid;
 
 	// Make sure we do not cache our own objects
+	assume( sc_is_in_heap(to) );
 	assume( sc_is_cacheable(to) );
 
 	// make sure size <= 1MB, this is the upper limit for a DMA
@@ -438,7 +459,7 @@ void sc_write_back(Address from, Address to, int size) {
 		for (cnt = 0; cnt < 32; ++cnt) {
 			// if the counter is zero the DMA finished and we can use
 			// the counter
-			if ( ar_cnt_get(my_cid, SC_DMA_WB_CNT_START + cnt) == 0 ) {
+			if ( ar_cnt_get(sysGetCore(), SC_DMA_WB_CNT_START + cnt) == 0 ) {
 				// Mark the counter as available
 				cachePendingWBs_g ^= 1<<cnt;
 //				break;
@@ -464,29 +485,31 @@ void sc_write_back(Address from, Address to, int size) {
 	// have to be pushed to the local DMA engine first.
 
 	// Wait until our DMA engine can support at least one more DMA
-	while ( !(ar_ni_status_get(my_cid) & 0xFF) ) {
+	while ( !(ar_ni_status_get(sysGetCore()) & 0xFF) ) {
 		;
 	}
 
 	// Init counter to -size
 	cnt += SC_DMA_WB_CNT_START;
-	ar_cnt_set(my_cid, cnt, -size);
+	ar_cnt_set(sysGetCore(), cnt, -size);
 	// Get the object's home node cid and bid
 	sysHomeOfAddress(to, &to_bid);
+	// to_bid can't be zero
+	assume(to_bid);
 	// Issue the DMA
-	ar_dma_with_ack(my_cid,    // my core id
-	                my_bid,    // source board id
-	                my_cid,    // source core id
-	                (int)from, // source address
-	                to_bid,    // destination board id
-	                0xC,       // destination core id
-	                (int)to,   // destination address
-	                my_bid,    // ack board id
-	                my_cid,    // ack core id
-	                cnt,       // ack counter
-	                size,      // data length
-	                1,         // ignore dirty bit on source
-	                0,         // force clean on dst
+	ar_dma_with_ack(sysGetCore(),   // my core id
+	                sysGetIsland(), // source board id
+	                sysGetCore(),   // source core id
+	                (int)from,      // source address
+	                to_bid - 1,     // destination board id
+	                0xC,            // destination core id
+	                (int)to,        // destination address
+	                sysGetIsland(), // ack board id
+	                sysGetCore(),   // ack core id
+	                cnt,            // ack counter
+	                size,           // data length
+	                1,              // ignore dirty bit on source
+	                0,              // force clean on dst
 	                1);        // write through (doesn't really matter
                                // since we are writing directly on
                                // DRAM)
@@ -500,7 +523,7 @@ INLINE void sc_wait_pending_wb() {
 
 	// go through the counters and spin on non zero
 	for (cnt = SC_DMA_WB_CNT_START; cnt < (SC_DMA_WB_CNT_START + 32); ++cnt) {
-		while ( ar_cnt_get(my_cid, cnt) != 0 ) {
+		while ( ar_cnt_get(sysGetCore(), cnt) != 0 ) {
 			;
 		}
 	}
@@ -516,7 +539,7 @@ INLINE void sc_wait_pending_fe() {
 
 	// go through the counters and spin on non zero
 	for (cnt = SC_DMA_FE_CNT_START; cnt < SC_DMA_WB_CNT_START; ++cnt) {
-		while ( ar_cnt_get(my_cid, cnt) != 0 ) {
+		while ( ar_cnt_get(sysGetCore(), cnt) != 0 ) {
 			;
 		}
 	}
@@ -637,11 +660,11 @@ INLINE void sc_flush() {
 	/* Go through the dirty objects and issue write-back RDMAs */
 	for (i=0; i< SC_HASHTABLE_SIZE; ++i) {
 		if ( cacheDirectory_g[i].key & SC_DIRTY_MASK ) {
-			Address oop    = (Address)cacheDirectory_g[i].val;
-			Address cached = (Address)cacheDirectory_g[i].key;
+			Address cached = (Address)cacheDirectory_g[i].val;
+			Address oop    = (Address)cacheDirectory_g[i].key;
 			int     size   = com_sun_squawk_Klass_instanceSizeBytes(oop);
 			// TODO: Make sure this size is correct
-			sc_write_back(cached, (Address)oop, size);
+			sc_write_back(cached, (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE), size);
 		}
 	}
 
@@ -747,7 +770,7 @@ INLINE Address sc_block_to_oop(Address obj, Address oop) {
 	int size, length;
 	switch ((*(int*)oop) & HDR_headerTagMask) {
 
-	case HDR_basicHeaderTag:  // Object Instance
+	case HDR_basicHeaderTag:  // Class Instance
 
 		// Check if we brought the whole instance or not
 		size = com_sun_squawk_Klass_instanceSizeBytes((Address)*(int*)oop);
@@ -877,6 +900,9 @@ Address sc_get(Address obj) {
 	}
 
 	/* printf(" %p found at %p\n", obj, ret); */
+	/* Assert ret is in the cache */
+	assume( hieq(ret, cacheStart_g) );
+	assume(   lt(ret, cacheEnd_g)   );
 
 	return ret;
 }

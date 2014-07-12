@@ -104,10 +104,6 @@ NORETURN void fatalVMError0(char *msg, boolean cleanup) {
 #if TRACE
 		printStackTrace(msg);
 #endif
-/*if[!MACROIZE]*/
-		fatalInterpreterError0("Last interpreter values:\n", -1,
-		                       iparm_g, ip_g, fp_g, sp_g, "-", -1);
-/*end[MACROIZE]*/
 	}
 #ifdef __MICROBLAZE__
 	unsigned int pc;

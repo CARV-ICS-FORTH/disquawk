@@ -33,8 +33,8 @@ public class DataMovement {
 		for(int i=0; i<10000; ++i) {
 		}
 
-		int     bid   = ((addr >>> 27) == 1) ? 0 : 1;
-		int     addr2 = (bid << 27) + (addr & 0x7FFFFFF);
+		int     bid   = ((addr >>> 26) == 1) ? 2 : 1;
+		int     addr2 = (bid << 26) + (addr & 0x3FFFFFF);
 		Integer temp2 = (Integer)Address.fromPrimitive(addr2).toObject();
 
 		System.out.print("Object transfer...");
@@ -62,8 +62,8 @@ public class DataMovement {
 		for(int i=0; i<20000; ++i) {
 		}
 
-		bid   = ((addr >>> 27) == 1) ? 0 : 1;
-		addr2 = (bid << 27) + (addr & 0x7FFFFFF);
+		bid   = ((addr >>> 26) == 1) ? 2 : 1;
+		addr2 = (bid << 26) + (addr & 0x3FFFFFF);
 		Integer[] arr2 = (Integer[])Address.fromPrimitive(addr2).toObject();
 
 		System.out.print("Array transfer...");
@@ -92,8 +92,8 @@ public class DataMovement {
 		for(int i=0; i<20000; ++i) {
 		}
 
-		bid   = ((addr >>> 27) == 1) ? 0 : 1;
-		addr2 = (bid << 27) + (addr & 0x7FFFFFF);
+		bid   = ((addr >>> 26) == 1) ? 2 : 1;
+		addr2 = (bid << 26) + (addr & 0x3FFFFFF);
 		Integer[] larr2 = (Integer[])Address.fromPrimitive(addr2).toObject();
 
 		System.out.print("Large array transfer...");
@@ -121,8 +121,8 @@ public class DataMovement {
 		for(int i=0; i<20000; ++i) {
 		}
 
-		bid   = ((addr >>> 27) == 1) ? 0 : 1;
-		addr2 = (bid << 27) + (addr & 0x7FFFFFF);
+		bid   = ((addr >>> 26) == 1) ? 2 : 1;
+		addr2 = (bid << 26) + (addr & 0x3FFFFFF);
 		String[] arrS2 = (String[])Address.fromPrimitive(addr2).toObject();
 
 		System.out.print("String Array transfer...");
@@ -151,17 +151,13 @@ public class DataMovement {
 		for(int i=0; i<20000; ++i) {
 		}
 
-		bid   = ((addr >>> 27) == 1) ? 0 : 1;
-		addr2 = (bid << 27) + (addr & 0x7FFFFFF);
+		bid   = ((addr >>> 26) == 1) ? 2 : 1;
+		addr2 = (bid << 26) + (addr & 0x3FFFFFF);
 		Integer[][] arrdd2 = (Integer[][])Address.fromPrimitive(addr2).toObject();
 
 		System.out.print("2D array transfer...");
 		if (arrdd2[7][3].intValue() == arrdd[7][3].intValue()) {
 			System.out.println("[1;32mPASS[0m");
-			System.out.println("local = "+arrdd[7][3]+
-			                   " &local = "+Integer.toHexString(addr));
-			System.out.println("remote = "+arrdd2[7][3]+
-			                   " &remote = "+Integer.toHexString(addr2));
 		} else {
 			System.out.println("[1;31mFAIL[0m");
 			System.out.println("local = "+arrdd[7][3]+

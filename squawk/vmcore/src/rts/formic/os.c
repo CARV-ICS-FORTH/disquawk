@@ -391,7 +391,7 @@ void sysBarrier() {
  */
 INLINE void sysHomeOfAddress(Address addr, int* island) {
 #ifdef __MICROBLAZE__
-	*island = ((unsigned int)addr >> 27);
+	*island = ((unsigned int)addr >> 26);
 #else
 	exit(255);
 #endif
@@ -408,8 +408,8 @@ INLINE void sysHomeOfAddress(Address addr, int* island) {
  */
 INLINE void sysHomeOfAddress(Address addr, int* core, int* island) {
 #ifdef __MICROBLAZE__
-	*island = ((unsigned int)addr >> 27);
-	*core   = ((unsigned int)addr >> 24) && 7;
+	*island = ((unsigned int)addr >> 26);
+	*core   = ((unsigned int)addr >> 23) && 7;
 #else
 	exit(253);
 #endif
