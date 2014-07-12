@@ -518,8 +518,9 @@ public class VM implements GlobalStaticFields {
 		if (interfaces != null) {
 			println("implements interfaces:");
 			for (int i = 0; i < interfaces.length; i++) {
-				print("    ");
-				print(interfaces[i].toString());
+				// FIXME: printing the name breaks it
+				// print("    ");
+				// print(interfaces[i].toString());
 				print("    ");
 				printAddress(interfaces[i]);
 				println();

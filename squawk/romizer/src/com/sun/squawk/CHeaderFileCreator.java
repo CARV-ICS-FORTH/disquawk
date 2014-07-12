@@ -460,6 +460,78 @@ public final class CHeaderFileCreator {
 			out.println("((oop), " + field.getOffset() + ", value)");
 		}
 
+		// Write the instance local field getters.
+		for (int fid = 0; fid != fieldCount; fid++) {
+			Field field = klass.getField(fid, false);
+			String wholeName = fix(klass.getName() + '_' + field.getName());
+			out.print("#define " + wholeName + "_local(oop) ");
+			switch (field.getType().getSystemID()) {
+			case CID.BOOLEAN:
+			case CID.BYTE:
+				out.print("getLocalByte");
+				break;
+			case CID.CHAR:
+				out.print("getLocalUShort");
+				break;
+			case CID.SHORT:
+				out.print("getLocalShort");
+				break;
+			case CID.FLOAT:
+			case CID.INT:
+				out.print("getLocalInt");
+				break;
+			case CID.DOUBLE:
+			case CID.LONG:
+				out.print(Klass.SQUAWK_64
+				          ? "getLocalLong"
+				          : "getLocalLongAtWord");
+				break;
+			case CID.UWORD:
+			case CID.OFFSET:
+				out.print("getLocalUWord");
+				break;
+			default:
+				out.print("getLocalObject");
+				break;
+			}
+			out.println("((oop), " + field.getOffset() + ")");
+		}
+
+		// Write the instance local field setters.
+		for (int fid = 0; fid != fieldCount; fid++) {
+			Field field = klass.getField(fid, false);
+			String wholeName = fix(klass.getName() + '_' + field.getName());
+			out.print("#define set_" + wholeName + "_local(oop, value) ");
+			switch (field.getType().getSystemID()) {
+			case CID.BOOLEAN:
+			case CID.BYTE:
+				out.print("setLocalByte");
+				break;
+			case CID.CHAR:
+			case CID.SHORT:
+				out.print("setLocalShort");
+				break;
+			case CID.FLOAT:
+			case CID.INT:
+				out.print("setLocalInt");
+				break;
+			case CID.DOUBLE:
+			case CID.LONG:
+				out.print(Klass.SQUAWK_64
+				          ? "setLocalLong"
+				          : "setLocalLongAtWord");
+				break;
+			case CID.UWORD:
+			case CID.OFFSET:
+				out.print("setLocalUWord");
+				break;
+			default:
+				out.print("setLocalObject");
+				break;
+			}
+			out.println("((oop), " + field.getOffset() + ", value)");
+		}
+
 		// Write the constants.
 		fieldCount = klass.getFieldCount(true);
 	nextField:

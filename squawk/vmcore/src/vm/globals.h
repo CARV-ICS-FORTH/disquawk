@@ -113,6 +113,14 @@ typedef struct globalsStruct {
 	                                          * are currently
 	                                          * allocated by native
 	                                          * code. */
+
+#ifdef __MICROBLAZE__
+	char        _format_buf[FORMAT_BUF_LEN]; /* Buffer used for
+	                                          * pre-formatting
+	                                          * printf/fprintf format
+	                                          * specifications */
+#endif /* __MICROBLAZE__ */
+
 #ifndef __MICROBLAZE__
 	FILE       *_streams[MAX_STREAMS];       /* The file streams to
 	                                          * which the VM printing
@@ -255,7 +263,7 @@ __attribute__((aligned(MM_CACHELINE_SIZE)))
 
 /*=======================================================================*\
  *                          Truly global globals                         *
- \*=======================================================================*/
+\*=======================================================================*/
 
 /* keep it thread/core local */
 #ifdef __MICROBLAZE__
@@ -281,7 +289,7 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 
 /*=======================================================================*\
  *                             Virtual globals                           *
- \*=======================================================================*/
+\*=======================================================================*/
 
 #define memory_g                            defineGlobal(memory)
 #define memoryEnd_g                         defineGlobal(memoryEnd)
@@ -332,6 +340,10 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define Oops_g                              defineGlobal(Oops)
 #define Buffers_g                           defineGlobal(Buffers)
 #define BufferCount_g                       defineGlobal(BufferCount)
+
+#ifdef __MICROBLAZE__
+#define format_buf_g                        defineGlobal(format_buf)
+#endif /* __MICROBLAZE__ */
 
 #if KERNEL_SQUAWK
 /* Nothing yet... */

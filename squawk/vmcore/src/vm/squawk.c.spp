@@ -207,6 +207,11 @@ static Address lookupStaticMethod(int cid, int methodOffset);
 #define GLOBAL_INT_COUNT  ROM_GLOBAL_INT_COUNT
 #define GLOBAL_ADDR_COUNT ROM_GLOBAL_ADDR_COUNT
 
+/*
+ * Size of buffer used for pre-formatting printf/fprintf format specifications.
+ */
+#define FORMAT_BUF_LEN 1000
+
 /**
  * The default GC chunk, NVM and RAM sizes.
  */
@@ -249,10 +254,6 @@ const jlong MAX_UJLONG = (jlong)0x7fffffff << 32 | 0xffffffff;
 NORETURN void stopVM0(int, boolean);
 NORETURN void stopVM(int);
 
-/*if[MICROBLAZE_BUILD]*/
-#define format(x) x
-/*end[MICROBLAZE_BUILD]*/
-
 /*
  * Include all the globals.
  */
@@ -286,18 +287,15 @@ NORETURN void stopVM(int);
  */
 #include "util.h"
 
-/*
- * Size of buffer used for pre-formatting printf/fprintf format specifications.
- */
-#define FORMAT_BUF_LEN 1000
-
 #ifdef _MSC_VER
-#    define FORMAT_64  buf[bufPos++] = 'I'; buf[bufPos++] = '6'; buf[bufPos++] = '4';
+#    define FORMAT_64  format_buf_g[bufPos++] = 'I'; \
+                       format_buf_g[bufPos++] = '6'; \
+                       format_buf_g[bufPos++] = '4';
 #else
-#    define FORMAT_64  buf[bufPos++] = 'l'; buf[bufPos++] = 'l';
+#    define FORMAT_64  format_buf_g[bufPos++] = 'l'; \
+                       format_buf_g[bufPos++] = 'l';
 #endif /* _MSC_VER */
 
-/*if[!MICROBLAZE_BUILD]*/
 /**
  * Preformats a format specification string given to 'printf' or 'fprintf'
  * so that the platform dependent part of printing of Offset/Word/Address/long
@@ -315,7 +313,9 @@ NORETURN void stopVM(int);
  * @return the transformed version of 'fmt'
  */
 const char *format(const char* fmt) {
-	static char buf[FORMAT_BUF_LEN];
+#ifndef __MICROBLAZE__
+	static char format_buf_g[FORMAT_BUF_LEN];
+#endif /* __MICROBLAZE__ */
 	int fmtPos = 0;
 	int bufPos = 0;
 	int fmtLen = strlen(fmt);
@@ -324,55 +324,54 @@ const char *format(const char* fmt) {
 		assume(bufPos < FORMAT_BUF_LEN);
 
 		if (fmt[fmtPos] != '%') {
-			buf[bufPos++] = fmt[fmtPos++];
+			format_buf_g[bufPos++] = fmt[fmtPos++];
 		} else {
 			fmtPos++;
-			buf[bufPos++] = '%';
+			format_buf_g[bufPos++] = '%';
 			switch (fmt[fmtPos++]) {
 			case 'A': {
 #if SQUAWK_64
 				FORMAT_64
 #endif /* SQUAWK_64 */
-					buf[bufPos++] = 'u';
+				format_buf_g[bufPos++] = 'u';
 				break;
 			}
 			case 'O': {
 #if SQUAWK_64
 				FORMAT_64
 #endif /* SQUAWK_64 */
-					buf[bufPos++] = 'd';
+				format_buf_g[bufPos++] = 'd';
 				break;
 			}
 			case 'L': {
 				FORMAT_64
-					buf[bufPos++] = 'd';
+				format_buf_g[bufPos++] = 'd';
 				break;
 			}
 			case 'U': {
 				FORMAT_64
-					buf[bufPos++] = 'u';
+				format_buf_g[bufPos++] = 'u';
 				break;
 			}
 			case 'D': {
 				FORMAT_64
 /*if[FLOATS]*/
 /*else[FLOATS]*/
-//                  fatalVMError("floats not supported");
+//              fatalVMError("floats not supported");
 /*end[FLOATS]*/
-					buf[bufPos++] = 'f';
+				format_buf_g[bufPos++] = 'f';
 				break;
 			}
 			default: {
-				buf[bufPos++] = fmt[fmtPos - 1];
+				format_buf_g[bufPos++] = fmt[fmtPos - 1];
 			}
 			}
 		}
 
 	}
-	buf[bufPos++] = 0;
-	return buf;
+	format_buf_g[bufPos++] = 0;
+	return format_buf_g;
 }
-/*end[MICROBLAZE_BUILD]*/
 
 /*
  * Define a few extra things.
@@ -1167,7 +1166,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	int bootstrapSize;
 	Address suite;
 	int argvTotalSize = calculateSizeForCopyOfCStringArray(argc, argv);
-	int offset;
+	int offset __attribute__((unused));
 
 	diagnosticWithValue("setupMemory: ram size", ramSize);
 	diagnosticWithValue("setupMemory: nvmSize size", nvmSize);
@@ -1278,19 +1277,18 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	com_sun_squawk_VMThread_serviceStack =
 		Address_add((UWord)service_stack_g, TWOWORDS);
 
-	setArrayLength(com_sun_squawk_VMThread_serviceStack,
+	setLocalArrayLength(com_sun_squawk_VMThread_serviceStack,
 	               SERVICE_CHUNK_SIZE_MINUS2WORDS / HDR_BYTES_PER_WORD);
-	setUWord(com_sun_squawk_VMThread_serviceStack, SC_guard, 0);
-	setObject(com_sun_squawk_VMThread_serviceStack, SC_owner, 0);
-	setObject(com_sun_squawk_VMThread_serviceStack, SC_lastFP, 0);
-	setUWord(com_sun_squawk_VMThread_serviceStack, SC_lastBCI, 0);
+	setLocalUWord(com_sun_squawk_VMThread_serviceStack, SC_guard, 0);
+	setLocalObject(com_sun_squawk_VMThread_serviceStack, SC_owner, 0);
+	setLocalObject(com_sun_squawk_VMThread_serviceStack, SC_lastFP, 0);
+	setLocalUWord(com_sun_squawk_VMThread_serviceStack, SC_lastBCI, 0);
 
 	// The command line arguments for the JAM start on the next page after the end of the stack for the service thread.
 	com_sun_squawk_VM_argc = argc;
 /*if[MICROBLAZE_BUILD]*/
 	// No need to re-allocate argv use it from the stack
 	com_sun_squawk_VM_argv = argv;
-	offset = Address_diff(com_sun_squawk_GC_ramStart, memory_g);
 /*else[MICROBLAZE_BUILD]*/
 //  // The stack for the service thread starts on the next page after the end of RAM.
 //  // The length of the stack in logical slots is written into the first word of the
@@ -1298,10 +1296,11 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 //  // to format the stack as a Java object of type Klass.LOCAL_ARRAY
 //  com_sun_squawk_VM_argv = (Address)roundUp((UWord)Address_add(com_sun_squawk_VMThread_serviceStack, SERVICE_CHUNK_SIZE_MINUS2WORDS), pageSize);
 //  offset = writeCStringArray(argc, argv, Address_diff(com_sun_squawk_VM_argv, memory_g));
+//
+//	// Ensure that the buffer did not overflow
+//	assumeAlways(loeq(Address_add(memory_g, offset), memoryEnd_g));
+//
 /*end[MICROBLAZE_BUILD]*/
-
-	// Ensure that the buffer did not overflow
-	assumeAlways(loeq(sc_translate(Address_add(memory_g, offset)), memoryEnd_g));
 
 	// Ensure all the buffers start at word aligned addresses.
 	assume(isWordAligned((UWord)com_sun_squawk_VM_romStart));
@@ -1821,31 +1820,31 @@ void testUnaligned() {
 		jlong valCheck;
 
 		// compare results of the aligned and unaligned accessors
-		setLong(buf, 0, PATTERN1);
+		setLocalLongTyped(buf, 0, AddressType_LONG, PATTERN1);
 		assertEquals8("overwrite", 0LL, tmp[1]);
-		valCheck = getLong(buf, 0);
-		assertEquals8("getLong", PATTERN1, valCheck);
+		valCheck = getLocalLongTyped(buf, 0, AddressType_LONG);
+		assertEquals8("getLocalLongTyped", PATTERN1, valCheck);
 
 		setUnalignedLong(buf, 0, PATTERN1);
 		assertEquals8("overwrite", 0LL, tmp[1]);
-		valCheck = getLong(buf, 0);
-		assertEquals8("getLong 2", PATTERN1, valCheck);
-		val = getUnalignedLong(buf, 0);
-		assertEquals8("getUnalignedLong check", valCheck, val);
+		valCheck = getLocalLongTyped(buf, 0, AddressType_LONG);
+		assertEquals8("getLocalLongTyped 2", PATTERN1, valCheck);
+		val = getLocalUnalignedLong(buf, 0);
+		assertEquals8("getLocalUnalignedLong check", valCheck, val);
 		swap8(buf);
-		valCheck = getLong(buf, 0);
+		valCheck = getLocalLongTyped(buf, 0, AddressType_LONG);
 		assertEquals8("swap8 aligned", PATTERN1_SWAP, valCheck);
-		val = getUnalignedLong(buf, 0);
+		val = getLocalUnalignedLong(buf, 0);
 		assertEquals8("swap8", PATTERN1_SWAP, val);
 
 		setUnalignedLong(buf, 0, PATTERN2);
 		assertEquals8("overwrite", 0LL, tmp[1]);
-		val = getUnalignedLong(buf, 0);
-		assertEquals8("getUnalignedLong 2", PATTERN2, val);
+		val = getLocalUnalignedLong(buf, 0);
+		assertEquals8("getLocalUnalignedLong 2", PATTERN2, val);
 		swap8(buf);
-		valCheck = getLong(buf, 0);
+		valCheck = getLocalLongTyped(buf, 0, AddressType_LONG);
 		assertEquals8("swap8 p2 aligned", PATTERN2_SWAP, valCheck);
-		val = getUnalignedLong(buf, 0);
+		val = getLocalUnalignedLong(buf, 0);
 		assertEquals8("swap8 p2 2", PATTERN2_SWAP, val);
 	}
 
@@ -1853,17 +1852,17 @@ void testUnaligned() {
 		int val;
 		int valCheck;
 
-		setInt(buf, 0, PATTERN3);
-		valCheck = getInt(buf, 0);
+		setLocalInt(buf, 0, PATTERN3);
+		valCheck = getLocalInt(buf, 0);
 		assertEquals4("getInt", PATTERN3, valCheck);
 
 		setUnalignedInt(buf, 0, PATTERN3);
-		valCheck = getInt(buf, 0);
+		valCheck = getLocalInt(buf, 0);
 		assertEquals4("getInt 2", PATTERN3, valCheck);
-		val = getUnalignedInt(buf, 0);
-		assertEquals4("getUnalignedInt", PATTERN3, val);
+		val = getLocalUnalignedInt(buf, 0);
+		assertEquals4("getLocalUnalignedInt", PATTERN3, val);
 		swap4(buf);
-		val = getUnalignedInt(buf, 0);
+		val = getLocalUnalignedInt(buf, 0);
 		assertEquals4("swap4", PATTERN3_SWAP, val);
 	}
 
@@ -1880,10 +1879,10 @@ void testUnaligned() {
 #else
 		assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
 #endif  /* __MICROBLAZE__ */
-		val = getUnalignedLong(buf, 0);
-		assertEquals8("getUnalignedLong", PATTERN1, val);
+		val = getLocalUnalignedLong(buf, 0);
+		assertEquals8("getLocalUnalignedLong", PATTERN1, val);
 		swap8(buf);
-		val = getUnalignedLong(buf, 0);
+		val = getLocalUnalignedLong(buf, 0);
 		assertEquals8("swap8", PATTERN1_SWAP, val);
 
 		setUnalignedLong(buf, 0, PATTERN2);
@@ -1892,20 +1891,20 @@ void testUnaligned() {
 #else
 		assertEquals8("overwrite", 0LL, (tmp[1] & REMAINDER_MASK));
 #endif  /* __MICROBLAZE__ */
-		val = getUnalignedLong(buf, 0);
-		assertEquals8("getUnalignedLong p2", PATTERN2, val);
+		val = getLocalUnalignedLong(buf, 0);
+		assertEquals8("getLocalUnalignedLong p2", PATTERN2, val);
 		swap8(buf);
-		val = getUnalignedLong(buf, 0);
+		val = getLocalUnalignedLong(buf, 0);
 		assertEquals8("swap8 p2", PATTERN2_SWAP, val);
 	}
 
 	{
 		int val;
 		setUnalignedInt(buf, 0, PATTERN3);
-		val = getUnalignedInt(buf, 0);
-		assertEquals4("getUnalignedInt", PATTERN3, val);
+		val = getLocalUnalignedInt(buf, 0);
+		assertEquals4("getLocalUnalignedInt", PATTERN3, val);
 		swap4(buf);
-		val = getUnalignedInt(buf, 0);
+		val = getLocalUnalignedInt(buf, 0);
 		assertEquals4("swap4", PATTERN3_SWAP, val);
 	}
 }
@@ -1921,18 +1920,18 @@ void testWordAt() {
 	Address buf = &tmp;
 	jlong val;
 
-	setLongAtWord(buf, 0, PATTERN1);
-	val = getLongAtWord(buf, 0);
-	assertEquals8("getLongAtWord", PATTERN1, val);
+	setLocalLongAtWord(buf, 0, PATTERN1);
+	val = getLocalLongAtWord(buf, 0);
+	assertEquals8("getLocalLongAtWord", PATTERN1, val);
 	swap8(buf);
-	val = getLongAtWord(buf, 0);
+	val = getLocalLongAtWord(buf, 0);
 	assertEquals8("swap8", PATTERN1_SWAP, val);
 
-	setLongAtWord(buf, 0, PATTERN2);
-	val = getLongAtWord(buf, 0);
-	assertEquals8("getLongAtWord 2", PATTERN2, val);
+	setLocalLongAtWord(buf, 0, PATTERN2);
+	val = getLocalLongAtWord(buf, 0);
+	assertEquals8("getLocalLongAtWord 2", PATTERN2, val);
 	swap8(buf);
-	val = getLongAtWord(buf, 0);
+	val = getLocalLongAtWord(buf, 0);
 	assertEquals8("swap8 2", PATTERN2_SWAP, val);
 }
 
@@ -2066,7 +2065,7 @@ Address Squawk_setup(int argc, char *argv[]) {
 	verifyBuildFlags();
 
 	unitTests();
-#endif
+#endif /* RUN_UNIT_TESTS */
 
 	/*
 	 * Extract the native VM options
@@ -2293,10 +2292,10 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
 	printValueInRange(_ip, "ip", com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd, "code");
 #endif
 
-	if (ss_g == com_sun_squawk_VMThread_serviceStack) {
+	if (usingServiceStack()) {
 		fprintf(stderr, "    stack: %p. current stack is service stack\n", ss_g);
 	} else if (printValueInRange(ss_g, "stack", com_sun_squawk_GC_ramStart, com_sun_squawk_GC_ramEnd, "RAM")) {
-		int cid = com_sun_squawk_Klass_id(getClass(ss_g));
+		int cid = com_sun_squawk_Klass_id_local(getClass(ss_g));
 		if (cid == CID_LOCAL_ARRAY) {
 			userStack = TRUE;
 		} else {
@@ -2377,8 +2376,8 @@ void Squawk_run(int argc, char *argv[]) {
 	/*
 	 * Push the parameters.
 	 */
-	downPushAddress(bootstrapSuite);
-	downPushAddress(0); /* Dummy return address */
+	downLocalPushAddress(bootstrapSuite);
+	downLocalPushAddress(0); /* Dummy return address */
 
 #ifdef PROFILING
 #ifdef OSPROF
@@ -2514,11 +2513,11 @@ static Address lookupKlass(int cid) {
 	assume(com_sun_squawk_VM_bootstrapSuite != null);
 	assume(inROM(com_sun_squawk_VM_bootstrapSuite));
 	//diagnosticWithValue("bootstrapSuite: ", com_sun_squawk_VM_bootstrapSuite);
-	classes = com_sun_squawk_Suite_classes(com_sun_squawk_VM_bootstrapSuite);
+	classes = com_sun_squawk_Suite_classes_local(com_sun_squawk_VM_bootstrapSuite);
 	//diagnosticWithValue("com_sun_squawk_Suite_classes: ", classes);
 	assume(inROM(classes));
-	boundsAssume(classes, cid);
-	class = getObject(classes, cid);
+	localBoundsAssume(classes, cid);
+	class = getLocalObject(classes, cid);
 	return class;
 }
 
