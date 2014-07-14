@@ -372,7 +372,7 @@ public final class Lisp2Collector extends GarbageCollector {
         Assert.always(GC.roundDownToWord(memorySize) == memorySize);
         int alignment = HDR.BITS_PER_WORD * HDR.BYTES_PER_WORD;
         memorySize = GC.roundUp(memorySize, alignment);
-        int bitCount = memorySize / HDR.BYTES_PER_WORD; // one bit per word
+        int bitCount = memorySize / HDR.BYTES_PER_CACHE_LINE; // one bit per cache-line
         int size = bitCount / HDR.BITS_PER_BYTE;
         return GC.roundUpToWord(size);
     }

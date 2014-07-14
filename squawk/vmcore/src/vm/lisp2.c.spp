@@ -44,10 +44,11 @@
 	while (sizeInWords != 0) {
 		UWord word = getUWord(bitmap, --sizeInWords);
 		while (word != 0) {
-			if ((word & 0x1) != 0) {
-				total++;
-			}
-			word = word >> 1;
+			/* if ((word & 0x1) != 0) {
+			 * 	total++;
+			 * } */
+			total += (word & 0x1);
+			word >>= 1;
 		}
 	}
 	return total;
@@ -70,8 +71,8 @@
 			if ((word & 0x1) != 0) {
 				fprintf(stderr, format("  %A\n"), p);
 			}
-			word = word >> 1;
-			p = Address_add(p, HDR_BYTES_PER_WORD);
+			word >>= 1;
+			p = Address_add(p, HDR_BYTES_PER_CACHE_LINE);
 		}
 	}
 }
@@ -138,7 +139,7 @@
  */
 /*MAC*/ void setNthBit(UWord $n) {
 	UWord index = getBitmapWordIndex($n);
-	UWord mask = getBitmapMask($n);
+	UWord mask  = getBitmapMask($n);
 	assume(isNthBitInRange($n));
 	setUWord(bitmapBase, index, getUWord(bitmapBase, index) | mask);
 }
@@ -150,7 +151,7 @@
  */
 /*MAC*/ void clearNthBit(UWord $n) {
 	UWord index = getBitmapWordIndex($n);
-	UWord mask = ~getBitmapMask($n);
+	UWord mask  = ~getBitmapMask($n);
 	assume(isNthBitInRange($n));
 	setUWord(bitmapBase, index, getUWord(bitmapBase, index) & mask);
 }
@@ -196,12 +197,13 @@
  * @return the index of the bit in the bitmap for <code>ea</code>
  */
 /*MAC*/ UWord asBitIndex(Address $ea) {
-	$ea = sc_translate($ea);
-	return (((UWord)$ea) >> HDR_LOG2_BYTES_PER_WORD);
+	$ea = sc_translate($ea) - MM_MB_HEAP_BASE;
+	return (((UWord)$ea) >> HDR_LOG2_BYTES_PER_CACHE_LINE);
 }
 
 /**
- * Gets the address of the word in the bitmap that contains the bit for a given address.
+ * Gets the address of the word in the bitmap that contains the bit
+ * for a given address.
  *
  * @param ea   the address for which the corresponding bitmap word is required
  * @return     the address of the bitmap word that contains the bit for <code>ea</code>
@@ -217,7 +219,11 @@
  * @return the address corresponding to the first bit in the word at <code>bitmapWordPtr</code>
  */
 /*MAC*/ Address getAddressForBitmapWord(Address $bitmapWordPtr) {
-	return sc_prefix((Address)(((UWord)Address_diff($bitmapWordPtr, bitmapBase) << HDR_LOG2_BITS_PER_BYTE) << HDR_LOG2_BYTES_PER_WORD));
+	return sc_prefix(Address_add((Address)(((UWord)Address_diff($bitmapWordPtr,
+	                                                            bitmapBase) <<
+	                                        HDR_LOG2_BITS_PER_BYTE) <<
+	                                       HDR_LOG2_BYTES_PER_CACHE_LINE),
+	                             MM_MB_HEAP_BASE));
 }
 
 /**
@@ -283,7 +289,7 @@ void setBitsFor(Address start, Address end) {
 /*fprintf(stderr, format("setBitsFor - start = %A end = %A\n"), start, end);*/
 	while (lo(start, end)) {
 		setBitFor(start);
-		start = Address_add(start, HDR_BYTES_PER_WORD);
+		start = Address_add(start, HDR_BYTES_PER_CACHE_LINE);
 	}
 }
 
@@ -300,7 +306,7 @@ void clearBitsFor(Address start, Address end) {
 
 	while (lo(start, alignedStart)) {
 		clearBitFor(start);
-		start = Address_add(start, HDR_BYTES_PER_WORD);
+		start = Address_add(start, HDR_BYTES_PER_CACHE_LINE);
 	}
 
 	// It is always safe to clear past end, so align up
@@ -363,26 +369,28 @@ void bitmapInitialize(Address start, int size, Address objectMemoryStart) {
 \*---------------------------------------------------------------------------*/
 
 /**
- * Iterates to the next pointer whose bit is set in the bitmap. This updates the values
- * of the global variables used for iteration such that java.lang.Lisp2Bitmap.nextIterationOopAddress
- * will contain the address of the next pointer whose bit is set. If the iteration is
+ * Iterates to the next pointer whose bit is set in the bitmap. This
+ * updates the values of the global variables used for iteration such
+ * that java.lang.Lisp2Bitmap.nextIterationOopAddress will contain the
+ * address of the next pointer whose bit is set. If the iteration is
  * finished, then the value of the variable will be 0.
  */
 /*MAC*/ Address bitmapIterate() {
 	Address next = com_sun_squawk_Lisp2Bitmap_Iterator_next; // does caching globals make big diff?
-	Address end = com_sun_squawk_Lisp2Bitmap_Iterator_end;
-	UWord word = getUWord(bitmapBase, getBitmapWordIndex(asBitIndex(next)));
-	UWord mask = getBitmapMask(asBitIndex(next));
+	Address end  = com_sun_squawk_Lisp2Bitmap_Iterator_end;
+	UWord   word = getUWord(bitmapBase, getBitmapWordIndex(asBitIndex(next)));
+	UWord   mask = getBitmapMask(asBitIndex(next));
 	while (true) {
 		if (unlikely(next >= end)) { // end of Bitmap range
-			com_sun_squawk_Lisp2Bitmap_Iterator_next = 0;
+			com_sun_squawk_Lisp2Bitmap_Iterator_next  = 0;
 			com_sun_squawk_Lisp2Bitmap_Iterator_inUse = false;
 			return 0;
 		} else {
 			assume(testBitFor(next) == ((word & mask) != 0));
 
 			if (unlikely(word & mask)) {    // found bit!
-				com_sun_squawk_Lisp2Bitmap_Iterator_next = Address_add(next, HDR_BYTES_PER_WORD);
+				com_sun_squawk_Lisp2Bitmap_Iterator_next =
+					Address_add(next, HDR_BYTES_PER_WORD);
 				return next;
 			}
 
@@ -398,7 +406,8 @@ void bitmapInitialize(Address start, int size, Address objectMemoryStart) {
 				}
 			} else {
 				// still working on the same word...
-				assume(getBitmapWordIndex(asBitIndex(next)) == getBitmapWordIndex(asBitIndex(Address_sub(next, HDR_BYTES_PER_WORD))));
+				assume(getBitmapWordIndex(asBitIndex(next)) ==
+				       getBitmapWordIndex(asBitIndex(Address_sub(next, HDR_BYTES_PER_WORD))));
 			}
 		}
 	}
