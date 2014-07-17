@@ -297,7 +297,7 @@ public class Klass<T> {
 	private static Object forNameDynamic(String className)
 /*if[!ENABLE_DYNAMIC_CLASSLOADING]*/
 		throws HostedPragma
-	/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
+/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
 	{
 		ClassNotFoundException cnfe = null;
 		Klass klass = null;
@@ -2921,7 +2921,7 @@ public class Klass<T> {
 	private KlassMetadata getMetadata0()
 /*if[!ENABLE_RUNTIME_METADATA_FOR_COMPLETE_STATICS]*/
 		throws HostedPragma
-	/*end[ENABLE_RUNTIME_METADATA_FOR_COMPLETE_STATICS]*/
+/*end[ENABLE_RUNTIME_METADATA_FOR_COMPLETE_STATICS]*/
 	{
 		if (isSynthetic() || isArray()) {
 			return null;
@@ -3056,7 +3056,7 @@ public class Klass<T> {
 	private Method findMethodDynamic(Object body)
 /*if[!ENABLE_DYNAMIC_CLASSLOADING]*/
 		throws HostedPragma
-	/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
+/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
 	{
 		if (body instanceof MethodBody) {
 			MethodBody mbody = (MethodBody)body;
