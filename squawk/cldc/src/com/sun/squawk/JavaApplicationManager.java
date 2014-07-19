@@ -154,32 +154,31 @@ public class JavaApplicationManager {
             isolate.start();
             isolate.join();
 
-/*if[!ENABLE_ISOLATE_MIGRATION]*/
-/*else[ENABLE_ISOLATE_MIGRATION]*/
-//            /*
-//             * If the isolate was hibernated then save it and restart it.
-//             */
-//            while (isolate.isHibernated() && testoms) {
-//                try {
-//                    String url = "file://" + isolate.getMainClassName() + ".isolate";
-//                    DataOutputStream dos = Connector.openDataOutputStream(url);
-//                    isolate.save(dos, url, VM.isBigEndian());
-//                    System.out.println("Saved isolate to " + url);
-//                    dos.close();
-//
-//                    DataInputStream dis = Connector.openDataInputStream(url);
-//                    /*isolate = */                    Isolate.load(dis, url);
-//                    dis.close();
-//
-//                    isolate.unhibernate();
-//                    isolate.join();
-//
-//                } catch (java.io.IOException ioe) {
-//                    System.err.println("I/O error while trying to save or re-load isolate: ");
-//                    ioe.printStackTrace();
-//                    break;
-//                }
-//            }
+/*if[ENABLE_ISOLATE_MIGRATION]*/
+            /*
+             * If the isolate was hibernated then save it and restart it.
+             */
+            while (isolate.isHibernated() && testoms) {
+                try {
+                    String url = "file://" + isolate.getMainClassName() + ".isolate";
+                    DataOutputStream dos = Connector.openDataOutputStream(url);
+                    isolate.save(dos, url, VM.isBigEndian());
+                    System.out.println("Saved isolate to " + url);
+                    dos.close();
+
+                    DataInputStream dis = Connector.openDataInputStream(url);
+                    /*isolate = */                    Isolate.load(dis, url);
+                    dis.close();
+
+                    isolate.unhibernate();
+                    isolate.join();
+
+                } catch (java.io.IOException ioe) {
+                    System.err.println("I/O error while trying to save or re-load isolate: ");
+                    ioe.printStackTrace();
+                    break;
+                }
+            }
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
             /*
@@ -193,6 +192,53 @@ public class JavaApplicationManager {
                 e.printStackTrace();
             }
         }
+/*else[ENABLE_MULTI_ISOLATE]*/
+//        AppThread appThread = null;
+//        try {
+//            /*
+//             * Create the application thread and run it.
+//             */
+//            /* TODO: start a special thread for the "slaves" */
+//            if (mainClassName != null) {
+////                if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
+//                    // create raw isolate
+//                    appThread = new AppThread(mainClassName, javaArgs);
+////                } else {
+////                    // create special (slave) thread to wait for jobs
+////                    args = new String[0];
+////                    appThread = new AppThread("slaveMain", args);
+////                }
+//            } else {
+//                // create midlet
+//                args = new String[1];
+//                args[0] = "MIDlet-" + midletPropertyNum;
+//                appThread = new AppThread(Isolate.MIDLET_WRAPPER_CLASS, args);
+//            }
+//            if (VM.isVerbose())
+//              VM.print("parentSuiteURI="+parentSuiteURI+"\n");
+//            VM.getCurrentIsolate().morphBootstrapInto(null, classPath, parentSuiteURI);
+//            if (VM.isVerbose())
+//              VM.print("morph done starting AppThread\n");
+//            /*
+//             * Start the application thread and wait for it to complete.
+//             */
+//            appThread.start();
+//            if (VM.isVerbose())
+//              VM.print("Done AppThread\n");
+//            appThread.join(); // note that this isnt waiting for all app threads to finish, just this thread.
+//
+//            /*
+//             * Get the exit status.
+//             */
+//            exitCode = VM.getCurrentIsolate().getExitCode();
+//
+//        } catch (Error e) {
+//            System.err.println(e);
+//            if (VM.isVerbose()) {
+//                e.printStackTrace();
+//            }
+//        }
+/*end[ENABLE_MULTI_ISOLATE]*/
         /*
          * Show execution statistics if requested
          */
@@ -212,40 +258,6 @@ public class JavaApplicationManager {
          */
         VM.stopVM(exitCode);
 
-/*else[ENABLE_MULTI_ISOLATE]*/
-//        AppThread appThread = null;
-//        try {
-//            /*
-//             * Create the application thread and run it.
-//             */
-//            if (mainClassName != null) {
-//                // create raw isolate
-//                appThread = new AppThread(mainClassName, javaArgs);
-//            } else {
-//                // create midlet
-//                args = new String[1];
-//                args[0] = "MIDlet-" + midletPropertyNum;
-//                appThread = new AppThread(Isolate.MIDLET_WRAPPER_CLASS, args);
-//            }
-//            if (VM.isVerbose())
-//              VM.print("parentSuiteURI="+parentSuiteURI+"\n");
-//            VM.getCurrentIsolate().morphBootstrapInto(null, classPath, parentSuiteURI);
-//            if (VM.isVerbose())
-//              VM.print("morph done starting AppThread\n");
-//            /*
-//             * Start the application thread and wait for it to complete.
-//             */
-//            appThread.start();
-//            if (VM.isVerbose())
-//              VM.print("Done AppThread\n");
-//            //appThread.join(); // note that this isnt waiting for all app threads to finish, just this thread.
-//        } catch (Error e) {
-//            System.err.println(e);
-//            if (VM.isVerbose()) {
-//                e.printStackTrace();
-//            }
-//        }
-/*end[ENABLE_MULTI_ISOLATE]*/
     }
 
     /**
