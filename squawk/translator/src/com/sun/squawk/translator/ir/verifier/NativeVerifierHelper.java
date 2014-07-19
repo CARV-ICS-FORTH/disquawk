@@ -670,9 +670,21 @@ class NativeVerifierHelper {
             return;
         }
 
+        case Native.com_sun_squawk_NativeUnsafe$getCore: {
+            Assert.that(frame.isStackEmpty());
+            frame.push(INT); // int
+            return;
+        }
+
         case Native.com_sun_squawk_NativeUnsafe$getInt: {
             frame.pop(INT); // int
             frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            frame.push(INT); // int
+            return;
+        }
+
+        case Native.com_sun_squawk_NativeUnsafe$getIsland: {
             Assert.that(frame.isStackEmpty());
             frame.push(INT); // int
             return;
