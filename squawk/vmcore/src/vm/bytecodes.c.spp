@@ -1100,18 +1100,15 @@ int printJavaString(Address str) {
 	if (str == null) {
 		written = fprintf(out, "null");
 	} else {
-		int length = getArrayLength(str);
+		str = sc_translate(str);
+		int length = getLocalArrayLength(str);
 #ifdef UNICODE
 		Address cls = getClass(str);
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
 		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
 			unsigned char *chars = (unsigned char *)str;
-/*if[MICROBLAZE_BUILD]*/
-			fprintf(out, "%s", chars);
-/*else[MICROBLAZE_BUILD]*/
-//			fprintf(out, "%.*s", length, chars);
-/*end[MICROBLAZE_BUILD]*/
+			fprintf(out, "%.*s", length, chars);
 			written = length;
 #ifdef UNICODE
 		} else {
