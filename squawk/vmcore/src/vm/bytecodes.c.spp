@@ -833,7 +833,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the Klass, or the klass refered to by the association
  */
 /*MAC*/ Address associationToKlass(Address $oop) {
-	return com_sun_squawk_Klass_self_local($oop);
+	return com_sun_squawk_Klass_self($oop);
 }
 
 /**
@@ -1091,7 +1091,7 @@ int getLocalCountPlusStackCountIfNotReversingParms(Address mp) {
 /*if[MICROBLAZE_BUILD]*/
 int printJavaString(Address str) {
 /*else[MICROBLAZE_BUILD]*/
-//  int printJavaString(Address str, FILE* out) {
+//int printJavaString(Address str, FILE* out) {
 /*end[MICROBLAZE_BUILD]*/
 #ifdef UNICODE
 	int i;
@@ -1100,19 +1100,18 @@ int printJavaString(Address str) {
 	if (str == null) {
 		written = fprintf(out, "null");
 	} else {
-		str = sc_translate(str);
-		int length = getLocalArrayLength(str);
+		int length = getArrayLength(str);
 #ifdef UNICODE
 		Address cls = getClass(str);
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
 		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
-			unsigned char *chars = (unsigned char *)str;
+			unsigned char *chars = (unsigned char *)sc_translate(str);
 			fprintf(out, "%.*s", length, chars);
 			written = length;
 #ifdef UNICODE
 		} else {
-			unsigned short *chars = (unsigned short *)str;
+			unsigned short *chars = (unsigned short *)sc_translate(str);
 			if (com_sun_squawk_Klass_id_local(cls) != com_sun_squawk_String) {
 				fatalVMError("com_sun_squawk_VM_printString was not passed a string");
 			}
@@ -1155,7 +1154,7 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
 		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
-			unsigned char *chars = (unsigned char *)str;
+			unsigned char *chars = (unsigned char *)sc_translate(str);
 			int min = length;
 			if (min > bufLength) {
 				min = bufLength;
@@ -4479,6 +4478,22 @@ static int collectGarbage(Address, Address, int);
 		sysGlobalMemoryProtection();
 		break;
 	}
+
+	case Native_com_sun_squawk_NativeUnsafe_getCore: {
+		pushInt(sysGetCore());
+		break;
+	}
+
+	case Native_com_sun_squawk_NativeUnsafe_getIsland: {
+		pushInt(sysGetIsland());
+		break;
+	}
+
+	case Native_com_sun_squawk_NativeUnsafe_slaveLoop: {
+		sysSlaveLoop();
+		shouldNotReachHere();
+		break;
+	}
 /*end[MICROBLAZE_BUILD]*/
 
 	case Native_com_sun_squawk_VM_getCore: {
@@ -4982,7 +4997,8 @@ static int collectGarbage(Address, Address, int);
 /*end[KERNEL_SQUAWK]*/
 
 	default: {
-		/*fprintf(stderr, "*** Undefined native method: *** %d\n", iparm_g);*/
+		fprintf(stderr, "*** Undefined (in %s:%d) native method: %d ***\n",
+		        __FILE__, __LINE__, iparm_g);
 		pushInt(iparm_g);
 		call(com_sun_squawk_VM_undefinedNativeMethod);
 		break;
