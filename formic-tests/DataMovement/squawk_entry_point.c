@@ -25,8 +25,9 @@ void squawk_entry_point(void)
 
   fakeArgv[0] = "dummy";
   fakeArgv[1] = "-spotsuite:FormicApp";
-  fakeArgv[2] = "DataMovement";
-  fakeArgc    = 3;
+  fakeArgv[2] = "-stats";
+  fakeArgv[3] = "DataMovement";
+  fakeArgc    = 4;
 
   kt_printf("Invoking squawk with:");
   for(i=0; i<fakeArgc; ++i)

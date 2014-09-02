@@ -20,13 +20,14 @@ extern int Squawk_main_wrapper(int, char **);
 
 void squawk_entry_point(void)
 {
-  char          *fakeArgv[3];
+  char          *fakeArgv[4];
   int           fakeArgc, i;
 
   fakeArgv[0] = "dummy";
   fakeArgv[1] = "-spotsuite:FormicApp";
-  fakeArgv[2] = "spec.benchmarks.check.Main";
-  fakeArgc    = 3;
+  fakeArgv[2] = "-stats";
+  fakeArgv[3] = "spec.benchmarks.check.Main";
+  fakeArgc    = 4;
 
   kt_printf("Invoking squawk with:");
   for(i=0; i<fakeArgc; ++i)
