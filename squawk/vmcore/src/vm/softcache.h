@@ -73,5 +73,6 @@ void sc_initialize();
 Address sc_get(Address obj);
 extern inline Address sc_translate(Address obj);
 extern inline Address sc_prefix(Address obj);
+extern inline Address sc_put(Address obj, int cid);
 
 #endif /* __SOFTCACHE_H__ */

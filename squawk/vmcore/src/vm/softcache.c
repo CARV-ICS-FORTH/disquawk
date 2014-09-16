@@ -200,15 +200,15 @@ INLINE void sc_dir_ro_clear() {
 void sc_initialize() {
 	/* The cache directory. */
 	cacheDirectory_g   = (sc_object_st*)roundUp((UWord)mm_scache_base(sysGetCore()),
-	                                            MM_CACHELINE_SIZE);
+	                                            sysGetCachelineSize());
 	/* Start address of the allocated memory to the software cache. */
 	cacheStart_g       =
 		(Address)roundUp((UWord)cacheDirectory_g + SC_DIRECTORY_SIZE,
-		                 MM_CACHELINE_SIZE);
+		                 sysGetCachelineSize());
 	/* End address of the allocated memory to the software cache. */
 	cacheEnd_g         =
 		(Address)roundDown((UWord)cacheStart_g + SC_CACHE_SIZE,
-		                   MM_CACHELINE_SIZE);
+		                   sysGetCachelineSize());
 	/* Size of the software cache in bytes. */
 	cacheSize_g        = cacheEnd_g - cacheStart_g;
 	/* The next allocation address. */
@@ -220,7 +220,7 @@ void sc_initialize() {
 	/* The allocation threshold/limit address for read-only Objects. */
 	cacheROThreshold_g =
 		(Address)roundUp((UWord)(cacheEnd_g - (cacheSize_g / 2)),
-		                 MM_CACHELINE_SIZE);
+		                 sysGetCachelineSize());
 	/* Counter for the number of flushes due to full cache. */
 	cacheFlushes_g     = 0;
 	/* Counts how many times the cache was cleared. */
@@ -343,8 +343,9 @@ inline Address sc_translate(Address obj) {
  * @param from The object to fetch
  * @param to   The address in the cache to store the copy
  * @param size The size of the object (must be less than 1MB)
+ * @param cid  The core id from whose cache to fetch the data
  */
-INLINE void sc_fetch(Address from, Address to, int size) {
+INLINE void sc_fetch(Address from, Address to, int size, int cid) {
 	int cnt = 32;
 	// The object's home node board id
 	int from_bid;
@@ -389,43 +390,53 @@ INLINE void sc_fetch(Address from, Address to, int size) {
 	// pushed to the local DMA engine first.
 
 	// Wait until our DMA engine can support at least one more DMA
-	while ( !(ar_ni_status_get(sysGetCore()) & 0xFF) ) {
+	while ( (ar_ni_status_get(sysGetCore()) & 0xFF) == 0 ) {
 		;
 	}
 
-	// Init ACK counter to -size
-	ar_cnt_set(sysGetCore(), cnt, -size);
 	// Get the object's home node cid and bid
 	sysHomeOfAddress(from, &from_bid);
 	// from_bid can't be zero
 	assume(from_bid);
-	// DMAs are working on cache-line granularity (64B). So we mask
-	// the from address accordingly to take the pure, cache-aligned
-	// address (offset) on the remote node.
+	// DMAs are working on cache-line alignment and granularity
+	// (64B). So we round up the size and mask the from address
+	// accordingly to take the pure, cache-aligned address (offset) on
+	// the remote node.
+	size = roundUp(size, sysGetCachelineSize());
 	from = (Address)(((UWord)from & 0x3FFFFC0) | MM_MB_HEAP_BASE);
+	// Init ACK counter to -size
+	ar_cnt_set(sysGetCore(), cnt, -size);
 	// Issue the DMA
-	ar_dma_with_ack(sysGetCore(),   // my core id
-	                from_bid - 1,   // source board id
-	                0,      // source core id, HACK: ATM fetch from the cache, untill the flush/invalidate mechanisms are ready.
-	                (int)from,      // source address
-	                sysGetIsland(), // destination board id
-	                sysGetCore(),   // destination core id
-	                (int)to,        // destination address
-	                sysGetIsland(), // ack board id
-	                sysGetCore(),   // ack core id
-	                cnt,            // ack counter
-	                size,           // data length
-	                0,              // ignore dirty bit on source
-	                0,              // force clean on dst
-	                0);             // write through
+//	kt_printf("Issued DMA from %p of size %d\n", from, size);
+	ar_dma_with_ack(sysGetCore(),         // my core id
+	                from_bid - 1,         // source board id
+	                (cid >= 0) ? cid : 0, // source core id, HACK: ATM fetch from the cache, untill the flush/invalidate mechanisms are ready.
+	                (int)from,            // source address
+	                sysGetIsland(),       // destination board id
+	                sysGetCore(),         // destination core id
+	                (int)to,              // destination address
+	                sysGetIsland(),       // ack board id
+	                sysGetCore(),         // ack core id
+	                cnt,                  // ack counter
+	                size,                 // data length
+	                0,                    // ignore dirty bit on source
+	                0,                    // force clean on dst
+	                0);                   // write through
 
 //	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, sysGetIsland(), to);
 
 	// FIXME: We are not sure the DMA reached completion (probably
 	// not), so for the moment let's just spin here. Note that this
 	// must be fixed in order to make prefetching work efficiently
-	while ( ar_cnt_get(sysGetCore(), cnt) != 0 ) {
+	// FIXME: Add check for Nack and retry if necessary
+	while ( ar_cnt_get_triggered(sysGetCore(), cnt) == 0 ) {
 		;
+	}
+	if ( ar_cnt_get_triggered(sysGetCore(), cnt) == 2 ) {
+//		kt_printf("DMA Completed %d\n", ar_cnt_get(sysGetCore(), cnt));
+	} else {
+		kt_printf("DMA Nacked\n");
+		ar_abort();
 	}
 	// Mark the counter as available
 	cachePendingFEs_g ^= 1<<cnt;
@@ -653,9 +664,9 @@ INLINE void sc_flush() {
 	int i;
 
 	// If there are pending write backs wait for them to complete
-	/* if (unlikely(cachePendingWBs_g)) {
-	 * 	sc_wait_pending_wb();
-	 * } */
+	if (unlikely(cachePendingWBs_g)) {
+		sc_wait_pending_wb();
+	}
 
 	/* Go through the dirty objects and issue write-back RDMAs */
 	for (i=0; i< SC_HASHTABLE_SIZE; ++i) {
@@ -766,8 +777,9 @@ INLINE Address sc_malloc(unsigned int size){
  * This is actually a clone of blockToOop from
  * cldc/src/com/sun/squawk/GC.java
  */
-INLINE Address sc_block_to_oop(Address obj, Address oop) {
+INLINE Address sc_block_to_oop(Address obj, Address oop, int cid) {
 	int size, length;
+
 	switch ((*(int*)oop) & HDR_headerTagMask) {
 
 	case HDR_basicHeaderTag:  // Class Instance
@@ -782,7 +794,7 @@ INLINE Address sc_block_to_oop(Address obj, Address oop) {
 			cacheAllocTemp_g = oop;
 			oop = sc_malloc(size);
 			// Fetch data
-			sc_fetch(obj, oop, size);
+			sc_fetch(obj, oop, size, cid);
 		}
 
 		oop += 4;
@@ -805,7 +817,7 @@ INLINE Address sc_block_to_oop(Address obj, Address oop) {
 			cacheAllocTemp_g = oop;
 			oop = sc_malloc(size);
 			// Fetch data
-			sc_fetch(obj, oop, size);
+			sc_fetch(obj, oop, size, cid);
 		}
 
 		oop += 8;
@@ -833,13 +845,16 @@ INLINE Address sc_block_to_oop(Address obj, Address oop) {
 
 /**
  * Fetches an object to cache it.  Allocates the appropriate space and
- * updates the cache directory.
+ * updates the cache directory. If cid is a positive number then the
+ * obj is fetched from that core's cache instead of the board's main
+ * memory.
  *
  * @param obj The object to cache
+ * @param cid  The core id to fetch it from
  *
  * @return The cached object
  */
-INLINE Address sc_put(Address obj) {
+INLINE Address sc_put(Address obj, int cid) {
 	Address   ret;
 
 	if ( unlikely(cacheAllocTemp_g != NULL) ) {
@@ -854,7 +869,7 @@ INLINE Address sc_put(Address obj) {
 	}
 
 	// Fetch data
-	sc_fetch(obj, ret, sysGetCachelineSize());
+	sc_fetch(obj, ret, sysGetCachelineSize(), cid);
 
 	// The object's Klass is always here and resides in the ROM so
 	// there is no need for ext.ra fetches.
@@ -866,7 +881,7 @@ INLINE Address sc_put(Address obj) {
 
 	// Make sure the whole object is here and move the pointer to the
 	// proper offset from the cache-line head
-	ret = sc_block_to_oop(obj, ret);
+	ret = sc_block_to_oop(obj, ret, cid);
 
 	// Update the directory
 	sc_dir_insert((UWord)obj, (UWord)ret);
@@ -896,7 +911,7 @@ Address sc_get(Address obj) {
 	if (ret == NULL) { // miss
 		/* printf(" %p not found\n", obj); */
 		// Cache the object
-		ret = sc_put(obj);
+		ret = sc_put(obj, -1);
 	}
 
 	/* printf(" %p found at %p\n", obj, ret); */
