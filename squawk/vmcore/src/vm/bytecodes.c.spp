@@ -86,8 +86,8 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
    * 	cachedClassState_g[i] = cachedClassState_g[i-1];
    * }
    * // and add to the start (0)
-   * cachedClass_g[0]      = \$klass;
-   * cachedClassState_g[0] = \$state; */
+   * cachedClass_g[0]      = $klass;
+   * cachedClassState_g[0] = $state; */
 
 /**
  * Get a cached class state.
@@ -4488,12 +4488,6 @@ static int collectGarbage(Address, Address, int);
 		pushInt(sysGetIsland());
 		break;
 	}
-
-	case Native_com_sun_squawk_NativeUnsafe_slaveLoop: {
-		sysSlaveLoop();
-		shouldNotReachHere();
-		break;
-	}
 /*end[MICROBLAZE_BUILD]*/
 
 	case Native_com_sun_squawk_VM_getCore: {
@@ -4552,6 +4546,7 @@ static int collectGarbage(Address, Address, int);
 		break;
 	}
 
+/*if[DEBUG_CODE_ENABLED]*/
 	case Native_com_sun_squawk_VM_deadbeef: {
 		UWordAddress end   = (UWordAddress)popAddress();
 		UWordAddress start = (UWordAddress)popAddress();
@@ -4566,6 +4561,7 @@ static int collectGarbage(Address, Address, int);
 		}
 		break;
 	}
+/*end[DEBUG_CODE_ENABLED]*/
 
 	case Native_com_sun_squawk_VM_getFP: {
 		pushAddress(fp_g);
@@ -4962,6 +4958,17 @@ static int collectGarbage(Address, Address, int);
 	}
 
 /*end[LISP2_BITMAP]*/
+
+	case Native_com_sun_squawk_platform_MMP_spawnThread: {
+		Address thread = popAddress();
+		mmpSpawnThread(thread);
+		break;
+	}
+
+	case Native_com_sun_squawk_platform_MMP_checkMailbox: {
+		pushAddress(mmpCheckmailbox());
+		break;
+	}
 
 /*if[KERNEL_SQUAWK]*/
 	case Native_com_sun_squawk_VM_sendInterrupt: {

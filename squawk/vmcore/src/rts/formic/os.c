@@ -373,14 +373,14 @@ void sysBarrier() {
  *
  * @return the core id
  */
-#define sysGetCore() my_cid
+#define sysGetCore ar_get_core_id
 
 /**
  * Returns the island (numa/board) id running this VM instance.
  *
  * @return the island id
  */
-#define sysGetIsland() my_bid
+#define sysGetIsland ar_get_board_id
 
 /**
  * Calculatates the address's home island

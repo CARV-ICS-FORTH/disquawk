@@ -985,13 +985,6 @@ class NativeVerifierHelper {
             return;
         }
 
-        case Native.com_sun_squawk_VM$deadbeef: {
-            frame.pop(REF); // com.sun.squawk.Address
-            frame.pop(REF); // com.sun.squawk.Address
-            Assert.that(frame.isStackEmpty());
-            return;
-        }
-
         case Native.com_sun_squawk_VM$doubleToLongBits: {
             frame.pop(DOUBLE); // double
             Assert.that(frame.isStackEmpty());
@@ -1338,6 +1331,18 @@ class NativeVerifierHelper {
             frame.pop(REF); // com.sun.squawk.Address
             Assert.that(frame.isStackEmpty());
             frame.push(BOOLEAN); // boolean
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMP$checkMailbox: {
+            Assert.that(frame.isStackEmpty());
+            frame.push(OOP); // com.sun.squawk.VMThread
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMP$spawnThread: {
+            frame.pop(OOP); // com.sun.squawk.VMThread
+            Assert.that(frame.isStackEmpty());
             return;
         }
 

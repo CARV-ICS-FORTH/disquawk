@@ -950,26 +950,20 @@ public final class NativeUnsafe {
 	 *                             Operating System                          *
 	\*-----------------------------------------------------------------------*/
 
-/**
- * Returns the core id running this VM instance.
- *
- * @return the core id
- */
-/*if[JAVA5SYNTAX]*/
-	@Vm2c(proxy="sysGetCore")
-/*end[JAVA5SYNTAX]*/
+	/**
+	 * Returns the core id running this VM instance.
+	 *
+	 * @return the core id
+	 */
 	public static int getCore() throws NativePragma {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 
-/**
- * Returns the island (numa/board) id running this VM instance.
- *
- * @return the island id
- */
-/*if[JAVA5SYNTAX]*/
-	@Vm2c(proxy="sysGetIsland")
-/*end[JAVA5SYNTAX]*/
+	/**
+	 * Returns the island (numa/board) id running this VM instance.
+	 *
+	 * @return the island id
+	 */
 	public static int getIsland() throws NativePragma {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}

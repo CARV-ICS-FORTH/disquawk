@@ -47,7 +47,7 @@ typedef struct globalsStruct {
 #ifdef SC_NATIVE
 #ifdef __MICROBLAZE__
 	/** The cache directory. */
-	sc_object_st      *_cacheDirectory;
+	sc_object_st     *_cacheDirectory;
 	/** Start address of the allocated memory to the software cache. */
 	Address           _cacheStart;
 	/** End address of the allocated memory to the software cache. */
@@ -76,6 +76,11 @@ typedef struct globalsStruct {
 #error SC_NATIVE is only supported on Formic
 #endif /* __MICROBLAZE__ */
 #endif /* SC_NATIVE */
+
+	/** Keeps the last core that the scheduler chose to assign a thread to */
+	int          _schedulerLastCore;
+	/** Keeps the last island that the scheduler chose to assign a thread to */
+	int          _schedulerLastIsland;
 
 #ifndef MACROIZE
 	int          _iparm; /* The immediate operand value of the current bytecode. */
@@ -314,6 +319,9 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #error SC_NATIVE is only supported on Formic
 #endif /* __MICROBLAZE__ */
 #endif /* SC_NATIVE */
+
+#define schedulerLastCore_g                 defineGlobal(schedulerLastCore)
+#define schedulerLastIsland_g               defineGlobal(schedulerLastIsland)
 
 #ifndef MACROIZE
 #define iparm_g                             defineGlobal(iparm)

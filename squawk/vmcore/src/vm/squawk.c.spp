@@ -259,6 +259,7 @@ NORETURN void stopVM(int);
  */
 #include "softcache.h"
 #include "globals.h"
+#include "mmp.c"
 
 /*
  * Setup ss and sl.
@@ -1320,6 +1321,9 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	sc_initialize();
 
 #else  /* SC_NATIVE */
+
+	schedulerLastCore_g   = sysGetCore()   + 1;
+	schedulerLastIsland_g = sysGetIsland() + 1;
 
 	com_sun_squawk_SoftwareCache_cacheStart =
 		(Address)roundUp((UWord)mm_scache_base(my_cid), pageSize);
