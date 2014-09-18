@@ -368,7 +368,7 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
 
 		// Get the bytecode offset relative to the start of the method
 		frame.PC = (int)(traceIP - frame.MP);
-//        assume(frame.PC >= 0);
+		assume(frame.PC >= 0);
 
 		if (forThreadSwitch) {
 			if (previousFrame.MP == frame.MP && previousFrame.PC == frame.PC) {
@@ -378,7 +378,9 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
 					fprintf(traceFile_g, format(":\"%d"), repetitions);
 					repetitions = 0;
 				}
-				fprintf(traceFile_g, format(":%A@%d"), frame.MP, frame.PC);
+				fprintf(traceFile_g, format(":%A@%d"),
+				        frame.MP - (unsigned int)com_sun_squawk_VM_romStart,
+				        frame.PC);
 			}
 		} else {
 			if (previousFrame.MP == frame.MP && previousFrame.PC == frame.PC) {
@@ -390,7 +392,8 @@ void traceFrames(int opcode, ByteAddress traceIP, UWordAddress traceFP, boolean 
 					repetitions = 0;
 				}
 				fprintf(traceFile_g, format("*STACKTRACE*:%A:%d\n"),
-				        frame.MP, frame.PC);
+				        frame.MP - (unsigned int)com_sun_squawk_VM_romStart,
+				        frame.PC);
 			}
 		}
 
