@@ -269,18 +269,23 @@ INLINE unsigned int sc_is_in_heap(Address addr) {
 INLINE int sc_is_cacheable(Address obj) {
 	// The object's home node board id
 	int bid;
+	int cid;
 
 	// Assume that the object is in the HEAP
 	assume(sc_is_in_heap(obj));
 
-	sysHomeOfAddress(obj, &bid);
+	sysHomeOfAddress(obj, &bid, &cid);
 	// bid can't be zero
 	assume(bid);
 	/* if ( bid != (sysGetIsland() + 1) ) {
 	 * 	printf("Obj %p home=%d my home=%d\n", obj, bid, sysGetIsland() + 1);
 	 * } */
+	/* if ( bid && (( bid != (sysGetIsland() + 1) ) || ( cid != sysGetCore() )) ) {
+	 * 	printf("Obj %p home=0x%02X/%d my home=0x%02X/%d\n",
+	 * 	       obj, bid, cid, sysGetIsland() + 1, sysGetCore());
+	 * } */
 
-	return bid && ( bid != (sysGetIsland() + 1) );
+	return bid && (( bid != (sysGetIsland() + 1) ) || ( cid != sysGetCore() ));
 }
 
 /**
@@ -316,17 +321,21 @@ inline Address sc_prefix(Address obj) {
  */
 inline Address sc_translate(Address obj) {
 
+	if (obj == NULL)
+		return NULL;
+
 	/* printf("Trans: %p\n", obj); */
 	/* Check if it is local */
 	if (!sc_is_in_heap(obj)) {
-		/* printf("translating : %p\n", obj);
-		 * ar_backtrace(); */
+		/* printf("translating : %p\n", obj); */
+		/* ar_backtrace(); */
 		return obj;
 	} else if (unlikely(sc_is_cacheable(obj))) {
 		/* printf("%p is cacheable\n", obj); */
 		/* It is cacheable, get it from the cache */
 		return sc_get(obj);
 	} else {
+		/* kt_printf("%p is in local heap\n", obj); */
 		/* It is in the local heap slice, strip the tag */
 		obj = (Address)(((UWord)obj & 0x3FFFFFF) | MM_MB_HEAP_BASE);
 		/* Assert obj is in the HEAP */
@@ -395,7 +404,7 @@ INLINE void sc_fetch(Address from, Address to, int size, int cid) {
 	}
 
 	// Get the object's home node cid and bid
-	sysHomeOfAddress(from, &from_bid);
+	sysHomeOfAddress(from, &from_bid, NULL);
 	// from_bid can't be zero
 	assume(from_bid);
 	// DMAs are working on cache-line alignment and granularity
@@ -504,7 +513,7 @@ void sc_write_back(Address from, Address to, int size) {
 	cnt += SC_DMA_WB_CNT_START;
 	ar_cnt_set(sysGetCore(), cnt, -size);
 	// Get the object's home node cid and bid
-	sysHomeOfAddress(to, &to_bid);
+	sysHomeOfAddress(to, &to_bid, NULL);
 	// to_bid can't be zero
 	assume(to_bid);
 	// Issue the DMA

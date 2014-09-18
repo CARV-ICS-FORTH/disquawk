@@ -28,27 +28,14 @@
  */
 package com.sun.squawk;
 
-import com.sun.squawk.pragma.GlobalStaticFields;
-import com.sun.squawk.pragma.AllowInlinedPragma;
-import com.sun.squawk.Address;
-import com.sun.squawk.util.SquawkHashtable;
-import com.sun.squawk.util.Assert;
+import com.sun.squawk.*;
+import com.sun.squawk.util.*;
+import com.sun.squawk.pragma.*;
 
-public class SoftwareCache implements GlobalStaticFields {
+public final class SoftwareCache {
 
-/*if[JAVA5SYNTAX]*/
-	@Vm2c(code="return sc_translate(oop);")
-/*end[JAVA5SYNTAX]*/
-	native static Klass translate(Klass oop) throws AllowInlinedPragma;
-
-/*if[JAVA5SYNTAX]*/
-	@Vm2c(code="return sc_translate(oop);")
-/*end[JAVA5SYNTAX]*/
-	native static Object translate(Object oop) throws AllowInlinedPragma;
-
-/*if[JAVA5SYNTAX]*/
-	@Vm2c(code="return sc_translate(oop);")
-/*end[JAVA5SYNTAX]*/
-	native static Address translate(Address oop) throws AllowInlinedPragma;
+	static Object translate(Object oop) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
 
 }

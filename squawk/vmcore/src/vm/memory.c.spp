@@ -1155,24 +1155,30 @@ INLINE_UNALIGNED jlong getLocalUnalignedLong(Address base, Offset offset) {
  * @param base   the base address
  * @param offset the offset to a field in the object
  */
+/* FIXME: Mark the object pointed by $value as "shared", since it can
+ * escape at anytime. */
+/* If it is cacheable, we do not care about garbage collecting it. */
+/* TODO/FIXME: If it is cacheable set its dirty bit in the cache */
 /*MAC*/ void setObjectAndUpdateWriteBarrier(Address $base, Offset $offset, Address $value) {
+	Address ea;
 	setObject($base, $offset, $value);
-/* FIXME: Mark object as "shared", since it can escape at anytime. */
-
-/*if[WRITE_BARRIER]*/
-	{
-/*if[MACROIZE]*/
-/*else[MACROIZE]*/
-//		void setBitFor(Address);
-/*end[MACROIZE]*/
-		Address ea;
 /*if[SQUAWK_64]*/
-		ea = (&((long *)$base)[$offset]);
+	ea = (&((long *)$base)[$offset]);
 /*else[SQUAWK_64]*/
-//		ea = (&((int *)$base)[$offset]);
+//	ea = (&((int *)$base)[$offset]);
 /*end[SQUAWK_64]*/
 
-		assume(!com_sun_squawk_GC_collecting || loeq(ea, com_sun_squawk_GC_heapStart) || hi(ea, com_sun_squawk_GC_heapEnd));
+	if ( sc_is_cacheable(ea) ) {
+	}
+
+/*if[WRITE_BARRIER]*/
+	else {
+/*if[!MACROIZE]*/
+		void setBitFor(Address);
+/*end[MACROIZE]*/
+		assume(!com_sun_squawk_GC_collecting ||
+		       loeq(ea, com_sun_squawk_GC_heapStart) ||
+		       hi(ea, com_sun_squawk_GC_heapEnd));
 		setBitFor(ea);
 	}
 /*end[WRITE_BARRIER]*/

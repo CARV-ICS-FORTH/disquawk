@@ -740,6 +740,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ Address getStaticMethod(Address $cls, int $index) {
 	Address stable;
 	assume($cls);
+	/* if(sc_is_cacheable($cls)) {
+	 * 	kt_printf("%p is cacheable\n", $cls);
+	 * } */
 	stable = com_sun_squawk_Klass_staticMethods_local($cls);
 	assume(stable);
 	assume((unsigned int)$index < (unsigned int)getLocalArrayLength(stable));
@@ -1351,19 +1354,23 @@ if (!runningOnServiceThread_g &&                                                
 	/*
 	 * Switch to the new context.
 	 */
+	/* kt_printf("swi1 fp=%d ip=%d sp=%p\n", fp_g, ip_g, sp_g); */
 	setStack(newStack);
 	fp_g = getObject(ss_g, SC_lastFP);
 	if (fp_g == null) {   /* New thread                   */
 		fp_g = null;      /* The return FP should be zero */
-		ip_g = null;    /* The return IP should be zero */
+		ip_g = null;      /* The return IP should be zero */
 		sp_g = &ss_g[getArrayLength(ss_g)];
+		/* kt_printf("swi2 fp=%d ip=%d sp=%p\n", fp_g, ip_g, sp_g); */
 /*if[REVERSE_PARAMETERS]*/
 		call(com_sun_squawk_VM_callRun);
 /*else[REVERSE_PARAMETERS]*/
 //		downLocalPushAddress(ip_g);         /* don't call call() ... */
 //		ip_g = com_sun_squawk_VM_callRun;   /* because resetStackPointer() will not work */
 /*end[REVERSE_PARAMETERS]*/
-		/*fprintf(stderr, "callRun: fp = %d sp=%d ip=%d tid = %d\n", fp_g, sp_g, ip_g, com_sun_squawk_VMThread_threadNumber(newThread));*/
+		/* fprintf(stderr, "callRun: fp = %d sp=%p ip=%d tid = %d\n",
+		 *         fp_g, sp_g, ip_g,
+		 *         com_sun_squawk_VMThread_threadNumber(newThread)); */
 	} else {
 
 		assumeInterp(getMP() != null);
@@ -1371,6 +1378,7 @@ if (!runningOnServiceThread_g &&                                                
 		resetStackPointer();
 		ip_g = (ByteAddress)getMP() + ipOffset;
 		assumeInterp(inCode(ip_g));
+		/* kt_printf("swi2 fp=%d ip=%d\n", fp_g, ip_g); */
 
 		SDA_HANDLE_BREAKPOINT_CODE_FRAG
 	}
@@ -2902,6 +2910,8 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address value = popAddress();
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, !$oopIn0);
+	/* kt_printf("do_putfield_o in %p offset %d val = %p\n",
+	 *           oop, iparm_g, value); */
 	setObjectAndUpdateWriteBarrier(oop, iparm_g, value);
 }
 
@@ -4967,6 +4977,12 @@ static int collectGarbage(Address, Address, int);
 
 	case Native_com_sun_squawk_platform_MMP_checkMailbox: {
 		pushAddress(mmpCheckmailbox());
+		break;
+	}
+
+	case Native_com_sun_squawk_SoftwareCache_translate: {
+		Address addr = popAddress();
+		pushAddress(sc_translate(addr));
 		break;
 	}
 
