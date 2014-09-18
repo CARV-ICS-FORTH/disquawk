@@ -121,7 +121,7 @@ CFLAGS+=-DAR_CONFIGURE_THROUGH_MAKE=1 \
 		-DAR_ARM0_BID=-1 \
 		-DAR_ARM1_BID=-1 \
 		-DAR_XUP_BID=-1 \
-		-DAR_FORMIC_CORES_PER_BOARD=1 \
+		-DAR_FORMIC_CORES_PER_BOARD=8 \
 		-DAR_FORMIC_MIN_X=0 \
 		-DAR_FORMIC_MIN_Y=0 \
 		-DAR_FORMIC_MIN_Z=0 \
@@ -412,7 +412,8 @@ FormicApp.suite.map: FormicApp.suite mapper/classes.jar build.jar
 
 squawk.suite.map: squawk.suite mapper/classes.jar build.jar
 	$(AT)echo $(STR_BLD) $@
-	$(AT)$(BUILDER) map -notypemap $<
+	$(AT)$(BUILDER) map -nofielddefs -notypemap \
+		-cp:$(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ $<
 ################################################################################
 
 
@@ -432,7 +433,7 @@ FormicApp.suite.bin: FormicApp.suite suite_addr.txt squawk.suite.bin \
                         mapper/classes.jar build.jar
 	$(eval SUITES_ADDR := $(shell cat suite_addr.txt))
 	$(AT)echo $(STR_FLC) $@
-	$(eval TMP := $(shell wc -c squawk.suite.bin | awk '{print $$1}' \
+	$(eval TMP := $(shell du -b squawk.suite.bin | cut -f 1 \
 			| xargs printf "%X" \
 			| xargs -I size echo "obase=16;ibase=16; $(SUITES_ADDR)+size" | bc))
 	$(AT)$(BUILDER) flashconv -endian:little $< $(TMP) $(SUITES_ADDR)
