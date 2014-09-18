@@ -42,28 +42,31 @@ void mmpSpawnThread(Address thread) {
 	unsigned int msg0;
 	int          cnt;
 	int          ret;
+	int          target_cid;
+	int          target_bid;
 
 	cnt = 22; //TODO: which counter to use???
 
-	// Pass your bid and cid with the opcode so that the other end
-	// gets it straight from your cache
-	msg0 = ( ((sysGetIsland() << 3) | sysGetCore()) << 16) | MMP_OPS_TH_SPAWN;
+	// Pass your cid with the opcode so that the other end gets it
+	// straight from your cache. The bid will be inferred from the
+	// global address.
+	msg0 = ( (sysGetCore()) << 16) | MMP_OPS_TH_SPAWN;
 
 	// FIXME: Make it work for various number of cores
-	// FIXME: Do it with a single counter and use mod/div to find the actual bid and cid
 	// Peek a core and a board (FIXME: do something smarter than RR)
-	while (schedulerLastCore_g == sysGetCore()) {
-		schedulerLastCore_g   = (schedulerLastCore_g + 1) & 0x7;
-	}
-	while (schedulerLastIsland_g == sysGetIsland()) {
-		schedulerLastIsland_g = (schedulerLastIsland_g + 1) & 0x3F;
-	}
+	do {
+		target_cid = schedulerLastCore_g & 0x7;
+		target_bid = (schedulerLastCore_g >> 3) & 0x3F;
+		schedulerLastCore_g++;
+	} while ( (target_cid == sysGetCore()) && (target_bid == sysGetIsland()) );
 
 	do {
+		/* kt_printf("Sending thread %p to 0x%02X/%d\n",
+		 *           thread, target_bid, target_cid); */
 		// Send to dst mailbox, keeping track with a local counter
-		ar_cnt_set(sysGetIsland(), sysGetCore(), -8);
+		ar_cnt_set(sysGetCore(), cnt, -8);
 		ar_mbox_send2_ack(sysGetCore(),
-		                  schedulerLastIsland_g, schedulerLastCore_g,
+		                  target_bid, target_cid,
 		                  sysGetIsland(), sysGetCore(), cnt,
 		                  msg0, (unsigned int)thread);
 
@@ -71,10 +74,12 @@ void mmpSpawnThread(Address thread) {
 		while ( (ret = ar_cnt_get_triggered(sysGetCore(), cnt)) == 0) {
 			;
 		}
+
 	} while (ret == 3);
 
-	/* ar_assert(ret == 1); // Ack
-	 * ar_assert(ar_cnt_get(sysGetCore(), cnt) == 0); */
+	/* kt_printf("Sent\n"); */
+	assume(ret == 1); // Ack
+	assume(ar_cnt_get(sysGetCore(), cnt) == 0);
 
 }
 
@@ -88,20 +93,35 @@ void mmpSpawnThread(Address thread) {
 INLINE Address mmpCheckmailbox() {
 	msg_op       msg;
 	Address      thread;
+	int          cid;
 
 	thread = NULL;
 
 	// First check to see if there are any messages (non blocking)
 	if ( (ar_mbox_status_get(sysGetCore()) & 0xFFFF) != 0 ) {
 		// If there are, get the first
-		msg = (msg_op) ar_mbox_get(sysGetCore());
+		msg = (msg_op) ar_mbox_get(sysGetCore()) & 0xFFFF;
 		switch (msg) {
 		// Thread specific messages
 		case MMP_OPS_TH_SPAWN:
-			kt_printf("Someone pushed a thread for me\n");
+			/* kt_printf("I've got a message 0x%02X/%d\n",
+			 *           sysGetIsland(), sysGetCore()); */
+			cid = (msg >> 16) & 0x7;
 			// this is a two-words message
 			thread = (Address)ar_mbox_get(sysGetCore());
-			/* ar_assert(thread != NULL); */
+			/* kt_printf("Some %d core pushed a thread (%p) for me\n",
+			 *           cid, thread); */
+			assume(thread != NULL);
+			// Fetch it now since we are going to need it soon. The
+			// fetch must be explicit to be sure it will be fetched
+			// from the proper cache.
+			sc_put(thread, cid);
+			// TODO: After fetching it we should create an exact local copy!
+			// FIXME: Now in case it gets out of our software cache it might
+			// get refetched from the other board's main memory where it might
+			// be outdated.
+			/* kt_printf("Our new thread %p is in %p in cache\n",
+			 *           thread, sc_put(thread, cid)); */
 			break;
 		/* TODO: Add Christi's op-codes here */
 		// Hash-Table
@@ -110,7 +130,7 @@ INLINE Address mmpCheckmailbox() {
 		// Synchronize
 		default:
 			kt_printf("Error: Unknown message operator\n");
-			/* ar_abort(); */
+			ar_abort();
 			break;
 		}
 	}

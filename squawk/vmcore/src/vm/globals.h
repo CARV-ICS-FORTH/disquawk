@@ -79,8 +79,6 @@ typedef struct globalsStruct {
 
 	/** Keeps the last core that the scheduler chose to assign a thread to */
 	int          _schedulerLastCore;
-	/** Keeps the last island that the scheduler chose to assign a thread to */
-	int          _schedulerLastIsland;
 
 #ifndef MACROIZE
 	int          _iparm; /* The immediate operand value of the current bytecode. */
@@ -321,7 +319,6 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #endif /* SC_NATIVE */
 
 #define schedulerLastCore_g                 defineGlobal(schedulerLastCore)
-#define schedulerLastIsland_g               defineGlobal(schedulerLastIsland)
 
 #ifndef MACROIZE
 #define iparm_g                             defineGlobal(iparm)

@@ -259,7 +259,6 @@ NORETURN void stopVM(int);
  */
 #include "softcache.h"
 #include "globals.h"
-#include "mmp.c"
 
 /*
  * Setup ss and sl.
@@ -577,6 +576,11 @@ void freeBuffers() {
 #ifdef LISP2_BITMAP
 #include "lisp2.c"
 #endif /* LISP2_BITMAP */
+
+/*
+ * Include the Mailbox Message Protocol (MMP).
+ */
+#include "mmp.c"
 
 /*
  * Include the switch and bytecode routines.
@@ -1322,8 +1326,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 
 #else  /* SC_NATIVE */
 
-	schedulerLastCore_g   = sysGetCore()   + 1;
-	schedulerLastIsland_g = sysGetIsland() + 1;
+	schedulerLastCore_g   = ((sysGetIsland() << 3) | sysGetCore()) + 1;
 
 	com_sun_squawk_SoftwareCache_cacheStart =
 		(Address)roundUp((UWord)mm_scache_base(my_cid), pageSize);
