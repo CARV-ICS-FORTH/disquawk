@@ -1272,6 +1272,111 @@ public class GC implements GlobalStaticFields {
 	}
 
 	/**
+	 * Copy the contents of a remote stack to a new local stack. This
+	 * is useful for thread migration.
+	 *
+	 * @warning NOT TESTED
+	 *
+	 * @param srcChunk   the old stack
+	 * @param dstChunk   the new stack
+	 */
+	static void remoteStackCopy(Object srcChunk, Object dstChunk) {
+
+/*if[DEBUG_CODE_ENABLED]*/
+		if (isTracing(TRACE_ALLOCATION)) {
+			VM.print("GC::stackCopy - srcChunk = ");
+			VM.printAddress(srcChunk);
+			VM.print(" dstChunk = ");
+			VM.printAddress(dstChunk);
+			VM.println();
+		}
+/*end[DEBUG_CODE_ENABLED]*/
+
+		Address remoteSrc = Address.fromObject(srcChunk);
+		Address dst       = Address.fromObject(dstChunk);
+		Address src       = Address.fromObject(SoftwareCache.translate(remoteSrc.toObject()));
+
+		int srcSize = getArrayLength(src) * HDR.BYTES_PER_WORD;
+		int dstSize = getArrayLength(dst) * HDR.BYTES_PER_WORD;
+		Assert.always(srcSize == dstSize);
+
+		Address srcRemoteFP = NativeUnsafe.getAddress(src, SC.lastFP);
+		Offset  delta       = srcRemoteFP.diff(remoteSrc);
+		Address srcLastFP   = src.addOffset(delta);
+		Address dstLastFP   = dst.addOffset(delta);
+
+		/*
+		 * Copy the meta info in the stack chunk (except for the
+		 * 'next' pointer) and then copy the body (i.e. the space used
+		 * for activation frames):
+		 *
+		 *             <- SC.limit -> <-----  oldBodySize  ------>
+		 *            +--------------+----------------------------+
+		 *  oldStack  |     meta     |           body             |
+		 *            +--------------+----------------------------+
+		 *
+		 *
+		 *             <- SC.limit -> <-----  oldBodySize  ------>
+		 *            +--------------+----------------------------+
+		 *  newStack  |     meta     |           body             |
+		 *            +--------------+----------------------------+
+		 */
+		NativeUnsafe.setAddress(dst, SC.owner, NativeUnsafe.getAddress(src, SC.owner));
+		NativeUnsafe.setUWord(dst, SC.lastBCI, NativeUnsafe.getUWord(src, SC.lastBCI));
+		Assert.always(NativeUnsafe.getAddress(src, SC.guard).isZero());
+
+		Address srcEnd = src.add(srcSize);
+		int srcUsedSize = srcEnd.diff(srcLastFP).toInt();
+		VM.copyBytes(srcLastFP, 0, dstLastFP, 0, srcUsedSize, false);
+
+		/*
+		 * Adjust the frame pointers in the new stack.
+		 */
+		NativeUnsafe.setAddress(dst, SC.lastFP, dstLastFP);
+
+		Address srcFP = srcLastFP;
+		Address dstFP = dstLastFP;
+		int fpCount = 0;
+
+		while (!srcFP.isZero()) {
+/*if[DEBUG_CODE_ENABLED]*/
+			if (!GC.inRam(srcFP)) {
+				VM.println("GC::stackCopy - BAD srcFP");
+				VM.print(" srcChunk = ");
+				VM.printAddress(srcChunk);
+				VM.print(" dstChunk = ");
+				VM.printAddress(dstChunk);
+				VM.println();
+				VM.print(" srcFP = ");
+				VM.printAddress(srcFP);
+				VM.println();
+				VM.print(" fpCount = ");
+				VM.print(fpCount);
+				VM.println();
+			}
+/*end[DEBUG_CODE_ENABLED]*/
+
+			// Calculate the change in fp when returning to the
+			// previous frame in the src stack chunk
+			Address srcReturnFP = NativeUnsafe.getAddress(srcFP, FP.returnFP);
+			delta       = srcReturnFP.diff(srcRemoteFP);
+			srcFP       = srcFP.addOffset(delta);
+			srcRemoteFP = srcReturnFP;
+
+			// Apply the change to the fp in the dst stack chunk
+			Address dstReturnFP =
+				srcFP.isZero() ? Address.zero() : dstFP.addOffset(delta);
+			NativeUnsafe.setAddress(dstFP, FP.returnFP, dstReturnFP);
+			dstFP = dstReturnFP;
+			fpCount++;
+		}
+
+		// FIXME: find a way to notify the other end that it can free
+		// its copy of the stack, but cannot delete its references
+		// (they are remote objects now)...
+	}
+
+	/**
 	 * Copy the contents of a stack to a new stack.
 	 *
 	 * @param srcChunk   the old stack
