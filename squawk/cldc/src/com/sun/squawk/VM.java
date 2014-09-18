@@ -291,7 +291,8 @@ public class VM implements GlobalStaticFields {
 		 * Create the root isolate and manually initialize com.sun.squawk.Klass.
 		 */
 		String[] args  = new String[argc];
-		currentIsolate = new Isolate("com.sun.squawk.JavaApplicationManager", args, bootstrapSuite);
+		currentIsolate = new Isolate("com.sun.squawk.JavaApplicationManager",
+		                             args, bootstrapSuite);
 		currentIsolate.initializeClassKlass();
 		if (VM.isVerbose())
 			VM.println("[DIAG]  Isolation initialized");
@@ -319,7 +320,25 @@ public class VM implements GlobalStaticFields {
 		try {
 			exceptionsEnabled = true;
 			shutdownHooks = new CallbackManager(true);
-			currentIsolate.primitiveThreadStart();
+/*if[MICROBLAZE_BUILD]*/
+			if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
+				// For the master we setup the process as usual
+/*end[MICROBLAZE_BUILD]*/
+				currentIsolate.primitiveThreadStart();
+/*if[MICROBLAZE_BUILD]*/
+			} else {
+				// For slaves we do not start the javaapplication manager,
+				// we call rescheduleNext directly (to loop till we get a
+				// thread)
+				if (VM.isVerbose()) {
+					VM.println("Starting a zombie on core = " +
+					           NativeUnsafe.getCore() +
+					           " board = " +
+					           NativeUnsafe.getIsland());
+				}
+				currentIsolate.rescheduleNext();
+			}
+/*end[MICROBLAZE_BUILD]*/
 			VMThread.initializeThreading2();
 			if (VM.isVerbose())
 				VM.println("[DIAG]  Service operation Loop is up and running");
@@ -3252,7 +3271,7 @@ public class VM implements GlobalStaticFields {
 /*if[JAVA5SYNTAX]*/
 	@Vm2c(code="if (ASSUME || TYPEMAP) { while (start < end) { if (ASSUME) { *((UWord *)start) = DEADBEEF; } setType(start, AddressType_UNDEFINED, HDR_BYTES_PER_WORD); start = (UWord *)start + 1; } }")
 /*end[JAVA5SYNTAX]*/
-		native static void deadbeef(Address start, Address end);
+	native static void deadbeef(Address start, Address end);
 /*end[DEBUG_CODE_ENABLED]*/
 
 	/**

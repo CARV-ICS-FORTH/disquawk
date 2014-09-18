@@ -1451,9 +1451,12 @@ public class ObjectMemoryMapper {
             }
 
             Klass definingClass = VM.asKlass(NativeUnsafe.getObject(oop, HDR.methodDefiningClass));
-            printWordLine(definingClassAddress, "defined in "+definingClass.getName(), true);
-            printWordLine(oop.sub(HDR.arrayHeaderSize),  "["+GC.getArrayLengthNoCheck(oop)+"] total size " + totalSize, false);
-            printWordLine(oop.sub(HDR.basicHeaderSize), "method "+getMethodSignature(oop) + classWordAnnotation(oop), true);
+            printWordLine(definingClassAddress,
+                          "defined in "+definingClass.getName(), true);
+            printWordLine(oop.sub(HDR.arrayHeaderSize),
+                          "["+GC.getArrayLengthNoCheck(oop)+"] total size " + totalSize, false);
+            printWordLine(oop.sub(HDR.basicHeaderSize),
+                          "method "+getMethodSignature(oop) + classWordAnnotation(oop), true);
             /* FIXME: It doesn't work for FormicApp */
             out.println("METHOD."+oop.sub(HDR.basicHeaderSize-4)+".NAME="+getMethodSignature(oop));
         }

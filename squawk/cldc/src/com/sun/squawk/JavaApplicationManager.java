@@ -219,10 +219,10 @@ public class JavaApplicationManager {
 //			/*
 //			 * Start the application thread and wait for it to complete.
 //			 */
-//			appThread.start();
+//			appThread.run();
 //			if (VM.isVerbose())
 //				VM.print("Done AppThread\n");
-//			appThread.join(); // note that this isnt waiting for all app threads to finish, just this thread.
+//			// appThread.join(); // note that this isnt waiting for all app threads to finish, just this thread.
 //
 //			/*
 //			 * Get the exit status.
