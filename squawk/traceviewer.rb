@@ -16,10 +16,11 @@ romstart=0;
 
 # File.open(trace).each do |line|
 ARGF.each do |line|
-  if line.start_with?("*TRACE*:*ROM*:")
-    romstart = line.split(':')[2].to_i
-    puts line
-  elsif line.start_with?("*STACKTRACE*:") and not line.include?("\"")
+  # if line.start_with?("*TRACE*:*ROM*:")
+  #   romstart = line.split(':')[2].to_i
+  #   puts line
+  # els
+  if line.start_with?("*STACKTRACE*:") and not line.include?("\"")
     offset = line.split(':')[1].to_i-romstart
     flag = 0
     begin

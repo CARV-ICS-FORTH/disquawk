@@ -670,9 +670,21 @@ class NativeVerifierHelper {
             return;
         }
 
+        case Native.com_sun_squawk_NativeUnsafe$getCore: {
+            Assert.that(frame.isStackEmpty());
+            frame.push(INT); // int
+            return;
+        }
+
         case Native.com_sun_squawk_NativeUnsafe$getInt: {
             frame.pop(INT); // int
             frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            frame.push(INT); // int
+            return;
+        }
+
+        case Native.com_sun_squawk_NativeUnsafe$getIsland: {
             Assert.that(frame.isStackEmpty());
             frame.push(INT); // int
             return;
@@ -1326,6 +1338,25 @@ class NativeVerifierHelper {
             frame.pop(REF); // com.sun.squawk.Address
             Assert.that(frame.isStackEmpty());
             frame.push(BOOLEAN); // boolean
+            return;
+        }
+
+        case Native.com_sun_squawk_SoftwareCache$translate: {
+            frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            frame.push(OOP); // java.lang.Object
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMP$checkMailbox: {
+            Assert.that(frame.isStackEmpty());
+            frame.push(OOP); // com.sun.squawk.VMThread
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMP$spawnThread: {
+            frame.pop(OOP); // com.sun.squawk.VMThread
+            Assert.that(frame.isStackEmpty());
             return;
         }
 

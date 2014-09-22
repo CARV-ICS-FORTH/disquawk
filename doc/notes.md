@@ -141,6 +141,7 @@ Modify the build.properties file
 
 Notes:
 ------
+  * Java strings are not NULL terminated (they rely on .length)
   * The VM is started from squawk.c[.spp]
   * Bootstrap suite is loaded by loadBootstrapSuiteFromFlash in
     vmcore/src/vm/suite.c

@@ -30,6 +30,7 @@ import com.sun.squawk.pragma.*;
 import com.sun.squawk.util.*;
 import com.sun.squawk.vm.*;
 import java.io.PrintStream;
+import com.sun.squawk.platform.MMP;
 import com.sun.squawk.platform.Platform;
 import com.sun.squawk.platform.SystemEvents;
 import java.util.Enumeration;
@@ -492,6 +493,62 @@ public final class VMThread implements GlobalStaticFields {
 		 * Initialize the new thread and add it to the list of runnable threads.
 		 */
 		baptiseThread();
+	}
+
+	/**
+	 * Causes this thread to begin execution LOCALLY; the Java Virtual Machine
+	 * calls the <code>run</code> method of this thread.
+	 * <p>
+	 * The result is that two threads are running concurrently: the
+	 * current thread (which returns from the call to the
+	 * <code>start</code> method) and the other thread (which executes its
+	 * <code>run</code> method).
+	 *
+	 * @exception  IllegalThreadStateException  if the thread was already started.
+	 * @see        java.lang.Thread#run()
+	 */
+	public void localStart() {
+
+		/*
+		 * Check that the thread has not yet been started.
+		 */
+		if (state != NEW) {
+			throw new IllegalThreadStateException();
+		}
+
+		/*
+		 * Initialize the new thread and add it to the list of runnable threads.
+		 */
+		Assert.that(currentThread != null);
+
+		// Now allocate a new stack for it and mark it ALIVE
+		stack = newStack(stackSize, this, true);
+		if (stack == null) {
+			VM.println("creating stack:");
+			throw VM.getOutOfMemoryError();
+		}
+
+//VM.print("Thread::baptiseThread - stack size = ");
+//VM.println(stackSize);
+		state = ALIVE;
+
+//VM.print("Thread::baptiseThread - owner of stack chunk ");
+//VM.printAddress(stack);
+//VM.print(" = ");
+//VM.printAddress(NativeUnsafe.getObject(stack, SC.owner));
+//VM.println();
+
+		isolate.addThread(this);
+		addToRunnableThreadsQueue(this);
+
+/*if[ENABLE_SDA_DEBUGGER]*/
+		if (VM.isThreadingInitialized()) {
+			Debugger debugger = VM.getCurrentIsolate().getDebugger();
+			if (debugger != null) {
+				debugger.notifyEvent(new Debugger.Event(Debugger.Event.THREAD_START, this));
+			}
+		}
+/*end[ENABLE_SDA_DEBUGGER]*/
 	}
 
 	/**
@@ -1356,7 +1413,7 @@ public final class VMThread implements GlobalStaticFields {
 	 * Special thread starter that reschedules the currently executing thread.
 	 */
 	final void primitiveThreadStart() {
-		start();
+		localStart();
 		rescheduleNext();
 	}
 
@@ -1387,33 +1444,9 @@ public final class VMThread implements GlobalStaticFields {
 	private void baptiseThread() {
 		Assert.that(currentThread != null);
 		Assert.always(state == NEW);
-		stack = newStack(stackSize, this, true);
-		if (stack == null) {
-			VM.println("creating stack:");
-			throw VM.getOutOfMemoryError();
-		}
 
-//VM.print("Thread::baptiseThread - stack size = ");
-//VM.println(stackSize);
-		state = ALIVE;
-
-//VM.print("Thread::baptiseThread - owner of stack chunk ");
-//VM.printAddress(stack);
-//VM.print(" = ");
-//VM.printAddress(NativeUnsafe.getObject(stack, SC.owner));
-//VM.println();
-
-		isolate.addThread(this);
-		addToRunnableThreadsQueue(this);
-
-/*if[ENABLE_SDA_DEBUGGER]*/
-		if (VM.isThreadingInitialized()) {
-			Debugger debugger = VM.getCurrentIsolate().getDebugger();
-			if (debugger != null) {
-				debugger.notifyEvent(new Debugger.Event(Debugger.Event.THREAD_START, this));
-			}
-		}
-/*end[ENABLE_SDA_DEBUGGER]*/
+		// FIXME: Mark all object references in the stack
+		MMP.spawnThread(this);
 	}
 
 	/**
@@ -1717,7 +1750,7 @@ public final class VMThread implements GlobalStaticFields {
 	/**
 	 * Primitive method to choose the next executable thread.
 	 */
-	private static void rescheduleNext() {
+	final static void rescheduleNext() {
 		Assert.that(GC.isSafeToSwitchThreads());
 		VMThread thread = null;
 
@@ -1725,6 +1758,34 @@ public final class VMThread implements GlobalStaticFields {
 		 * Loop until there is something to do.
 		 */
 		while (true) {
+
+			/*
+			 * Always Query the mailbox for things to do.
+			 */
+			thread = MMP.checkMailbox();
+			if (thread != null) {
+				Assert.always(thread.state == NEW);
+				// Now allocate a new stack for it and mark it ALIVE
+				thread.stack = newStack(thread.stackSize, thread, true);
+				if (thread.stack == null) {
+					VM.println("creating stack:");
+					throw VM.getOutOfMemoryError();
+				}
+
+//VM.print("Thread::baptiseThread - stack size = ");
+//VM.println(stackSize);
+				thread.state = ALIVE;
+
+//VM.print("Thread::baptiseThread - owner of stack chunk ");
+//VM.printAddress(stack);
+//VM.print(" = ");
+//VM.printAddress(NativeUnsafe.getObject(stack, SC.owner));
+//VM.println();
+
+				addToRunnableThreadsQueue(thread);
+			}
+
+			/* TODO: Check pending DMAs and retry if they failed */
 
 			/*
 			 * Add any threads that are ready to be restarted.
@@ -1767,37 +1828,40 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 
-			/*
-			 * Wait for an event or until timeout.
-			 */
-//VM.println("Wait for an event or until timeout..");
-			long delta = timerQueue.nextDelta();
-			if (delta > 0) {
-				if (delta == Long.MAX_VALUE && events.size() == 0 && osevents.size() == 0) {
-					/*
-					 * This situation will usually only come about if the bootstrap
-					 * isolate called System.exit() instead of VM.stopVM(). However,
-					 * it will also occur if an isolate is dead-locked and all other
-					 * isolates are waiting for it to complete.
-					 */
-					VM.println("=== DEAD-LOCK STATUS: ===");
-					Isolate.printAllIsolateStates(System.err);
-					Assert.shouldNotReachHere("Dead-locked system: no schedulable threads");
-				}
-//VM.println("waitForEvent timeout");
-				// Emergency switch in case waitForEvent() "breaks" (misses wakeups and hangs)
-				// This hasn't happenned, but need a fix that can be run in the field.
-				if (max_wait != -1 && delta > max_wait) {
-					delta = max_wait;
-				}
-				long waitTime = VM.getTimeMillis();
-				long oldWaitTimeTotal = getTotalWaitTime();
-				VM.waitForEvent(delta);
-				waitTime = VM.getTimeMillis() - waitTime;
-				oldWaitTimeTotal += waitTime;
-				waitTimeHi32 = VM.getHi(oldWaitTimeTotal);
-				waitTimeLo32 = VM.getLo(oldWaitTimeTotal);
-			}
+// 			/*
+// 			 * Wait for an event or until timeout.
+// 			 *
+// 			 * HACK ME : Understand how the delay/timeout works and
+// 			 * possibly remove it
+// 			 */
+// //VM.println("Wait for an event or until timeout..");
+// 			long delta = timerQueue.nextDelta();
+// 			if (delta > 0) {
+// 				if (delta == Long.MAX_VALUE && events.size() == 0 && osevents.size() == 0) {
+// 					/*
+// 					 * This situation will usually only come about if the bootstrap
+// 					 * isolate called System.exit() instead of VM.stopVM(). However,
+// 					 * it will also occur if an isolate is dead-locked and all other
+// 					 * isolates are waiting for it to complete.
+// 					 */
+// 					VM.println("=== DEAD-LOCK STATUS: ===");
+// 					Isolate.printAllIsolateStates(System.err);
+// 					Assert.shouldNotReachHere("Dead-locked system: no schedulable threads");
+// 				}
+// //VM.println("waitForEvent timeout");
+// 				// Emergency switch in case waitForEvent() "breaks" (misses wakeups and hangs)
+// 				// This hasn't happenned, but need a fix that can be run in the field.
+// 				if (max_wait != -1 && delta > max_wait) {
+// 					delta = max_wait;
+// 				}
+// 				long waitTime = VM.getTimeMillis();
+// 				long oldWaitTimeTotal = getTotalWaitTime();
+// 				VM.waitForEvent(delta);
+// 				waitTime = VM.getTimeMillis() - waitTime;
+// 				oldWaitTimeTotal += waitTime;
+// 				waitTimeHi32 = VM.getHi(oldWaitTimeTotal);
+// 				waitTimeLo32 = VM.getLo(oldWaitTimeTotal);
+// 			}
 		}
 
 //VM.println("scheduling thread " + thread);
@@ -2971,7 +3035,7 @@ final class ThreadQueue {
 
 /*=======================================================================*\
  *                               TimerQueue                              *
- \*=======================================================================*/
+\*=======================================================================*/
 
 final class TimerQueue {
 

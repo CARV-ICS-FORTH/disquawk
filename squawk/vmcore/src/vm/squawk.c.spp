@@ -578,6 +578,11 @@ void freeBuffers() {
 #endif /* LISP2_BITMAP */
 
 /*
+ * Include the Mailbox Message Protocol (MMP).
+ */
+#include "mmp.c"
+
+/*
  * Include the switch and bytecode routines.
  */
 #include "bytecodes.c"
@@ -1320,6 +1325,8 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	sc_initialize();
 
 #else  /* SC_NATIVE */
+
+	schedulerLastCore_g   = ((sysGetIsland() << 3) | sysGetCore()) + 1;
 
 	com_sun_squawk_SoftwareCache_cacheStart =
 		(Address)roundUp((UWord)mm_scache_base(my_cid), pageSize);

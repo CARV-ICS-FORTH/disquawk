@@ -23,18 +23,34 @@
  * @file   SoftwareCache.java
  * @author Foivos S. Zakkak <zakkak@ics.forth.gr>
  *
- * @brief A simple software cache working at object granularity.
+ * @brief An interface for the Mailbox Message Protocol.
  *
  */
-package com.sun.squawk;
+package com.sun.squawk.platform;
 
 import com.sun.squawk.*;
 import com.sun.squawk.util.*;
 import com.sun.squawk.pragma.*;
 
-public final class SoftwareCache {
+public final class MMP {
 
-	static Object translate(Object oop) throws NativePragma {
+	/**
+	 * Query the mailbox for incoming messages and return a thread object
+	 * if one of the messages was about scheduling a thread to this core.
+	 *
+	 * @return a thread object if one of the messages was about scheduling
+	 *         a thread to this core or NULL otherwise
+	 */
+	public static VMThread checkMailbox() throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
+	/**
+	 * Peeks a core to schedule the given thread.  Then sends a
+	 * message to this core with the thread object's address and the
+	 * core and island of the hardware thread that spawned it.
+	 */
+	public static void spawnThread(VMThread thread) throws NativePragma {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 

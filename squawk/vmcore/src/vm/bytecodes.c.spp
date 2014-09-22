@@ -86,8 +86,8 @@ static Address         Isolate_getClassStateForInterpreter_L(Address, Address);
    * 	cachedClassState_g[i] = cachedClassState_g[i-1];
    * }
    * // and add to the start (0)
-   * cachedClass_g[0]      = \$klass;
-   * cachedClassState_g[0] = \$state; */
+   * cachedClass_g[0]      = $klass;
+   * cachedClassState_g[0] = $state; */
 
 /**
  * Get a cached class state.
@@ -740,6 +740,9 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 /*MAC*/ Address getStaticMethod(Address $cls, int $index) {
 	Address stable;
 	assume($cls);
+	/* if(sc_is_cacheable($cls)) {
+	 * 	kt_printf("%p is cacheable\n", $cls);
+	 * } */
 	stable = com_sun_squawk_Klass_staticMethods_local($cls);
 	assume(stable);
 	assume((unsigned int)$index < (unsigned int)getLocalArrayLength(stable));
@@ -833,7 +836,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the Klass, or the klass refered to by the association
  */
 /*MAC*/ Address associationToKlass(Address $oop) {
-	return com_sun_squawk_Klass_self_local($oop);
+	return com_sun_squawk_Klass_self($oop);
 }
 
 /**
@@ -1091,7 +1094,7 @@ int getLocalCountPlusStackCountIfNotReversingParms(Address mp) {
 /*if[MICROBLAZE_BUILD]*/
 int printJavaString(Address str) {
 /*else[MICROBLAZE_BUILD]*/
-//  int printJavaString(Address str, FILE* out) {
+//int printJavaString(Address str, FILE* out) {
 /*end[MICROBLAZE_BUILD]*/
 #ifdef UNICODE
 	int i;
@@ -1106,16 +1109,12 @@ int printJavaString(Address str) {
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
 		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
-			unsigned char *chars = (unsigned char *)str;
-/*if[MICROBLAZE_BUILD]*/
-			fprintf(out, "%s", chars);
-/*else[MICROBLAZE_BUILD]*/
-//			fprintf(out, "%.*s", length, chars);
-/*end[MICROBLAZE_BUILD]*/
+			unsigned char *chars = (unsigned char *)sc_translate(str);
+			fprintf(out, "%.*s", length, chars);
 			written = length;
 #ifdef UNICODE
 		} else {
-			unsigned short *chars = (unsigned short *)str;
+			unsigned short *chars = (unsigned short *)sc_translate(str);
 			if (com_sun_squawk_Klass_id_local(cls) != com_sun_squawk_String) {
 				fatalVMError("com_sun_squawk_VM_printString was not passed a string");
 			}
@@ -1158,7 +1157,7 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
 		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
-			unsigned char *chars = (unsigned char *)str;
+			unsigned char *chars = (unsigned char *)sc_translate(str);
 			int min = length;
 			if (min > bufLength) {
 				min = bufLength;
@@ -1355,19 +1354,23 @@ if (!runningOnServiceThread_g &&                                                
 	/*
 	 * Switch to the new context.
 	 */
+	/* kt_printf("swi1 fp=%d ip=%d sp=%p\n", fp_g, ip_g, sp_g); */
 	setStack(newStack);
 	fp_g = getObject(ss_g, SC_lastFP);
 	if (fp_g == null) {   /* New thread                   */
 		fp_g = null;      /* The return FP should be zero */
-		ip_g = null;    /* The return IP should be zero */
+		ip_g = null;      /* The return IP should be zero */
 		sp_g = &ss_g[getArrayLength(ss_g)];
+		/* kt_printf("swi2 fp=%d ip=%d sp=%p\n", fp_g, ip_g, sp_g); */
 /*if[REVERSE_PARAMETERS]*/
 		call(com_sun_squawk_VM_callRun);
 /*else[REVERSE_PARAMETERS]*/
 //		downLocalPushAddress(ip_g);         /* don't call call() ... */
 //		ip_g = com_sun_squawk_VM_callRun;   /* because resetStackPointer() will not work */
 /*end[REVERSE_PARAMETERS]*/
-		/*fprintf(stderr, "callRun: fp = %d sp=%d ip=%d tid = %d\n", fp_g, sp_g, ip_g, com_sun_squawk_VMThread_threadNumber(newThread));*/
+		/* fprintf(stderr, "callRun: fp = %d sp=%p ip=%d tid = %d\n",
+		 *         fp_g, sp_g, ip_g,
+		 *         com_sun_squawk_VMThread_threadNumber(newThread)); */
 	} else {
 
 		assumeInterp(getMP() != null);
@@ -1375,6 +1378,7 @@ if (!runningOnServiceThread_g &&                                                
 		resetStackPointer();
 		ip_g = (ByteAddress)getMP() + ipOffset;
 		assumeInterp(inCode(ip_g));
+		/* kt_printf("swi2 fp=%d ip=%d\n", fp_g, ip_g); */
 
 		SDA_HANDLE_BREAKPOINT_CODE_FRAG
 	}
@@ -2906,6 +2910,8 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	Address value = popAddress();
 	Address oop = getInstanceFieldOop($oopIn0);
 	nullCheckPrim(oop, !$oopIn0);
+	/* kt_printf("do_putfield_o in %p offset %d val = %p\n",
+	 *           oop, iparm_g, value); */
 	setObjectAndUpdateWriteBarrier(oop, iparm_g, value);
 }
 
@@ -4482,6 +4488,16 @@ static int collectGarbage(Address, Address, int);
 		sysGlobalMemoryProtection();
 		break;
 	}
+
+	case Native_com_sun_squawk_NativeUnsafe_getCore: {
+		pushInt(sysGetCore());
+		break;
+	}
+
+	case Native_com_sun_squawk_NativeUnsafe_getIsland: {
+		pushInt(sysGetIsland());
+		break;
+	}
 /*end[MICROBLAZE_BUILD]*/
 
 	case Native_com_sun_squawk_VM_getCore: {
@@ -4540,6 +4556,7 @@ static int collectGarbage(Address, Address, int);
 		break;
 	}
 
+/*if[DEBUG_CODE_ENABLED]*/
 	case Native_com_sun_squawk_VM_deadbeef: {
 		UWordAddress end   = (UWordAddress)popAddress();
 		UWordAddress start = (UWordAddress)popAddress();
@@ -4554,6 +4571,7 @@ static int collectGarbage(Address, Address, int);
 		}
 		break;
 	}
+/*end[DEBUG_CODE_ENABLED]*/
 
 	case Native_com_sun_squawk_VM_getFP: {
 		pushAddress(fp_g);
@@ -4951,6 +4969,23 @@ static int collectGarbage(Address, Address, int);
 
 /*end[LISP2_BITMAP]*/
 
+	case Native_com_sun_squawk_platform_MMP_spawnThread: {
+		Address thread = popAddress();
+		mmpSpawnThread(thread);
+		break;
+	}
+
+	case Native_com_sun_squawk_platform_MMP_checkMailbox: {
+		pushAddress(mmpCheckmailbox());
+		break;
+	}
+
+	case Native_com_sun_squawk_SoftwareCache_translate: {
+		Address addr = popAddress();
+		pushAddress(sc_translate(addr));
+		break;
+	}
+
 /*if[KERNEL_SQUAWK]*/
 	case Native_com_sun_squawk_VM_sendInterrupt: {
 		int interrupt = popInt();
@@ -4985,7 +5020,8 @@ static int collectGarbage(Address, Address, int);
 /*end[KERNEL_SQUAWK]*/
 
 	default: {
-		/*fprintf(stderr, "*** Undefined native method: *** %d\n", iparm_g);*/
+		fprintf(stderr, "*** Undefined (in %s:%d) native method: %d ***\n",
+		        __FILE__, __LINE__, iparm_g);
 		pushInt(iparm_g);
 		call(com_sun_squawk_VM_undefinedNativeMethod);
 		break;

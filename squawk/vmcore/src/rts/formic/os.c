@@ -373,45 +373,29 @@ void sysBarrier() {
  *
  * @return the core id
  */
-#define sysGetCore() my_cid
+#define sysGetCore ar_get_core_id
 
 /**
  * Returns the island (numa/board) id running this VM instance.
  *
  * @return the island id
  */
-#define sysGetIsland() my_bid
+#define sysGetIsland ar_get_board_id
 
-/**
- * Calculatates the address's home island
- *
- * @param  addr   The address to find its home
- * @param  island The home island (output)
- * @return Writes `core` and `island`
- */
-INLINE void sysHomeOfAddress(Address addr, int* island) {
-#ifdef __MICROBLAZE__
-	*island = ((unsigned int)addr >> 26);
-#else
-	exit(255);
-#endif
-}
-
-#if 0
 /**
  * Calculatates the address's home core and island
  *
  * @param  addr   The address to find its home
- * @param  core   The home core (output)
+ * @param  core   The home core (output if not NULL)
  * @param  island The home island (output)
  * @return Writes `core` and `island`
  */
-INLINE void sysHomeOfAddress(Address addr, int* core, int* island) {
+INLINE void sysHomeOfAddress(Address addr, int* island, int* core) {
 #ifdef __MICROBLAZE__
 	*island = ((unsigned int)addr >> 26);
-	*core   = ((unsigned int)addr >> 23) && 7;
+	if (core != NULL)
+		*core   = ((unsigned int)addr >> 23) & 0x7;
 #else
 	exit(253);
 #endif
 }
-#endif

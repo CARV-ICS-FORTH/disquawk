@@ -28,7 +28,7 @@
 
 
 #ifndef _OS_MATH_H
-#define	_OS_MATH_H
+#define _OS_MATH_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -53,8 +53,8 @@ extern "C" {
 # define sqrtf ar_float_sqrt
 #endif
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* _OS_MATH_H */
+#endif /* _OS_MATH_H */

@@ -1491,10 +1491,17 @@ public final class Isolate implements Runnable {
     \*---------------------------------------------------------------------------*/
 
     /**
-     * Start the primordial isolate.
+     * Start the primordial "master" isolate.
      */
     void primitiveThreadStart() {
         VMThread.asVMThread(new CrossIsolateThread(this, "primitive-thread")).primitiveThreadStart();
+    }
+
+    /**
+     * Start the primordial "slave" isolate.
+     */
+    void rescheduleNext() {
+        VMThread.asVMThread(new CrossIsolateThread(this, "primitive-thread")).rescheduleNext();
     }
 
     /**

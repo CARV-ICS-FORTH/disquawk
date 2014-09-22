@@ -16,18 +16,19 @@
 
 #include <kernel_toolset.h>
 
-extern int Squawk_main_wrapper(int, char **);
+extern void Squawk_main_wrapper(int fakeArgc, char** fakeArgv);
 
 void squawk_entry_point(void)
 {
-  char          *fakeArgv[4];
+  char          *fakeArgv[5];
   int           fakeArgc, i;
 
   fakeArgv[0] = "dummy";
   fakeArgv[1] = "-spotsuite:FormicApp";
   fakeArgv[2] = "-stats";
-  fakeArgv[3] = "spec.benchmarks.check.Main";
-  fakeArgc    = 4;
+  fakeArgv[3] = "-verbose";
+  fakeArgv[4] = "newthread.NewThread";
+  fakeArgc    = 5;
 
   kt_printf("Invoking squawk with:");
   for(i=0; i<fakeArgc; ++i)
