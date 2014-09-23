@@ -4,10 +4,13 @@
 #                                                                              #
 # The memory layout of the final elf is:                                       #
 #                                                                              #
-# +-----------------+------------------+---------------------+                 #
-# |    (The VM)     |   (Bootstrap)    |   (Application)     |                 #
-# | pure squawk.elf | squawk.suite.bin | FormicApp.suite.bin |                 #
-# +-----------------+------------------+---------------------+                 #
+#           0x50                                                               #
+#            |                                                                 #
+#            V                                                                 #
+# +----------+--------------+-----------------+-----------+------------+       #
+# | HW EXCP  | (Bootstrap)  |  (Application)  | (The VM)  | (SYNC MGR) |       #
+# | handlers | squawk...bin | FormicApp...bin | ...mb.elf | ...arm.elf |       #
+# +----------+--------------+-----------------+-----------+------------+       #
 #                                                                              #
 ################################################################################
 
@@ -123,8 +126,8 @@ CFLAGS =\
 # NOTE: You must make clean and rebuild after changing this
 CFLAGS+=-DAR_CONFIGURE_THROUGH_MAKE=1 \
 		-DAR_BOOT_MASTER_BID=0x00 \
-		-DAR_ARM0_BID=0x6B \
-		-DAR_ARM1_BID=0x4B \
+		-DAR_ARM0_BID=-1 \
+		-DAR_ARM1_BID=-1 \
 		-DAR_XUP_BID=-1 \
 		-DAR_FORMIC_CORES_PER_BOARD=8 \
 		-DAR_FORMIC_MIN_X=0 \
@@ -342,6 +345,9 @@ vmcore/src/vm/squawk.c: \
 	vmcore/src/vm/address.c\
 	vmcore/src/vm/util.h\
 	vmcore/src/vm/memory.c\
+	$(RTS_SRC)/scheduler.c\
+	$(RTS_SRC)/mmp.c\
+	$(RTS_SRC)/mmp_ops.h\
 	vmcore/src/vm/softcache.c\
 	vmcore/src/vm/bytecodes.c\
 	vmcore/src/vm/lisp2.c\

@@ -578,6 +578,11 @@ void freeBuffers() {
 #endif /* LISP2_BITMAP */
 
 /*
+ * Include the Scheduler.
+ */
+#include "scheduler.c"
+
+/*
  * Include the Mailbox Message Protocol (MMP).
  */
 #include "mmp.c"
