@@ -345,7 +345,7 @@ void sysBarrier() {
 		while (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));
 
 		// Re-Initialize the barrier counter
-		ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, 1-TOTAL_CORES);
+		ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, 1+8-TOTAL_CORES);  // HACK exclude bid 63
 
 		// Make Formic slaves reach their boot barrier
 		for (x = AR_FORMIC_MIN_X; x <= AR_FORMIC_MAX_X; x++)
@@ -354,7 +354,8 @@ void sysBarrier() {
 					for (i = 0; i < AR_FORMIC_CORES_PER_BOARD; i++) {
 						slave_bid = (x << 4) | (y << 2) | z;
 
-						if (!((slave_bid == my_bid) && (i == my_cid)))
+						if (!( ( (slave_bid == my_bid) && (i == my_cid) ) ||
+						       ( (slave_bid >= 63) ) )) // HACK exclude bid 63
 							ar_cnt_incr(my_cid, slave_bid, i, NOC_COUNTER_WAKEUP3, 1);
 					}
 	} else { // the slaves

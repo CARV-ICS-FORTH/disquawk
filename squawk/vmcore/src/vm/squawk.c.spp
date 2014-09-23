@@ -2439,6 +2439,10 @@ void Squawk_main(int argc, char *argv[]) {
  * @param argv the parameter argument vector
  */
 int Squawk_main_wrapper(int argc, char *argv[]) {
+	// HACK Disable board 64
+	if (sysGetIsland() >= 63)
+		while(1);
+
     /* The user mode execution context
      *
      * Although stack allocated we pass the pointer to a global

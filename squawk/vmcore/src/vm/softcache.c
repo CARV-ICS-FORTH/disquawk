@@ -254,7 +254,8 @@ void sc_initialize() {
  *         0 otherwise (true local)
  */
 INLINE unsigned int sc_is_in_heap(Address addr) {
-	return (UWord)addr & (~0x3FFFFFF);
+	// HACK board 64 does not hold global addresses
+	return ((UWord)addr & (~0x3FFFFFF)) && (sysGetIsland() < 63);
 }
 
 /**
