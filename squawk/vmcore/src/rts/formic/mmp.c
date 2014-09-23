@@ -52,13 +52,7 @@ void mmpSpawnThread(Address thread) {
 	// global address.
 	msg0 = ( (sysGetCore()) << 16) | MMP_OPS_TH_SPAWN;
 
-	// FIXME: Make it work for various number of cores
-	// Peek a core and a board (FIXME: do something smarter than RR)
-	do {
-		target_cid = schedulerLastCore_g & 0x7;
-		target_bid = (schedulerLastCore_g >> 3) & 0x3F;
-		schedulerLastCore_g++;
-	} while ( (target_cid == sysGetCore()) && (target_bid == sysGetIsland()) );
+	schdlr_next(&target_bid, &target_cid);
 
 	do {
 		/* kt_printf("Sending thread %p to 0x%02X/%d\n",
@@ -78,7 +72,7 @@ void mmpSpawnThread(Address thread) {
 	} while (ret == 3);
 
 	/* kt_printf("Sent\n"); */
-	assume(ret == 1); // Ack
+	assume(ret == 2); // Ack
 	assume(ar_cnt_get(sysGetCore(), cnt) == 0);
 
 }

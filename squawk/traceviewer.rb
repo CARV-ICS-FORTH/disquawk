@@ -60,7 +60,7 @@ ARGF.each do |line|
     res = line.match(%r{(?'pre'0x\h{2}/[[:digit:]] \[[[:space:]]*[[:digit:]]+\]) F= {,8}(?'fptr'\h{,8}) PC=(?'pc' {,8}\h{,8}).*})
     if res
       # Find function in dump file (objectdump)
-      cmd = "egrep -i '^0*#{res[:fptr]}' ./build/squawk.dump"
+      cmd = "egrep -i '^0*#{res[:fptr]}' ./build/squawk.mb.dump"
       l = %x[#{cmd}]
       begin
         func_name = l.match(%r{\h* <(?'function'\w+)>})[:function]
