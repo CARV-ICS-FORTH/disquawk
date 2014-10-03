@@ -16,7 +16,9 @@
 #ifndef INT_LIB_H
 #define INT_LIB_H
 
+#ifdef ARCH_MB
 #include "../jni.h"
+#endif /* */
 
 //zakkak:
 /* This is needed by the compiler-rt to understand that this is a

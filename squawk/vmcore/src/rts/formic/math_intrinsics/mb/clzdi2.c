@@ -12,7 +12,7 @@
  * ===----------------------------------------------------------------------===
  */
 
-#include "int_lib.h"
+#include "../int_lib.h"
 
 /* Returns: the number of leading 0-bits */
 

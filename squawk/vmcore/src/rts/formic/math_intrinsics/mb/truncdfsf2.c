@@ -37,7 +37,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "int_lib.h"
+#include "../int_lib.h"
 
 typedef double src_t;
 typedef uint64_t src_rep_t;

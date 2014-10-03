@@ -38,7 +38,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "int_lib.h"
+#include "../int_lib.h"
 
 typedef float src_t2;
 typedef uint32_t src_rep_t2;

@@ -12,7 +12,7 @@
  * ===----------------------------------------------------------------------===
  */
 
-#include "int_lib.h"
+#include "../int_lib.h"
 
 /* Returns: if (a <  b) returns 0
 *           if (a == b) returns 1
@@ -48,4 +48,3 @@ __aeabi_lcmp(di_int a, di_int b)
 	return __cmpdi2(a, b) - 1;
 }
 #endif
-
