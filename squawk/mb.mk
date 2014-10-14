@@ -26,7 +26,7 @@ AT?=@
 #APP?=../formic-tests/Double2String
 BUILD_DIR=build
 RTS_SRC=vmcore/src/rts/formic
-MYRMICS_SRC=$(RTS_SRC)/myrmics/
+MYRMICS_SRC=$(RTS_SRC)/myrmics
 BUILDER=./d -override:build-mb.properties
 #BUILDER_FLAGS=-verbose -assume -tracing #This is for debug purposes
 BUILDER_FLAGS=-comp:mb-gcc -o3 -cflags:-I./$(MYRMICS_SRC)/include
@@ -112,7 +112,9 @@ CFLAGS =\
 	-DPLATFORM_BIG_ENDIAN=false \
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DSC_NATIVE \
-	-DMACROIZE \
+	-DASSUME \
+
+#	-DMACROIZE \
 	-DMAXINLINE -O3 \
 
 #	-DASSUME \
@@ -124,7 +126,7 @@ CFLAGS =\
 
 # MYRMICS specific flags (normally in myrmics/include/arch.h)
 # NOTE: You must make clean and rebuild after changing this
-CFLAGS+=-DAR_CONFIGURE_THROUGH_MAKE=1 \
+ARCH_FLAGS?=-DAR_CONFIGURE_THROUGH_MAKE=1 \
 		-DAR_BOOT_MASTER_BID=0x00 \
 		-DAR_ARM0_BID=-1 \
 		-DAR_ARM1_BID=-1 \
@@ -137,6 +139,7 @@ CFLAGS+=-DAR_CONFIGURE_THROUGH_MAKE=1 \
 		-DAR_FORMIC_MAX_Y=3 \
 		-DAR_FORMIC_MAX_Z=3
 
+CFLAGS+=$(ARCH_FLAGS)
 LDFLAGS=--format elf32-microblazele --oformat elf32-microblazele
 ################################################################################
 
@@ -200,30 +203,10 @@ FLOATINGPOINT_OBJS:=$(FLOATINGPOINT_OBJS:%.c=%.mb.o)
 ################################################################################
 # Include math gcc intrinsics from the compiler-rt lib to support 64bit types
 ################################################################################
-MATHINTRINSICS_SRCS = \
-	truncdfsf2.c \
-	adddf3.c \
-	clzsi2.c \
-	clzdi2.c \
-	comparedf2.c \
-	cmpdi2.c \
-	ctzsi2.c \
-	divdf3.c \
-	divdi3.c \
-	extendsfdf2.c \
-	fixsfdi.c \
-	fixdfdi.c \
-	fixdfsi.c \
-	floatdidf.c \
-	floatdisf.c \
-	floatsidf.c \
-	muldf3.c \
-	muldi3.c \
-	moddi3.c \
-	subdf3.c \
-	udivmoddi4.c \
-	ucmpdi2.c
-MATHINTRINSICS_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(RTS_SRC)/math_intrinsics/,$(MATHINTRINSICS_SRCS))
+MATHINTRINSICS_SRCS:= \
+	$(wildcard $(RTS_SRC)/math_intrinsics/mb/*.c) \
+	$(wildcard $(RTS_SRC)/math_intrinsics/*.c)
+MATHINTRINSICS_OBJS:=$(addprefix $(BUILD_DIR)/obj/,$(MATHINTRINSICS_SRCS))
 MATHINTRINSICS_OBJS:=$(MATHINTRINSICS_OBJS:%.c=%.mb.o)
 ################################################################################
 
@@ -246,7 +229,9 @@ STR_DEP = "[1m[ [37mDEP [0;1m][0m"
 ################################################################################
 # Define the target elf file and its dependencies
 ################################################################################
-ELF=${BUILD_DIR}/squawk.mb.elf
+ELF=$(BUILD_DIR)/squawk.mb.elf
+ELF_DMP=$(ELF:%.elf=%.dump)
+ELF_LD=$(ELF:%.elf=%.elf.ld)
 ELF_OBJS = \
 	$(MATHINTRINSICS_OBJS)\
 	$(MYRMICS_OBJS)\
@@ -265,7 +250,7 @@ ELF_OBJS = \
             $(FLOATINGPOINT_SRCS) vmcore/src/vm/squawk.c \
             vmcore/src/vm/vm2c.c.spp
 
-default: $(ELF) $(ELF:%.elf=%.dump)
+default: $(ELF) $(ELF_DMP) $(ELF_LD)
 
 include $(APP)/Makefile
 
@@ -331,6 +316,11 @@ $(ELF): java.ld $(ELF_OBJS) $(MYRMICS_LINK_OBJS)
 
 %.dump: %.elf
 	$(AT)mb-objdump -d -S $< > $@
+
+%.elf.ld: %.elf
+	$(AT)mb-objcopy -O binary --gap-fill 0 $< $(<:.elf=.bin)
+	$(AT)chmod -x $(<:.elf=.bin)
+	$(AT)od -v -An -t x4 -w4 $(<:.elf=.bin) | awk '{print "LONG(0x"$$1")"}' > $@
 ################################################################################
 
 
@@ -524,6 +514,7 @@ clean:
 			vm2c/vm2c.input\
 			$(BUILD_DIR)/obj\
 			$(BUILD_DIR)/dep\
+			$(ELF_LD)\
 			vmcore/src/vm/vm2c.c.spp \
 			vmcore/src/vm/buildflags.h \
 			cldc/preprocessed-vm2c\

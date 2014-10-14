@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 FORTH-ICS. All Rights Reserved.
+ * Copyright 2013-14 FORTH-ICS. All Rights Reserved.
  *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -280,94 +280,6 @@ unsigned int get_flash_size(void) {
  */
 //INLINE void osbackbranch() {}
 #define osbackbranch()
-
-#ifdef ATOMIC_BARRIER
-/**
- * @brief Global barrier.
- * Dissemination barrier (from: Two Algorithms for Barrier
- * Synchronization) implementation using bitfields and atomic
- * increment.
- *
- * NOTE: NOT WORKING for sparse cores (i.e. 1 core per board).
- *
- * Performance:
- *
- * |  Cores  |  Ticks  |
- * |--------:|--------:|
- * |      1  |     11  |
- * |      8  |    368  |
- * |     32  |    674  |
- * |    512  |   1248  |
- */
-// FIXME: Add parity
-void sysBarrier() {
-	register int i, tmp, log2_cores;
-	register int partner_cid, partner_bid;
-
-	if(TOTAL_CORES==1)
-		return;
-
-	// This could also be calculated at initialization
-	log2_cores = int_log2(TOTAL_CORES) + TOTAL_CORES%2;
-
-	for (i=0; i<=log2_cores; ++i) {
-		// core + 2^i % P
-		tmp = ((my_bid<<3 | my_cid)+(1<<i))%TOTAL_CORES;
-		partner_bid = tmp >> 3;
-		partner_cid = tmp & 0x7;
-		ar_cnt_incr(my_cid, partner_bid, partner_cid, NOC_COUNTER_WAKEUP3, 1<<i);
-		while (!(ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3) & 1<<i));
-	}
-
-	// reset the counter
-	ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, 0);
-}
-#else
-/**
- * @brief Global barrier.
- * Implements a simple, centralized barrier using the counters
- *
- * Performance:
- *
- * |  Cores  |  Ticks  |
- * |--------:|--------:|
- * |      8  |    509  |
- * |    512  |  22000  |
- */
-void sysBarrier() {
-	int i, x, y, z, slave_bid;
-
-	// Compute how many cores should be activated
-
-	// The master/coordinator
-	if((my_bid == AR_BOOT_MASTER_BID) && !my_cid) {
-
-		while (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));
-
-		// Re-Initialize the barrier counter
-		ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, 1+8-TOTAL_CORES);  // HACK exclude bid 63
-
-		// Make Formic slaves reach their boot barrier
-		for (x = AR_FORMIC_MIN_X; x <= AR_FORMIC_MAX_X; x++)
-			for (y = AR_FORMIC_MIN_Y; y <= AR_FORMIC_MAX_Y; y++)
-				for (z = AR_FORMIC_MIN_Z; z <= AR_FORMIC_MAX_Z; z++)
-					for (i = 0; i < AR_FORMIC_CORES_PER_BOARD; i++) {
-						slave_bid = (x << 4) | (y << 2) | z;
-
-						if (!( ( (slave_bid == my_bid) && (i == my_cid) ) ||
-						       ( (slave_bid >= 63) ) )) // HACK exclude bid 63
-							ar_cnt_incr(my_cid, slave_bid, i, NOC_COUNTER_WAKEUP3, 1);
-					}
-	} else { // the slaves
-		// Initialize the local barrier counter
-		ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, -1);
-		// Notify master we are here
-		ar_cnt_incr(my_cid, AR_BOOT_MASTER_BID, 0, NOC_COUNTER_WAKEUP3, 1);
-		// Block until master indicates all cores have reached the barrier
-		while (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));
-	}
-}
-#endif
 
 /**
  * Returns the core id running this VM instance.

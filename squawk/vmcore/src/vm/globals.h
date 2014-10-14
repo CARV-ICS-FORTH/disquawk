@@ -80,6 +80,25 @@ typedef struct globalsStruct {
 	/** Keeps the last core that the scheduler chose to assign a thread to */
 	int          _schedulerLastCore;
 
+#ifdef HIER_BARRIER
+	/** Keeps the next phase for the system barrier */
+	int          _sysBarrierPhase;
+	/** Keeps the number of counters needed for the system barrier */
+	int          _sysBarrierCounters;
+	/** Keeps the counter to change to enter the system barrier */
+	int          _sysBarrierEnterCounter;
+	/** Keeps the board id to notify to enter the system barrier */
+	int          _sysBarrierEnterBID;
+	/** Keeps the core id to notify to enter the system barrier */
+	int          _sysBarrierEnterCID;
+	/** Keeps the counter to wait on to exit the system barrier */
+	int          _sysBarrierExitCounter;
+	/** Keeps the counters needed for the system barrier */
+	int          _sysBarrierCounters2Init[20];
+	/** Keeps the init values of the counters above */
+	int          _sysBarrierValues2Init[20];
+#endif /* HIER_BARRIER */
+
 #ifndef MACROIZE
 	int          _iparm; /* The immediate operand value of the current bytecode. */
 	ByteAddress  _ip;    /* The instruction pointer. */
@@ -319,6 +338,17 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #endif /* SC_NATIVE */
 
 #define schedulerLastCore_g                 defineGlobal(schedulerLastCore)
+
+#ifdef HIER_BARRIER
+#define sysBarrierPhase_g                   defineGlobal(sysBarrierPhase)
+#define sysBarrierCounters_g                defineGlobal(sysBarrierCounters)
+#define sysBarrierEnterCounter_g            defineGlobal(sysBarrierEnterCounter)
+#define sysBarrierEnterBID_g                defineGlobal(sysBarrierEnterBID)
+#define sysBarrierEnterCID_g                defineGlobal(sysBarrierEnterCID)
+#define sysBarrierExitCounter_g             defineGlobal(sysBarrierExitCounter)
+#define sysBarrierCounters2Init_g           defineGlobal(sysBarrierCounters2Init)
+#define sysBarrierValues2Init_g             defineGlobal(sysBarrierValues2Init)
+#endif /* HIER_BARRIER */
 
 #ifndef MACROIZE
 #define iparm_g                             defineGlobal(iparm)

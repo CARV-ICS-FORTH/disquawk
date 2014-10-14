@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 #define DOUBLE_PRECISION
-#include "fp_lib.h"
+#include "../fp_lib.h"
 
 fp_t COMPILER_RT_ABI __adddf3(fp_t a, fp_t b);
 

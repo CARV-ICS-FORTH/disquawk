@@ -259,6 +259,7 @@ NORETURN void stopVM(int);
  */
 #include "softcache.h"
 #include "globals.h"
+#include "barrier.c"
 
 /*
  * Setup ss and sl.
@@ -2369,6 +2370,57 @@ extern  void fatalInterpreterError0(char *msg, int opcode, int _iparm, ByteAddre
  */
 void Squawk_run(int argc, char *argv[]) {
 	Address bootstrapSuite = Squawk_setup(argc, argv);
+
+	// Initialize the hierarchical barrier and synchronize (side
+	// effect of barrier initialization) to make sure everything is up
+	// and running.
+	sysBarrierInit();
+
+// Barrier measurements
+#if 1
+	unsigned int time;
+	int i;
+
+	if ((my_bid == AR_BOOT_MASTER_BID) && (!my_cid))
+		time = ar_free_timer_get_ticks();
+
+	for (i=0; i<1000; ++i)
+		sysBarrier();
+
+	if ((my_bid == AR_BOOT_MASTER_BID) && (!my_cid)) {
+		time = ar_free_timer_get_ticks() - time;
+		kt_printf("Barrier: %u ticks\n", time/(unsigned int)1000);
+		ar_uart_flush();
+	}
+
+#endif
+#if 0
+	if ((my_bid == AR_BOOT_MASTER_BID) && (!my_cid)) {
+		time = ar_free_timer_get_ticks();
+
+		for (i=0; i<1000; ++i)
+			ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP0, -1);
+
+		time = ar_free_timer_get_ticks() - time;
+		kt_printf("set: %u ticks\n", time/(unsigned int)1000);
+		ar_uart_flush();
+	}
+	sysBarrier();
+
+	if ((my_bid == AR_BOOT_MASTER_BID) && (!my_cid)) {
+		time = ar_free_timer_get_ticks();
+
+		for (i=0; i<1000; ++i)
+			ar_cnt_incr(my_cid, 63, 3, NOC_COUNTER_WAKEUP0, 1);
+
+		time = ar_free_timer_get_ticks() - time;
+		kt_printf("incr: %u ticks\n", time/(unsigned int)1000);
+		ar_uart_flush();
+	}
+	sysBarrier();
+
+#endif
+
 
 //fpTest();
 
