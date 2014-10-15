@@ -214,10 +214,6 @@ public final class VMThread implements GlobalStaticFields {
 	/**
 	 * Return the number of monitors allocated.
 	 *
-	 * Often, uncontended locking is handled by the interpreter in the pendingMonitors cache. But if the
-	 * cache is full, or there is contention, or Object.wait() is used, or a thread is switched out while
-	 * holding a virtual monitor, then a real monitor has to be allocated for an object. It is possible for
-	 * the monitor for an object to come and go, so there is the possibility of "monitor object thrashing".
 	 * @return  number of monitors allocated
 	 */
 	public static int getMonitorsAllocatedCount() {
@@ -2049,7 +2045,6 @@ public final class VMThread implements GlobalStaticFields {
 	 *                           As such, this method <b>must not</b> use any local variables.
 	 */
 	private static void reschedule() throws NotInlinedPragma {
-		fixupPendingMonitors();  // Convert any pending monitors to real ones
 		threadSwitchCount++;
 /*if[DEBUG_CODE_ENABLED]*/
 		if (!GC.isGCEnabled()) {
@@ -2075,8 +2070,6 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	private void abandonThread() throws NotInlinedPragma {
 		Assert.that(state == DEAD); // should only be called by killThread()
-		// @todo: actually shouldn't have any pending monitors when exiting a thread
-		fixupPendingMonitors();  // Convert any pending monitors to real ones
 		rescheduleNext();        // Select the next thread
 
 		// Set the state related to the stack cunk atomically as ar as GC is concerned.
@@ -2317,39 +2310,11 @@ public final class VMThread implements GlobalStaticFields {
 	}
 
 	/**
-	 * Create real monitors for objects with pending monitors.
-	 */
-	static void fixupPendingMonitors() {
-		Assert.that(currentThread != null);
-		Object object = VM.removeVirtualMonitorObject();
-		while (object != null) {
-			Monitor monitor = GC.getMonitor(object);
-			if (monitor.owner == null) {
-//traceMonitor("fixupPendingMonitors: ", monitor, object);
-
-				Assert.that(monitor.depth == 0);
-				monitor.depth = 1;
-				monitor.owner = currentThread;
-			} else {
-//traceMonitor("fixupPendingMonitors re-locked: ", monitor, object);
-
-				Assert.that(monitor.owner == currentThread);
-				Assert.that(monitor.depth > 0 && monitor.depth < MAXDEPTH); // startup code verifies that MONITOR_CACHE_SIZE < MAXDEPTH
-
-				monitor.depth++;
-			}
-			object = VM.removeVirtualMonitorObject();
-		}
-		//      currentThread.checkInvarients();
-	}
-
-	/**
 	 * Gets a monitor.
 	 *
 	 * @param object the object to be synchronized upon
 	 */
 	static Monitor getMonitor(Object object) {
-		fixupPendingMonitors();  // Convert any pending monitors to real ones
 		return GC.getMonitor(object);
 	}
 
@@ -2451,8 +2416,6 @@ public final class VMThread implements GlobalStaticFields {
 			// Can we actually get the monitor? Try and try again.
 			// Note that the Monitor may have been replaced while we were rescheduled
 			monitor = retryMonitor(object);
-
-			// TODO: Why need an explicit monitor? If we could get a virtual monitor now, that would be fine.
 
 //traceMonitor("monitorEnter: Got lock after waiting: ", monitor, object);
 
@@ -2611,9 +2574,6 @@ public final class VMThread implements GlobalStaticFields {
 		// Note that the Monitor may have been replaced while we were rescheduled
 		monitor = retryMonitor(object);
 
-
-		// TODO: Why need an explicit monitor? If monitorDepth==1, and we could get a virtual monitor now, that would be fine.
-
 //traceMonitor("monitorWait: woke up and re-locked: ", monitor, object);
 
 		// Was the thread interrupted?
@@ -2631,17 +2591,6 @@ public final class VMThread implements GlobalStaticFields {
 	 * @param notifyAll flag to notify all waiting threads
 	 */
 	public static void monitorNotify(Object object, boolean notifyAll) {
-
-/*if[SMARTMONITORS]*/
-		/*
-		 * If the object is on the pending monitor queue there cannot be another thread to notify.
-		 */
-		if (VM.hasVirtualMonitorObject(object)) {
-			Assert.that(!GC.hasRealMonitor(object));
-//traceMonitor("monitorNotify FASTPATH: ", null, object);
-			return;
-		}
-/*end[SMARTMONITORS]*/
 
 		/*
 		 * Signal any waiting threads.

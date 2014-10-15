@@ -208,13 +208,6 @@ typedef struct globalsStruct {
 	int         _cachedClassHits;
 #endif /* INTERPRETER_STATS */
 
-	Address    *_pendingMonitors;
-	int         _pendingMonitorStackPointer;
-#ifdef INTERPRETER_STATS
-	int         _pendingMonitorAccesses;
-	int         _pendingMonitorHits;
-#endif /* INTERPRETER_STATS */
-
 	boolean     _inFatalVMError;
 	boolean     _squawk_inStop;
 
@@ -401,13 +394,6 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #define cachedClassHits_g                   defineGlobal(cachedClassHits)
 #endif /* INTERPRETER_STATS */
 
-#define pendingMonitors_g                   defineGlobal(pendingMonitors)
-#define pendingMonitorStackPointer_g        defineGlobal(pendingMonitorStackPointer)
-#ifdef INTERPRETER_STATS
-#define pendingMonitorAccesses_g            defineGlobal(pendingMonitorAccesses)
-#define pendingMonitorHits_g                defineGlobal(pendingMonitorHits)
-#endif /* INTERPRETER_STATS */
-
 #ifndef __MICROBLAZE__
 #define streams_g                           defineGlobal(streams)
 #define currentStream_g                     defineGlobal(currentStream)
@@ -497,7 +483,6 @@ int initializeGlobals(Globals *globals) {
 	com_sun_squawk_VM_extendsEnabled = true;
 	interruptsDisabled_g = 0;      /* enabled by default */
 	runningOnServiceThread_g = true;
-	pendingMonitors_g = &Oops_g[ROM_GLOBAL_OOP_COUNT];
 
 #ifndef __MICROBLAZE__
 	streams_g[com_sun_squawk_VM_STREAM_STDOUT] = stdout;

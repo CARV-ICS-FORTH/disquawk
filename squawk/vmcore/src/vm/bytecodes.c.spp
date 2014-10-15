@@ -1332,13 +1332,6 @@ if (!runningOnServiceThread_g &&                                                
 //		set_sda_bp_set_or_stepping(newIsolate); /* coming off of service thread */
 /*end[ENABLE_MULTI_ISOLATE]*/
 
-		/*
-		 * If not simply switching back from the service thread to its caller
-		 * then check that the number of pending monitor enter operations is zero.
-		 */
-		assumeInterp(oldThread == com_sun_squawk_VMThread_serviceThread
-		             || pendingMonitorStackPointer_g == 0);
-
 	} else {
 		runningOnServiceThread_g = true;
 		set_sda_bp_set_or_stepping(null); /* coming on to service thread */
@@ -4819,31 +4812,6 @@ static int collectGarbage(Address, Address, int);
 		break;
 	}
 
-	case Native_com_sun_squawk_VM_removeVirtualMonitorObject: {
-		Address res = null;
-
-		if (pendingMonitorStackPointer_g > 0) {
-			res = pendingMonitors_g[--pendingMonitorStackPointer_g];
-			pendingMonitors_g[pendingMonitorStackPointer_g] = null;
-		}
-		pushAddress(res);
-		break;
-	}
-
-	case Native_com_sun_squawk_VM_hasVirtualMonitorObject: {
-		Address obj = popAddress();
-		boolean res = false;
-		int i;
-		for (i = 0 ; i < pendingMonitorStackPointer_g ; i++) {
-			if (pendingMonitors_g[i] == obj) {
-				res = true;
-				break;
-			}
-		}
-		pushInt(res);
-		break;
-	}
-
 	case Native_com_sun_squawk_VM_initializeLiterals: {
 		void initializeLiterals();
 		initializeLiterals();
@@ -5949,25 +5917,9 @@ static int collectGarbage(Address, Address, int);
 	nullCheck(obj);
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
 	assn = getClassOrAssociation(obj);
-	if (unlikely(MONITOR_CACHE_SIZE == 0
-	             || associationToKlass(assn) != assn
-	             || pendingMonitorStackPointer_g == MONITOR_CACHE_SIZE
-	             || !(hi(obj, com_sun_squawk_GC_ramStart)
-	                  && loeq(obj, com_sun_squawk_GC_ramEnd)))) {
-		pushAddress(obj);
-		call(com_sun_squawk_VM_monitorenter);
-	} else {
-		pendingMonitors_g[pendingMonitorStackPointer_g++] = obj;
-	}
+	pushAddress(obj);
+	call(com_sun_squawk_VM_monitorenter);
 }
-
-#ifdef INTERPRETER_STATS
-#define updatePendingMonitorAccesses() pendingMonitorAccesses_g++
-#define updatePendingMonitorHits() pendingMonitorHits_g++
-#else
-#define updatePendingMonitorAccesses()
-#define updatePendingMonitorHits()
-#endif /* INTERPRETER_STATS */
 
 /**
  * Execute a monitor exit.
@@ -5983,21 +5935,8 @@ static int collectGarbage(Address, Address, int);
 	nullCheck(obj);
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
 	assn = getClassOrAssociation(obj);
-	updatePendingMonitorAccesses();
-	if (unlikely(MONITOR_CACHE_SIZE == 0
-	             || associationToKlass(assn) != assn
-	             || pendingMonitorStackPointer_g == 0
-	             || !(hi(obj, com_sun_squawk_GC_ramStart)
-	                  && loeq(obj, com_sun_squawk_GC_ramEnd)))) {
-		pushAddress(obj);
-		call(com_sun_squawk_VM_monitorexit);
-	} else {
-		__attribute__((unused)) Address obj2 =
-			pendingMonitors_g[--pendingMonitorStackPointer_g];
-		assumeInterp(obj == obj2);
-		pendingMonitors_g[pendingMonitorStackPointer_g] = null;
-		updatePendingMonitorHits();
-	}
+	pushAddress(obj);
+	call(com_sun_squawk_VM_monitorexit);
 }
 
 /**

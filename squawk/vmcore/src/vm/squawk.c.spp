@@ -27,9 +27,6 @@
 // Size of class to class state cache.
 #define CLASS_CACHE_SIZE 6
 
-// The number of pending monitors.
-#define MONITOR_CACHE_SIZE 6
-
 #include "platform.h"
 #include "buildflags.h"
 
@@ -203,7 +200,7 @@ static Address lookupStaticMethod(int cid, int methodOffset);
 /*
  * Add the monitor cache size to the global oop count
  */
-#define GLOBAL_OOP_COUNT (ROM_GLOBAL_OOP_COUNT + MONITOR_CACHE_SIZE)
+#define GLOBAL_OOP_COUNT  ROM_GLOBAL_OOP_COUNT
 #define GLOBAL_INT_COUNT  ROM_GLOBAL_INT_COUNT
 #define GLOBAL_ADDR_COUNT ROM_GLOBAL_ADDR_COUNT
 
@@ -1777,12 +1774,6 @@ void verifyBuildFlags() {
 		}
 	}
 
-	if (MONITOR_CACHE_SIZE > com_sun_squawk_VMThread_MAXDEPTH) {
-		// this should never happen, but check once at startup, instead of
-		// at every lock operation.
-		fprintf(stderr, "MONITOR_CACHE_SIZE is too large for maximum lock depth\n");
-		stopVM(-1);
-	}
 }
 
 #define assertEquals4(msg, expected, received)	  \

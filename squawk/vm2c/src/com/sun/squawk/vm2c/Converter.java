@@ -638,8 +638,6 @@ public class Converter {
 		m.put(asName("BufferCount_g"),                asName("_BufferCount"));
 		m.put(asName("cachedClassState_g"),           asName("_cachedClassState"));
 		m.put(asName("cachedClass_g"),                asName("_cachedClass"));
-		m.put(asName("pendingMonitors_g"),            asName("_pendingMonitors"));
-		m.put(asName("pendingMonitorStackPointer_g"), asName("_pendingMonitorStackPointer"));
 		m.put(asName("streams_g"),                    asName("_streams"));
 		m.put(asName("currentStream_g"),              asName("_currentStream"));
 		m.put(asName("STREAM_COUNT"),                 asName("_STREAM_COUNT"));
