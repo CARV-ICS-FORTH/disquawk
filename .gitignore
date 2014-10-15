@@ -61,6 +61,8 @@
 /doc/manual/*.synctex.gz
 /doc/manual/*.fdb_latexmk
 /doc/manual/figs/address_breakdown.pdf
+/doc/manual/figs/mmgr_reply.pdf
+/doc/manual/figs/mmgr_request.pdf
 /doc/manual/manual-blx.bib
 /doc/manual/manual.pdf
 
