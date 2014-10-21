@@ -32,10 +32,18 @@
 /* NOTE:
  * This enum can only take values up to 64, because it is getting
  * packed in the messages and there are only 6 bits reserved for it
+ *
+ * The values should much the ones in MMP.java
  */
 typedef enum {
+	// nop
+	MMP_OPS_NOP=0,
 	// Threads
-	MMP_OPS_TH_SPAWN=1,
+	MMP_OPS_TH_SPAWN,
+	// Monitors
+	MMP_OPS_MNTR_ENTER,
+	MMP_OPS_MNTR_EXIT,
+	MMP_OPS_MNTR_ACK,
 	// Hash-Table
 	MMP_OPS_HT_INSERT,
 	MMP_OPS_HT_LOOKUP,
@@ -51,6 +59,6 @@ typedef enum {
 	// Synchronize
 	MMP_OPS_SY_JOIN,
 	MMP_OPS_SY_TERMINATE,
-} msg_op;
+} mmpMsgOp_t;
 
 #endif /* _MMP_OPS_H */

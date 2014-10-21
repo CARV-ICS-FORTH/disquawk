@@ -31,6 +31,7 @@ import com.sun.squawk.util.*;
 import com.sun.squawk.vm.*;
 import java.io.PrintStream;
 import com.sun.squawk.platform.MMP;
+import com.sun.squawk.platform.MMGR;
 import com.sun.squawk.platform.Platform;
 import com.sun.squawk.platform.SystemEvents;
 import java.util.Enumeration;
@@ -123,11 +124,6 @@ public final class VMThread implements GlobalStaticFields {
 	private static EventHashtable osevents;
 
 	/**
-	 * Count of contended monitorEnters
-	 */
-	private static int contendedEnterCount;
-
-	/**
 	 * Count of monitors allocated
 	 */
 	static int monitorsAllocatedCount;
@@ -197,18 +193,6 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	public static int getThreadsAllocatedCount() {
 		return nextThreadNumber;
-	}
-
-	/**
-	 * Return the number of times that a thread was blocked trying to synchronize on an object.
-	 *
-	 * Note that this counts the initial contention. A thread may be released to aquire the lock,
-	 * but another thread (potentially higher priority) runs first, and actually acquires the lock.
-	 * The first thread will then have to wait again.
-	 * @return monitor contention count
-	 */
-	public static int getContendedMontorEnterCount() {
-		return contendedEnterCount;
 	}
 
 	/**
@@ -448,6 +432,21 @@ public final class VMThread implements GlobalStaticFields {
 		Assert.that(!thread.isServiceThread());
 		thread.checkInQueue(Q_NONE);
 		runnableThreads.add(thread);
+	}
+
+
+	/**
+	 * Adds a given thread to the head of the runnable threads queue.
+	 *
+	 * Note: this method may assign globals and threads into local variables and
+	 * so should not be on the stack of a call that eventually calls 'reschedule'
+	 *
+	 * @param thread   the thread to add
+	 */
+	private static void addFirstToRunnableThreadsQueue(VMThread thread) {
+		Assert.that(!thread.isServiceThread());
+		thread.checkInQueue(Q_NONE);
+		runnableThreads.addFirst(thread);
 	}
 
 
@@ -1748,7 +1747,15 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	final static void rescheduleNext() {
 		Assert.that(GC.isSafeToSwitchThreads());
-		VMThread thread = null;
+		Object   object;
+		Integer  msg_op;
+		VMThread thread;
+
+		/*
+		 * Although msg_op is used to return the msg type we
+		 * initialize it to get rid of warnings
+		 */
+		msg_op = 0;
 
 		/*
 		 * Loop until there is something to do.
@@ -1756,10 +1763,13 @@ public final class VMThread implements GlobalStaticFields {
 		while (true) {
 
 			/*
-			 * Always Query the mailbox for things to do.
+			 * Always Query the mailbox for new messages.
 			 */
-			thread = MMP.checkMailbox();
-			if (thread != null) {
+			object = MMP.checkMailbox(msg_op);
+			if (msg_op == MMP.OPS_TH_SPAWN) {
+				// There is a new thread for us
+				Assert.that(object != null);
+				thread = (VMThread) object;
 				Assert.always(thread.state == NEW);
 				// Now allocate a new stack for it and mark it ALIVE
 				thread.stack = newStack(thread.stackSize, thread, true);
@@ -1779,6 +1789,24 @@ public final class VMThread implements GlobalStaticFields {
 //VM.println();
 
 				addToRunnableThreadsQueue(thread);
+			} else if (msg_op == MMP.OPS_MNTR_ACK) {
+				// We got a monitor.  Find a thread waiting for it and
+				// schedule it FIRST for execution.
+
+				// HACK: This way we give priority to waiting on
+				// monitors threads not respecting the actual thread
+				// priority, however we consider this to be fair since
+				// this thread already yielded at least once to wait
+				// for the monitor manager to reply.
+
+				Monitor monitor = (Monitor)object;
+
+				VMThread waiter = monitor.removeMonitorWait();
+				if (waiter != null) {
+					Assert.that(waiter.isAlive());
+
+					addFirstToRunnableThreadsQueue(waiter);
+				}
 			}
 
 			/* TODO: Check pending DMAs and retry if they failed */
@@ -2284,29 +2312,33 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	private static boolean releaseMonitor(Monitor monitor) {
 		/*
-		 * Drop the lock
+		 * Drop the lock and notify the Monitor manager
 		 */
 		monitor.owner = null;
 		monitor.depth = 0;
 
-		/*
-		 * Try and remove a thread from the wait queue.
-		 */
-		VMThread waiter = monitor.removeMonitorWait();
-		if (waiter != null /*&& waiter.isAlive()*/) {       // Is this right?
-			Assert.that(waiter.isAlive());
-//traceMonitor("releaseMonitor make thread runnable: ", monitor, monitor.object);
-//VM.print("   made runnable - thread-");
-//VM.print(waiter.getThreadNumber());
-//VM.println();
-			/*
-			 * Restart execution of the thread.
-			 */
-			addToRunnableThreadsQueue(waiter);
-			return true;
-		} else {
-			return false;
-		}
+		MMGR.monitorExit(monitor.object);
+
+		return !monitor.isMonitorWaitEmpty();
+// TODO: HACK: keep the lock for a local thread before really releasing it?
+// 		/*
+// 		 * Try and remove a thread from the wait queue.
+// 		 */
+// 		VMThread waiter = monitor.removeMonitorWait();
+// 		if (waiter != null /*&& waiter.isAlive()*/) {       // Is this right?
+// 			Assert.that(waiter.isAlive());
+// //traceMonitor("releaseMonitor make thread runnable: ", monitor, monitor.object);
+// //VM.print("   made runnable - thread-");
+// //VM.print(waiter.getThreadNumber());
+// //VM.println();
+// 			/*
+// 			 * Restart execution of the thread.
+// 			 */
+// 			addToRunnableThreadsQueue(waiter);
+// 			return true;
+// 		} else {
+// 			return false;
+// 		}
 	}
 
 	/**
@@ -2331,7 +2363,7 @@ public final class VMThread implements GlobalStaticFields {
 	 * @param object the object with the monitor we are trying to acquire.
 	 * @return the current Monitor for the object.
 	 */
-	static Monitor retryMonitor(Object object) {
+	static private Monitor retryMonitor(Object object) {
 		// see if we can get montitor now.
 		Monitor monitor = getMonitor(object);
 		// FIXME: monitor.owner check / update must be atomic (test and set)
@@ -2370,21 +2402,11 @@ public final class VMThread implements GlobalStaticFields {
 	static void monitorEnter(Object object) {
 		currentThread.checkInvarients();
 		Monitor monitor = getMonitor(object);
-		// FIXME: monitor.owner check / update must be atomic (test and set)
-		if (monitor.owner == null) {
-//traceMonitor("monitorEnter:  1st lock", monitor, object);
-			/*
-			 * Unowned monitor, make the current thread the owner.
-			 */
-			monitor.owner = currentThread;
-			monitor.depth = 1;
 
-		} else if (monitor.owner == currentThread) {
+		// If we own the lock we only need to increase its depth
+		if (monitor.owner == currentThread) {
 //traceMonitor("monitorEnter:  nested lock", monitor, object);
 
-			/*
-			 * Thread already owns the monitor, increment depth.
-			 */
 			if (monitor.depth == MAXDEPTH) {
 /*if[DEBUG_CODE_ENABLED]*/
 				VM.println("monitorEnter:");
@@ -2392,7 +2414,21 @@ public final class VMThread implements GlobalStaticFields {
 				throw VM.getOutOfMemoryError();
 			}
 			monitor.depth++;
-		} else {
+		} else if (monitor.owner != null) {
+			// If our core owns the monitor for a different thread
+			// there is no reason to request it from the monitor
+			// manager, we just yield to run later and request it
+			// again later
+
+			// NOTE: We could reuse this monitor and skip
+			// communicating with the monitor manager, but it is not
+			// valid to choose a thread arbitrarily, since they might
+			// have different priorities.
+			VMThread.yield();
+			VMThread.monitorEnter(object);
+		} else { // request the monitor
+			MMGR.monitorEnter(object);
+
 //traceMonitor("monitorEnter: Must wait for lock: ", monitor, object);
 
 /*
@@ -2405,7 +2441,7 @@ public final class VMThread implements GlobalStaticFields {
 //         monitor.owner.printState();
 //    }
 */
-			contendedEnterCount++;
+
 			/*
 			 * Add to the wait queue and set the depth for when thread is restarted.
 			 */
@@ -2413,12 +2449,9 @@ public final class VMThread implements GlobalStaticFields {
 			monitor.addMonitorWait(currentThread);
 			reschedule();
 
-			// Can we actually get the monitor? Try and try again.
-			// Note that the Monitor may have been replaced while we were rescheduled
-			monitor = retryMonitor(object);
-
 //traceMonitor("monitorEnter: Got lock after waiting: ", monitor, object);
 
+			monitor.owner = currentThread;
 			/*
 			 * Safety.
 			 */
@@ -2454,18 +2487,7 @@ public final class VMThread implements GlobalStaticFields {
 		 */
 		if (--monitor.depth == 0) {
 /*if[SMARTMONITORS]*/
-			if (releaseMonitor(monitor)) {
-				/*
-				 * Let waiting thread try to execute. If a waiting thread has >= priority to current thread,
-				 * it will run now.
-				 */
-
-				if (monitor.hasHadWaiter) {
-					addToRunnableThreadsQueue(currentThread);
-					reschedule();
-				}
-			}
-			else {
+			if (!releaseMonitor(monitor)) {
 				/*
 				 * Remove the monitor if it was not used for a wait() operation.
 				 */
@@ -2902,6 +2924,23 @@ final class ThreadQueue {
 				thread.nextThread = last.nextThread;
 				last.nextThread = thread;
 			}
+		}
+	}
+
+	/**
+	 * Add a thread first to the queue.
+	 *
+	 * @param thread the thread to add
+	 */
+	void addFirst(VMThread thread) {
+		Assert.that(thread.isAlive());
+		thread.setInQueue(VMThread.Q_RUN);
+		count++;
+		if (first == null) {
+			first = thread;
+		} else {
+			thread.nextThread = first;
+			first = thread;
 		}
 	}
 

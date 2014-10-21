@@ -4079,19 +4079,6 @@ public class VM implements GlobalStaticFields {
 		}
 
 		/**
-		 * Return the number of times that a thread was blocked trying to synchronize on an object.<p>
-		 *
-		 * Note that this counts the initial contention. A thread may be released to aquire the lock,
-		 * but another thread (potentially higher priority) runs first, and actually acquires the lock.
-		 * The first thread will then have to wait again.
-		 *
-		 *  @return contended enters
-		 */
-		public static int getContendedMontorEnterCount() {
-			return VMThread.getContendedMontorEnterCount();
-		}
-
-		/**
 		 * Return the number of monitors allocated.<p>
 		 *
 		 * Often, uncontended locking is handled by the interpreter in the pendingMonitors cache. But if the
@@ -4232,7 +4219,6 @@ public class VM implements GlobalStaticFields {
 			values[STAT_OBJECTS_TOTAL_ALLOCATED] = VM.Stats.getObjectsAllocatedTotal();
 			values[STAT_THREADS_ALLOCATED]       = VM.Stats.getThreadsAllocatedCount();
 			values[STAT_THREAD_SWITCH_COUNT]     = VM.Stats.getThreadSwitchCount();
-			values[STAT_CONTENDED_MONITOR_COUNT] = VM.Stats.getContendedMontorEnterCount();
 			values[STAT_MONITORS_ALLOCATED]      = VM.Stats.getMonitorsAllocatedCount();
 			values[STAT_STACKS_ALLOCATED]        = VM.Stats.getStacksAllocatedCount();
 			values[STAT_MAX_STACK_SIZE]          = VM.Stats.getMaxStackSize();

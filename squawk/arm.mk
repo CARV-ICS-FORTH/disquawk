@@ -23,6 +23,7 @@ GCC_OPTS =\
 	-Wall \
 	-O2 \
 	-I$(MYRMICS_SRC)/include \
+	-I$(RTS_SRC) \
 	-DARCH_ARM \
 	-DSQUAWK \
 

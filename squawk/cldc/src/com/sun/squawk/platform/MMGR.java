@@ -20,7 +20,7 @@
  */
 
 /**
- * @file   MMP.java
+ * @file   MMGR.java
  * @author Foivos S. Zakkak <zakkak@ics.forth.gr>
  *
  * @brief An interface for the Mailbox Message Protocol.
@@ -32,34 +32,24 @@ import com.sun.squawk.*;
 import com.sun.squawk.util.*;
 import com.sun.squawk.pragma.*;
 
-public final class MMP {
-
-	/* Must be the same as in mmp_ops.h */
-	public static final int OPS_NOP      = 0;
-	public static final int OPS_TH_SPAWN = 1;
-	public static final int OPS_MNTR_ACK = 4;
+public final class MMGR {
 
 	/**
-	 * Query the mailbox for incoming messages and return a thread object
-	 * if one of the messages was about scheduling a thread to this core.
+	 * Request to enter the given object's monitor.
 	 *
-	 * @param  type The type of the received message (return)
+	 * @param object The object to enter its monitor
 	 *
-	 * @return a thread object if one of the messages was about scheduling
-	 *         a thread to this core,
-	 *         an object if one of the messages was a reply to a lock request
-	 *         NULL otherwise
 	 */
-	public static Object checkMailbox(Integer type) throws NativePragma {
+	public static void monitorEnter(Object object) throws NativePragma {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 
 	/**
-	 * Peeks a core to schedule the given thread.  Then sends a
-	 * message to this core with the thread object's address and the
-	 * core and island of the hardware thread that spawned it.
+	 * Request to exit the given object's monitor.
+	 *
+	 * @param object The object to exit its monitor
 	 */
-	public static void spawnThread(VMThread thread) throws NativePragma {
+	public static void monitorExit(Object object) throws NativePragma {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 

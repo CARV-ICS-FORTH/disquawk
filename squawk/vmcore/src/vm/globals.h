@@ -23,6 +23,8 @@
  * information or have any questions.
  */
 
+#include <mmgr.h>
+
 #ifndef __MICROBLAZE__
 #define MAX_STREAMS 4
 #endif /* __MICROBLAZE__ */
@@ -283,15 +285,22 @@ __attribute__((aligned(MM_CACHELINE_SIZE)))
 /* keep it thread/core local */
 #ifdef __MICROBLAZE__
 typedef struct {
-	Globals* global_ctx;        /* pointer to the global context */
+	union {
+		/** pointer to the global context */
+		Globals   *global_ctx;
+		/** Monitor Manager Monitors hashtable */
+		monitor_t **mmgrHT;
+	};
 	/* Padding to avoid overlapping with other cores */
 	char padding[MM_CACHELINE_SIZE-sizeof(Globals*)];
 } globals_box __attribute__((aligned(MM_CACHELINE_SIZE)));
 /* The pointer to the global execution context */
 globals_box gps[AR_FORMIC_CORES_PER_BOARD];
-#define gp gps[my_cid].global_ctx
+#define gp       gps[my_cid].global_ctx
+#define mmgrHT_g gps[my_cid].mmgrHT
 #else
 __thread Globals *gp;         /* The pointer to the global execution context */
+__thread monitor_t **mmgrHT_g;
 #endif /* __MICROBLAZE__ */
 
 #if KERNEL_SQUAWK

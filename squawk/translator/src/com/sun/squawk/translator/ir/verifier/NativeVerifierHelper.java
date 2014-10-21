@@ -1124,13 +1124,6 @@ class NativeVerifierHelper {
             return;
         }
 
-        case Native.com_sun_squawk_VM$hasVirtualMonitorObject: {
-            frame.pop(OOP); // java.lang.Object
-            Assert.that(frame.isStackEmpty());
-            frame.push(BOOLEAN); // boolean
-            return;
-        }
-
         case Native.com_sun_squawk_VM$hashcode: {
             frame.pop(OOP); // java.lang.Object
             Assert.that(frame.isStackEmpty());
@@ -1175,12 +1168,6 @@ class NativeVerifierHelper {
             frame.pop(INT); // int
             Assert.that(frame.isStackEmpty());
             frame.push(DOUBLE); // double
-            return;
-        }
-
-        case Native.com_sun_squawk_VM$removeVirtualMonitorObject: {
-            Assert.that(frame.isStackEmpty());
-            frame.push(OOP); // java.lang.Object
             return;
         }
 
@@ -1349,13 +1336,26 @@ class NativeVerifierHelper {
         }
 
         case Native.com_sun_squawk_platform_MMP$checkMailbox: {
+            frame.pop(OOP); // java.lang.Integer
             Assert.that(frame.isStackEmpty());
-            frame.push(OOP); // com.sun.squawk.VMThread
+            frame.push(OOP); // java.lang.Object
             return;
         }
 
         case Native.com_sun_squawk_platform_MMP$spawnThread: {
             frame.pop(OOP); // com.sun.squawk.VMThread
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMGR$monitorEnter: {
+            frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMGR$monitorExit: {
+            frame.pop(OOP); // java.lang.Object
             Assert.that(frame.isStackEmpty());
             return;
         }

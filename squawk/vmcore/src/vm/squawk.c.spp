@@ -581,6 +581,11 @@ void freeBuffers() {
 #include "scheduler.c"
 
 /*
+ * Include the Monitor Manager (MMGR).
+ */
+#include "mmgr.c"
+
+/*
  * Include the Mailbox Message Protocol (MMP).
  */
 #include "mmp.c"

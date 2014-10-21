@@ -176,6 +176,7 @@ public class NativeGen {
 
 		lookup(Class.forName("com.sun.squawk.SoftwareCache"));
 		lookup(Class.forName("com.sun.squawk.platform.MMP"));
+		lookup(Class.forName("com.sun.squawk.platform.MMGR"));
 
 		output(Class.forName("com.sun.squawk.VM"), "lcmp", true, new Class[] { Long.TYPE, Long.TYPE }, Integer.TYPE);
 

@@ -33,7 +33,7 @@
  * @param bid The board to schedule the next thread (output)
  * @param cid The core to schedule the next thread (output)
  */
-void schdlr_next(int *bid, int *cid) {
+void schdlrNext(int *bid, int *cid) {
 
 	// FIXME: Make it work for various number of cores
 	// Peek a core and a board (FIXME: do something smarter than RR)
