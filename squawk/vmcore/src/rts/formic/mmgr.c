@@ -27,175 +27,11 @@
  *
  */
 
-#include "myrmics.h"
-
 #include "mmp_ops.h"
 #include "mmgr.h"
-
-/**
- * Initialize the hashtable
- */
-void mmgrInitialize(monitor_t **mmgrHT) {
-	mmgrHT_g = mmgrHT;
-
-	kt_memset(mmgrHT_g, 0, sizeof(monitor_t*)*MMGR_HT_SIZE);
-}
-
-/**
- * Find the manager responsible for the given object.
- *
- * @param object The object
- * @param bid    The manager's bid (return)
- * @param cid    The manager's cid (return)
- */
-INLINE void mmgrGetManager(Address object, int *bid, int *cid) {
-	// We need only 3 bits since we have 2^3 monitor managers
-	unsigned int id3;
-
-	// Objects are cache line aligned so we can ignore the 6 LS bits
-	// Then skip the next 3 bits so that neighbor objects don't end at the same
-	// monitor manager
-	id3 = (((unsigned int)object) >> 9) & 0x8;
-
-#ifdef ARCH_MB
-	*bid = 0x3F;
-	*cid = id3;
-#endif /* ARCH_MB */
-
-#ifdef ARCH_ARM
-	if (id3 & 1)
-		*bid = 0x4B;
-	else
-		*bid = 0x6B;
-
-	*cid = id3 >> 1;
-#endif /* ARCH_ARM */
-
-}
-
-INLINE void mmpSend2(int to_bid, int to_cid,
-                     unsigned int msg0, unsigned int msg1);
-
-/**
- * Send a msg_op request regarding the given object.  The responsible
- * manager is automatically calculated and the request is sent using a
- * 2-word mailbox message.
- *
- * @param msg_op The desired operation
- * @param object The object to operate on
- */
-INLINE void mmgrRequest(mmpMsgOp_t msg_op, Address object) {
-	unsigned int msg0;
-	int          target_cid;
-	int          target_bid;
-
-	// Pass your bid and cid with the opcode so that the other end
-	// can check the owner.
-	msg0 = (sysGetIsland() << 19) | (sysGetCore() << 16) | msg_op;
-
-	mmgrGetManager(object, &target_bid, &target_cid);
-
-	mmpSend2(target_bid, target_cid, msg0, (unsigned int)object);
-
-}
-
-/**
- * Request to enter the given object's monitor.
- *
- * @param object The object to enter its monitor
- *
- */
-INLINE void mmgrMonitorEnter(Address object) {
-	mmgrRequest(MMP_OPS_MNTR_ENTER, object);
-
-	// Remove me from the runnable threads and add me to the blocked
-	// threads queue. This is done in VMThread.java
-}
-
-/**
- * Request to exit the given object's monitor.
- *
- * @param object The object to exit its monitor
- */
-INLINE void mmgrMonitorExit(Address object) {
-	mmgrRequest(MMP_OPS_MNTR_EXIT, object);
-
-	// For monitor exits we don't need to wait for a reply, since the
-	// request returns only when it gets an ACK we can safely assume
-	// that the manager has the message in its queue and will
-	// eventually process it.
-}
-
-/**
- * Get the monitor for the given object if it already exists or create
- * a new one if not
- *
- * @param object The object
- *
- * @return       The object's monitor
- */
-INLINE monitor_t *mmgrGetMonitor(Address object) {
-	monitor_t    *res;
-	unsigned int key;
-
-//FIXME
-	// Drop 6 LS bits, Objects are cache aligned
-	// Drop 3 next LS bits, We have 2^3 managers
-	key = (unsigned int)object >> 9;
-
-	// Look-up the object's monitor
-//	res = lookup;
-
-	// If not found create a new one and associate it with this object
-	if (res == NULL) {
-//		res         = new monitor;
-		res->owner   = NULL;
-		res->waiters = NULL;
-		res->object  = object;
-	}
-
-	return res;
-}
-
-/**
- * Handle a monitor enter request.
- *
- * @param bid The board id we got the request from
- * @param cid The core id we got the request from
- * @param object The object on which we were requested to act
- */
-INLINE void mmgrMonitorEnterHandler(int bid, int cid, Address object) {
-	monitor_t    *monitor;
-
-	monitor = mmgrGetMonitor(object);
-
-	if (monitor->owner == NULL) {
-		monitor->owner = (bid << 3) | cid;
-	}
-
-	// Reply back with the owner
-	mmpSend2(bid, cid,
-	         (unsigned int)( (monitor->owner << 16) | MMP_OPS_MNTR_ACK),
-	         (unsigned int)object);
-}
-
-/**
- * Handle a monitor exit request.
- *
- * @param bid The board id we got the request from
- * @param cid The core id we got the request from
- * @param object The object on which we were requested to act
- */
-INLINE void mmgrMonitorExitHandler(int bid, int cid, Address object) {
-	monitor_t *monitor;
-
-	monitor = mmgrGetMonitor(object);
-
-	ar_assert( monitor->owner == ((bid<<3) | cid) );
-	monitor->owner = NULL;
-
-	// TODO What happens with the waiters?
-}
+#include "globals.h"
+#include "myrmics.h"
+#include "arch.h"
 
 /******************************************************************************
  * Binary search tree hashtble chains
@@ -373,4 +209,167 @@ static int ht_remove(Address object) {
 	}
 
 	return 0;
+}
+
+/**
+ * Initialize the hashtable
+ */
+void mmgrInitialize(monitor_t **mmgrHT) {
+	mmgrHT_g = mmgrHT;
+
+	kt_memset(mmgrHT_g, 0, sizeof(monitor_t*)*MMGR_HT_SIZE);
+}
+
+/**
+ * Find the manager responsible for the given object.
+ *
+ * @param object The object
+ * @param bid    The manager's bid (return)
+ * @param cid    The manager's cid (return)
+ */
+INLINE void mmgrGetManager(Address object, int *bid, int *cid) {
+	// We need only 3 bits since we have 2^3 monitor managers
+	unsigned int id3;
+
+	// Objects are cache line aligned so we can ignore the 6 LS bits
+	// Then skip the next 3 bits so that neighbor objects don't end at the same
+	// monitor manager
+	id3 = (((unsigned int)object) >> 9) & 0x8;
+
+#ifdef ARCH_MB
+	*bid = 0x3F;
+	*cid = id3;
+#endif /* ARCH_MB */
+
+#ifdef ARCH_ARM
+	if (id3 & 1)
+		*bid = 0x4B;
+	else
+		*bid = 0x6B;
+
+	*cid = id3 >> 1;
+#endif /* ARCH_ARM */
+
+}
+
+INLINE void mmpSend2(int to_bid, int to_cid,
+                     unsigned int msg0, unsigned int msg1);
+
+#ifdef ARCH_MB
+/**
+ * Send a msg_op request regarding the given object.  The responsible
+ * manager is automatically calculated and the request is sent using a
+ * 2-word mailbox message.
+ *
+ * @param msg_op The desired operation
+ * @param object The object to operate on
+ */
+INLINE static void mmgrRequest(mmpMsgOp_t msg_op, Address object) {
+	unsigned int msg0;
+	int          target_cid;
+	int          target_bid;
+
+	// Pass your bid and cid with the opcode so that the other end
+	// can check the owner.
+	msg0 = (sysGetIsland() << 19) | (sysGetCore() << 16) | msg_op;
+
+	mmgrGetManager(object, &target_bid, &target_cid);
+
+	mmpSend2(target_bid, target_cid, msg0, (unsigned int)object);
+
+}
+
+/**
+ * Request to enter the given object's monitor.
+ *
+ * @param object The object to enter its monitor
+ *
+ */
+INLINE void mmgrMonitorEnter(Address object) {
+	mmgrRequest(MMP_OPS_MNTR_ENTER, object);
+
+	// Remove me from the runnable threads and add me to the blocked
+	// threads queue. This is done in VMThread.java
+}
+
+/**
+ * Request to exit the given object's monitor.
+ *
+ * @param object The object to exit its monitor
+ */
+INLINE void mmgrMonitorExit(Address object) {
+	mmgrRequest(MMP_OPS_MNTR_EXIT, object);
+
+	// For monitor exits we don't need to wait for a reply, since the
+	// request returns only when it gets an ACK we can safely assume
+	// that the manager has the message in its queue and will
+	// eventually process it.
+}
+#endif /* ARCH_MB */
+
+/**
+ * Get the monitor for the given object if it already exists or create
+ * a new one if not
+ *
+ * @param object The object
+ *
+ * @return       The object's monitor
+ */
+INLINE monitor_t *mmgrGetMonitor(Address object) {
+	monitor_t *res;
+
+	// Look-up the object's monitor
+	res = ht_lookup(object);
+
+	// If not found create a new one and associate it with this object
+	if (res == NULL) {
+//FIXME
+//		res         = new monitor;
+		res->owner   = NULL;
+		res->waiters = NULL;
+		res->object  = object;
+		ht_insert(res);
+	}
+
+	return res;
+}
+
+/**
+ * Handle a monitor enter request.
+ *
+ * @param bid The board id we got the request from
+ * @param cid The core id we got the request from
+ * @param object The object on which we were requested to act
+ */
+INLINE void mmgrMonitorEnterHandler(int bid, int cid, Address object) {
+	monitor_t    *monitor;
+
+	monitor = mmgrGetMonitor(object);
+
+	if (monitor->owner == NULL) {
+		monitor->owner = (bid << 3) | cid;
+	}
+
+	// Reply back with the owner
+	mmpSend2(bid, cid,
+	         (unsigned int)( (monitor->owner << 16) | MMP_OPS_MNTR_ACK),
+	         (unsigned int)object);
+}
+
+/**
+ * Handle a monitor exit request.
+ *
+ * @param bid The board id we got the request from
+ * @param cid The core id we got the request from
+ * @param object The object on which we were requested to act
+ */
+INLINE void mmgrMonitorExitHandler(int bid, int cid, Address object) {
+	monitor_t *monitor;
+
+	monitor = mmgrGetMonitor(object);
+
+	ar_assert( monitor->owner == ((bid<<3) | cid) );
+	monitor->owner = NULL;
+
+	// TODO What happens with the waiters?
 }

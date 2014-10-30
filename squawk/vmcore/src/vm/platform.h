@@ -1,4 +1,4 @@
-/*
+/**** Created by Squawk builder from "vmcore/src/vm/platform.h.spp.preprocessed" ****/ /*
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle Corporation. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
@@ -26,11 +26,11 @@
 #ifndef _VMCORE_VM_PLATFORM_H_
 #define _VMCORE_VM_PLATFORM_H_
 
-/*if[!MICROBLAZE_BUILD]*/
+#ifndef FORMIC
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-/*end[MICROBLAZE_BUILD]*/
+#endif /* FORMIC */
 
 #if defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(_M_X64)  || defined(_M_AMD64)
 #    define PROCESSOR_ARCHITECTURE_X86 1
@@ -60,9 +60,9 @@
 #ifdef __APPLE__
 #    include <CoreFoundation/CoreFoundation.h>
 #    include <pthread.h>
-/*if[KERNEL_SQUAWK]*/
+#ifdef KERNEL_SQUAWK
 #    include <dlfcn.h>
-/*end[KERNEL_SQUAWK]*/
+#endif /* KERNEL_SQUAWK */
 #    include <sys/resource.h>
 #    include <sys/time.h>
 /*#else*/
@@ -76,7 +76,7 @@
 #define byte signed char
 #define ujlong unsigned jlong
 
-/*if[!MICROBLAZE_BUILD]*/
+#ifndef FORMIC
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -85,7 +85,7 @@
 #include <string.h>
 #include <signal.h>
 #include <math.h>
-/*end[MICROBLAZE_BUILD]*/
+#endif /* FORMIC */
 
 #ifdef _MSC_VER
 #    include <io.h>
@@ -129,14 +129,14 @@
 #        define ujlong uint64_t
 #    else /* assume CC */
 #    endif /* __GNUC__ */
-/*if[KERNEL_SQUAWK]*/
+#ifdef KERNEL_SQUAWK
 #    ifndef FLASH_MEMORY
 #        include <pthread.h>
 #    endif /* FLASH_MEMORY */
-/*end[KERNEL_SQUAWK]*/
+#endif /* KERNEL_SQUAWK */
 #endif /* _MSC_VER */
 
-#ifdef __MICROBLAZE__
+#ifdef FORMIC
 #    ifdef MAXINLINE
 #        define INLINE __attribute__((always_inline))
 #    else
@@ -145,7 +145,7 @@
 #endif /* __MICROBLAZE__ */
 
 #ifndef INLINE
-#    define INLINE inline static
+#    define INLINE inline
 #endif
 
 #ifdef __GNUC__
@@ -161,12 +161,8 @@
 #endif
 #endif /* */
 
-// Convert build property to macro value
-/*if[FLOATS]*/
+
 #define ENABLE_FLOATS 1
-/*else[FLOATS]*/
-//#define ENABLE_FLOATS 0
-/*end[FLOATS]*/
 
 /* It actualy never seems to pay off to inline this FP code.
    But the switch is here to play with.
@@ -181,11 +177,11 @@
 #    endif
 #endif
 
-/*if[KERNEL_SQUAWK]*/
+#ifdef KERNEL_SQUAWK
 #ifndef MAXSIG
 #    define MAXSIG 32
 #endif
-/*end[KERNEL_SQUAWK]*/
+#endif /* KERNEL_SQUAWK */
 
 /**
  * These two conditional compilation macros are also used as values in certain parts and

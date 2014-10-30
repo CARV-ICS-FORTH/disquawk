@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-2014 FORTH-ICS / CARV
+ *                     (Foundation for Research & Technology -- Hellas,
+ *                      Institute of Computer Science,
+ *                      Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle Corporation. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
@@ -24,29 +28,30 @@
  */
 
 
-// Size of class to class state cache.
-#define CLASS_CACHE_SIZE 6
+#include <mmgr.h>
+#include <mmp.h>
 
 #include "platform.h"
 #include "buildflags.h"
+#include "scheduler.h"
+#include "squawk.h"
 
-
-/**
- * Forward definition of printf/fprintf helper function.
+/*
+ * Include the type definitions and operations on machine word sized quantities
  */
-const char *format(const char* fmt);
+#include "address.h"
+
+/*
+ * Include utility functions.
+ */
+#include "util.h"
 
 /*if[!MICROBLAZE_BUILD]*/
 /* used by io.c...*/
 #include "io_native.h"
 /*end[MICROBLAZE_BUILD]*/
 
-/*
- * Include the type definitions and operations on machine word sized quantities
- */
-#include "address.c"
-
-#include "os.c"
+#include "os.h"
 
 /*if[MICROBLAZE_BUILD]*/
 /* used by io.c...*/
@@ -139,9 +144,6 @@ void printStackTracePrim(int opcode, ByteAddress traceIP, UWordAddress traceFP, 
 #define printStackTracePrim(opcode, traceIP, traceFP, msg, mnemonic)
 #endif /* TRACE */
 
-static Address lookupKlass(int cid);
-static Address lookupStaticMethod(int cid, int methodOffset);
-
 /*
     This is the 'slow' Squawk VM that is implemented in C. The techniques used in
     this VM are such that it should be expected that it will be several times slower
@@ -197,25 +199,6 @@ static Address lookupStaticMethod(int cid, int methodOffset);
  */
 #include "rom.h"
 
-/*
- * Add the monitor cache size to the global oop count
- */
-#define GLOBAL_OOP_COUNT  ROM_GLOBAL_OOP_COUNT
-#define GLOBAL_INT_COUNT  ROM_GLOBAL_INT_COUNT
-#define GLOBAL_ADDR_COUNT ROM_GLOBAL_ADDR_COUNT
-
-/*
- * Size of buffer used for pre-formatting printf/fprintf format specifications.
- */
-#define FORMAT_BUF_LEN 1000
-
-/**
- * The default GC chunk, NVM and RAM sizes.
- */
-#ifndef SERVICE_CHUNK_SIZE
-#define SERVICE_CHUNK_SIZE (24*1024)
-#endif
-
 #define TWOWORDS (HDR_BYTES_PER_WORD * 2)
 #define SERVICE_CHUNK_SIZE_MINUS2WORDS (SERVICE_CHUNK_SIZE - TWOWORDS)
 
@@ -231,10 +214,6 @@ static Address lookupStaticMethod(int cid, int methodOffset);
 #endif
 #define TIMEQUANTA 1000
 
-#ifndef MAX_BUFFERS
-#define MAX_BUFFERS 10
-#endif
-
 #define MAX_JVM_ARGS 20
 
 /**
@@ -244,12 +223,6 @@ const jlong MAX_UJLONG = (jlong)0x7fffffff << 32 | 0xffffffff;
 #ifndef TRACESTART
 #define TRACESTART MAX_UJLONG
 #endif
-
-/*
- * Forward declaration of VM exit routine.
- */
-NORETURN void stopVM0(int, boolean);
-NORETURN void stopVM(int);
 
 /*
  * Include all the globals.
@@ -279,11 +252,6 @@ NORETURN void stopVM(int);
  * Test to see if the interpreter is running on the GC stack
  */
 #define usingServiceStack() (ss_g == (UWordAddress)com_sun_squawk_VMThread_serviceStack)
-
-/*
- * Include utility functions.
- */
-#include "util.h"
 
 #ifdef _MSC_VER
 #    define FORMAT_64  format_buf_g[bufPos++] = 'I'; \
@@ -574,21 +542,6 @@ void freeBuffers() {
 #ifdef LISP2_BITMAP
 #include "lisp2.c"
 #endif /* LISP2_BITMAP */
-
-/*
- * Include the Scheduler.
- */
-#include "scheduler.c"
-
-/*
- * Include the Monitor Manager (MMGR).
- */
-#include "mmgr.c"
-
-/*
- * Include the Mailbox Message Protocol (MMP).
- */
-#include "mmp.c"
 
 /*
  * Include the switch and bytecode routines.
@@ -2571,7 +2524,7 @@ int main(int argc, char *argv[]) {
  * @param cid
  * @return klass
  */
-static Address lookupKlass(int cid) {
+Address lookupKlass(int cid) {
 	Address classes;
 	Address class;
 	assume(com_sun_squawk_VM_bootstrapSuite != null);
@@ -2585,7 +2538,7 @@ static Address lookupKlass(int cid) {
 	return class;
 }
 
-static Address lookupStaticMethod(int cid, int methodOffset) {
+Address lookupStaticMethod(int cid, int methodOffset) {
 	Address klass;
 	Address method;
 	//fprintf(stderr, "Lookup of %d in class %d = ", methodOffset, cid);

@@ -4949,6 +4949,18 @@ static int collectGarbage(Address, Address, int);
 		break;
 	}
 
+	case Native_com_sun_squawk_platform_MMGR_monitorEnter: {
+		Address object = popAddress();
+		mmgrMonitorEnter(object);
+		break;
+	}
+
+	case Native_com_sun_squawk_platform_MMGR_monitorExit: {
+		Address object = popAddress();
+		mmgrMonitorExit(object);
+		break;
+	}
+
 	case Native_com_sun_squawk_SoftwareCache_translate: {
 		Address addr = popAddress();
 		pushAddress(sc_translate(addr));

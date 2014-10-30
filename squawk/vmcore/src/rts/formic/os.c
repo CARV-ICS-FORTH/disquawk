@@ -23,73 +23,15 @@
  */
 
 /**
- * @file   os.c.spp
+ * @file   os.c
  * @author Foivos S. Zakkak <zakkak@ics.forth.gr>
  * @date   Thu Oct 24 17:58:30 2013
  *
  * @brief  Contains
  *
- *
  */
-#define TRUE 1
-#define FALSE 0
 
-#define TOTAL_CORES \
-	((AR_FORMIC_MAX_X - AR_FORMIC_MIN_X + 1) * \
-	(AR_FORMIC_MAX_Y - AR_FORMIC_MIN_Y + 1) * \
-	(AR_FORMIC_MAX_Z - AR_FORMIC_MIN_Z + 1) * \
-	 AR_FORMIC_CORES_PER_BOARD)
-
-/* Disable non volatile memory */
-#define DEFAULT_NVM_SIZE   0
-
-#define DEFAULT_RAM_SIZE   MM_MB_SLICE_SIZE
-
-/* Try to use the normal C conversions */
-#define C_FP_CONVERSIONS_OK 0
-
-// Override setting from platform.h
-#undef PLATFORM_UNALIGNED_LOADS
-#define PLATFORM_UNALIGNED_LOADS false
-
-#define IODOTC "formic_io.c"
-#define sysPlatformName() "formic"
-#include "arch.h"
-#include "debug.h"
-#include "types.h"
-#include "myrmics.h"
-#include "jni.h"
-#include "errno.h"
-
-/* map various functions to myrmics' ones */
-#define fprintf(s, ...) printf(__VA_ARGS__)
-#define fflush(s)       ar_uart_flush()
-#define strlen          kt_strlen
-#define strncpy         kt_strncpy
-#define strncmp         kt_strncmp
-#define free            kt_free
-#define malloc          kt_malloc
-#define atoi            kt_atoi
-
-#define my_cid          (ar_get_core_id())
-#define my_bid          (ar_get_board_id())
-
-/* Myrmics uses the ar_float_sqrt and ar_float_pow as sqrt and pow
- * respectively. However to be consistent with libc those should be
- * sqrtf and powf.
- * Reference os_math.h and math_intrinsics/ for more info.
- */
-#ifdef pow
-# undef  pow
-# define pow __ieee754_pow
-#endif
-#ifdef sqrt
-# undef  sqrt
-# define sqrt __ieee754_sqrt
-#endif
-
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
+#include "os.h"
 
 /**
  * @brief Write back data from the local cache.
@@ -144,9 +86,6 @@ void exit(int status) {
 }
 
 
-//extern int __linker_end_bss;
-extern int __linker_squawk_suite_end;
-
 /**
  * Allocate a page-aligned chunk of memory of the given size.
  * THIS IS INVOKED ONLY ONCE TO ALLOCATE THE WHOLE MEMORY
@@ -164,23 +103,6 @@ INLINE void* sysValloc(size_t size) {
 
 	return (void*)mm_slice_base(my_cid);
 }
-
-/**
- * Free chunk of memory allocated by sysValloc
- *
- * @param ptr to to chunk allocated by sysValloc
- */
-#define sysVallocFree(ptr)
-
-/**
- * @return the page size
- */
-#define sysGetPageSize() MM_PAGE_SIZE // defined in memory_management.h
-
-/**
- * @return the cache line size
- */
-#define sysGetCachelineSize() MM_CACHELINE_SIZE // defined in memory_management.h
 
 /**
  * Return the current time in microseconds.
@@ -243,57 +165,11 @@ INLINE void sysGlobalMemoryProtection() {
 }
 
 /**
- * Cannot determine what the purpose of this function is. This
- * function is not implemented for the eSPOT or the bSPOT. It gets
- * called in every bytecode execution.
- */
-//INLINE void osloop() {}
-#define osloop()
-
-#define enableARMInterrupts enableInterrupts
-#define enableInterrupts(x)
-#define disableARMInterrupts disableInterrupts
-#define disableInterrupts(x)
-
-/**
- * Called while Squawk exits. For the eSPOT and bSPOT this function disables
- * interrupts and restarts Squawk.
- */
-//void osfinish() {}
-#define osfinish()
-
-/**
- * @return the start address of the flash memory
- */
-//unsigned int get_flash_base(void) { return 0; }
-#define get_flash_base() 0
-
-/**
  * @return the size of the flash memory
  */
 unsigned int get_flash_size(void) {
 	return (unsigned int)&__linker_squawk_suite_end;
 }
-
-/**
- * Called by Squawk when a back branch occurs.
- */
-//INLINE void osbackbranch() {}
-#define osbackbranch()
-
-/**
- * Returns the core id running this VM instance.
- *
- * @return the core id
- */
-#define sysGetCore ar_get_core_id
-
-/**
- * Returns the island (numa/board) id running this VM instance.
- *
- * @return the island id
- */
-#define sysGetIsland ar_get_board_id
 
 /**
  * Calculatates the address's home core and island

@@ -60,31 +60,6 @@ __extension__
 typedef unsigned long long int uint64_t;
 #endif
 
-#ifndef __int8_t
-#define __int8_t  int8_t
-#endif
-#ifndef __int16_t
-#define __int16_t int16_t
-#endif
-#ifndef __int32_t
-#define __int32_t int32_t
-#endif
-#ifndef __int64_t
-#define __int64_t int64_t
-#endif
-#ifndef __uint8_t
-#define __uint8_t  uint8_t
-#endif
-#ifndef __uint16_t
-#define __uint16_t uint16_t
-#endif
-#ifndef __uint32_t
-#define __uint32_t uint32_t
-#endif
-#ifndef __uint64_t
-#define __uint64_t uint64_t
-#endif
-
 typedef long jint;
 typedef signed char jbyte;
 

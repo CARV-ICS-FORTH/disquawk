@@ -29,6 +29,8 @@
 #ifndef __SOFTCACHE_H__
 #define __SOFTCACHE_H__
 
+#include <address.h>
+
 /**
  * Since objects are cache line aligned we use the LSB as the dirty
  * bit and the 1-5 bits to store the acknowledgment counter for the

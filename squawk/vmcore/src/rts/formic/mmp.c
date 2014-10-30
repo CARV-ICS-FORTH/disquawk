@@ -27,7 +27,13 @@
  *
  */
 
-#include "mmp_ops.h"
+#include <scheduler.h>
+#include <arch.h>
+#include <util.h>
+
+#include "os.h"
+#include "mmp.h"
+#include "mmgr.h"
 
 /**
  * Send a single word mailbox message to the given core.
@@ -161,6 +167,7 @@ INLINE Address mmpCheckMailbox(Address type) {
 		set_java_lang_Integer_value_local(type, msg_type);
 
 	switch (msg_type) {
+#ifndef ARCH_ARM
 	// Thread specific messages
 	case MMP_OPS_TH_SPAWN:
 		/* kt_printf("I've got a message 0x%02X/%d\n",
@@ -197,6 +204,7 @@ INLINE Address mmpCheckMailbox(Address type) {
 		}
 
 		break;
+#endif /* ARCH_ARM */
 	// Monitor specific messages
 	case MMP_OPS_MNTR_ENTER:
 		// this is a two-words message

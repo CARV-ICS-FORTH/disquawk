@@ -25,6 +25,7 @@ APP?=../formic-tests/Linpack
 AT?=@
 #APP?=../formic-tests/Double2String
 BUILD_DIR=build
+VM_SRC=vmcore/src/vm
 RTS_SRC=vmcore/src/rts/formic
 MYRMICS_SRC=$(RTS_SRC)/myrmics
 BUILDER=./d -override:build-mb.properties
@@ -57,9 +58,11 @@ NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/Native
 	-Wall \
 	-I$(MYRMICS_SRC)/include \
 	-I$(RTS_SRC) \
+	-I$(VM_SRC) \
 	-D_GNU_SOURCE \
 	-DFLASH_MEMORY \
 	-DARCH_MB \
+	-DFORMIC \
 	-DSQUAWK \
 	-DSQUAWK_PREFER_SIZE_OVER_SPEED \
 	-O1 \
@@ -81,7 +84,7 @@ NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/Native
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DPLATFORM_UNALIGNED_LOADS=false \
 	-DLISP2_BITMAP \
-	-DATOMIC_BARRIER \
+	-DHIER_BARRIER \
 	-DSC_NATIVE
 # What we use
 # THESE MUST AGREE WITH build-mb.properties file
@@ -101,9 +104,11 @@ CFLAGS =\
 	-Wno-unused-function \
 	-I$(MYRMICS_SRC)/include \
 	-I$(RTS_SRC) \
+	-I$(VM_SRC) \
 	-D_GNU_SOURCE \
 	-DFLASH_MEMORY \
 	-DARCH_MB \
+	-DFORMIC \
 	-DSQUAWK \
 	-DPLATFORM_TYPE_BARE_METAL \
 	-DSQUAWK_64=false \
@@ -190,9 +195,33 @@ MYRMICS_LINK_OBJS:=\
 
 
 ################################################################################
+# Define the dependencies on SQUAWK
+################################################################################
+SQUAWK_OBJS =\
+	globals.mb.o \
+	scheduler.mb.o \
+	squawk.mb.o \
+	util.mb.o \
+	util/sha.mb.o
+SQUAWK_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(VM_SRC)/,$(SQUAWK_OBJS))
+################################################################################
+
+
+################################################################################
+# Define the dependencies on FORMIC specific parts
+################################################################################
+FORMIC_OBJS =\
+	os.mb.o \
+	mmgr.mb.o \
+	mmp.mb.o
+FORMIC_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(RTS_SRC)/,$(FORMIC_OBJS))
+################################################################################
+
+
+################################################################################
 # Define floating point function dependencies
 ################################################################################
-FLOATINGPOINT_SRCS:=$(shell find vmcore/src/vm/fp/ -regextype egrep \
+FLOATINGPOINT_SRCS:=$(shell find $(VM_SRC)/fp/ -regextype egrep \
                                 -name "*[.c|.c.spp]" -type f\
                             | sed 's/\.spp$$//g' | sort | uniq)
 FLOATINGPOINT_OBJS:=$(addprefix $(BUILD_DIR)/obj/,$(FLOATINGPOINT_SRCS))
@@ -236,9 +265,9 @@ ELF_OBJS = \
 	$(MATHINTRINSICS_OBJS)\
 	$(MYRMICS_OBJS)\
 	$(FLOATINGPOINT_OBJS)\
+	$(SQUAWK_OBJS)\
+	$(FORMIC_OBJS)\
 	$(BUILD_DIR)/obj/squawk_entry_point.mb.o\
-	$(BUILD_DIR)/obj/vmcore/src/vm/squawk.mb.o\
-	$(BUILD_DIR)/obj/vmcore/src/vm/util/sha.mb.o
 ################################################################################
 
 # Still not tuned for parallelism
@@ -247,8 +276,8 @@ ELF_OBJS = \
 .PHONY: run clean distclean trace tracerun natives_gen
 
 .SECONDARY: $(ELF_OBJS:$(BUILD_DIR)/obj/%.mb.o=$(BUILD_DIR)/dep/%.d)\
-            $(FLOATINGPOINT_SRCS) vmcore/src/vm/squawk.c \
-            vmcore/src/vm/vm2c.c.spp
+            $(FLOATINGPOINT_SRCS) $(VM_SRC)/squawk.c \
+            $(VM_SRC)/vm2c.c.spp
 
 default: $(ELF) $(ELF_DMP) $(ELF_LD)
 
@@ -259,7 +288,7 @@ include $(APP)/Makefile
 ################################################################################
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),distclean)
--include $($(filter-out $(BUILD_DIR)/obj/vmcore/src/vm/squawk.mb.o,$(ELF_OBJS)):$(BUILD_DIR)/obj/%.mb.o=$(BUILD_DIR)/dep/%.d)
+-include $($(filter-out $(BUILD_DIR)/obj/$(VM_SRC)/squawk.mb.o,$(ELF_OBJS)):$(BUILD_DIR)/obj/%.mb.o=$(BUILD_DIR)/dep/%.d)
 endif
 endif
 
@@ -275,9 +304,9 @@ endif
 
 # compile floating point without optimizations to avoid x + 0.0 = x
 # transformations
-$(BUILD_DIR)/obj/vmcore/src/vm/fp/%.mb.o: vmcore/src/vm/fp/%.c \
-                                       vmcore/src/vm/platform.h \
-                                       $(BUILD_DIR)/dep/vmcore/src/vm/fp/%.d
+$(BUILD_DIR)/obj/$(VM_SRC)/fp/%.mb.o: $(VM_SRC)/fp/%.c \
+                                       $(VM_SRC)/platform.h \
+                                       $(BUILD_DIR)/dep/$(VM_SRC)/fp/%.d
 	$(AT)echo $(STR_GCC) $<
 	$(AT)mkdir -p $(dir $@)
 	$(AT)mb-gcc -c $(filter-out -O1 -O2 -O3 -DMAXINLINE,$(CFLAGS)) $< -o $@
@@ -299,7 +328,7 @@ $(BUILD_DIR)/obj/%.mb.o: $(APP)/%.c
 	$(AT)mkdir -p $(dir $@)
 	$(AT)mb-gcc -c $(CFLAGS) -I$(MYRMICS_SRC)/include $< -o $@
 
-$(BUILD_DIR)/dep/%.d: %.c vmcore/src/vm/platform.h
+$(BUILD_DIR)/dep/%.d: %.c $(VM_SRC)/platform.h
 	$(AT)echo $(STR_DEP) $@
 	$(AT)mkdir -p $(dir $@)
 	$(AT)mb-gcc $(CFLAGS) -M -I$(MYRMICS_SRC)/include $< | \
@@ -327,44 +356,45 @@ $(ELF): java.ld $(ELF_OBJS) $(MYRMICS_LINK_OBJS)
 ################################################################################
 # Manually define some dependencies
 ################################################################################
-vmcore/src/vm/squawk.c: \
-	vmcore/src/vm/platform.h\
-	vmcore/src/vm/buildflags.h\
-	vmcore/src/vm/rom.h\
-	$(RTS_SRC)/os.c\
-	vmcore/src/vm/address.c\
-	vmcore/src/vm/util.h\
-	vmcore/src/vm/memory.c\
-	$(RTS_SRC)/scheduler.c\
-	$(RTS_SRC)/mmp.c\
+$(VM_SRC)/squawk.c: \
+	$(VM_SRC)/platform.h\
+	$(VM_SRC)/buildflags.h\
+	$(VM_SRC)/rom.h\
+	$(RTS_SRC)/os.h\
+	$(VM_SRC)/address.h\
+	$(VM_SRC)/util.h\
+	$(VM_SRC)/memory.c\
+	$(VM_SRC)/scheduler.c\
+	$(RTS_SRC)/mmgr.h\
+	$(RTS_SRC)/mmp.h\
 	$(RTS_SRC)/mmp_ops.h\
-	vmcore/src/vm/softcache.c\
-	vmcore/src/vm/bytecodes.c\
-	vmcore/src/vm/lisp2.c\
-	vmcore/src/vm/vm2c.c\
-	vmcore/src/vm/cio.c\
-	vmcore/src/vm/trace.c\
-	vmcore/src/vm/suite.c\
-	vmcore/src/vm/switch.c\
-	vmcore/src/vm/globals.h
+	$(VM_SRC)/softcache.c\
+	$(VM_SRC)/bytecodes.c\
+	$(VM_SRC)/lisp2.c\
+	$(VM_SRC)/vm2c.c\
+	$(VM_SRC)/cio.c\
+	$(VM_SRC)/trace.c\
+	$(VM_SRC)/suite.c\
+	$(VM_SRC)/switch.c\
+	$(VM_SRC)/globals.h
 
-vmcore/src/vm/globals.h: \
+$(VM_SRC)/globals.h: \
 	$(MYRMICS_SRC)/include/arch.h
 
 
-vmcore/src/vm/buildflags.h:
+$(VM_SRC)/buildflags.h:
 	$(AT)echo "#define BUILD_FLAGS \"$(CFLAGS)\"" > $@
 
-vmcore/src/vm/rom.h: squawk.suite
+$(VM_SRC)/rom.h: squawk.suite
 
-vmcore/src/rts/formic/jni_md.h: vmcore/src/vm/platform.h
+vmcore/src/rts/formic/jni_md.h: $(VM_SRC)/platform.h
 ################################################################################
 
 
 ################################################################################
 # Rule to make vm2c.c.spp
 ################################################################################
-vmcore/src/vm/vm2c.c.spp: vm2c/classes.jar cldc/classes.jar \
+$(VM_SRC)/vm2c.c.spp: vm2c/classes.jar cldc/classes.jar \
                              $(shell find cldc/preprocessed \
                                         -name "*.java" 2>/dev/null)
 	$(AT)echo $(STR_BLD) $@
@@ -515,8 +545,8 @@ clean:
 			$(BUILD_DIR)/obj\
 			$(BUILD_DIR)/dep\
 			$(ELF_LD)\
-			vmcore/src/vm/vm2c.c.spp \
-			vmcore/src/vm/buildflags.h \
+			$(VM_SRC)/vm2c.c.spp \
+			$(VM_SRC)/buildflags.h \
 			cldc/preprocessed-vm2c\
 			../formic-tests/*/classes\
 			../formic-apps/*/classes\

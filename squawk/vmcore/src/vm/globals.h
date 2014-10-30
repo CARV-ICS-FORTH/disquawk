@@ -23,7 +23,41 @@
  * information or have any questions.
  */
 
+#ifndef VM_GLOBALS_H_
+#define VM_GLOBALS_H_
+
+#include <rom.h>
+#include <platform.h>
+#include <memory_management.h>
+#include <softcache.h>
 #include <mmgr.h>
+#include <jni_md.h>
+
+/*
+ * Add the monitor cache size to the global oop count
+ */
+#define GLOBAL_OOP_COUNT  ROM_GLOBAL_OOP_COUNT
+#define GLOBAL_INT_COUNT  ROM_GLOBAL_INT_COUNT
+#define GLOBAL_ADDR_COUNT ROM_GLOBAL_ADDR_COUNT
+
+#ifndef MAX_BUFFERS
+#define MAX_BUFFERS 10
+#endif
+
+/*
+ * Size of buffer used for pre-formatting printf/fprintf format specifications.
+ */
+#define FORMAT_BUF_LEN 1000
+
+// Size of class to class state cache.
+#define CLASS_CACHE_SIZE 6
+
+/**
+ * The default GC chunk, NVM and RAM sizes.
+ */
+#ifndef SERVICE_CHUNK_SIZE
+#define SERVICE_CHUNK_SIZE (24*1024)
+#endif
 
 #ifndef __MICROBLAZE__
 #define MAX_STREAMS 4
@@ -284,6 +318,7 @@ __attribute__((aligned(MM_CACHELINE_SIZE)))
 
 /* keep it thread/core local */
 #ifdef __MICROBLAZE__
+#include "os.h"
 typedef struct {
 	union {
 		/** pointer to the global context */
@@ -295,16 +330,16 @@ typedef struct {
 	char padding[MM_CACHELINE_SIZE-sizeof(Globals*)];
 } globals_box __attribute__((aligned(MM_CACHELINE_SIZE)));
 /* The pointer to the global execution context */
-globals_box gps[AR_FORMIC_CORES_PER_BOARD];
+extern globals_box gps[AR_FORMIC_CORES_PER_BOARD];
 #define gp       gps[my_cid].global_ctx
 #define mmgrHT_g gps[my_cid].mmgrHT
 #else
-__thread Globals *gp;         /* The pointer to the global execution context */
-__thread monitor_t **mmgrHT_g;
+extern __thread Globals *gp;         /* The pointer to the global execution context */
+extern __thread monitor_t **mmgrHT_g;
 #endif /* __MICROBLAZE__ */
 
 #if KERNEL_SQUAWK
-__thread Globals kernelGlobals;    /* The kernel mode execution context */
+extern __thread Globals kernelGlobals;    /* The kernel mode execution context */
 #endif	/* KERNEL_SQUAWK */
 
 #define defineGlobal(x) gp->_##x
@@ -479,76 +514,8 @@ __thread Globals kernelGlobals;    /* The kernel mode execution context */
 
 #define notrap_g                            defineGlobal(notrap)
 
-/**
- * Initialize/re-initialize the globals to their defaults.
- */
-int initializeGlobals(Globals *globals) {
-	gp = globals;
-	memset(gp, 0, sizeof(Globals));
-
-	/*
-	 * Initialize the variables that have non-zero defaults.
-	 */
-	com_sun_squawk_VM_extendsEnabled = true;
-	interruptsDisabled_g = 0;      /* enabled by default */
-	runningOnServiceThread_g = true;
-
-#ifndef __MICROBLAZE__
-	streams_g[com_sun_squawk_VM_STREAM_STDOUT] = stdout;
-	streams_g[com_sun_squawk_VM_STREAM_STDERR] = stderr;
-	currentStream_g = com_sun_squawk_VM_STREAM_STDERR;
-
-#if TRACE
-	setTraceStart(TRACESTART);
-	setTraceEnd(TRACESTART);
-	traceLastThreadID_g = -2;
-	traceServiceThread_g = true;
-#endif /* TRACE */
-
-#endif /* __MICROBLAZE__ */
-
-#if PLATFORM_TYPE_SOCKET
-	ioport = null;
-	iosocket = -1;
-#endif
-
-	sleepManagerRunning_g    = 1;
-	minimumDeepSleepMillis_g = 0x7FFFFFFFFFFFFFFFLL;
-
-	return 0;
-}
-
-/**
- * Prints the name and current value of all the globals.
- */
-void printGlobals() {
-#ifndef __MICROBLAZE__
-	FILE *vmOut = streams[currentStream_g];
-#endif  /* __MICROBLAZE__ */
-#if TRACE
-	int i;
-
-	// Print the global integers
-	fprintf(vmOut, "Global ints:\n");
-	for (i = 0; i != GLOBAL_INT_COUNT; ++i) {
-		fprintf(vmOut, "  %s = %d\n", getGlobalIntName(i), Ints_g[i]);
-	}
-
-	// Print the global oops
-	fprintf(vmOut, "Global oops:\n");
-	for (i = 0; i != GLOBAL_OOP_COUNT; ++i) {
-		fprintf(vmOut, format("  %s = %A\n"), getGlobalOopName(i), Oops_g[i]);
-	}
-
-	// Print the global addresses
-	fprintf(vmOut, "Global addresses:\n");
-	for (i = 0; i != GLOBAL_ADDR_COUNT; ++i) {
-		fprintf(vmOut, format("  %s = %A\n"), getGlobalAddrName(i), Addrs_g[i]);
-	}
-#else
-	fprintf(vmOut, "printGlobals() requires tracing\n");
-#endif /* TRACE */
-}
+int initializeGlobals(Globals *globals);
+void printGlobals();
 
 /**
  * Sets the stream for the VM.print... methods to one of the com_sun_squawk_VM_STREAM_... constants.
@@ -561,25 +528,7 @@ void printGlobals() {
 #ifdef __MICROBLAZE__
 # define setStream(x)
 #else
-int setStream(int stream) {
-	int result = currentStream_g;
-	currentStream_g = stream;
-	if (streams_g[currentStream_g] == null) {
-		switch (currentStream_g) {
-#if com_sun_squawk_Klass_ENABLE_DYNAMIC_CLASSLOADING
-		case com_sun_squawk_VM_STREAM_SYMBOLS: {
-			streams_g[currentStream_g] = fopen("squawk_dynamic.sym", "w");
-			break;
-		}
-#endif /* ENABLE_DYNAMIC_CLASSLOADING */
-		default: {
-			NORETURN void fatalVMError(char *msg);
-			fatalVMError("Bad INTERNAL_SETSTREAM");
-		}
-		}
-	}
-	return result;
-}
+int setStream(int stream);
 #endif /* __MICROBLAZE__ */
 
 /**
@@ -588,20 +537,7 @@ int setStream(int stream) {
 #ifdef __MICROBLAZE__
 # define finalizeStreams()
 #else
-void finalizeStreams() {
-	int i;
-	for (i = 0 ; i < MAX_STREAMS ; i++) {
-		FILE *file = streams_g[i];
-		if (file != null) {
-			fflush(file);
-#ifndef FLASH_MEMORY
-			if (file != stdout && file != stderr) {
-				fclose(file);
-			}
-#endif /* FLASH_MEMORY */
-		}
-	}
-}
+void finalizeStreams();
 #endif /* __MICROBLAZE__ */
 
 /* These macros are useful for recording the current context
@@ -622,3 +558,5 @@ typedef int (*funcPtr7)(int, int, int, int, int, int, int);
 typedef int (*funcPtr8)(int, int, int, int, int, int, int, int);
 typedef int (*funcPtr9)(int, int, int, int, int, int, int, int, int);
 typedef int (*funcPtr10)(int, int, int, int, int, int, int, int, int, int);
+
+#endif /* VM_GLOBALS_H_ */

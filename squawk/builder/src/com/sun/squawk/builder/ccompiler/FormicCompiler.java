@@ -67,6 +67,7 @@ public class FormicCompiler extends CCompiler {
         /* Formic FLAGS */
         buf.append("-DARCH_MB ");
         buf.append("-DSQUAWK ");
+        buf.append("-DFORMIC ");
         //buf.append("-DSQUAWK_PREFER_SIZE_OVER_SPEED ");
         buf.append("-mcpu=v8.00.b ");
         buf.append("-mno-xl-soft-mul ");

@@ -29,6 +29,8 @@
 #ifndef MMGR_H_
 #define MMGR_H_
 
+#include <address.h>
+
 #define MMGR_HT_SIZE 128
 
 typedef struct wait_node waiter_queue_t;
@@ -57,5 +59,12 @@ struct monitor {
 };
 
 void mmgrInitialize(monitor_t **mmgrHT);
+
+#ifdef ARCH_MB
+inline void mmgrMonitorEnter(Address object);
+inline void mmgrMonitorExit(Address object);
+#endif /* ARCH_MB */
+inline void mmgrMonitorEnterHandler(int bid, int cid, Address object);
+inline void mmgrMonitorExitHandler(int bid, int cid, Address object);
 
 #endif /* MMGR_H_ */

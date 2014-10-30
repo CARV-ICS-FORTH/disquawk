@@ -127,7 +127,8 @@ INLINE boolean setArrayLength(Address _oop, int _size);
  * @return the ASCII representation of 'type'
  */
 /*INL*/ char getTypeMnemonic(char $type) {
-	return AddressType_Mnemonics[$type & AddressType_TYPE_MASK];
+	char *mnemonics = "-ZbBSIFLlDdRU";
+	return mnemonics[$type & AddressType_TYPE_MASK];
 }
 
 /**

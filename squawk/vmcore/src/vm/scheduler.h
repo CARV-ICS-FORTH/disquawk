@@ -20,29 +20,16 @@
  */
 
 /**
- * @file   scheduler.c
+ * @file   scheduler.h
  * @author Foivos S. Zakkak <zakkak@ics.forth.gr>
  *
  * @brief The scheduler
  *
  */
 
-/**
- * Peeks a core to schedule the next thread.
- *
- * @param bid The board to schedule the next thread (output)
- * @param cid The core to schedule the next thread (output)
- */
-void schdlrNext(int *bid, int *cid) {
+#ifndef VM_SCHEDULER_H
+#define VM_SCHEDULER_H
 
-	// FIXME: Make it work for various number of cores
-	// Peek a core and a board (FIXME: do something smarter than RR)
-	do {
-		*cid = schedulerLastCore_g & 0x7;
-		*bid = (schedulerLastCore_g >> 3) & 0x3F;
-		schedulerLastCore_g++;
-	} while ( (*bid >= 63) || // HACK disable board 64
-	          ( (*cid == sysGetCore()) && (*bid == sysGetIsland()) ) );
+void schdlrNext(int *bid, int *cid);
 
-	return;
-}
+#endif /* VM_SCHEDULER_H */

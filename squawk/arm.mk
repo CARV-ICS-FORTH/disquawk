@@ -9,8 +9,12 @@
 ################################################################################
 AT?=@
 BUILD_DIR=build
+VM_SRC=vmcore/src/vm
 RTS_SRC=vmcore/src/rts/formic
 MYRMICS_SRC=$(RTS_SRC)/myrmics
+BUILDER=./d -override:build-mb.properties
+#BUILDER_FLAGS=-verbose -assume -tracing #This is for debug purposes
+BUILDER_FLAGS=-comp:mb-gcc -o3 -cflags:-I./$(MYRMICS_SRC)/include
 ################################################################################
 
 ################################################################################
@@ -24,8 +28,18 @@ GCC_OPTS =\
 	-O2 \
 	-I$(MYRMICS_SRC)/include \
 	-I$(RTS_SRC) \
+	-I$(VM_SRC) \
+	-DFLASH_MEMORY \
 	-DARCH_ARM \
+	-DFORMIC \
 	-DSQUAWK \
+	-DPLATFORM_TYPE_BARE_METAL \
+	-DSQUAWK_64=false \
+	-DWRITE_BARRIER \
+	-DLISP2_BITMAP \
+	-DPLATFORM_BIG_ENDIAN=false \
+	-DPLATFORM_UNALIGNED_LOADS=true \
+	-DASSUME \
 
 GAS_OPTS =\
 	-march=armv7-a \
@@ -102,6 +116,38 @@ MYRMICS_LINK_OBJS:=\
 
 
 ################################################################################
+# Define the dependencies on FORMIC specific parts
+################################################################################
+SQUAWK_OBJS =\
+	scheduler.arm.o \
+	util.arm.o \
+	globals.arm.o
+SQUAWK_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(VM_SRC)/,$(SQUAWK_OBJS))
+################################################################################
+
+
+################################################################################
+# Define the dependencies on FORMIC specific parts
+################################################################################
+FORMIC_OBJS =\
+	mmgr.arm.o \
+	mmp.arm.o
+FORMIC_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(RTS_SRC)/,$(FORMIC_OBJS))
+################################################################################
+
+
+################################################################################
+# Define floating point function dependencies
+################################################################################
+FLOATINGPOINT_SRCS:=$(shell find $(VM_SRC)/fp/ -regextype egrep \
+                                -name "*[.c|.c.spp]" -type f\
+                            | sed 's/\.spp$$//g' | sort | uniq)
+FLOATINGPOINT_OBJS:=$(addprefix $(BUILD_DIR)/obj/,$(FLOATINGPOINT_SRCS))
+FLOATINGPOINT_OBJS:=$(FLOATINGPOINT_OBJS:%.c=%.arm.o)
+################################################################################
+
+
+################################################################################
 # Include math gcc intrinsics from the compiler-rt lib to support 64bit types
 ################################################################################
 MATHINTRINSICS_SRCS:= \
@@ -135,6 +181,9 @@ STR_DEP = "[1m[ [37mDEP [0;1m][0m"
 ELF=${BUILD_DIR}/squawk.arm.elf
 ELF_OBJS =\
 	$(MYRMICS_OBJS)\
+	$(SQUAWK_OBJS)\
+	$(FORMIC_OBJS)\
+	$(FLOATINGPOINT_OBJS)\
 	$(MATHINTRINSICS_OBJS)
 ################################################################################
 
@@ -157,6 +206,16 @@ ifneq ($(MAKECMDGOALS),distclean)
 -include $($(ELF_OBJS):$(BUILD_DIR)/obj/%.arm.o=$(BUILD_DIR)/dep/%.arm.d)
 endif
 endif
+
+# preprocess the *.h.spp files
+%.h:%.h.spp build.jar
+	$(AT)echo $(STR_BLD) $@
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) spp $<
+
+# preprocess the *.c.spp files
+%.c:%.c.spp build.jar
+	$(AT)echo $(STR_SPP) $@
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) spp $<
 
 %.s: %.S
 	$(AT)echo $(STR_SPP) $<
@@ -183,6 +242,16 @@ $(BUILD_DIR)/dep/%.arm.d: %.c vmcore/src/vm/platform.h
 	@sed "s/BUILD_VER/$(AUTOVER)/" $< > $@
 
 .SECONDARY: $(RTS_SRC)arch/arm/version_squawk_auto.s
+################################################################################
+
+
+################################################################################
+# Build several squawk "tools"
+################################################################################
+# Rebuild the builder if needed
+build.jar build-commands.jar: $(shell find builder/src -name "*.java")
+	$(AT)echo $(STR_BLD) $@
+	$(AT)cd builder; sh bld.sh;
 ################################################################################
 
 
