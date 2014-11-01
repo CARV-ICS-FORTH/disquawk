@@ -37,6 +37,7 @@
 /squawk/vmcore/src/vm/memory.c
 /squawk/vmcore/src/vm/platform.h
 /squawk/vmcore/src/vm/rom.h
+/squawk/vmcore/src/vm/rom.c
 /squawk/vmcore/src/vm/squawk.c
 /squawk/vmcore/src/vm/suite.c
 /squawk/vmcore/src/vm/switch.c
