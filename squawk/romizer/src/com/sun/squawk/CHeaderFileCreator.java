@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-14, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -51,12 +55,58 @@ public final class CHeaderFileCreator {
 	 * @return  true if the file was overwritten or created, false if not
 	 * @throws IOException
 	 */
-	public static boolean update(Suite bootstrapSuite, File file, Properties properties) throws IOException {
+	public static boolean updateHeader(Suite bootstrapSuite, File headerFile,
+	                                   File sourceFile, Properties properties) throws IOException {
 		CHeaderFileCreator creator = new CHeaderFileCreator(properties);
 
-		CharArrayWriter caw = new CharArrayWriter(file.exists() ? (int)file.length() : 0);
+		CharArrayWriter caw = new CharArrayWriter(headerFile.exists() ? (int)headerFile.length() : 0);
 		PrintWriter out = new PrintWriter(caw);
 		creator.writeHeader(bootstrapSuite, out);
+		updateSource(bootstrapSuite, sourceFile, creator);
+
+		char[] content = caw.toCharArray();
+		char[] oldContent = null;
+
+		if (headerFile.exists()) {
+			FileReader fr = new FileReader(headerFile);
+			int length = (int)headerFile.length();
+			int n = 0;
+			oldContent = new char[length];
+			while (n < length) {
+				int count = fr.read(oldContent, n, length - n);
+				if (count < 0) {
+					throw new EOFException();
+				}
+				n += count;
+			}
+			fr.close();
+		}
+
+		if (!Arrays.equals(content, oldContent)) {
+			headerFile.delete();
+			headerFile.getParentFile().mkdirs();
+			FileWriter fw = new FileWriter(headerFile);
+			fw.write(content);
+			fw.close();
+			headerFile.setReadOnly();
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	/**
+	 *
+	 * @param bootstrapSuite Suite
+	 * @param file File
+	 * @param properties Properties
+	 * @throws IOException
+	 */
+	public static void updateSource(Suite bootstrapSuite, File file, CHeaderFileCreator creator) throws IOException {
+		CharArrayWriter caw = new CharArrayWriter(file.exists() ? (int)file.length() : 0);
+		PrintWriter out = new PrintWriter(caw);
+		creator.writeSource(bootstrapSuite, out);
 
 		char[] content = caw.toCharArray();
 		char[] oldContent = null;
@@ -83,9 +133,6 @@ public final class CHeaderFileCreator {
 			fw.write(content);
 			fw.close();
 			file.setReadOnly();
-			return true;
-		} else {
-			return false;
 		}
 
 	}
@@ -578,6 +625,23 @@ public final class CHeaderFileCreator {
 			}
 		}
 
+		// Write the string constant that is the mnemonics for the types
+		out.println("#if TRACE");
+
+		// Write function that will translate a bytecode into its name.
+		out.println("char *getOpcodeName(int code);");
+
+		// Write function equivalent to OPC.hasWide()
+		out.println("boolean opcodeHasWide(int code);");
+
+		// Write function that will translate a global word index into its name.
+		out.println("const char* getGlobalAddrName(int index);");
+		out.println("const char* getGlobalOopName(int index);");
+		out.println("const char* getGlobalIntName(int index);");
+
+		out.println("#endif");
+		out.println("");
+
 		// collect the InterpreterInvoked methods
 		int methodCount = klass.getMethodCount(true);
 		for (int mid = 0; mid != methodCount; mid++) {
@@ -587,15 +651,22 @@ public final class CHeaderFileCreator {
 				//out.println("#define " + name + " " + value);
 			}
 		}
+
+		out.println("void initMethods();");
+
 	}
 
 	/**
-	 * Create the "rom.h" for the slow VM.
+	 * Create the "rom.c" for the slow VM.
 	 */
 	@SuppressWarnings("unchecked")
-	private void writeHeader(Suite suite, PrintWriter out) throws IOException {
+	private void writeSource(Suite suite, PrintWriter out) throws IOException {
 
 		out.println("/*");
+		out.println(" * Copyright 2013-14, FORTH-ICS / CARV");
+		out.println(" *                    (Foundation for Research & Technology -- Hellas,");
+		out.println(" *                     Institute of Computer Science,");
+		out.println(" *                     Computer Architecture & VLSI Systems Laboratory)");
 		out.println(" * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.");
 		out.println(" * Copyright 2010 Oracle. All Rights Reserved.");
 		out.println(" * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER");
@@ -619,34 +690,13 @@ public final class CHeaderFileCreator {
 		out.println(" * Shores, CA 94065 or visit www.oracle.com if you need additional");
 		out.println(" * information or have any questions.");
 		out.println("*/");
-
-		// Write the CID definitions.
-		int classCount = suite.getClassCount();
-		for (int cid = 0; cid != classCount; cid++) {
-			Klass klass = suite.getKlass(cid);
-			if (klass != null) {
-				writeKlassDecls(klass, cid, suite, out);
-			}
-		}
-
-		// Verify that the hard coded field and method offsets are correct
-		verifyFieldOffsets();
-		verifyMethodOffsets();
-
-		if (false) {
-			// Write the InterpreterInvoked entrypoints.
-			for (int i = 0 ;; i++) {
-				String name = getStringProperty("ENTRYPOINT."+i+".NAME");
-				if (name == null) {
-					break;
-				}
-				int addr  = getIntProperty("ENTRYPOINT."+i+".ADDRESS");
-				out.println("#define "+name+" Address_add(com_sun_squawk_VM_romStart, "+addr+")");
-			}
-		}
+		out.println("");
+		out.println("#include \"rom.h\"");
+		out.println("#include \"address.h\"");
+		out.println("#include \"squawk.h\"");
+		out.println("");
 
 		// Write the string constant that is the mnemonics for the types
-		out.println("const char *AddressType_Mnemonics = \"" + AddressType.Mnemonics + "\";");
 		out.println("#if TRACE");
 
 		// Write function that will translate a bytecode into its name.
@@ -689,6 +739,93 @@ public final class CHeaderFileCreator {
 		outputGlobalNames(out, globalInts,  "getGlobalIntName");
 
 		out.println("#endif");
+		out.println("");
+
+		// Write the var decls for invoked methods.
+		for (InterpreterMethodInfo minfo: interpreterInvokedMethods) {
+			out.println("Address " + minfo.toCName() + ";");
+		}
+
+		// Write the initializer for the interpreter invoked methods.
+		out.println("void initMethods() {");
+		for (InterpreterMethodInfo minfo: interpreterInvokedMethods) {
+			out.println("    " + minfo.toCName() + " = lookupStaticMethod(" + minfo.klass.getSuiteID() + ", " + minfo.meth.getOffset() + ");");
+		}
+		out.println("}");
+
+		out.close();
+	}
+
+	/**
+	 * Create the "rom.h" for the slow VM.
+	 */
+	@SuppressWarnings("unchecked")
+	private void writeHeader(Suite suite, PrintWriter out) throws IOException {
+
+		out.println("/*");
+		out.println(" * Copyright 2013-14, FORTH-ICS / CARV");
+		out.println(" *                    (Foundation for Research & Technology -- Hellas,");
+		out.println(" *                     Institute of Computer Science,");
+		out.println(" *                     Computer Architecture & VLSI Systems Laboratory)");
+		out.println(" * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.");
+		out.println(" * Copyright 2010 Oracle. All Rights Reserved.");
+		out.println(" * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER");
+		out.println(" * ");
+		out.println(" * This code is free software; you can redistribute it and/or modify");
+		out.println(" * it under the terms of the GNU General Public License version 2");
+		out.println(" * only, as published by the Free Software Foundation.");
+		out.println(" * ");
+		out.println(" * This code is distributed in the hope that it will be useful, but");
+		out.println(" * WITHOUT ANY WARRANTY; without even the implied warranty of");
+		out.println(" * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU");
+		out.println(" * General Public License version 2 for more details (a copy is");
+		out.println(" * included in the LICENSE file that accompanied this code).");
+		out.println(" * ");
+		out.println(" * You should have received a copy of the GNU General Public License");
+		out.println(" * version 2 along with this work; if not, write to the Free Software");
+		out.println(" * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA");
+		out.println(" * 02110-1301 USA");
+		out.println(" * ");
+		out.println(" * Please contact Oracle Corporation, 500 Oracle Parkway, Redwood");
+		out.println(" * Shores, CA 94065 or visit www.oracle.com if you need additional");
+		out.println(" * information or have any questions.");
+		out.println("*/");
+		out.println("");
+		out.println("#ifndef ROM_H_");
+		out.println("#define ROM_H_");
+		out.println("");
+		out.println("#include \"address.h\"");
+		out.println("#include \"squawk.h\"");
+		out.println("");
+
+		// Write the CID definitions.
+		int classCount = suite.getClassCount();
+		for (int cid = 0; cid != classCount; cid++) {
+			Klass klass = suite.getKlass(cid);
+			if (klass != null) {
+				writeKlassDecls(klass, cid, suite, out);
+			}
+		}
+
+		// Verify that the hard coded field and method offsets are correct
+		verifyFieldOffsets();
+		verifyMethodOffsets();
+
+		if (false) {
+			// Write the InterpreterInvoked entrypoints.
+			for (int i = 0 ;; i++) {
+				String name = getStringProperty("ENTRYPOINT."+i+".NAME");
+				if (name == null) {
+					break;
+				}
+				int addr  = getIntProperty("ENTRYPOINT."+i+".ADDRESS");
+				out.println("#define "+name+" Address_add(com_sun_squawk_VM_romStart, "+addr+")");
+			}
+		}
+
+		Hashtable<String, Integer> globalAddrs = InstructionEmitter.getGlobalAddrVariables();
+		Hashtable<String, Integer> globalInts = InstructionEmitter.getGlobalIntVariables();
+		Hashtable<String, Integer> globalOops = InstructionEmitter.getGlobalOopVariables();
 
 		// Write the accessors for the global Address ints
 		for (Map.Entry<String, Integer> entry : globalInts.entrySet()) {
@@ -725,16 +862,11 @@ public final class CHeaderFileCreator {
 
 		// Write the var decls for invoked methods.
 		for (InterpreterMethodInfo minfo: interpreterInvokedMethods) {
-			out.println("static Address " + minfo.toCName() + ";");
+			out.println("extern Address " + minfo.toCName() + ";");
 		}
 
-		// Write the initializer for the interpreter invoked methods.
-		out.println("\nstatic void initMethods() {");
-		for (InterpreterMethodInfo minfo: interpreterInvokedMethods) {
-			out.println("    " + minfo.toCName() + " = lookupStaticMethod(" + minfo.klass.getSuiteID() + ", " + minfo.meth.getOffset() + ");");
-		}
-		out.println("}");
-
+		out.println("");
+		out.println("#endif /* ROM_H_ */");
 		out.close();
 	}
 

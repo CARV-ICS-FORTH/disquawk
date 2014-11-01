@@ -1041,11 +1041,13 @@ public class Romizer {
      */
     private void createCHeader() throws IOException {
         File headerFile = new File("vmcore/src/vm/rom.h");
+        File sourceFile = new File("vmcore/src/vm/rom.c");
         Properties symbols = new Properties();
         symbols.load(new FileInputStream(suiteName + ".sym"));
 
-        if (CHeaderFileCreator.update(suite, headerFile, symbols)) {
+        if (CHeaderFileCreator.updateHeader(suite, headerFile, sourceFile, symbols)) {
             generatedFiles.addElement(headerFile.getAbsolutePath());
+            generatedFiles.addElement(sourceFile.getAbsolutePath());
         } else {
             System.out.println(headerFile.getAbsolutePath() + " is already up to date");
         }
