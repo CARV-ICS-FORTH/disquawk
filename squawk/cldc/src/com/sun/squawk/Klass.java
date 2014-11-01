@@ -3474,46 +3474,94 @@ public class Klass<T> {
 		}
 
 		/*
+		 * For each class or interface C , there is a unique
+		 * initialization lock LC . The mapping from C to LC is left
+		 * to the discretion of the Java Virtual Machine
+		 * implementation.  The procedure for initializing C is then
+		 * as follows:
+		 *
 		 * Step 1
+		 *
+		 * Synchronize on the initialization lock, LC , for C . This
+		 * involves waiting until the current thread can acquire LC .
 		 */
 		synchronized(this) {
 			/*
 			 * Step 2
+			 *
+			 * If the Class object for C indicates that initialization
+			 * is in progress for C by some other thread, then release
+			 * LC and block the current thread until informed that the
+			 * in-progress initialization has completed, at which time
+			 * repeat this step.
 			 */
 			if (getInitializationState() == INITSTATE_INITIALIZING) {
 				if (getInitializationThread() != VMThread.currentThread()) {
 					do {
 						try {
+							/* wait till we get notified  */
 							wait();
 						} catch (InterruptedException e) {}
 					} while (getInitializationState() == INITSTATE_INITIALIZING);
 				} else {
 					/*
 					 * Step 3
+					 *
+					 * If the Class object for C indicates that
+					 * initialization is in progress for C by the
+					 * current thread, then this must be a recursive
+					 * request for initialization. Release LC and
+					 * complete normally.
 					 */
 					return getInitializationClassState();
 				}
 			}
 			/*
 			 * Step 4
+			 *
+			 * If the Class object for C indicates that C has already
+			 * been initialized, then no further action is
+			 * required. Release LC and complete normally.
 			 */
 			if (getInitializationState() == INITSTATE_INITIALIZED) {
 				return getClassState();
 			}
 			/*
 			 * Step 5
+			 *
+			 * If the Class object for C is in an erroneous state,
+			 * then initialization is not possible. Release LC and
+			 * throw a NoClassDefFoundError .
 			 */
 			if (getInitializationState() == INITSTATE_FAILED) {
 				throw new NoClassDefFoundError(name);
 			}
 			/*
 			 * Step 6
+			 *
+			 * Otherwise, record the fact that initialization of the
+			 * Class object for C is in progress by the current
+			 * thread, and release LC.
+			 *
+			 * TODO:
+			 * Then, initialize the static fields of C which are
+			 * constant variables (§4.12.4, §8.3.2, §9.3.1).
 			 */
 			Assert.always(VMThread.currentThread() != null);
 			setInitializationState(VMThread.currentThread()); // state = INITIALIZING);
 		}
 		/*
 		 * Step 7
+		 *
+		 * Next, if C is a class rather than an interface, and its
+		 * superclass SC has not yet been initialized, then
+		 * recursively perform this entire procedure for SC . If
+		 * necessary, verify and prepare SC first. If the
+		 * initialization of SC completes abruptly because of a thrown
+		 * exception, then acquire LC , label the Class object for C
+		 * as erroneous, notify all waiting threads, release LC , and
+		 * complete abruptly, throwing the same exception that
+		 * resulted from initializing SC .
 		 */
 		if (!isInterface()) {
 			if (superType != null &&
@@ -3534,9 +3582,21 @@ public class Klass<T> {
 		}
 		/*
 		 * Step 8
+		 *
+		 * TODO:
+		 * Next, determine whether assertions are enabled (§14.10) for
+		 * C by querying its defining class loader.
 		 */
 		try {
 
+			/*
+			 * Step 9
+			 *
+			 * Next, execute either the class variable initializers
+			 * and static initializers of the class, or the field
+			 * initializers of the interface, in textual order, as
+			 * though they were a single block.
+			 */
 /*if[ENABLE_RUNTIME_METADATA_FOR_COMPLETE_STATICS]*/
 			if ((modifiers & Modifier.COMPLETE_RUNTIME_STATICS) != 0) {
 				initializeFinalsWithMetaData();
@@ -3544,8 +3604,14 @@ public class Klass<T> {
 /*end[ENABLE_RUNTIME_METADATA_FOR_COMPLETE_STATICS]*/
 
 			clinit();
+
 			/*
-			 * Step 9
+			 * Step 10
+			 *
+			 * If the execution of the initializers completes
+			 * normally, then acquire LC , label the Class object for
+			 * C as fully initialized, notify all waiting threads,
+			 * release LC , and complete this procedure normally.
 			 */
 			synchronized(this) {
 				Object cs = getInitializationClassState();
@@ -3558,16 +3624,38 @@ public class Klass<T> {
 		} catch (Throwable ex) {
 			Error err;
 			/*
-			 * Step 10
+			 * Step 11
+			 *
+			 * Otherwise, the initializers must have completed
+			 * abruptly by throwing some exception E. If the class of
+			 * E is not Error or one of its subclasses, then create a
+			 * new instance of the class ExceptionInInitializerError,
+			 * with E as the argument, and use this object in place of
+			 * E in the following step.
+			 *
+			 * TODO:
+			 * But if a new instance of ExceptionInInitializerError
+			 * cannot be created because an OutOfMemoryError occurs,
+			 * then instead use an OutOfMemoryError object in place of
+			 * E in the following step.
 			 */
 			if (ex instanceof Error) {
 				err = (Error)ex;
 			} else {
 				ex.printStackTrace();
-				err = new Error("ExceptionInInitializer: " + name + ":" + ex);
+				try {
+					err = new Error("ExceptionInInitializer: " + name + ":" + ex);
+				} catch (OutOfMemoryError e) {
+					err = e;
+				}
 			}
 			/*
-			 * Step 11
+			 * Step 12
+			 *
+			 * Acquire LC, label the Class object for C as erroneous,
+			 * notify all waiting threads, release LC, and complete
+			 * this procedure abruptly with reason E or its
+			 * replacement as determined in the previous step.
 			 */
 			synchronized(this) {
 				setInitializationState(null); // state = FAILED;
