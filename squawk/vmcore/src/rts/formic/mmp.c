@@ -34,6 +34,7 @@
 #include "os.h"
 #include "mmp.h"
 #include "mmgr.h"
+#include "hwcnt.h"
 
 /**
  * Send a single word mailbox message to the given core.
@@ -46,7 +47,7 @@ INLINE void mmpSend(int to_bid, int to_cid, unsigned int msg) {
 	int cnt;
 	int ret;
 
-	cnt = 22; //TODO: which counter to use???
+	cnt = hwcnt_get_free(HWCNT_MMP_SEND1);
 
 	do {
 		/* kt_printf("Sending thread %p to 0x%02X/%d\n",
@@ -63,11 +64,12 @@ INLINE void mmpSend(int to_bid, int to_cid, unsigned int msg) {
 			;
 		}
 
-	} while (ret == 3);
+	} while (ret == 3); // Retry on Nack
 
 	/* kt_printf("Sent\n"); */
 	assume(ret == 2); // Ack
 	assume(ar_cnt_get(sysGetCore(), cnt) == 0);
+	hwcnts_g[cnt] = HWCNT_FREE;
 }
 
 /**
@@ -83,7 +85,7 @@ INLINE void mmpSend2(int to_bid, int to_cid,
 	int cnt;
 	int ret;
 
-	cnt = 22; //TODO: which counter to use???
+	cnt = hwcnt_get_free(HWCNT_MMP_SEND2);
 
 	do {
 		/* kt_printf("Sending thread %p to 0x%02X/%d\n",
@@ -105,6 +107,7 @@ INLINE void mmpSend2(int to_bid, int to_cid,
 	/* kt_printf("Sent\n"); */
 	assume(ret == 2); // Ack
 	assume(ar_cnt_get(sysGetCore(), cnt) == 0);
+	hwcnts_g[cnt] = HWCNT_FREE;
 }
 
 /**
@@ -120,9 +123,6 @@ void mmpSpawnThread(Address thread) {
 	unsigned int msg0;
 	int          target_cid;
 	int          target_bid;
-	int          cnt;
-
-	cnt = 22; //TODO: which counter to use???
 
 	// Pass your bid and cid with the opcode so that the other end
 	// gets it straight from your cache. The bid can be inferred from

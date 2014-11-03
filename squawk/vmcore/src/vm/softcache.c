@@ -38,6 +38,7 @@
  */
 
 #include "softcache.h"
+#include "hwcnt.h"
 
 /******************************************************************************\
 |*                                                                            *|
@@ -227,10 +228,6 @@ void sc_initialize() {
 	cacheClears_g      = 0;
 	/* Counter for the number of cached objects. */
 	cacheObjects_g     = 0;
-	/* Bitmap for pending write back DMAs. */
-	cachePendingWBs_g  = 0;
-	/* Bitmap for pending fetch DMAs. */
-	cachePendingFEs_g  = 0;
 
 	sc_dir_clear();
 	sc_dir_ro_clear();
@@ -356,7 +353,7 @@ inline Address sc_translate(Address obj) {
  * @param cid  The core id from whose cache to fetch the data
  */
 INLINE void sc_fetch(Address from, Address to, int size, int cid) {
-	int cnt = 32;
+	int cnt;
 	// The object's home node board id
 	int from_bid;
 
@@ -368,33 +365,8 @@ INLINE void sc_fetch(Address from, Address to, int size, int cid) {
 	// transfer
 	assume( (size > 0) && (size <= 0x100000) );
 
-	// Find an available counter to use, using the bitmap
-	while (cachePendingFEs_g == 0xFFFFFFFF) { // while all counters are used
-		// go through them and check if there are any completed
-		for (cnt = 0; cnt < 32; ++cnt) {
-			// if the counter is zero the DMA finished and we can use
-			// the counter
-			if ( ar_cnt_get(sysGetCore(), SC_DMA_FE_CNT_START + cnt) == 0 ) {
-				// Mark the counter as available
-				cachePendingFEs_g ^= 1<<cnt;
-				// Break if we are fine with a single counter
-//				break;
-			}
-		}
-	}
-
-	// if we did not enter the previous loop find the first available
-	// counter
-	if (cnt == 32) {
-		assume( cachePendingFEs_g != 0xFFFFFFFF );
-		// Find the first available counter
-		for (cnt=0; (cachePendingFEs_g & (1 << cnt)); ++cnt) {
-			;
-		}
-
-		// Mark the counter as used
-		cachePendingFEs_g |= 1<<cnt;
-	}
+	// Get an available counter to use
+	cnt = hwcnt_get_free(HWCNT_SC_FETCH);
 
 	// Fetches are directly passed to the remote DRAM but have to be
 	// pushed to the local DMA engine first.
@@ -449,7 +421,7 @@ INLINE void sc_fetch(Address from, Address to, int size, int cid) {
 		ar_abort();
 	}
 	// Mark the counter as available
-	cachePendingFEs_g ^= 1<<cnt;
+	hwcnts_g[cnt] = HWCNT_FREE;
 
 	return;
 }
@@ -462,7 +434,7 @@ INLINE void sc_fetch(Address from, Address to, int size, int cid) {
  * @param size The size of the object
  */
 void sc_write_back(Address from, Address to, int size) {
-	int cnt = 32;
+	int cnt;
 	// The object's home node board id
 	int to_bid;
 
@@ -474,32 +446,8 @@ void sc_write_back(Address from, Address to, int size) {
 	// transfer
 	assume( (size > 0) && (size <= 0x100000) );
 
-	// Find an available counter to use, using the bitmap
-	while (cachePendingWBs_g == 0xFFFFFFFF) { // while all counters are used
-		// go through them and check if there are any completed
-		for (cnt = 0; cnt < 32; ++cnt) {
-			// if the counter is zero the DMA finished and we can use
-			// the counter
-			if ( ar_cnt_get(sysGetCore(), SC_DMA_WB_CNT_START + cnt) == 0 ) {
-				// Mark the counter as available
-				cachePendingWBs_g ^= 1<<cnt;
-//				break;
-			}
-		}
-	}
-
-	// if we did not enter the previous loop find the first available
-	// counter
-	if (cnt == 32) {
-		assume(cachePendingWBs_g != 0xFFFFFFFF);
-		// Find the first available counter
-		for (cnt=0; (cachePendingWBs_g & (1 << cnt)); ++cnt) {
-			;
-		}
-
-		// Mark the counter as used
-		cachePendingWBs_g |= 1<<cnt;
-	}
+	// Find an available counter to use
+	cnt = hwcnt_get_free(HWCNT_SC_WB);
 
 	// Write-backs can be made from the HW cache or the DRAM.  In the
 	// second case, they are directly passed to the local DRAM but
@@ -511,7 +459,6 @@ void sc_write_back(Address from, Address to, int size) {
 	}
 
 	// Init counter to -size
-	cnt += SC_DMA_WB_CNT_START;
 	ar_cnt_set(sysGetCore(), cnt, -size);
 	// Get the object's home node cid and bid
 	sysHomeOfAddress(to, &to_bid, NULL);
@@ -540,32 +487,14 @@ void sc_write_back(Address from, Address to, int size) {
  * Wait for all pending write backs to reach completion
  */
 INLINE void sc_wait_pending_wb() {
-	int cnt;
-
-	// go through the counters and spin on non zero
-	for (cnt = SC_DMA_WB_CNT_START; cnt < (SC_DMA_WB_CNT_START + 32); ++cnt) {
-		while ( ar_cnt_get(sysGetCore(), cnt) != 0 ) {
-			;
-		}
-	}
-
-	cachePendingWBs_g = 0;
+	hwcnt_wait_pending(HWCNT_SC_WB);
 }
 
 /**
  * Wait for all pending fetches to reach completion
  */
 INLINE void sc_wait_pending_fe() {
-	int cnt;
-
-	// go through the counters and spin on non zero
-	for (cnt = SC_DMA_FE_CNT_START; cnt < SC_DMA_WB_CNT_START; ++cnt) {
-		while ( ar_cnt_get(sysGetCore(), cnt) != 0 ) {
-			;
-		}
-	}
-
-	cachePendingFEs_g = 0;
+	hwcnt_wait_pending(HWCNT_SC_FETCH);
 }
 
 /**
@@ -673,10 +602,9 @@ INLINE Address sc_ro_alloc() {
 INLINE void sc_flush() {
 	int i;
 
-	// If there are pending write backs wait for them to complete
-	if (unlikely(cachePendingWBs_g)) {
-		sc_wait_pending_wb();
-	}
+	// Wait for pending write backs to complete in order to avoid
+	// double write backs
+	sc_wait_pending_wb();
 
 	/* Go through the dirty objects and issue write-back RDMAs */
 	for (i=0; i< SC_HASHTABLE_SIZE; ++i) {

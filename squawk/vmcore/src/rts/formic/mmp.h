@@ -35,5 +35,7 @@
 
 void mmpSpawnThread(Address thread);
 INLINE Address mmpCheckMailbox(Address type);
+INLINE void mmpSend2(int to_bid, int to_cid,
+                     unsigned int msg0, unsigned int msg1);
 
 #endif /* RTS_FORMIC_MMP_H */

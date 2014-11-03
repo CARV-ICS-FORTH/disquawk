@@ -56,12 +56,12 @@
  * 		tmp = ((my_bid<<3 | my_cid)+(1<<i))%TOTAL_CORES;
  * 		partner_bid = tmp >> 3;
  * 		partner_cid = tmp & 0x7;
- * 		ar_cnt_incr(my_cid, partner_bid, partner_cid, NOC_COUNTER_WAKEUP3, 1<<i);
- * 		while (!(ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3) & 1<<i));
+ * 		ar_cnt_incr(my_cid, partner_bid, partner_cid, HWCNT_BARRIER_COUNTER, 1<<i);
+ * 		while (!(ar_cnt_get(my_cid, HWCNT_BARRIER_COUNTER) & 1<<i));
  * 	}
  *
  * 	// reset the counter
- * 	ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, 0);
+ * 	ar_cnt_set(my_cid, HWCNT_BARRIER_COUNTER, 0);
  * }
  * #else */
 
@@ -83,13 +83,19 @@ void sysBarrierCentralized() {
 
 	// The master/coordinator
 	if((my_bid == BARRIER_MASTER_BID) && !my_cid) {
-		kt_printf("ENTER\n");
-		ar_uart_flush();
 
-		while (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));
+		/* Detect cases where we get stack in a barrier and print a backtrace */
+		i = 0;
+		while (ar_cnt_get(my_cid, HWCNT_BARRIER_COUNTER)) {
+			if (i++ == ((1 << 31) -1)) {
+				i = 0;
+				kt_printf("Waiting %d\n", ar_cnt_get(my_cid, HWCNT_BARRIER_COUNTER));
+				ar_backtrace();
+			}
+		}
 
 		// Re-Initialize the barrier counter
-		ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, 1+8-TOTAL_CORES);  // HACK exclude bid 63
+		ar_cnt_set(my_cid, HWCNT_BARRIER_COUNTER, 1+8-TOTAL_CORES);  // HACK exclude bid 63
 
 		// Make Formic slaves reach their boot barrier
 		for (x = AR_FORMIC_MIN_X; x <= AR_FORMIC_MAX_X; x++)
@@ -100,18 +106,16 @@ void sysBarrierCentralized() {
 
 						if (!( ( (slave_bid == my_bid) && (i == my_cid) ) ||
 						       ( (slave_bid >= 63) ) )) // HACK exclude bid 63
-							ar_cnt_incr(my_cid, slave_bid, i, NOC_COUNTER_WAKEUP3, 1);
+							ar_cnt_incr(my_cid, slave_bid, i, HWCNT_BARRIER_COUNTER, 1);
 					}
 
-		kt_printf("LEAVE\n");
-		ar_uart_flush();
 	} else { // the slaves
 		// Initialize the local barrier counter
-		ar_cnt_set(my_cid, NOC_COUNTER_WAKEUP3, -1);
+		ar_cnt_set(my_cid, HWCNT_BARRIER_COUNTER, -1);
 		// Notify master we are here
-		ar_cnt_incr(my_cid, BARRIER_MASTER_BID, 0, NOC_COUNTER_WAKEUP3, 1);
+		ar_cnt_incr(my_cid, BARRIER_MASTER_BID, 0, HWCNT_BARRIER_COUNTER, 1);
 		// Block until master indicates all cores have reached the barrier
-		while (ar_cnt_get(my_cid, NOC_COUNTER_WAKEUP3));
+		while (ar_cnt_get(my_cid, HWCNT_BARRIER_COUNTER));
 	}
 }
 

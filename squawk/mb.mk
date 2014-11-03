@@ -201,6 +201,7 @@ SQUAWK_OBJS =\
 	globals.mb.o \
 	scheduler.mb.o \
 	squawk.mb.o \
+	rom.mb.o \
 	util.mb.o \
 	util/sha.mb.o
 SQUAWK_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(VM_SRC)/,$(SQUAWK_OBJS))
@@ -211,6 +212,7 @@ SQUAWK_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(VM_SRC)/,$(SQUAWK_OBJS))
 # Define the dependencies on FORMIC specific parts
 ################################################################################
 FORMIC_OBJS =\
+	hwcnt.mb.o \
 	os.mb.o \
 	mmgr.mb.o \
 	mmp.mb.o

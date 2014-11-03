@@ -32,6 +32,7 @@
 #include <softcache.h>
 #include <mmgr.h>
 #include <jni_md.h>
+#include <hwcnt.h>
 
 /*
  * Add the monitor cache size to the global oop count
@@ -104,10 +105,6 @@ typedef struct globalsStruct {
 	int               _cacheClears;
 	/** Counter for the number of cached objects. */
 	int               _cacheObjects;
-	/** Bitmap for pending write back DMAs. */
-	int               _cachePendingWBs;
-	/** Bitmap for pending fetch DMAs. */
-	int               _cachePendingFEs;
 #else
 #error SC_NATIVE is only supported on Formic
 #endif /* __MICROBLAZE__ */
@@ -134,6 +131,11 @@ typedef struct globalsStruct {
 	/** Keeps the init values of the counters above */
 	int          _sysBarrierValues2Init[20];
 #endif /* HIER_BARRIER */
+
+	/* Holds the status of the 126 available hardware coutners. We
+	 * reserve counter 126 for the centralized barrier and counter 127
+	 * for the UART transfers */
+	hwcnt_e      _hwcnts[126];
 
 #ifndef MACROIZE
 	int          _iparm; /* The immediate operand value of the current bytecode. */
@@ -367,8 +369,6 @@ extern __thread Globals kernelGlobals;    /* The kernel mode execution context *
 #define cacheFlushes_g                      defineGlobal(cacheFlushes)
 #define cacheClears_g                       defineGlobal(cacheClears)
 #define cacheObjects_g                      defineGlobal(cacheObjects)
-#define cachePendingWBs_g                   defineGlobal(cachePendingWBs)
-#define cachePendingFEs_g                   defineGlobal(cachePendingFEs)
 #else
 #error SC_NATIVE is only supported on Formic
 #endif /* __MICROBLAZE__ */
@@ -386,6 +386,8 @@ extern __thread Globals kernelGlobals;    /* The kernel mode execution context *
 #define sysBarrierCounters2Init_g           defineGlobal(sysBarrierCounters2Init)
 #define sysBarrierValues2Init_g             defineGlobal(sysBarrierValues2Init)
 #endif /* HIER_BARRIER */
+
+#define hwcnts_g                            defineGlobal(hwcnts)
 
 #ifndef MACROIZE
 #define iparm_g                             defineGlobal(iparm)
