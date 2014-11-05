@@ -1328,6 +1328,13 @@ class NativeVerifierHelper {
             return;
         }
 
+        case Native.com_sun_squawk_SoftwareCache$inHeap: {
+            frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            frame.push(BOOLEAN); // boolean
+            return;
+        }
+
         case Native.com_sun_squawk_SoftwareCache$translate: {
             frame.pop(OOP); // java.lang.Object
             Assert.that(frame.isStackEmpty());

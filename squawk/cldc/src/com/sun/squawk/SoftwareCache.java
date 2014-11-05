@@ -38,4 +38,8 @@ public final class SoftwareCache {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 
+	static boolean inHeap(Object oop) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
 }

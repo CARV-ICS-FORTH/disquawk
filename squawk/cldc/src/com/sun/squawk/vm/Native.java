@@ -273,11 +273,12 @@ public final class Native {
     public final static int com_sun_squawk_Lisp2Bitmap$setBitsFor         = 166;
     public final static int com_sun_squawk_Lisp2Bitmap$testAndSetBitFor   = 167;
     public final static int com_sun_squawk_Lisp2Bitmap$testBitFor         = 168;
-    public final static int com_sun_squawk_SoftwareCache$translate        = 169;
-    public final static int com_sun_squawk_platform_MMP$checkMailbox      = 170;
-    public final static int com_sun_squawk_platform_MMP$spawnThread       = 171;
-    public final static int com_sun_squawk_platform_MMGR$monitorEnter     = 172;
-    public final static int com_sun_squawk_platform_MMGR$monitorExit      = 173;
-    public final static int com_sun_squawk_VM$lcmp                        = 174;
-    public final static int ENTRY_COUNT                                   = 175;
+    public final static int com_sun_squawk_SoftwareCache$inHeap           = 169;
+    public final static int com_sun_squawk_SoftwareCache$translate        = 170;
+    public final static int com_sun_squawk_platform_MMP$checkMailbox      = 171;
+    public final static int com_sun_squawk_platform_MMP$spawnThread       = 172;
+    public final static int com_sun_squawk_platform_MMGR$monitorEnter     = 173;
+    public final static int com_sun_squawk_platform_MMGR$monitorExit      = 174;
+    public final static int com_sun_squawk_VM$lcmp                        = 175;
+    public final static int ENTRY_COUNT                                   = 176;
 }

@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2013-2014 FORTH-ICS / CARV
- *                         (Foundation for Research & Technology -- Hellas,
- *                          Institute of Computer Science,
- *                          Computer Architecture & VLSI Systems Laboratory)
+ * Copyright 2013-2014 FORTH-ICS / CARV
+ *                     (Foundation for Research & Technology -- Hellas,
+ *                      Institute of Computer Science,
+ *                      Computer Architecture & VLSI Systems Laboratory)
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -200,8 +200,9 @@ INLINE void sc_dir_ro_clear() {
  */
 void sc_initialize() {
 	/* The cache directory. */
-	cacheDirectory_g   = (sc_object_st*)roundUp((UWord)mm_scache_base(sysGetCore()),
-	                                            sysGetCachelineSize());
+	cacheDirectory_g   =
+		(sc_object_st*)roundUp((UWord)mm_scache_base(sysGetCore()),
+		                       sysGetCachelineSize());
 	/* Start address of the allocated memory to the software cache. */
 	cacheStart_g       =
 		(Address)roundUp((UWord)cacheDirectory_g + SC_DIRECTORY_SIZE,
@@ -243,16 +244,17 @@ void sc_initialize() {
 
 /**
  * Checks if an address is in the heap address space.  Heap addresses
- * are have at least on of their 6 MSBs set.
+ * have at least one of their 6 MSBs set.
  *
- * @param addre The address to check
+ * @param addr The address to check
  *
  * @return >0 if the address is a heap address
  *         0 otherwise (true local)
  */
-INLINE unsigned int sc_is_in_heap(Address addr) {
+INLINE unsigned int sc_in_heap(Address addr) {
 	// HACK board 64 does not hold global addresses
-	return ((UWord)addr & (~0x3FFFFFF)) && (sysGetIsland() < 63);
+	assume(sysGetIsland() < 63);
+	return ((UWord)addr & (~0x3FFFFFF));
 }
 
 /**
@@ -270,7 +272,7 @@ INLINE int sc_is_cacheable(Address obj) {
 	int cid;
 
 	// Assume that the object is in the HEAP
-	assume(sc_is_in_heap(obj));
+	assume(sc_in_heap(obj));
 
 	sysHomeOfAddress(obj, &bid, &cid);
 	// bid can't be zero
@@ -317,14 +319,14 @@ inline Address sc_prefix(Address obj) {
  *
  * @return the translated or masked address
  */
-inline Address sc_translate(Address obj) {
+INLINE Address sc_translate(Address obj) {
 
 	if (obj == NULL)
 		return NULL;
 
 	/* printf("Trans: %p\n", obj); */
 	/* Check if it is local */
-	if (!sc_is_in_heap(obj)) {
+	if (!sc_in_heap(obj)) {
 		/* printf("translating : %p\n", obj); */
 		/* ar_backtrace(); */
 		return obj;
@@ -358,7 +360,7 @@ INLINE void sc_fetch(Address from, Address to, int size, int cid) {
 	int from_bid;
 
 	// Make sure we do not cache our own objects
-	assume( sc_is_in_heap(from) );
+	assume( sc_in_heap(from) );
 	assume( sc_is_cacheable(from) );
 
 	// make sure size <= 1MB, this is the upper limit for a DMA
@@ -439,7 +441,7 @@ void sc_write_back(Address from, Address to, int size) {
 	int to_bid;
 
 	// Make sure we do not cache our own objects
-	assume( sc_is_in_heap(to) );
+	assume( sc_in_heap(to) );
 	assume( sc_is_cacheable(to) );
 
 	// make sure size <= 1MB, this is the upper limit for a DMA
