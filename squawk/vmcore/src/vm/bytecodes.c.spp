@@ -4967,6 +4967,12 @@ static int collectGarbage(Address, Address, int);
 		break;
 	}
 
+	case Native_com_sun_squawk_SoftwareCache_inHeap: {
+		Address addr = popAddress();
+		pushInt(sc_in_heap(addr));
+		break;
+	}
+
 /*if[KERNEL_SQUAWK]*/
 	case Native_com_sun_squawk_VM_sendInterrupt: {
 		int interrupt = popInt();
