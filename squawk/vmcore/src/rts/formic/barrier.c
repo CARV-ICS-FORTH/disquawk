@@ -87,7 +87,7 @@ void sysBarrierCentralized() {
 		/* Detect cases where we get stack in a barrier and print a backtrace */
 		i = 0;
 		while (ar_cnt_get(my_cid, HWCNT_BARRIER_COUNTER)) {
-			if (i++ == ((1 << 31) -1)) {
+			if (i++ == ((1 << 30) -1)) {
 				i = 0;
 				kt_printf("Waiting %d\n", ar_cnt_get(my_cid, HWCNT_BARRIER_COUNTER));
 				ar_backtrace();
