@@ -159,7 +159,12 @@ public class FieldOffsets {
     /**
      * The offset of the 'initModifiers' field in com.sun.squawk.Klass.
      */
-    public final static long com_sun_squawk_Klass$initModifiers = 67 | BYTE;
+    public final static long com_sun_squawk_Klass$onlyFinalStatics = 67 | BYTE;
+
+    /**
+     * The offset of the 'initModifiers' field in com.sun.squawk.Klass.
+     */
+    public final static long com_sun_squawk_Klass$initModifiers = 68 | BYTE;
 
     /**
      * The offset of the 'entryTable' field in com.sun.squawk.util.SquawkHashtable.

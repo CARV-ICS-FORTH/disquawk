@@ -203,6 +203,14 @@ public class Klass<T> {
 	private byte state = STATE_DEFINED;
 
 	/**
+	 * Whether the class has only 'final' static fields
+	 *
+	 * We use byte instead of boolean because there is no
+	 * infrastructure to directly access a boolean from the memory.
+	 */
+	private byte onlyFinalStatics;
+
+	/**
 	 * The identifier for this class. If the value is positive, then
 	 * it is a system wide unique identifier as well as the index of
 	 * the class within its suite.  Otherwise, it is the negation of
@@ -399,26 +407,28 @@ public class Klass<T> {
 	                              short dataMapLength,
 	                              int modifiers,
 	                              byte state,
+	                              byte onlyFinalStatics,
 	                              short instanceSizeBytes,
 	                              short staticFieldsSize,
 	                              short refStaticFieldsSize,
 	                              byte initModifiers) {
-		this.virtualMethods = virtualMethods;
-		this.staticMethods = staticMethods;
-		this.superType = superType;
-		this.interfaces = interfaces;
-		this.objects = objects;
-		this.oopMap = oopMap;
-		this.oopMapWord = oopMapWord;
-		this.dataMap = dataMap;
-		this.dataMapWord = dataMapWord;
-		this.dataMapLength = dataMapLength;
-		this.modifiers = modifiers;
-		this.state = state;
-		this.instanceSizeBytes = instanceSizeBytes;
-		this.staticFieldsSize = staticFieldsSize;
+		this.virtualMethods      = virtualMethods;
+		this.staticMethods       = staticMethods;
+		this.superType           = superType;
+		this.interfaces          = interfaces;
+		this.objects             = objects;
+		this.oopMap              = oopMap;
+		this.oopMapWord          = oopMapWord;
+		this.dataMap             = dataMap;
+		this.dataMapWord         = dataMapWord;
+		this.dataMapLength       = dataMapLength;
+		this.modifiers           = modifiers;
+		this.state               = state;
+		this.onlyFinalStatics    = onlyFinalStatics;
+		this.instanceSizeBytes   = instanceSizeBytes;
+		this.staticFieldsSize    = staticFieldsSize;
 		this.refStaticFieldsSize = refStaticFieldsSize;
-		this.initModifiers = initModifiers;
+		this.initModifiers       = initModifiers;
 	}
 
 	/**
@@ -915,9 +925,10 @@ public class Klass<T> {
 
 	void resetBootKlass() {
 		if (!isSynthetic()) {
-			state = STATE_DEFINED;
-			virtualMethods = null;
-			staticMethods = null;
+			state            = STATE_DEFINED;
+			onlyFinalStatics = 0;
+			virtualMethods   = null;
+			staticMethods    = null;
 		}
 	}
 
@@ -928,14 +939,15 @@ public class Klass<T> {
 	 * @param superType  must be {@link #UNINITIALIZED_NEW}
 	 */
 	protected Klass(String name, Klass superType) {
-		this.name          = name;
-		this.id            = Short.MIN_VALUE;
-		this.modifiers     = Modifier.PUBLIC | Modifier.SYNTHETIC;
-		this.superType     = superType;
-		this.state         = STATE_CONVERTED;
-		this.componentType = null;
-		this.oopMapWord    = UWord.zero();
-		this.dataMapWord   = UWord.zero();
+		this.name             = name;
+		this.id               = Short.MIN_VALUE;
+		this.modifiers        = Modifier.PUBLIC | Modifier.SYNTHETIC;
+		this.superType        = superType;
+		this.state            = STATE_CONVERTED;
+		this.onlyFinalStatics = 0;
+		this.componentType    = null;
+		this.oopMapWord       = UWord.zero();
+		this.dataMapWord      = UWord.zero();
 	}
 
 	/*---------------------------------------------------------------------------*\
@@ -2225,9 +2237,23 @@ public class Klass<T> {
 	 */
 	private int initializeFieldOffsets(ClassFileField[] fields) {
 		int offset = GC.roundUpToWord(superType.instanceSizeBytes);
+		onlyFinalStatics = 1;
 		for (int i = 0; i != fields.length; ++i) {
 			ClassFileField field = fields[i];
 			Klass type = field.getType();
+
+			/*
+			 * Do we really care if it is a constant or not?
+			 *
+			 * Yes, otherwise we might initialize it with an out of
+			 * date value (since we will not synchronize).
+			 * (see initializeInternal)
+			 */
+			if (field.isStatic() &&
+			    !(field.isFinal() && field.hasConstant())) {
+				onlyFinalStatics = 0;
+			}
+
 			switch (type.getSystemID()) {
 			case CID.BOOLEAN:
 			case CID.BYTE: {
@@ -3466,6 +3492,8 @@ public class Klass<T> {
 	 *         The Java Virtual Machine Specification - Second Edition</a>
 	 */
 	final Object initializeInternal() {
+		boolean nosync = (this.onlyFinalStatics == 1);
+
 		/*
 		 * Test to see if there was a linkage error.
 		 */
@@ -3473,35 +3501,17 @@ public class Klass<T> {
 			throw new NoClassDefFoundError(name);
 		}
 
-		/*
-		 * For each class or interface C , there is a unique
-		 * initialization lock LC . The mapping from C to LC is left
-		 * to the discretion of the Java Virtual Machine
-		 * implementation.  The procedure for initializing C is then
-		 * as follows:
-		 *
-		 * Step 1
-		 *
-		 * Synchronize on the initialization lock, LC , for C . This
-		 * involves waiting until the current thread can acquire LC .
-		 */
-		synchronized(this) {
+		if (nosync) {
 			/*
 			 * Step 2
 			 *
 			 * If the Class object for C indicates that initialization
-			 * is in progress for C by some other thread, then release
-			 * LC and block the current thread until informed that the
-			 * in-progress initialization has completed, at which time
-			 * repeat this step.
+			 * is in progress for C by some other thread, then yield.
 			 */
 			if (getInitializationState() == INITSTATE_INITIALIZING) {
 				if (getInitializationThread() != VMThread.currentThread()) {
 					do {
-						try {
-							/* wait till we get notified  */
-							wait();
-						} catch (InterruptedException e) {}
+						VMThread.yield();
 					} while (getInitializationState() == INITSTATE_INITIALIZING);
 				} else {
 					/*
@@ -3510,8 +3520,7 @@ public class Klass<T> {
 					 * If the Class object for C indicates that
 					 * initialization is in progress for C by the
 					 * current thread, then this must be a recursive
-					 * request for initialization. Release LC and
-					 * complete normally.
+					 * request for initialization. Complete normally.
 					 */
 					return getInitializationClassState();
 				}
@@ -3521,7 +3530,7 @@ public class Klass<T> {
 			 *
 			 * If the Class object for C indicates that C has already
 			 * been initialized, then no further action is
-			 * required. Release LC and complete normally.
+			 * required.
 			 */
 			if (getInitializationState() == INITSTATE_INITIALIZED) {
 				return getClassState();
@@ -3530,8 +3539,8 @@ public class Klass<T> {
 			 * Step 5
 			 *
 			 * If the Class object for C is in an erroneous state,
-			 * then initialization is not possible. Release LC and
-			 * throw a NoClassDefFoundError .
+			 * then initialization is not possible. Throw a
+			 * NoClassDefFoundError .
 			 */
 			if (getInitializationState() == INITSTATE_FAILED) {
 				throw new NoClassDefFoundError(name);
@@ -3541,7 +3550,7 @@ public class Klass<T> {
 			 *
 			 * Otherwise, record the fact that initialization of the
 			 * Class object for C is in progress by the current
-			 * thread, and release LC.
+			 * thread.
 			 *
 			 * TODO:
 			 * Then, initialize the static fields of C which are
@@ -3549,6 +3558,85 @@ public class Klass<T> {
 			 */
 			Assert.always(VMThread.currentThread() != null);
 			setInitializationState(VMThread.currentThread()); // state = INITIALIZING);
+		}
+		else {
+			/*
+			 * For each class or interface C , there is a unique
+			 * initialization lock LC . The mapping from C to LC is left
+			 * to the discretion of the Java Virtual Machine
+			 * implementation.  The procedure for initializing C is then
+			 * as follows:
+			 *
+			 * Step 1
+			 *
+			 * Synchronize on the initialization lock, LC , for C . This
+			 * involves waiting until the current thread can acquire LC .
+			 */
+			synchronized(this) {
+				/*
+				 * Step 2
+				 *
+				 * If the Class object for C indicates that initialization
+				 * is in progress for C by some other thread, then release
+				 * LC and block the current thread until informed that the
+				 * in-progress initialization has completed, at which time
+				 * repeat this step.
+				 */
+				if (getInitializationState() == INITSTATE_INITIALIZING) {
+					if (getInitializationThread() != VMThread.currentThread()) {
+						do {
+							try {
+								/* wait till we get notified  */
+								wait();
+							} catch (InterruptedException e) {}
+						} while (getInitializationState() == INITSTATE_INITIALIZING);
+					} else {
+						/*
+						 * Step 3
+						 *
+						 * If the Class object for C indicates that
+						 * initialization is in progress for C by the
+						 * current thread, then this must be a recursive
+						 * request for initialization. Release LC and
+						 * complete normally.
+						 */
+						return getInitializationClassState();
+					}
+				}
+				/*
+				 * Step 4
+				 *
+				 * If the Class object for C indicates that C has already
+				 * been initialized, then no further action is
+				 * required. Release LC and complete normally.
+				 */
+				if (getInitializationState() == INITSTATE_INITIALIZED) {
+					return getClassState();
+				}
+				/*
+				 * Step 5
+				 *
+				 * If the Class object for C is in an erroneous state,
+				 * then initialization is not possible. Release LC and
+				 * throw a NoClassDefFoundError .
+				 */
+				if (getInitializationState() == INITSTATE_FAILED) {
+					throw new NoClassDefFoundError(name);
+				}
+				/*
+				 * Step 6
+				 *
+				 * Otherwise, record the fact that initialization of the
+				 * Class object for C is in progress by the current
+				 * thread, and release LC.
+				 *
+				 * TODO:
+				 * Then, initialize the static fields of C which are
+				 * constant variables (§4.12.4, §8.3.2, §9.3.1).
+				 */
+				Assert.always(VMThread.currentThread() != null);
+				setInitializationState(VMThread.currentThread()); // state = INITIALIZING);
+			}
 		}
 		/*
 		 * Step 7
@@ -3570,9 +3658,14 @@ public class Klass<T> {
 				try {
 					superType.initializeInternal();
 				} catch(Error ex) {
-					synchronized(this) {
+					if (nosync) {
 						setInitializationState(null); // state = FAILED;
-						notifyAll();
+					}
+					else {
+						synchronized(this) {
+							setInitializationState(null); // state = FAILED;
+							notifyAll();
+						}
 					}
 					throw ex;
 				} catch(Throwable ex) {
@@ -3613,13 +3706,22 @@ public class Klass<T> {
 			 * C as fully initialized, notify all waiting threads,
 			 * release LC , and complete this procedure normally.
 			 */
-			synchronized(this) {
+			if (nosync) {
 				Object cs = getInitializationClassState();
 				Assert.that(NativeUnsafe.getObject(cs, CS.klass) == this);
 				VM.getCurrentIsolate().addClassState(cs);
 				removeInitializationState(); // state = INITIALIZED;
-				notifyAll();
 				return cs;
+			}
+			else {
+				synchronized(this) {
+					Object cs = getInitializationClassState();
+					Assert.that(NativeUnsafe.getObject(cs, CS.klass) == this);
+					VM.getCurrentIsolate().addClassState(cs);
+					removeInitializationState(); // state = INITIALIZED;
+					notifyAll();
+					return cs;
+				}
 			}
 		} catch (Throwable ex) {
 			Error err;
@@ -3657,9 +3759,14 @@ public class Klass<T> {
 			 * this procedure abruptly with reason E or its
 			 * replacement as determined in the previous step.
 			 */
-			synchronized(this) {
+			if (nosync) {
 				setInitializationState(null); // state = FAILED;
-				notifyAll();
+			}
+			else {
+				synchronized(this) {
+					setInitializationState(null); // state = FAILED;
+					notifyAll();
+				}
 			}
 			throw err;
 		}
