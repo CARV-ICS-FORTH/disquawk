@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-14, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle Corporation. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
@@ -1799,7 +1803,7 @@ public final class VMThread implements GlobalStaticFields {
 				// this thread already yielded at least once to wait
 				// for the monitor manager to reply.
 
-				Monitor monitor = (Monitor)object;
+				Monitor monitor = getMonitor(object);
 
 				VMThread waiter = monitor.removeMonitorWait();
 				if (waiter != null) {
@@ -2276,17 +2280,17 @@ public final class VMThread implements GlobalStaticFields {
 	 * @param monitor the monitor being acted on
 	 * @param the object that the monitor is assigned to.
 	 */
-//    private static void traceMonitor(String msg, Monitor monitor, Object object) {
-//        VM.print(msg);
-//        VM.print(" thread-");
-//        VM.print(currentThread.threadNumber);
-//        VM.print(" on object ");
-//        VM.printAddress(object);
-//        VM.print(" with monitor ");
-//        VM.printAddress(monitor);
-//        VM.println();
-//        Assert.always(object == monitor.object);
-//    }
+	private static void traceMonitor(String msg, Monitor monitor, Object object) {
+		VM.print(msg);
+		VM.print(" thread-");
+		VM.print(currentThread.threadNumber);
+		VM.print(" on object ");
+		VM.printAddress(object);
+		VM.print(" with monitor ");
+		VM.printAddress(monitor);
+		VM.println();
+		Assert.always(object == monitor.object);
+	}
 
 	/**
 	 * Throws an IllegalMonitorStateException.
@@ -2405,7 +2409,7 @@ public final class VMThread implements GlobalStaticFields {
 
 		// If we own the lock we only need to increase its depth
 		if (monitor.owner == currentThread) {
-//traceMonitor("monitorEnter:  nested lock", monitor, object);
+//			traceMonitor("monitorEnter:  nested lock", monitor, object);
 
 			if (monitor.depth == MAXDEPTH) {
 /*if[DEBUG_CODE_ENABLED]*/
@@ -2420,6 +2424,7 @@ public final class VMThread implements GlobalStaticFields {
 			// manager, we just yield to run later and request it
 			// again later
 
+//			traceMonitor("monitorEnter: Must wait for local lock: ", monitor, object);
 			// NOTE: We could reuse this monitor and skip
 			// communicating with the monitor manager, but it is not
 			// valid to choose a thread arbitrarily, since they might
@@ -2427,9 +2432,8 @@ public final class VMThread implements GlobalStaticFields {
 			VMThread.yield();
 			VMThread.monitorEnter(object);
 		} else { // request the monitor
+//			traceMonitor("monitorEnter: Must wait for lock: ", monitor, object);
 			MMGR.monitorEnter(object);
-
-//traceMonitor("monitorEnter: Must wait for lock: ", monitor, object);
 
 /*
 //   if (!monitor.owner.isAlive()) {
