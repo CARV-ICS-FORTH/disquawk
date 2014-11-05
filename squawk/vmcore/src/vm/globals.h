@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-2014 FORTH-ICS / CARV
+ *                     (Foundation for Research & Technology -- Hellas,
+ *                      Institute of Computer Science,
+ *                      Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle Corporation. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
@@ -324,20 +328,20 @@ __attribute__((aligned(MM_CACHELINE_SIZE)))
 typedef struct {
 	union {
 		/** pointer to the global context */
-		Globals   *global_ctx;
+		Globals     *global_ctx;
 		/** Monitor Manager Monitors hashtable */
-		monitor_t **mmgrHT;
+		mmgrGlobals *mmgr_ctx;
 	};
 	/* Padding to avoid overlapping with other cores */
 	char padding[MM_CACHELINE_SIZE-sizeof(Globals*)];
 } globals_box __attribute__((aligned(MM_CACHELINE_SIZE)));
 /* The pointer to the global execution context */
 extern globals_box gps[AR_FORMIC_CORES_PER_BOARD];
-#define gp       gps[my_cid].global_ctx
-#define mmgrHT_g gps[my_cid].mmgrHT
+#define gp     gps[my_cid].global_ctx
+#define mmgr_g gps[my_cid].mmgr_ctx
 #else
 extern __thread Globals *gp;         /* The pointer to the global execution context */
-extern __thread monitor_t **mmgrHT_g;
+extern __thread mmgrGlobals *mmgr_g;
 #endif /* __MICROBLAZE__ */
 
 #if KERNEL_SQUAWK
