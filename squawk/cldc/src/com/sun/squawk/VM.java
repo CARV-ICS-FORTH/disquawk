@@ -262,9 +262,7 @@ public class VM implements GlobalStaticFields {
 	 * @param bootstrapSuite        the bootstrap suite
 	 */
 	static void startup(Suite bootstrapSuite) throws InterpreterInvokedPragma {
-		if (VM.isVerbose())
-			VM.println("[DIAG]  in STARTUP");
-
+		VM.println("[DIAG]  in STARTUP");
 
 		/*
 		 * Set default for allowing Runtime.gc() to work.
@@ -282,6 +280,7 @@ public class VM implements GlobalStaticFields {
 		 * Initialize the C string literals
 		 */
 		initializeLiterals();
+
 		NativeUnsafe.globalMemoryProtection();
 
 		vmbufferDecoder  = new VMBufferDecoder();
