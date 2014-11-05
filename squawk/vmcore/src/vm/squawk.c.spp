@@ -1112,7 +1112,7 @@ char* getAlternateBootstrapSuiteLocation(char* bootstrapSuiteName);
  *     C/Java stack
  *     argv copy
  * 0x00C00000 + core_id*0x00600000
- *     Private memory (not heap) [6MB]
+ *     Software cache [6.5MB]
  * 0x04000000
  *     Java Heap [64MB]
  *     This part is actually shared across all cores and should not be
@@ -1132,7 +1132,9 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	int bootstrapSize;
 	Address suite;
 	int argvTotalSize = calculateSizeForCopyOfCStringArray(argc, argv);
-	int offset __attribute__((unused));
+/*if[!MICROBLAZE_BUILD]*/
+	int offset;
+/*end[MICROBLAZE_BUILD]*/
 
 	diagnosticWithValue("setupMemory: ram size", ramSize);
 	diagnosticWithValue("setupMemory: nvmSize size", nvmSize);
@@ -2326,7 +2328,7 @@ void Squawk_run(int argc, char *argv[]) {
 	sysBarrierInit();
 
 // Barrier measurements
-#if 1
+#if 0
 	unsigned int time;
 	int i;
 
@@ -2440,10 +2442,6 @@ void Squawk_main(int argc, char *argv[]) {
  * @param argv the parameter argument vector
  */
 int Squawk_main_wrapper(int argc, char *argv[]) {
-	// HACK Disable board 64
-	if (sysGetIsland() >= 63)
-		while(1);
-
     /* The user mode execution context
      *
      * Although stack allocated we pass the pointer to a global
