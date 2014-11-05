@@ -164,14 +164,14 @@ INLINE Address mmpCheckMailbox(Address type) {
 	bid      = (msg0 >> 19) & 0x3F;
 
 	if (type != NULL)
-		set_java_lang_Integer_value_local(type, msg_type);
+		set_java_lang_Integer_value(type, msg_type);
 
 	switch (msg_type) {
 #ifndef ARCH_ARM
 	// Thread specific messages
 	case MMP_OPS_TH_SPAWN:
-		/* kt_printf("I've got a message 0x%02X/%d\n",
-		 *           sysGetIsland(), sysGetCore()); */
+		kt_printf("I've got a spawn message 0x%02X/%d\n",
+		          sysGetIsland(), sysGetCore());
 		// this is a two-words message
 		object = (Address)ar_mbox_get(sysGetCore());
 		/* kt_printf("Some %d core pushed a thread (%p) for me\n",
@@ -194,12 +194,16 @@ INLINE Address mmpCheckMailbox(Address type) {
 		// the monitor
 		object = (Address)ar_mbox_get(sysGetCore());
 
+		kt_printf("MMGR replied\n");
+
 		// If we do not own the monitor, retry
 		if ( bid != my_bid || cid != my_cid ) {
+			kt_printf("The owner is %d:%d\n", bid, cid);
 			mmgrMonitorEnter((Address)object);
 			set_java_lang_Integer_value_local(type, MMP_OPS_NOP);
 		}
 		else {
+			kt_printf("It's MINE\n");
 			result = (Address)object;
 		}
 
