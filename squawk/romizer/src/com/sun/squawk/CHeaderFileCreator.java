@@ -651,9 +651,6 @@ public final class CHeaderFileCreator {
 				//out.println("#define " + name + " " + value);
 			}
 		}
-
-		out.println("void initMethods();");
-
 	}
 
 	/**
@@ -797,6 +794,7 @@ public final class CHeaderFileCreator {
 		out.println("#include \"address.h\"");
 		out.println("#include \"squawk.h\"");
 		out.println("");
+		out.println("void initMethods();");
 
 		// Write the CID definitions.
 		int classCount = suite.getClassCount();
