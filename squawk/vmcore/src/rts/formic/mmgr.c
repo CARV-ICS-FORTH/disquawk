@@ -421,7 +421,6 @@ mmgrRequest (mmpMsgOp_t msg_op, Address object)
 	mmgrGetManager(object, &target_bid, &target_cid);
 
 	mmpSend2(target_bid, target_cid, msg0, (unsigned int)object);
-
 }
 /**
  * Request to enter the given object's monitor.
@@ -432,12 +431,19 @@ mmgrRequest (mmpMsgOp_t msg_op, Address object)
 INLINE void
 mmgrMonitorEnter (Address object)
 {
+#  ifdef VERY_VERBOSE
+	kt_printf("I sent an enter request for %p\n", object);
+	ar_uart_flush();
+#  endif /* ifdef VERY_VERBOSE */
+
+/*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_ENTER, object);
 
-	// Remove me from the runnable threads and add me to the blocked
-	// threads queue. This is done in VMThread.java
+	/*
+	 * Remove me from the runnable threads and add me to the blocked
+	 * threads queue. This is done in VMThread.java
+	 */
 }
-
 /**
  * Request to exit the given object's monitor.
  *
@@ -446,7 +452,12 @@ mmgrMonitorEnter (Address object)
 INLINE void
 mmgrMonitorExit (Address object)
 {
-//	assume(sc_in_heap(object));
+#  ifdef VERY_VERBOSE
+	kt_printf("I sent an exit request\n");
+	ar_uart_flush();
+#  endif /* ifdef VERY_VERBOSE */
+
+/*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_EXIT, object);
 
 	/*
@@ -479,7 +490,7 @@ mmgrGetMonitor (Address object)
 
 		res          = monitor_alloc();
 		assume(res != NULL);
-		res->owner   = NULL;
+		res->owner   = -1;
 		res->waiters = NULL;
 		res->lchild  = NULL;
 		res->rchild  = NULL;
@@ -503,9 +514,15 @@ mmgrMonitorEnterHandler (int bid, int cid, Address object)
 
 	monitor = mmgrGetMonitor(object);
 
-	if (monitor->owner == NULL) {
+	if (monitor->owner == -1) {
 		monitor->owner = (bid << 3) | cid;
 	}
+
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got an enter request for %p from %d : %d and the owner is %d : %d\n",
+	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
 
 	/* Reply back with the owner */
 	mmpSend2(bid, cid,
@@ -526,8 +543,14 @@ mmgrMonitorExitHandler (int bid, int cid, Address object)
 
 	monitor        = mmgrGetMonitor(object);
 
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got an exit request for %p from %d : %d and the owner is %d : %d\n",
+	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+
 	assume( monitor->owner == ((bid << 3) | cid) );
-	monitor->owner = NULL;
+	monitor->owner = -1;
 
 	/* TODO What happens with the waiters? */
 }
