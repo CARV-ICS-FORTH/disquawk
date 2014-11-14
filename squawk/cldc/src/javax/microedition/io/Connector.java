@@ -25,9 +25,11 @@
 package javax.microedition.io;
 
 import java.io.*;
-import java.util.Hashtable;
 import com.sun.squawk.io.*;
 import com.sun.squawk.platform.Platform;
+import com.sun.squawk.util.SquawkHashtable;
+import com.sun.squawk.Klass;
+import com.sun.squawk.VM;
 
 /**
  * This class is a factory for creating new Connection objects.
@@ -131,7 +133,7 @@ public class Connector {
     /**
      * Name of host system. (j2se/j2me/parm/ipaq etc.)
      */
-     private static String host;
+    private static String host;
 
     /**
      * The root of the classes.
@@ -281,7 +283,14 @@ public class Connector {
 
                 if (protocolTable == null) { // bootstrapping gets in the way. Wait until class is initialized before getting fancy
                     try {
-                        clazz = Class.forName(fullclassname);
+/*if[MICROBLAZE_BUILD]*/
+                        if (VM.isHosted())
+                            clazz = Class.forName(fullclassname);
+                        else
+                            clazz = Klass.asClassNoSync(Klass.forNameNoSync(fullclassname));
+/*else[MICROBLAZE_BUILD]*/
+//                        clazz = Class.forName(fullclassname);
+/*end[MICROBLAZE_BUILD]*/
                     } catch (ClassNotFoundException e) {
                         return null;
                     }
@@ -290,7 +299,14 @@ public class Connector {
                     Object classOrNot = protocolTable.get(fullclassname);
                     if (classOrNot == null) {
                         try {
-                            clazz = Class.forName(fullclassname);
+/*if[MICROBLAZE_BUILD]*/
+                            if (VM.isHosted())
+                                clazz = Class.forName(fullclassname);
+                            else
+                                clazz = Klass.asClassNoSync(Klass.forNameNoSync(fullclassname));
+/*else[MICROBLAZE_BUILD]*/
+//                            clazz = Class.forName(fullclassname);
+/*end[MICROBLAZE_BUILD]*/
                             protocolTable.put(fullclassname, clazz);
                         } catch (ClassNotFoundException e) {
                             protocolTable.put(fullclassname, NO_CLASS_FOUND);
@@ -318,7 +334,7 @@ public class Connector {
 
     // support for class caching in openPrim().
     private final static String NO_CLASS_FOUND = "NO PROTOCOL CLASS";
-    private final static Hashtable protocolTable = new Hashtable(3);
+    private final static SquawkHashtable protocolTable = new SquawkHashtable(3);
 
     /**
      * Create and open a connection input stream.

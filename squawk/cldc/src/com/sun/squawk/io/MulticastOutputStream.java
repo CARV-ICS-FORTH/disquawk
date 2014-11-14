@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -26,6 +26,7 @@ package com.sun.squawk.io;
 
 import java.util.*;
 import java.io.*;
+import com.sun.squawk.util.SquawkHashtable;
 
 /**
  * A MulticastOutputStream can be configured to send its output to zero or more named output streams.
@@ -46,7 +47,7 @@ public final class MulticastOutputStream extends OutputStream {
     /**
      * The streams to which output should be sent.
      */
-    private Hashtable streams = new Hashtable(DEFAULT_SIZE);
+    private SquawkHashtable streams = new SquawkHashtable(DEFAULT_SIZE);
 
     /**
      * Creates a MulticastOutputStream.
@@ -113,7 +114,7 @@ public final class MulticastOutputStream extends OutputStream {
                 ioe = ex;
             }
         }
-        streams = new Hashtable(DEFAULT_SIZE);
+        streams = new SquawkHashtable(DEFAULT_SIZE);
         if (ioe != null) {
             throw ioe;
         }
@@ -171,8 +172,8 @@ public final class MulticastOutputStream extends OutputStream {
      * @return the enumeration of OutputStream instances removed
      */
     public Enumeration removeAll() {
-        Hashtable t = streams;
-        streams = new Hashtable(DEFAULT_SIZE);
+        SquawkHashtable t = streams;
+        streams = new SquawkHashtable(DEFAULT_SIZE);
         return t.elements();
     }
 

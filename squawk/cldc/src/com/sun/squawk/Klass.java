@@ -283,6 +283,32 @@ public class Klass<T> {
 			return c;
 		}
 
+/*if[MICROBLAZE_BUILD]*/
+	/**
+	 * Gets the Class instance corresponding to a given Klass
+	 * instance, creating it first if necessary.
+	 *
+	 * @param klass the Klass object
+	 * @return the Class object
+	 */
+	public static Class asClassNoSync(Klass klass) {
+			if (klassToClass == null) {
+				klassToClass = new SquawkHashtable();
+				klassClass = VM.getCurrentIsolate().getBootstrapSuite().lookup("java.lang.Class");
+				Assert.always(klassClass != null);
+			}
+			Class c = (Class)klassToClass.get(klass);
+			if (c == null) {
+				c = (Class)GC.newInstance(klassClass);
+				NativeUnsafe.setObject(c, (int)FieldOffsets.java_lang_Class$klass, klass);
+				klassToClass.put(klass, c);
+//VM.print("created Class instance for ");
+//VM.println(klass.getInternalName());
+			}
+			return c;
+		}
+/*end[MICROBLAZE_BUILD]*/
+
 	/**
 	 * Gets the Klass instance corresponding to a given Class instance.
 	 * @param c the Class object
@@ -340,6 +366,40 @@ public class Klass<T> {
 		}
 		return klass;
 	}
+
+
+/*if[MICROBLAZE_BUILD]*/
+	/**
+	 * Returns the <code>Klass</code> object associated with the class
+	 * with the given string name.
+	 * @param className the class name to lookup
+	 * @return Klass
+	 * @throws java.lang.ClassNotFoundException
+	 */
+	public static Klass forNameNoSync(String className) throws ClassNotFoundException {
+			// Verbose trace.
+			if (VM.isVeryVerbose()) {
+				VM.print("[Klass.forName(");
+				VM.print(className);
+				VM.println(")]");
+			}
+
+			Klass klass = Klass.lookupKlass(className);
+
+			if (klass != null && klass.getState() != Klass.STATE_DEFINED) {
+				klass.initialiseClass();
+				return klass;
+			}
+
+			// handle error cases:
+			// TODO: Simplify, but make sure TCK tests pass
+			if (VM.getCurrentIsolate().getLeafSuite().shouldThrowNoClassDefFoundErrorFor(className)) {
+				throw new NoClassDefFoundError(className);
+			}
+
+			throw new ClassNotFoundException(className);
+		}
+/*end[MICROBLAZE_BUILD]*/
 
 	/**
 	 * Returns the <code>Klass</code> object associated with the class
