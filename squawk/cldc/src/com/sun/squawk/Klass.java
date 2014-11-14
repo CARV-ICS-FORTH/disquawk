@@ -3495,6 +3495,22 @@ public class Klass<T> {
 		boolean nosync = (this.onlyFinalStatics == 1);
 
 		/*
+		 * Allow initialization of:
+		 *
+		 * System since err and out need not be shared.
+		 * Math since only random is not static final and we can
+		 * safely have a different random generator per core.
+		 * VM to enable VM.println.
+		 * Connector since all its non static final fields need not be
+		 * shared.
+		 */
+		if (name.equals("java.lang.System") ||
+		    name.equals("java.lang.Math") ||
+		    name.equals("com.sun.squawk.VM") ||
+		    name.equals("javax.microedition.io.Connector"))
+			nosync = true;
+
+		/*
 		 * Test to see if there was a linkage error.
 		 */
 		if (state == STATE_ERROR) {
