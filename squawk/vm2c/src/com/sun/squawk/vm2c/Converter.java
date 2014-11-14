@@ -1019,21 +1019,26 @@ public class Converter {
 		out.println("\tliterals = ALL_LITERALS[classKey];");
 		out.println("\tstr = literals[literalKey];");
 		out.println("\tif (str == null) {");
-		out.println("\t\tAddress bootstrapSuite = com_sun_squawk_ObjectMemory_root(aload_o(com_sun_squawk_GC_readOnlyObjectMemories, 0));");
-		out.println("\t\tAddress classes = com_sun_squawk_Suite_classes_local(bootstrapSuite);");
-		out.println("\t\tAddress klass = aload_o_local(classes, klassIndex);");
-		out.println("\t\tAddress objects = com_sun_squawk_Klass_objects_local(klass);");
-		out.println("\t\tint length = getLocalArrayLength(objects);");
+		out.println("\t\tAddress klass = lookupKlass(klassIndex);");
+		// FIXME: Due to dead code elimination there are cases where
+		// the vm2c tries to add a string literal to an eliminated
+		// class, this results in a NULL klass.  To properly solve
+		// this issue vm2c should be aware of dead classes and skip
+		// their literals.
+		out.println("\t\tif (klass != NULL) {");
+		out.println("\t\t\tAddress objects = com_sun_squawk_Klass_objects_local(klass);");
+		out.println("\t\t\tint length = getLocalArrayLength(objects);");
 		out.println();
-		out.println("\t\tstr = findCStringInObjects(objects, length, cstr);");
+		out.println("\t\t\tstr = findCStringInObjects(objects, length, cstr);");
 		// FIXME: this is commented out due to code elimination, we
 		// allow fails here and we catch them later in
 		// getObjectForCStringLiteral
-		// out.println("\t\tif (str == null) {");
-		// out.println("\t\t\tfprintf(stderr, \"Failed to access %s\\n\", cstr);");
-		// out.println("\t\t\tfatalVMError(\"accessing string literal in conditionally compiled out code\");");
-		// out.println("\t\t}");
-		out.println("\t\tliterals[literalKey] = str;");
+		// out.println("\t\t\tif (str == null) {");
+		// out.println("\t\t\t\tfprintf(stderr, \"Failed to access %s\\n\", cstr);");
+		// out.println("\t\t\t\tfatalVMError(\"accessing string literal in conditionally compiled out code\");");
+		// out.println("\t\t\t}");
+		out.println("\t\t\tliterals[literalKey] = str;");
+		out.println("\t\t}");
 		out.println("\t}");
 		out.println("\treturn str;");
 		out.println("}");
@@ -1050,8 +1055,7 @@ public class Converter {
 		out.println("\tliterals = ALL_LITERALS[classKey];");
 		out.println("\tstr = literals[literalKey];");
 		out.println("\tif (str == null) {");
-		out.println("\t\t\tfatalVMError(\"accessing string literal in conditionally compiled out code\");");
-		// out.println("\t\tfatalVMError(\"string literals not properly initialized\");");
+		out.println("\t\tfatalVMError(\"accessing string literal in conditionally compiled out code\");");
 		out.println("\t}");
 		out.println("\treturn str;");
 		out.println("}");
