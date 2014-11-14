@@ -2447,15 +2447,15 @@ public final class VMThread implements GlobalStaticFields {
 */
 
 			/*
-			 * Add to the wait queue and set the depth for when thread is restarted.
+			 * Add to the wait queue
 			 */
-			currentThread.monitorDepth = 1;
 			monitor.addMonitorWait(currentThread);
 			reschedule();
 
 //traceMonitor("monitorEnter: Got lock after waiting: ", monitor, object);
 
 			monitor.owner = currentThread;
+			monitor.depth = 1;
 			/*
 			 * Safety.
 			 */
