@@ -36,7 +36,7 @@ import com.sun.squawk.pragma.HostedPragma;
 
 /**
  * The "hosted" version of ArgsUtilities from cldc.
- * 
+ *
  * A collection of utilities for command line argument parsing.
  *
  * NOTE: This class in hosted-supported replaces the same class defined in cldc.
@@ -250,9 +250,6 @@ public class ArgsUtilities {
                     int baseDirPrefix = arg.length() + 1;
                     while (true) {
                         String fullName = dis.readUTF();
-                        if (fullName.indexOf(".svn/") != -1) {
-                            continue;
-                        }
                         /*
                          * Strip off the base directory name
                          */
@@ -262,6 +259,10 @@ public class ArgsUtilities {
                             continue;
                         }
                         indexOfExclude = name.indexOf(".hg/");
+                        if (indexOfExclude != -1) {
+                            continue;
+                        }
+                        indexOfExclude = name.indexOf(".git/");
                         if (indexOfExclude != -1) {
                             continue;
                         }
