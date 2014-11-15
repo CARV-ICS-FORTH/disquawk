@@ -506,8 +506,7 @@ INLINE void sc_wait_pending_fe() {
  *                      (i.e. the total number of bytes to be allocated).
  * @return a pointer to the allocated memory or NULL if the allocation failed
  */
-#ifdef SC_NATIVE
-INLINE Address sc_alloc(int size) {
+static inline Address sc_alloc(int size) {
 	Address ret       = cacheAllocTop_g;
 	Offset  available = Address_diff(cacheROAllocTop_g, ret);
 
@@ -533,34 +532,6 @@ INLINE Address sc_alloc(int size) {
 
 	return (Address)ret;
 }
-#else /* SC_NATIVE */
-INLINE Address sc_alloc(unsigned int size) {
-	Address ret       = com_sun_squawk_SoftwareCache_allocTop;
-	Offset  available = Address_diff(com_sun_squawk_SoftwareCache_cacheEnd,
-	                                 ret);
-	assume(size >= 0 && size <= cacheSize_g);
-
-#ifdef __MICROBLAZE__
-	// make sure size is a multiple of the cache line size
-	size = roundUp(size, sysGetCachelineSize());
-#endif
-
-	if (unlikely(lt(available, size))) {
-		// If there is not enough space return NULL and let the caller
-		// handle it
-		return NULL;
-	}
-
-	com_sun_squawk_SoftwareCache_allocTop = Address_add(ret, size);
-#ifdef ASSUME
-	// zero the memory
-	zeroWords(ret, com_sun_squawk_GC_allocTop);
-#endif
-	com_sun_squawk_SoftwareCache_objectsCount++;
-
-	return (Address)ret;
-}
-#endif /* SC_NATIVE*/
 
 /**
  * Allocate a chunk of memory from the software cache for a read-only

@@ -85,7 +85,6 @@ typedef struct globalsStruct {
 	Address     _memoryEnd;     /* The end of the memory buffer. */
 	UWord       _memorySize;    /* The Size (In bytes) of the memory buffer. */
 
-#ifdef SC_NATIVE
 #ifdef __MICROBLAZE__
 	/** The cache directory. */
 	sc_object_st     *_cacheDirectory;
@@ -110,9 +109,8 @@ typedef struct globalsStruct {
 	/** Counter for the number of cached objects. */
 	int               _cacheObjects;
 #else
-#error SC_NATIVE is only supported on Formic
+#error Software caching is only supported on Formic microblazes
 #endif /* __MICROBLAZE__ */
-#endif /* SC_NATIVE */
 
 	/** Keeps the last core that the scheduler chose to assign a thread to */
 	int          _schedulerLastCore;
@@ -360,7 +358,6 @@ extern __thread Globals kernelGlobals;    /* The kernel mode execution context *
 #define memoryEnd_g                         defineGlobal(memoryEnd)
 #define memorySize_g                        defineGlobal(memorySize)
 
-#ifdef SC_NATIVE
 #ifdef __MICROBLAZE__
 #define cacheDirectory_g                    defineGlobal(cacheDirectory)
 #define cacheStart_g                        defineGlobal(cacheStart)
@@ -374,9 +371,8 @@ extern __thread Globals kernelGlobals;    /* The kernel mode execution context *
 #define cacheClears_g                       defineGlobal(cacheClears)
 #define cacheObjects_g                      defineGlobal(cacheObjects)
 #else
-#error SC_NATIVE is only supported on Formic
+#error Software caching is only supported on Formic microblazes
 #endif /* __MICROBLAZE__ */
-#endif /* SC_NATIVE */
 
 #define schedulerLastCore_g                 defineGlobal(schedulerLastCore)
 

@@ -1283,22 +1283,7 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	/*
 	 * setup the software cache
 	 */
-#ifdef SC_NATIVE
-
 	sc_initialize();
-
-#else  /* SC_NATIVE */
-
-	schedulerLastCore_g   = ((sysGetIsland() << 3) | sysGetCore()) + 1;
-
-	com_sun_squawk_SoftwareCache_cacheStart =
-		(Address)roundUp((UWord)mm_scache_base(my_cid), pageSize);
-	com_sun_squawk_SoftwareCache_cacheEnd   =
-		(Address)roundDown(
-			(UWord)com_sun_squawk_SoftwareCache_cacheStart + MM_MB_SCACHE_SIZE,
-			pageSize);
-
-#endif /* SC_NATIVE */
 /*end[MICROBLAZE_BUILD]*/
 
 
@@ -1336,15 +1321,9 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	printRange("stack     ",
 	           (char*)mm_stack_base(my_cid),
 	           (char*)mm_stack_base(my_cid)+MM_MB_VA_STACK_SIZE);
-#ifdef SC_NATIVE
 	printRange("cache     ",
 	           (char*)cacheStart_g,
 	           (char*)cacheEnd_g);
-#else
-	printRange("cache     ",
-	           (char*)com_sun_squawk_SoftwareCache_cacheStart,
-	           (char*)com_sun_squawk_SoftwareCache_cacheEnd);
-#endif /* SC_NATIVE */
 	printRange("HEAP      ",
 	           (char*)MM_MB_HEAP_BASE,
 	           (char*)MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE);
