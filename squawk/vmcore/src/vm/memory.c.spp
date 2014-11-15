@@ -1120,9 +1120,10 @@ INLINE_UNALIGNED jlong getLocalUnalignedLong(Address base, Offset offset) {
  * @param offset the offset (in 32 bit words) from 'base' at which to write
  * @param value  the value to write
  */
-/*MAC*/ void setInt(Address $base, Offset $offset, int $value) {
-	setIntTyped($base, $offset, AddressType_INT, $value);
-	setAssume($value == getInt($base, $offset));
+/* HACK: Don't MACROIZE we need it in mmp.c */
+void setInt(Address base, Offset offset, int value) {
+	setIntTyped(base, offset, AddressType_INT, value);
+	setAssume(value == getInt(base, offset));
 }
 
 /**
