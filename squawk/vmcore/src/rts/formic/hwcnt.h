@@ -32,6 +32,7 @@
 #ifndef HWCNT_H_
 #define HWCNT_H_
 
+#include <arch.h>
 #include <noc.h>
 #include <platform.h>
 
@@ -55,8 +56,84 @@ typedef enum {
 	                    * for the barrier implementation */
 } hwcnt_e;
 
-extern INLINE int  hwcnt_next_free ();
-extern INLINE int  hwcnt_get_free (hwcnt_e usage);
-extern INLINE void hwcnt_wait_pending (hwcnt_e reason);
+#include <globals.h>
+
+/**
+ * hwcnt_next_free detects the next available hardware counter and
+ * returns it.
+ *
+ * @return The first available counter
+ *         or -1 if there is no available counter
+ */
+INLINE int
+hwcnt_next_free ()
+{
+	int i;
+
+	for (i = 0; i < HWCNT_MAX_COUNTERS; ++i) {
+		if (hwcnts_g[i] == HWCNT_FREE)
+			return i;
+	}
+
+	return -1;
+}
+/**
+ * hwcnt_get_free returns an available hardware counter.  Caution,
+ * this is a blocking operation since if there is no available
+ * hardware counter it will wait for at least one pending transfer to
+ * complete.
+ *
+ * @return An available hardware counter
+ */
+INLINE int
+hwcnt_get_free (hwcnt_e usage)
+{
+	int cnt, i;
+
+	cnt           = hwcnt_next_free();
+
+	/*
+	 * If there is no available counter, go through them and check if
+	 * there are any completed transfers
+	 */
+	while (cnt == -1) {
+		for (i = 0; i < HWCNT_MAX_COUNTERS; ++i) {
+			/*
+			 * if the counter is zero the DMA finished and we can use
+			 * the counter
+			 */
+			if (ar_cnt_get(sysGetCore(), i) == 0) {
+				/* Mark the counter as available */
+				hwcnts_g[i] = HWCNT_FREE;
+				cnt         = i;
+			}
+		}
+	}
+
+	hwcnts_g[cnt] = usage;
+
+	return cnt;
+}
+/**
+ * hwcnt_wait_pending
+ *
+ * @param reason TODO
+ */
+INLINE void
+hwcnt_wait_pending (hwcnt_e reason)
+{
+	int cnt;
+
+	/* go through the counters and spin on non zero */
+	for (cnt = 0; cnt < HWCNT_MAX_COUNTERS; ++cnt) {
+		if (hwcnts_g[cnt] == reason) {
+			while (ar_cnt_get(sysGetCore(), cnt) != 0) {
+				;
+			}
+
+			hwcnts_g[cnt] = HWCNT_FREE;
+		}
+	}
+}
 
 #endif /* HWCNT_H_ */
