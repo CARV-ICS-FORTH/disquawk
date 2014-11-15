@@ -1,6 +1,5 @@
 /*
  * Copyright 2006-2008 Sun Microsystems, Inc. All Rights Reserved.
- * Copyright 2014      FORTH-ICS.             All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
  * This code is free software; you can redistribute it and/or modify
@@ -79,10 +78,23 @@ union  uu2   { jlong l; unsigned int lParts[2]; double d;        };
 #endif
 
 
-extern float  ib2f(int i);
-extern int    f2ib(float f);
-extern double lb2d(jlong l);
-extern jlong  d2lb(const double d);
+INLINE float ib2f(int i)                { union  uu1 x; x.i = i; return x.f;         }
+INLINE int   f2ib(float f)              { union  uu1 x; x.f = f; return x.i;         }
+
+
+#if ARM_FPA
+INLINE double lb2d(jlong l)                { union uu2 x; x.lParts[0] = (unsigned int)((ujlong)l >> 32); x.lParts[1] = l; return x.d;         }
+
+INLINE jlong  d2lb(const double d) {
+	union uu2 x;
+    unsigned int y;
+	x.d = d; y = x.lParts[0]; x.lParts[0]= x.lParts[1]; x.lParts[1] = y;
+    return x.l;
+}
+#else /* ARM_FPA */
+INLINE double lb2d(jlong l)                { union uu2 x; x.l = l; return x.d;         }
+INLINE jlong  d2lb(double d)               { union uu2 x; x.d = d; return x.l;         }
+#endif /* ARM_FPA */
 
 extern int    __ieee754_rem_pio2(double x, double *y);
 extern double __ieee754_sqrt(double x);
@@ -101,9 +113,19 @@ extern double JFP_lib_scalbn (double x, int n);
 extern double JFP_lib_sqrt(double x);
 extern double JFP_lib_fabs(double x);
 
+#if PROCESSOR_ARCHITECTURE_X86 && !defined(__SSE2_MATH__ )
+// x86 requires a much more complicated solution. See fp_bytecodes.c.
 extern double JFP_lib_muld(double x, double y);
 extern double JFP_lib_divd(double x, double y);
 extern double JFP_lib_remd(double x, double y);
 extern float  JFP_lib_remf(float x, float y);
+
+#else
+INLINE double  JFP_lib_muld(double x, double y)       { return x * y;      }
+INLINE double  JFP_lib_divd(double x, double y)       { return x / y;      }
+INLINE double  JFP_lib_remd(double x, double y)       { return fmod(x, y);}
+INLINE float   JFP_lib_remf(float x, float y)         { return fmodf(x, y);}
+
+#endif
 
 #endif /* _FP_GLOBAL_H_ */
