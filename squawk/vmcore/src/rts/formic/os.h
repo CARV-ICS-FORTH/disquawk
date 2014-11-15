@@ -100,15 +100,50 @@ void exit(int status);
 //extern int __linker_end_bss;
 extern int __linker_squawk_suite_end;
 
-INLINE void* sysValloc(size_t size);
+/**
+ * Allocate a page-aligned chunk of memory of the given size.
+ * THIS IS INVOKED ONLY ONCE TO ALLOCATE THE WHOLE MEMORY
+ *
+ * @param size size in bytes to allocate
+ * @return pointer to allocated memory or null.
+ */
+INLINE void* sysValloc(size_t size) {
+
+	if (size>MM_MB_SLICE_SIZE) {
+		fprintf(stderr, "Requesting %d Bytes but there are only %d available\n",
+		        size, MM_MB_SLICE_SIZE);
+		return NULL;
+	}
+
+	return (void*)mm_slice_base(my_cid);
+}
+
 #define sysVallocFree(ptr)
 #define sysGetPageSize() MM_PAGE_SIZE // defined in memory_management.h
 #define sysGetCachelineSize() MM_CACHELINE_SIZE // defined in memory_management.h
-jlong sysTimeMicros();
-INLINE jlong sysTimeMillis(void);
-INLINE int sysCAS(void* ptr, int old, int new);
-INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly);
-INLINE void sysGlobalMemoryProtection();
+
+/**
+ * Return the current time in microseconds.
+ */
+INLINE jlong sysTimeMicros() {
+	// get the cycles, each cycle is 100ns
+	jlong res = (jlong)ar_free_timer_get_cycles();
+	res = res / 10;
+	return res;
+}
+
+/**
+ * @return the current time in milliseconds.
+ */
+INLINE jlong sysTimeMillis(void) {
+	jlong res = sysTimeMicros();
+	res = res / 1000;
+	return res;
+}
+
+int sysCAS(void* ptr, int old, int new);
+void sysToggleMemoryProtection(char* start, char* end, boolean readonly);
+void sysGlobalMemoryProtection();
 
 /**
  * Cannot determine what the purpose of this function is. This
@@ -158,6 +193,23 @@ unsigned int get_flash_size(void);
  */
 #define sysGetIsland ar_get_board_id
 
-INLINE void sysHomeOfAddress(Address addr, int* island, int* core);
+
+/**
+ * Calculatates the address's home core and island
+ *
+ * @param  addr   The address to find its home
+ * @param  core   The home core (output if not NULL)
+ * @param  island The home island (output)
+ * @return Writes `core` and `island`
+ */
+INLINE void sysHomeOfAddress(Address addr, int* island, int* core) {
+#ifdef __MICROBLAZE__
+	*island = ((unsigned int)addr >> 26);
+	if (core != NULL)
+		*core   = ((unsigned int)addr >> 23) & 0x7;
+#else
+	exit(253);
+#endif
+}
 
 #endif /* FORMIC_OS_H_ */

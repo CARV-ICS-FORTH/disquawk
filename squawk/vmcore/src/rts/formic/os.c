@@ -85,44 +85,6 @@ void exit(int status) {
 	while (1);
 }
 
-
-/**
- * Allocate a page-aligned chunk of memory of the given size.
- * THIS IS INVOKED ONLY ONCE TO ALLOCATE THE WHOLE MEMORY
- *
- * @param size size in bytes to allocate
- * @return pointer to allocated memory or null.
- */
-INLINE void* sysValloc(size_t size) {
-
-	if (size>MM_MB_SLICE_SIZE) {
-		fprintf(stderr, "Requesting %d Bytes but there are only %d available\n",
-		        size, MM_MB_SLICE_SIZE);
-		return NULL;
-	}
-
-	return (void*)mm_slice_base(my_cid);
-}
-
-/**
- * Return the current time in microseconds.
- */
-jlong sysTimeMicros() {
-	// get the cycles, each cycle is 100ns
-	jlong res = (jlong)ar_free_timer_get_cycles();
-	res = res / 10;
-	return res;
-}
-
-/**
- * @return the current time in milliseconds.
- */
-INLINE jlong sysTimeMillis(void) {
-	jlong res = sysTimeMicros();
-	res = res / 1000;
-	return res;
-}
-
 /**
  * Compare and swap.
  *
@@ -130,7 +92,7 @@ INLINE jlong sysTimeMillis(void) {
  *
  * @return >0 if succeeded, 0 otherwise
  */
-INLINE int sysCAS(void* ptr, int old, int new) {
+int sysCAS(void* ptr, int old, int new) {
 	int ret;
 
 	ret  = (*(int*)ptr == old);
@@ -146,12 +108,12 @@ INLINE int sysCAS(void* ptr, int old, int new) {
  * @param end      one byte past the end of the region
  * @param readonly specifies if read-only protection is to be enabled or disabled
  */
-INLINE void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}
+void sysToggleMemoryProtection(char* start, char* end, boolean readonly) {}
 
 /**
  * Sets code and bss sections as read-only.
  */
-INLINE void sysGlobalMemoryProtection() {
+void sysGlobalMemoryProtection() {
   // Install ART code region and the heap
   ar_art_install_region(1,                         // region ID
                         MM_MB_VA_CODE_PAGE,        // base
@@ -169,22 +131,4 @@ INLINE void sysGlobalMemoryProtection() {
  */
 unsigned int get_flash_size(void) {
 	return (unsigned int)&__linker_squawk_suite_end;
-}
-
-/**
- * Calculatates the address's home core and island
- *
- * @param  addr   The address to find its home
- * @param  core   The home core (output if not NULL)
- * @param  island The home island (output)
- * @return Writes `core` and `island`
- */
-INLINE void sysHomeOfAddress(Address addr, int* island, int* core) {
-#ifdef __MICROBLAZE__
-	*island = ((unsigned int)addr >> 26);
-	if (core != NULL)
-		*core   = ((unsigned int)addr >> 23) & 0x7;
-#else
-	exit(253);
-#endif
 }
