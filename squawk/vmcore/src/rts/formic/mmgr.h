@@ -76,10 +76,10 @@ __attribute__((aligned(MM_CACHELINE_SIZE)))
 void        mmgrInitialize (mmgrGlobals *globals);
 
 #ifdef ARCH_MB
-inline void mmgrMonitorEnter (Address object);
-inline void mmgrMonitorExit (Address object);
+void mmgrMonitorEnter (Address object);
+void mmgrMonitorExit (Address object);
 #endif /* ARCH_MB */
-inline void mmgrMonitorEnterHandler (int bid, int cid, Address object);
-inline void mmgrMonitorExitHandler (int bid, int cid, Address object);
+void mmgrMonitorEnterHandler (int bid, int cid, Address object);
+void mmgrMonitorExitHandler (int bid, int cid, Address object);
 
 #endif /* MMGR_H_ */

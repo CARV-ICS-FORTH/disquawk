@@ -44,7 +44,7 @@
  * @return The allocated memory or
  *         NULL if there is not enough space
  */
-static monitor_t*
+static inline monitor_t*
 monitor_alloc ()
 {
 	monitor_t *new;
@@ -71,7 +71,7 @@ monitor_alloc ()
  *
  * @param monitor The monitor whose memory to free up
  */
-static void
+static inline void
 monitor_free (monitor_t *monitor)
 {
 	monitor->rchild = mmgrAllocTop_g;
@@ -89,7 +89,7 @@ monitor_free (monitor_t *monitor)
  * @return Returns the matching node or
  *         NULL if it was not found
  */
-static monitor_t*
+static inline monitor_t*
 bst_lookup (monitor_t *bst, Address object)
 {
 
@@ -111,7 +111,7 @@ bst_lookup (monitor_t *bst, Address object)
  * @param monitor The monitor to insert
  * @return The head of the mofified binary search tree
  */
-static monitor_t*
+static inline monitor_t*
 bst_insert (monitor_t *bst, monitor_t *monitor)
 {
 	monitor_t *tmp;
@@ -166,7 +166,7 @@ bst_find_max (monitor_t *bst)
 	return bst;
 }
 /* Forward declaration */
-static monitor_t*bst_remove (monitor_t *bst, Address object);
+static inline monitor_t*bst_remove (monitor_t *bst, Address object);
 
 /**
  * Removes the root of the given subtree and returns a properly
@@ -215,7 +215,7 @@ bst_remove_child (monitor_t *child)
  * @param object The object to remove
  * @return The resulting tree after the removal
  */
-static monitor_t*
+static inline monitor_t*
 bst_remove (monitor_t *bst, Address object)
 {
 
@@ -265,7 +265,7 @@ hashint (unsigned int a)
  * @param object The object's address to hash
  * @return The calculated hash
  */
-static unsigned int
+static inline unsigned int
 ht_hash (Address object)
 {
 	unsigned int res;
@@ -289,7 +289,7 @@ ht_hash (Address object)
  * @return The found node or
  *         NULL if not found
  */
-static monitor_t*
+static inline monitor_t*
 ht_lookup (Address object)
 {
 	unsigned int index;
@@ -309,7 +309,7 @@ ht_lookup (Address object)
  *
  * @param monitor The monitor to insert
  */
-static void
+static inline void
 ht_insert (monitor_t *monitor)
 {
 	unsigned int index;
@@ -328,7 +328,7 @@ ht_insert (monitor_t *monitor)
  * @return 1 if it was found and removed or
  *         0 if not found
  */
-static int
+static inline int
 ht_remove (Address object)
 {
 	unsigned int index;
@@ -370,7 +370,7 @@ mmgrInitialize (mmgrGlobals *globals)
  * @param bid    The manager's bid (return)
  * @param cid    The manager's cid (return)
  */
-INLINE void
+static inline void
 mmgrGetManager (Address object, int *bid, int *cid)
 {
 	/* We need only 3 bits since we have 2^3 monitor managers */
@@ -405,7 +405,7 @@ mmgrGetManager (Address object, int *bid, int *cid)
  * @param msg_op The desired operation
  * @param object The object to operate on
  */
-INLINE static void
+static inline void
 mmgrRequest (mmpMsgOp_t msg_op, Address object)
 {
 	unsigned int msg0;
@@ -428,7 +428,7 @@ mmgrRequest (mmpMsgOp_t msg_op, Address object)
  * @param object The object to enter its monitor
  *
  */
-INLINE void
+void
 mmgrMonitorEnter (Address object)
 {
 #  ifdef VERY_VERBOSE
@@ -449,7 +449,7 @@ mmgrMonitorEnter (Address object)
  *
  * @param object The object to exit its monitor
  */
-INLINE void
+void
 mmgrMonitorExit (Address object)
 {
 #  ifdef VERY_VERBOSE
@@ -477,7 +477,7 @@ mmgrMonitorExit (Address object)
  *
  * @return       The object's monitor
  */
-INLINE monitor_t*
+static inline monitor_t*
 mmgrGetMonitor (Address object)
 {
 	monitor_t *res;
@@ -507,7 +507,7 @@ mmgrGetMonitor (Address object)
  * @param cid The core id we got the request from
  * @param object The object on which we were requested to act
  */
-INLINE void
+void
 mmgrMonitorEnterHandler (int bid, int cid, Address object)
 {
 	monitor_t *monitor;
@@ -536,7 +536,7 @@ mmgrMonitorEnterHandler (int bid, int cid, Address object)
  * @param cid The core id we got the request from
  * @param object The object on which we were requested to act
  */
-INLINE void
+void
 mmgrMonitorExitHandler (int bid, int cid, Address object)
 {
 	monitor_t *monitor;
