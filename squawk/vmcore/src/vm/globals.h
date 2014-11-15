@@ -36,7 +36,6 @@
 #include <softcache.h>
 #include <mmgr.h>
 #include <jni_md.h>
-#include <hwcnt.h>
 
 /*
  * Add the monitor cache size to the global oop count
@@ -136,8 +135,13 @@ typedef struct globalsStruct {
 
 	/* Holds the status of the 126 available hardware coutners. We
 	 * reserve counter 126 for the centralized barrier and counter 127
-	 * for the UART transfers */
-	hwcnt_e      _hwcnts[126];
+	 * for the UART transfers.
+	 *
+	 * HACK: This is actually an array of hwcnt_e elements.  We define
+	 * it as an int array to avoid circular dependencies between the
+	 * header files globals.h and hwcnt.h .
+	 */
+	int          _hwcnts[126];
 
 #ifndef MACROIZE
 	int          _iparm; /* The immediate operand value of the current bytecode. */

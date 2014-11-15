@@ -40,7 +40,7 @@
 globals_box gps[AR_FORMIC_CORES_PER_BOARD];
 #else
 __thread Globals *gp;         /* The pointer to the global execution context */
-__thread monitor_t **mmgrHT_g;
+__thread mmgrGlobals *mmgr_g;
 #endif /* __MICROBLAZE__ */
 
 #if KERNEL_SQUAWK

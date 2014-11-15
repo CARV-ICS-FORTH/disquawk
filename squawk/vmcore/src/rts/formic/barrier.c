@@ -65,6 +65,8 @@
  * }
  * #else */
 
+#include <hwcnt.h>
+
 /**
  * @brief Global barrier.
  * Implements a simple, centralized barrier using the counters
