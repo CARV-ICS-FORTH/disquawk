@@ -29,8 +29,8 @@
 #include <myrmics.h>
 #include <util.h>
 #include <softcache.h>
-#include "mmp.h"
 #include "mmgr.h"
+#include "mmp.h"
 #include "globals.h"
 #include "arch.h"
 
