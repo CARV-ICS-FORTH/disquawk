@@ -1396,7 +1396,8 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
  * @param offset the offset (in 16 bit words) from 'base' from which to load
  * @return the value
  */
-/*MAC*/ int getShort(Address $base, Offset $offset) {
+/* HACK: Don't MACROIZE we need it in softcache.c */
+int getShort(Address $base, Offset $offset) {
 	return getShortTyped($base, $offset, AddressType_SHORT);
 }
 
@@ -1440,7 +1441,8 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
  * @param offset the offset (in UWords) from 'base' from which to load
  * @return the value
  */
-/*MAC*/ Address getObject(Address $base, Offset $offset) {
+/* HACK: Don't MACROIZE we need it in softcache.c */
+Address getObject(Address $base, Offset $offset) {
 	return (Address)getUWordTyped($base, $offset, AddressType_REF);
 }
 
@@ -1695,7 +1697,8 @@ void swap8(Address address) {
  * @param start the start address
  * @param end the end address
  */
-/*MAC*/ void zeroWords(UWordAddress $start, UWordAddress $end) {
+/* HACK: Don't MACROIZE we need it in softcache.c */
+void zeroWords(UWordAddress $start, UWordAddress $end) {
 	assume(isWordAligned((UWord)$start));
 	assume(isWordAligned((UWord)$end));
 	zeroTypes($start, $end);
@@ -1798,7 +1801,8 @@ Address allocate(int size, Address klass, int arrayLength) {
  * Static version of {@link #getDataSize()} so that garbage collector can
  * invoke this method on a possibly forwarded Klass object.
  */
-/*MAC*/ int getDataSize(Address $klass) {
+/* HACK: Don't MACROIZE we need it in softcache.c */
+int getDataSize(Address $klass) {
 	switch (com_sun_squawk_Klass_id_local($klass)) {
 	case CID_BOOLEAN:
 	case CID_BYTECODE:

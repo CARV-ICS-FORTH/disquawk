@@ -549,11 +549,6 @@ void freeBuffers() {
 #include "bytecodes.c"
 
 /*
- * Include the software cache.
- */
-#include "softcache.c"
-
-/*
  * Include java code translated into C code.
  */
 #include "vm2c.c"

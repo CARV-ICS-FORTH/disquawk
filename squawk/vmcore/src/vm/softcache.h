@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
  * @file   softcache.h
  * @author Foivos S. Zakkak <zakkak@ics.forth.gr>
@@ -30,6 +29,14 @@
 #define __SOFTCACHE_H__
 
 #include <address.h>
+#include <os.h>
+
+/**
+ * A node of the directory.
+ */
+typedef struct sc_object sc_object_st;
+
+#include <util.h>
 
 /**
  * Since objects are cache line aligned we use the LSB as the dirty
@@ -54,11 +61,6 @@
  */
 #define SC_DMA_FE_CNT_START ((SC_DMA_WB_CNT_START)-32)
 
-/**
- * A node of the directory.
- */
-typedef struct sc_object sc_object_st;
-
 /*
  * The hash-table size must be the closest prime to the cache-lines
  * that can fit in the cache. To calculate this value use the
@@ -73,12 +75,127 @@ typedef struct sc_object sc_object_st;
 /* The size of a Klass object instance (72) rounded up to cache line size */
 #define SC_KLASS_SIZE       128
 
-void                       sc_initialize ();
-Address                    sc_get (Address obj);
-extern inline Address      sc_translate (Address obj);
-extern inline Address      sc_prefix (Address obj);
-extern inline Address      sc_put (Address obj, int cid);
-extern inline int          sc_is_cacheable (Address obj);
-extern inline unsigned int sc_in_heap (Address addr);
+void    sc_initialize ();
+Address sc_get (Address obj);
+Address sc_put (Address obj, int cid);
+void    sc_flush ();
 
+/**
+ * Checks if an address is in the heap address space.  Heap addresses
+ * have at least one of their 6 MSBs set.
+ *
+ * @param addr The address to check
+ *
+ * @return >0 if the address is a heap address
+ *         0 otherwise (true local)
+ */
+INLINE unsigned int
+sc_in_heap (Address addr)
+{
+	/* HACK board 64 does not hold global addresses */
+	assume(sysGetIsland() < 63);
+
+	return (UWord)addr & (~0x3FFFFFF);
+}
+/**
+ * Checks if an address is cacheable in this software cache (whether
+ * it is a local object)
+ *
+ * @param obj The object to check
+ *
+ * @return 1 if the object is cacheable (remote object)
+ *         0 otherwise (local object)
+ */
+INLINE int
+sc_is_cacheable (Address obj)
+{
+	/* The object's home node board id */
+	int bid;
+	int cid;
+
+	/* Assume that the object is in the HEAP */
+	assume(sc_in_heap(obj));
+
+	sysHomeOfAddress(obj, &bid, &cid);
+	/* bid can't be zero */
+	    assume(bid);
+	/* if ( bid != (sysGetIsland() + 1) ) {
+	 *  printf("Obj %p home=%d my home=%d\n", obj, bid, sysGetIsland() + 1);
+	 * } */
+	/* if ( bid && (( bid != (sysGetIsland() + 1) ) || ( cid != sysGetCore() ))
+	 * ) {
+	 *  printf("Obj %p home=0x%02X/%d my home=0x%02X/%d\n",
+	 *         obj, bid, cid, sysGetIsland() + 1, sysGetCore());
+	 * } */
+
+	return bid && (( bid != (sysGetIsland() + 1) ) || ( cid != sysGetCore() ));
+}
+/**
+ * Takes an address and translates it to the local representation if
+ * it is cacheable or masks it to remove the board id info if it is
+ * local
+ *
+ * @param obj      The object to check
+ *
+ * @return the translated or masked address
+ */
+INLINE Address
+sc_translate (Address obj)
+{
+
+	if (obj == NULL)
+		return NULL;
+
+	/*
+	 * printf("Trans: %p\n", obj);
+	 * Check if it is local
+	 */
+	if (!sc_in_heap(obj)) {
+		/* printf("translating : %p\n", obj); */
+
+		/* ar_backtrace(); */
+		return obj;
+	}
+	else if (unlikely(sc_is_cacheable(obj))) {
+		/* printf("%p is cacheable\n", obj); */
+
+		/* It is cacheable, get it from the cache */
+		return sc_get(obj);
+	}
+	else {
+		/*
+		 * kt_printf("%p is in local heap\n", obj);
+		 * It is in the local heap slice, strip the tag
+		 */
+		obj = (Address)(((UWord)obj & 0x3FFFFFF) | MM_MB_HEAP_BASE);
+		/* Assert obj is in the HEAP */
+		assume( hieq(obj, (Address)MM_MB_HEAP_BASE) );
+		assume( lt(obj, (Address)(MM_MB_HEAP_BASE + MM_MB_HEAP_SIZE)) );
+
+		return obj;
+	}
+}
+/**
+ * Takes an address and prefixes it with the caller's board id
+ *
+ * @param obj The object to prefix
+ *
+ * @return the prefixed address
+ */
+INLINE Address
+sc_prefix (Address obj)
+{
+
+	/* printf("Pref: %p\n", obj);
+	 * printf("Start: %p\n", MM_MB_HEAP_BASE);
+	 * printf("End: %p\n", MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE); */
+	/* Assert obj is in the HEAP */
+	    assume( hieq(obj, (Address)MM_MB_HEAP_BASE) );
+	    assume( lt(obj, (Address)(MM_MB_HEAP_BASE + MM_MB_HEAP_SIZE)) );
+
+	/* assert core 64 doesn't provide global addresses */
+	    assume( (sysGetIsland() + 1) < 64 );
+
+	return (Address)(((UWord)obj & 0x3FFFFFF) | ((sysGetIsland() + 1) << 26));
+}
 #endif /* __SOFTCACHE_H__ */

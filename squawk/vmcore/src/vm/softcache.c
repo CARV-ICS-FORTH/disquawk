@@ -75,11 +75,7 @@ struct sc_object {
  *
  * @param key The key to hash
  */
-INLINE int sc_dir_hash(UWord key) {
-	key = (key >> 20) ^ (key >> 6);
-
-	return key % SC_HASHTABLE_SIZE;
-}
+#define sc_dir_hash(key) (((key >> 20) ^ (key >> 6)) % SC_HASHTABLE_SIZE)
 
 /**
  * The second hash function, used to resolve collisions
@@ -89,9 +85,7 @@ INLINE int sc_dir_hash(UWord key) {
  *
  * @param key The key to hash
  */
-INLINE int sc_dir_hash2(UWord key) {
-	return key >> 23;
-}
+#define sc_dir_hash2(key) (key >> 23)
 
 /**
  * Looks up the cache directory to find the requested object.
@@ -101,7 +95,7 @@ INLINE int sc_dir_hash2(UWord key) {
  * @return The address of the cached object or NULL if it was not
  *         found
  */
-INLINE Address sc_dir_lookup(UWord key) {
+static inline Address sc_dir_lookup(UWord key) {
 	int i             = 1;
 	int hash          = sc_dir_hash(key);
 	int hash2;
@@ -133,7 +127,7 @@ INLINE Address sc_dir_lookup(UWord key) {
  * @param key The key of the new node
  * @param val The value of the new node
  */
-INLINE void sc_dir_insert(UWord key, UWord val) {
+static inline void sc_dir_insert(UWord key, UWord val) {
 	int i              = 1;
 	int hash           = sc_dir_hash(key);
 	int hash2;
@@ -161,7 +155,7 @@ INLINE void sc_dir_insert(UWord key, UWord val) {
 /**
  * Clears all records except the read-only ones
  */
-INLINE void sc_dir_clear() {
+static inline void sc_dir_clear() {
 	int i;
 
 	for (i=0; i<SC_HASHTABLE_SIZE; ++i) {
@@ -176,7 +170,7 @@ INLINE void sc_dir_clear() {
 /**
  * Clears the read-only records
  */
-INLINE void sc_dir_ro_clear() {
+static inline void sc_dir_ro_clear() {
 	int i;
 
 	for (i=0; i<SC_HASHTABLE_SIZE; ++i) {
@@ -243,107 +237,129 @@ void sc_initialize() {
 }
 
 /**
- * Checks if an address is in the heap address space.  Heap addresses
- * have at least one of their 6 MSBs set.
+ * Allocate a chunk of zeroed memory from the software cache
  *
- * @param addr The address to check
- *
- * @return >0 if the address is a heap address
- *         0 otherwise (true local)
+ * @param   size        the length in bytes of the object and its header
+ *                      (i.e. the total number of bytes to be allocated).
+ * @return a pointer to the allocated memory or NULL if the allocation failed
  */
-INLINE unsigned int sc_in_heap(Address addr) {
-	// HACK board 64 does not hold global addresses
-	assume(sysGetIsland() < 63);
-	return ((UWord)addr & (~0x3FFFFFF));
-}
+static inline Address sc_alloc(int size) {
+	Address ret       = cacheAllocTop_g;
+	Offset  available = Address_diff(cacheROAllocTop_g, ret);
 
-/**
- * Checks if an address is cacheable in this software cache (whether
- * it is a local object)
- *
- * @param obj The object to check
- *
- * @return 1 if the object is cacheable (remote object)
- *         0 otherwise (local object)
- */
-INLINE int sc_is_cacheable(Address obj) {
-	// The object's home node board id
-	int bid;
-	int cid;
+	assume(size >= 0 && size <= cacheSize_g);
 
-	// Assume that the object is in the HEAP
-	assume(sc_in_heap(obj));
+#ifdef __MICROBLAZE__
+	// make sure size is a multiple of the cache line size
+	size = roundUp(size, sysGetCachelineSize());
+#endif
 
-	sysHomeOfAddress(obj, &bid, &cid);
-	// bid can't be zero
-	assume(bid);
-	/* if ( bid != (sysGetIsland() + 1) ) {
-	 * 	printf("Obj %p home=%d my home=%d\n", obj, bid, sysGetIsland() + 1);
-	 * } */
-	/* if ( bid && (( bid != (sysGetIsland() + 1) ) || ( cid != sysGetCore() )) ) {
-	 * 	printf("Obj %p home=0x%02X/%d my home=0x%02X/%d\n",
-	 * 	       obj, bid, cid, sysGetIsland() + 1, sysGetCore());
-	 * } */
-
-	return bid && (( bid != (sysGetIsland() + 1) ) || ( cid != sysGetCore() ));
-}
-
-/**
- * Takes an address and prefixes it with the caller's board id
- *
- * @param obj The object to prefix
- *
- * @return the prefixed address
- */
-inline Address sc_prefix(Address obj) {
-
-	/* printf("Pref: %p\n", obj);
-	 * printf("Start: %p\n", MM_MB_HEAP_BASE);
-	 * printf("End: %p\n", MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE); */
-	/* Assert obj is in the HEAP */
-	assume( hieq(obj, (Address)MM_MB_HEAP_BASE) );
-	assume( lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) );
-
-	/* assert core 64 doesn't provide global addresses */
-	assume( (sysGetIsland() + 1) < 64 );
-
-	return (Address)(((UWord)obj & 0x3FFFFFF) | ((sysGetIsland() + 1) << 26));
-}
-
-/**
- * Takes an address and translates it to the local representation if
- * it is cacheable or masks it to remove the board id info if it is
- * local
- *
- * @param obj      The object to check
- *
- * @return the translated or masked address
- */
-INLINE Address sc_translate(Address obj) {
-
-	if (obj == NULL)
+	if (unlikely(lt(available, size))) {
+		// If there is not enough space return NULL and let the caller
+		// handle it
 		return NULL;
-
-	/* printf("Trans: %p\n", obj); */
-	/* Check if it is local */
-	if (!sc_in_heap(obj)) {
-		/* printf("translating : %p\n", obj); */
-		/* ar_backtrace(); */
-		return obj;
-	} else if (unlikely(sc_is_cacheable(obj))) {
-		/* printf("%p is cacheable\n", obj); */
-		/* It is cacheable, get it from the cache */
-		return sc_get(obj);
-	} else {
-		/* kt_printf("%p is in local heap\n", obj); */
-		/* It is in the local heap slice, strip the tag */
-		obj = (Address)(((UWord)obj & 0x3FFFFFF) | MM_MB_HEAP_BASE);
-		/* Assert obj is in the HEAP */
-		assume( hieq(obj, (Address)MM_MB_HEAP_BASE) );
-		assume( lt(obj, (Address)(MM_MB_HEAP_BASE+MM_MB_HEAP_SIZE)) );
-		return obj;
 	}
 
+	cacheAllocTop_g = Address_add(ret, size);
+#ifdef ASSUME
+	// zero the memory
+	zeroWords(ret, cacheAllocTop_g);
+#endif
+	cacheObjects_g++;
+
+	return (Address)ret;
+}
+
+/**
+ * Allocate a chunk of memory from the software cache for a read-only
+ * object
+ *
+ * @return a pointer to the allocated memory or NULL if the allocation failed
+ */
+static inline Address sc_ro_alloc() {
+	Address ret       = Address_sub(cacheROAllocTop_g, SC_KLASS_SIZE);
+	Offset  available;
+
+	// if there are RW cache objects in the "RO section" of the cache
+	if (unlikely(lt(cacheROThreshold_g, cacheAllocTop_g))) {
+		// diff with cacheAllocTop_g
+		available = Address_diff(cacheROAllocTop_g, cacheAllocTop_g);
+	} else {
+		// else diff with cacheROThreshold_g to avoid using "precious"
+		// memory for RO objects
+		available = Address_diff(cacheROAllocTop_g, cacheROThreshold_g);
+	}
+
+	// If there is not enough space return NULL and let the caller
+	// handle it
+	if (unlikely(lt(available, SC_KLASS_SIZE))) {
+		return NULL;
+	}
+
+	cacheROAllocTop_g = ret;
+#ifdef ASSUME
+	// zero the memory
+	zeroWords(ret, cacheAllocTop_g);
+#endif
+	cacheObjects_g++;
+
+	return (Address)ret;
+}
+
+/**
+ * Clears all non read-only records and frees the memory
+ */
+static inline void sc_clear() {
+	// remove the records from the directory
+	sc_dir_clear();
+	// reset the allocation pointer
+	cacheAllocTop_g = cacheStart_g;
+}
+
+/**
+ * Clears all read-only records and frees the memory
+ */
+static inline void sc_ro_clear() {
+	// remove the records from the directory
+	sc_dir_ro_clear();
+	// reset the allocation pointer
+	cacheROAllocTop_g = cacheEnd_g;
+}
+
+/**
+ * Allocate a chunk of zeroed memory from the software cache
+ *
+ * @param   size        the length in bytes of the object and its header
+ *                      (i.e. the total number of bytes to be allocated). If 0
+ *                      it will allocate one cache-line.
+ * @return  a pointer to the allocated memory
+ */
+static inline Address sc_malloc(unsigned int size){
+	Address ret;
+
+	size = size ? size : sysGetCachelineSize();
+	ret  = sc_alloc(size);
+
+	if ( unlikely(ret == NULL) ) { // there is not enough space left
+		// Write back any dirty objects
+		sc_flush();
+		cacheFlushes_g++;
+		// clear the cache but keep the read-only objects
+		sc_clear();
+		// Try to allocate again
+		ret = sc_alloc(size);
+
+		if ( unlikely(ret == NULL) ) { // there is still not enough space
+			// also clear the read-only cached objects
+			sc_ro_clear();
+			cacheClears_g++;
+			// Try to allocate again
+			ret = sc_alloc(size);
+			assume(ret!=NULL);
+		}
+	}
+
+	return ret;
 }
 
 /**
@@ -354,7 +370,7 @@ INLINE Address sc_translate(Address obj) {
  * @param size The size of the object (must be less than 1MB)
  * @param cid  The core id from whose cache to fetch the data
  */
-INLINE void sc_fetch(Address from, Address to, int size, int cid) {
+void sc_fetch(Address from, Address to, int size, int cid) {
 	int cnt;
 	// The object's home node board id
 	int from_bid;
@@ -429,233 +445,6 @@ INLINE void sc_fetch(Address from, Address to, int size, int cid) {
 }
 
 /**
- * Write back a dirty Object
- *
- * @param from The object to write back
- * @param to   The home address of the object
- * @param size The size of the object
- */
-void sc_write_back(Address from, Address to, int size) {
-	int cnt;
-	// The object's home node board id
-	int to_bid;
-
-	// Make sure we do not cache our own objects
-	assume( sc_in_heap(to) );
-	assume( sc_is_cacheable(to) );
-
-	// make sure size <= 1MB, this is the upper limit for a DMA
-	// transfer
-	assume( (size > 0) && (size <= 0x100000) );
-
-	// Find an available counter to use
-	cnt = hwcnt_get_free(HWCNT_SC_WB);
-
-	// Write-backs can be made from the HW cache or the DRAM.  In the
-	// second case, they are directly passed to the local DRAM but
-	// have to be pushed to the local DMA engine first.
-
-	// Wait until our DMA engine can support at least one more DMA
-	while ( !(ar_ni_status_get(sysGetCore()) & 0xFF) ) {
-		;
-	}
-
-	// Init counter to -size
-	ar_cnt_set(sysGetCore(), cnt, -size);
-	// Get the object's home node cid and bid
-	sysHomeOfAddress(to, &to_bid, NULL);
-	// to_bid can't be zero
-	assume(to_bid);
-	// Issue the DMA
-	ar_dma_with_ack(sysGetCore(),   // my core id
-	                sysGetIsland(), // source board id
-	                sysGetCore(),   // source core id
-	                (int)from,      // source address
-	                to_bid - 1,     // destination board id
-	                0xC,            // destination core id
-	                (int)to,        // destination address
-	                sysGetIsland(), // ack board id
-	                sysGetCore(),   // ack core id
-	                cnt,            // ack counter
-	                size,           // data length
-	                1,              // ignore dirty bit on source
-	                0,              // force clean on dst
-	                1);        // write through (doesn't really matter
-                               // since we are writing directly on
-                               // DRAM)
-}
-
-/**
- * Wait for all pending write backs to reach completion
- */
-INLINE void sc_wait_pending_wb() {
-	hwcnt_wait_pending(HWCNT_SC_WB);
-}
-
-/**
- * Wait for all pending fetches to reach completion
- */
-INLINE void sc_wait_pending_fe() {
-	hwcnt_wait_pending(HWCNT_SC_FETCH);
-}
-
-/**
- * Allocate a chunk of zeroed memory from the software cache
- *
- * @param   size        the length in bytes of the object and its header
- *                      (i.e. the total number of bytes to be allocated).
- * @return a pointer to the allocated memory or NULL if the allocation failed
- */
-static inline Address sc_alloc(int size) {
-	Address ret       = cacheAllocTop_g;
-	Offset  available = Address_diff(cacheROAllocTop_g, ret);
-
-	assume(size >= 0 && size <= cacheSize_g);
-
-#ifdef __MICROBLAZE__
-	// make sure size is a multiple of the cache line size
-	size = roundUp(size, sysGetCachelineSize());
-#endif
-
-	if (unlikely(lt(available, size))) {
-		// If there is not enough space return NULL and let the caller
-		// handle it
-		return NULL;
-	}
-
-	cacheAllocTop_g = Address_add(ret, size);
-#ifdef ASSUME
-	// zero the memory
-	zeroWords(ret, cacheAllocTop_g);
-#endif
-	cacheObjects_g++;
-
-	return (Address)ret;
-}
-
-/**
- * Allocate a chunk of memory from the software cache for a read-only
- * object
- *
- * @return a pointer to the allocated memory or NULL if the allocation failed
- */
-INLINE Address sc_ro_alloc() {
-	Address ret       = Address_sub(cacheROAllocTop_g, SC_KLASS_SIZE);
-	Offset  available;
-
-	// if there are RW cache objects in the "RO section" of the cache
-	if (unlikely(lt(cacheROThreshold_g, cacheAllocTop_g))) {
-		// diff with cacheAllocTop_g
-		available = Address_diff(cacheROAllocTop_g, cacheAllocTop_g);
-	} else {
-		// else diff with cacheROThreshold_g to avoid using "precious"
-		// memory for RO objects
-		available = Address_diff(cacheROAllocTop_g, cacheROThreshold_g);
-	}
-
-	// If there is not enough space return NULL and let the caller
-	// handle it
-	if (unlikely(lt(available, SC_KLASS_SIZE))) {
-		return NULL;
-	}
-
-	cacheROAllocTop_g = ret;
-#ifdef ASSUME
-	// zero the memory
-	zeroWords(ret, cacheAllocTop_g);
-#endif
-	cacheObjects_g++;
-
-	return (Address)ret;
-}
-
-/**
- * Write-back any dirty objects in the software cache
- */
-INLINE void sc_flush() {
-	int i;
-
-	// Wait for pending write backs to complete in order to avoid
-	// double write backs
-	sc_wait_pending_wb();
-
-	/* Go through the dirty objects and issue write-back RDMAs */
-	for (i=0; i< SC_HASHTABLE_SIZE; ++i) {
-		if ( cacheDirectory_g[i].key & SC_DIRTY_MASK ) {
-			Address cached = (Address)cacheDirectory_g[i].val;
-			Address oop    = (Address)cacheDirectory_g[i].key;
-			int     size   = com_sun_squawk_Klass_instanceSizeBytes(oop);
-			// TODO: Make sure this size is correct
-			sc_write_back(cached, (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE), size);
-		}
-	}
-
-	/* Check if we need to wait for completion */
-	//if (likely(blocking)) {
-		/* wait for the RDMAs to reach completion */
-		sc_wait_pending_wb();
-	//} else {
-	//	com_sun_squawk_SoftwareCache_pendingWriteBacks = 1;
-	//}
-}
-
-/**
- * Clears all non read-only records and frees the memory
- */
-INLINE void sc_clear() {
-	// remove the records from the directory
-	sc_dir_clear();
-	// reset the allocation pointer
-	cacheAllocTop_g = cacheStart_g;
-}
-
-/**
- * Clears all read-only records and frees the memory
- */
-INLINE void sc_ro_clear() {
-	// remove the records from the directory
-	sc_dir_ro_clear();
-	// reset the allocation pointer
-	cacheROAllocTop_g = cacheEnd_g;
-}
-
-/**
- * Allocate a chunk of zeroed memory from the software cache
- *
- * @param   size        the length in bytes of the object and its header
- *                      (i.e. the total number of bytes to be allocated). If 0
- *                      it will allocate one cache-line.
- * @return  a pointer to the allocated memory
- */
-INLINE Address sc_malloc(unsigned int size){
-	Address ret;
-
-	size = size ? size : sysGetCachelineSize();
-	ret  = sc_alloc(size);
-
-	if ( unlikely(ret == NULL) ) { // there is not enough space left
-		// Write back any dirty objects
-		sc_flush();
-		cacheFlushes_g++;
-		// clear the cache but keep the read-only objects
-		sc_clear();
-		// Try to allocate again
-		ret = sc_alloc(size);
-
-		if ( unlikely(ret == NULL) ) { // there is still not enough space
-			// also clear the read-only cached objects
-			sc_ro_clear();
-			cacheClears_g++;
-			// Try to allocate again
-			ret = sc_alloc(size);
-			assume(ret!=NULL);
-		}
-	}
-
-	return ret;
-}
-
-/**
  * Get the address at which the body of an object starts given the
  * address, 'ret', of the block of memory allocated (cache-line
  * aligned) for the object.
@@ -688,7 +477,7 @@ INLINE Address sc_malloc(unsigned int size){
  * This is actually a clone of blockToOop from
  * cldc/src/com/sun/squawk/GC.java
  */
-INLINE Address sc_block_to_oop(Address obj, Address oop, int cid) {
+static inline Address sc_block_to_oop(Address obj, Address oop, int cid) {
 	int size, length;
 
 	switch ((*(int*)oop) & HDR_headerTagMask) {
@@ -765,7 +554,7 @@ INLINE Address sc_block_to_oop(Address obj, Address oop, int cid) {
  *
  * @return The cached object
  */
-INLINE Address sc_put(Address obj, int cid) {
+Address sc_put(Address obj, int cid) {
 	Address   ret;
 
 	if ( unlikely(cacheAllocTemp_g != NULL) ) {
@@ -831,4 +620,159 @@ Address sc_get(Address obj) {
 	assume(   lt(ret, cacheEnd_g)   );
 
 	return ret;
+}
+
+/**
+ * Write back a dirty Object
+ *
+ * @param from The object to write back
+ * @param to   The home address of the object
+ * @param size The size of the object
+ */
+void sc_write_back(Address from, Address to, int size) {
+	int cnt;
+	// The object's home node board id
+	int to_bid;
+
+	// Make sure we do not cache our own objects
+	assume( sc_in_heap(to) );
+	assume( sc_is_cacheable(to) );
+
+	// make sure size <= 1MB, this is the upper limit for a DMA
+	// transfer
+	assume( (size > 0) && (size <= 0x100000) );
+
+	// Find an available counter to use
+	cnt = hwcnt_get_free(HWCNT_SC_WB);
+
+	// Write-backs can be made from the HW cache or the DRAM.  In the
+	// second case, they are directly passed to the local DRAM but
+	// have to be pushed to the local DMA engine first.
+
+	// Wait until our DMA engine can support at least one more DMA
+	while ( !(ar_ni_status_get(sysGetCore()) & 0xFF) ) {
+		;
+	}
+
+	// Init counter to -size
+	ar_cnt_set(sysGetCore(), cnt, -size);
+	// Get the object's home node cid and bid
+	sysHomeOfAddress(to, &to_bid, NULL);
+	// to_bid can't be zero
+	assume(to_bid);
+	// Issue the DMA
+	ar_dma_with_ack(sysGetCore(),   // my core id
+	                sysGetIsland(), // source board id
+	                sysGetCore(),   // source core id
+	                (int)from,      // source address
+	                to_bid - 1,     // destination board id
+	                0xC,            // destination core id
+	                (int)to,        // destination address
+	                sysGetIsland(), // ack board id
+	                sysGetCore(),   // ack core id
+	                cnt,            // ack counter
+	                size,           // data length
+	                1,              // ignore dirty bit on source
+	                0,              // force clean on dst
+	                1);        // write through (doesn't really matter
+                               // since we are writing directly on
+                               // DRAM)
+}
+
+/**
+ * Wait for all pending write backs to reach completion
+ */
+#define sc_wait_pending_wb() hwcnt_wait_pending(HWCNT_SC_WB)
+
+/**
+ * Wait for all pending fetches to reach completion
+ */
+#define sc_wait_pending_fe() hwcnt_wait_pending(HWCNT_SC_FETCH)
+
+/**
+ * Write-back any dirty objects in the software cache
+ */
+void sc_flush() {
+	int i;
+
+	// Wait for pending write backs to complete in order to avoid
+	// double write backs
+	sc_wait_pending_wb();
+
+	/* Go through the dirty objects and issue write-back RDMAs */
+	for (i=0; i< SC_HASHTABLE_SIZE; ++i) {
+		if ( cacheDirectory_g[i].key & SC_DIRTY_MASK ) {
+			Address cached = (Address)cacheDirectory_g[i].val;
+			Address oop    = (Address)cacheDirectory_g[i].key;
+			int     size   = com_sun_squawk_Klass_instanceSizeBytes(oop);
+			// TODO: Make sure this size is correct
+			sc_write_back(cached, (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE), size);
+		}
+	}
+
+	/* Check if we need to wait for completion */
+	//if (likely(blocking)) {
+		/* wait for the RDMAs to reach completion */
+		sc_wait_pending_wb();
+	//} else {
+	//	com_sun_squawk_SoftwareCache_pendingWriteBacks = 1;
+	//}
+}
+
+/**
+ * Checks the object type and calculates its size and returns its
+ * type.
+ *
+ * To find out the type of object stored in the cache-line we use
+ * the header tag as defined in
+ * cldc/src/com/sun/squawk/vm/HDR.java
+ *
+ * @param oop            The object to get its size
+ * @param size_in_bytes  A pointer to an integer to write the object size
+ *
+ * @return 2 if the object is a method
+ *         1 if it is an array
+ *         0 if it is a class instance
+ */
+static inline int sc_object_size_and_type(Address oop, int* size_in_bytes) {
+	int length;
+
+	switch ((*(int*)oop) & HDR_headerTagMask) {
+
+	case HDR_basicHeaderTag:  // Class Instance
+
+		// Check if we brought the whole instance or not
+		*size_in_bytes =
+			com_sun_squawk_Klass_instanceSizeBytes((Address)*(int*)oop);
+		/* printf("Klass size = %d\n", size); */
+
+		return 0;
+
+	case HDR_arrayHeaderTag:  // Array
+
+		// Check if we brought the whole array or not
+		length = (*(int*)oop) >> 2;
+		*size_in_bytes =
+			length * getDataSize(
+				com_sun_squawk_Klass_componentType((Address)*(int*)(oop+4)));
+		/* printf("Array [%d] size = %d\n", length, size); */
+
+		return 1;
+
+	case HDR_methodHeaderTag: // Method
+		/* printf("%p is a method!\n", oop); */
+		// TODO: What's the size of a method?
+		oop += ((*(int*)oop) >> HDR_headerTagBits) * HDR_BYTES_PER_WORD;
+
+		// HACK: crash on method header accesses, until we fully
+		// understand their usage
+		fatalVMError("Method header");
+		return 2;
+
+	default:
+		fatalVMError("Wrong header tag");
+		return -1;
+
+	}
+
 }

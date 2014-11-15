@@ -201,11 +201,13 @@ MYRMICS_LINK_OBJS:=\
 ################################################################################
 SQUAWK_OBJS =\
 	globals.mb.o \
-	scheduler.mb.o \
-	squawk.mb.o \
 	rom.mb.o \
+	scheduler.mb.o \
+	softcache.mb.o \
+	squawk.mb.o \
 	util.mb.o \
-	util/sha.mb.o
+	util/sha.mb.o \
+
 SQUAWK_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(VM_SRC)/,$(SQUAWK_OBJS))
 ################################################################################
 
@@ -215,9 +217,10 @@ SQUAWK_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(VM_SRC)/,$(SQUAWK_OBJS))
 ################################################################################
 FORMIC_OBJS =\
 	hwcnt.mb.o \
-	os.mb.o \
 	mmgr.mb.o \
-	mmp.mb.o
+	mmp.mb.o \
+	os.mb.o \
+
 FORMIC_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(RTS_SRC)/,$(FORMIC_OBJS))
 ################################################################################
 
