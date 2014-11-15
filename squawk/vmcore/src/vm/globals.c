@@ -62,6 +62,14 @@ int initializeGlobals(Globals *globals) {
 	interruptsDisabled_g = 0;      /* enabled by default */
 	runningOnServiceThread_g = true;
 
+#if (defined VERY_VERBOSE)
+	com_sun_squawk_VM_verboseLevel = 2;
+#elif (defined VERBOSE)
+	com_sun_squawk_VM_verboseLevel = 1;
+#else
+	com_sun_squawk_VM_verboseLevel = 0;
+#endif
+
 #ifndef FORMIC
 	streams_g[com_sun_squawk_VM_STREAM_STDOUT] = stdout;
 	streams_g[com_sun_squawk_VM_STREAM_STDERR] = stderr;

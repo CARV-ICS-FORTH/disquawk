@@ -73,6 +73,8 @@ NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/Native
 	-DPROFILING \
 	-DMACROIZE \
 	-DASSUME \
+    -DVERBOSE \
+    -DVERY_VERBOSE \
 	-DTYPEMAP \
 	-DKERNEL_SQUAK=true \
 	-DSQUAWK_64=false \
@@ -85,6 +87,7 @@ NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/Native
 	-DPLATFORM_UNALIGNED_LOADS=false \
 	-DLISP2_BITMAP \
 	-DHIER_BARRIER \
+	-DMMGR_ON_ARM \
 	-DSC_NATIVE
 # What we use
 # THESE MUST AGREE WITH build-mb.properties file
