@@ -670,18 +670,18 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	assume((unsigned int) $index < (unsigned int)getArrayLength($oop));
 }
 
-#   ifdef __MICROBLAZE__
+#   ifdef FORMIC
 /*DEF*/ void localBoundsAssume(Address $oop, int $index) {
 	assume($oop);
 	/* use the unsigned bounds check trick: */
 	assume((unsigned int) $index < (unsigned int)getLocalArrayLength($oop));
 }
-#   else /* __MICROBLAZE__ */
+#   else /* FORMIC */
 #       define localBoundsAssume boundsAssume
-#   endif /* __MICROBLAZE__ */
+#   endif /* FORMIC */
 #else
-/*DEF*/ void boundsAssume(Address $oop, int $index) {}
-/*DEF*/ void localBoundsAssume(Address $oop, int $index) {}
+#   define boundsAssume(oop, index)
+#   define localBoundsAssume(oop, index)
 #endif /* ASSUME */
 
 
