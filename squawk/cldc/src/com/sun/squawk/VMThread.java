@@ -1804,13 +1804,14 @@ public final class VMThread implements GlobalStaticFields {
 				// for the monitor manager to reply.
 
 				Monitor monitor = getMonitor(object);
-
 				VMThread waiter = monitor.removeMonitorWait();
-				if (waiter != null) {
-					Assert.that(waiter.isAlive());
 
-					addFirstToRunnableThreadsQueue(waiter);
-				}
+				Assert.that(waiter != null);
+				Assert.that(monitor.owner == null);
+				Assert.that(waiter.isAlive());
+
+				monitor.threshold = Monitor.MONITOR_THRESHOLD;
+				addFirstToRunnableThreadsQueue(waiter);
 			}
 
 			/* TODO: Check pending DMAs and retry if they failed */
@@ -2320,6 +2321,40 @@ public final class VMThread implements GlobalStaticFields {
 		 */
 		monitor.owner = null;
 		monitor.depth = 0;
+
+		/*
+		 * Keep the monitor locally for some rounds to reduce the
+		 * network traffic.
+		 */
+		if (monitor.threshold-- > 0) {
+			// We can still use this monitor.  Find a thread waiting
+			// for it and schedule it FIRST for execution.
+
+			// HACK: This way we give priority to waiting on
+			// monitors threads not respecting the actual thread
+			// priority, however we consider this to be fair since
+			// this thread already yielded at least once to wait
+			// for the monitor manager to reply.
+
+			VMThread waiter = monitor.removeMonitorWait();
+
+			if (waiter != null) {
+				Assert.that(waiter.isAlive());
+
+				addFirstToRunnableThreadsQueue(waiter);
+
+				// NOTE: The unblocked thread is still not guaranteed
+				// to run next.  reschedule() invokes rescheduleNext()
+				// which polls the mailbox for incoming messages and
+				// might detect a monitor ACK and add the
+				// corresponding thread to the top of the runnable
+				// threads queue.
+
+				// Should we reschedule now or wait for our turn?
+				// reschedule();
+				return true;
+			}
+		}
 
 		MMGR.monitorExit(monitor.object);
 
