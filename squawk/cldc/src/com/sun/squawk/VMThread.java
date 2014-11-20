@@ -2404,20 +2404,11 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	static private Monitor retryMonitor(Object object) {
 		// see if we can get montitor now.
-		Monitor monitor = getMonitor(object);
-		// FIXME: monitor.owner check / update must be atomic (test and set)
-		while (monitor.owner != null) {
-//traceMonitor("retryMonitor: Woke up without lock. retry: ", monitor, object);
-
-			Assert.that(monitor.owner != currentThread);
-			// if not, cut to the head of the queue (we've already waited our turn.)
-			monitor.addMonitorWaitHead(currentThread);
-			reschedule();
-			currentThread.checkInvarients();
-			monitor = getMonitor(object);
-		}
+		currentThread.checkInvarients();
+		VMThread.monitorEnter(object);
 
 //traceMonitor("retryMonitor: Now has the lock: ", monitor, object);
+		Monitor monitor = getMonitor(object);
 
 		Assert.that(monitor.owner == null);
 		Assert.that(monitor.depth == 0);
