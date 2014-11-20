@@ -53,4 +53,32 @@ public final class MMGR {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 
+	/**
+	 * Request to exit the given object's monitor and notify that we
+	 * will be waiting on it.
+	 *
+	 * @param object The object to exit its monitor
+	 */
+	public static void waitMonitorExit(Object object) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
+	/**
+	 * Request to remove me from the object's monitor waiters queue
+	 *
+	 * @param object The object
+	 */
+	public static void removeWaiter(Object object) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
+	/**
+	 * Request to add me to the object's monitor waiters queue
+	 *
+	 * @param object The object
+	 */
+	public static void addWaiter(Object object) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
 }

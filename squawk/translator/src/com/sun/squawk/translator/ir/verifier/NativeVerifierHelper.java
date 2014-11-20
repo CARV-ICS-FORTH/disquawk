@@ -1355,6 +1355,12 @@ class NativeVerifierHelper {
             return;
         }
 
+        case Native.com_sun_squawk_platform_MMGR$addWaiter: {
+            frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
         case Native.com_sun_squawk_platform_MMGR$monitorEnter: {
             frame.pop(OOP); // java.lang.Object
             Assert.that(frame.isStackEmpty());
@@ -1362,6 +1368,18 @@ class NativeVerifierHelper {
         }
 
         case Native.com_sun_squawk_platform_MMGR$monitorExit: {
+            frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMGR$removeWaiter: {
+            frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMGR$waitMonitorExit: {
             frame.pop(OOP); // java.lang.Object
             Assert.that(frame.isStackEmpty());
             return;

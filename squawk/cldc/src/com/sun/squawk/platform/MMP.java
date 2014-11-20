@@ -35,9 +35,10 @@ import com.sun.squawk.pragma.*;
 public final class MMP {
 
 	/* Must be the same as in mmp_ops.h */
-	public static final int OPS_NOP      = 0;
-	public static final int OPS_TH_SPAWN = 1;
-	public static final int OPS_MNTR_ACK = 4;
+	public static final int OPS_NOP               = 0;
+	public static final int OPS_TH_SPAWN          = 1;
+	public static final int OPS_MNTR_ACK          = 2;
+	public static final int OPS_MNTR_NOTIFICATION = 3;
 
 	/**
 	 * Query the mailbox for incoming messages and return a thread object

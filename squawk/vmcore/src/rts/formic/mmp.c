@@ -76,6 +76,7 @@ mmpCheckMailbox (Address type)
 	unsigned int msg0;
 	int          bid;
 	int          cid;
+	int          wait;
 	mmpMsgOp_t   msg_type;
 	Address      result;
 	Address      object;
@@ -85,7 +86,8 @@ mmpCheckMailbox (Address type)
 		return NULL;
 	}
 
-	result   = NULL;
+	result = NULL;
+	wait   = 0;
 
 	/* If there are, get the first */
 	msg0     = ar_mbox_get(sysGetCore());
@@ -138,7 +140,7 @@ mmpCheckMailbox (Address type)
 #  endif /* ifdef VERY_VERBOSE */
 
 			/* Resend a request */
-			mmgrMonitorEnter((Address)object);
+			mmgrMonitorEnter(object);
 			set_java_lang_Integer_value(type, MMP_OPS_NOP);
 		}
 		else {
@@ -147,7 +149,7 @@ mmpCheckMailbox (Address type)
 			ar_uart_flush();
 #  endif /* ifdef VERY_VERBOSE */
 
-			result = (Address)object;
+			result = object;
 		}
 
 		break;
@@ -161,13 +163,21 @@ mmpCheckMailbox (Address type)
 		assume(object != NULL);
 		mmgrMonitorEnterHandler(bid, cid, object);
 		break;
+	case MMP_OPS_MNTR_WAITER_ADD:
+		mmgrAddWaiterHandler(bid, cid, object);
+		break;
+	case MMP_OPS_MNTR_WAITER_REMOVE:
+		mmgrRemoveWaiterHandler(bid, cid, object);
+		break;
+	case MMP_OPS_MNTR_WAIT:
+		wait = 1;  /* Don't break here */
 	case MMP_OPS_MNTR_EXIT:
 		/* this is a two-words message */
 		object = (Address)ar_mbox_get(sysGetCore());
 		/* kt_printf("0x%02X/%d wants to exit monitor (%p)\n",
 		 *           from_bid, from_cid, object); */
 		assume(object != NULL);
-		mmgrMonitorExitHandler(bid, cid, object);
+		mmgrMonitorExitHandler(bid, cid, object, wait);
 		break;
 	/* TODO: Add Christi's op-codes here */
 	/*

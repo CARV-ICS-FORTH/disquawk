@@ -2362,25 +2362,60 @@ public final class VMThread implements GlobalStaticFields {
 		MMGR.monitorExit(monitor.object);
 
 		return !monitor.isMonitorWaitEmpty();
-// TODO: HACK: keep the lock for a local thread before really releasing it?
-// 		/*
-// 		 * Try and remove a thread from the wait queue.
-// 		 */
-// 		VMThread waiter = monitor.removeMonitorWait();
-// 		if (waiter != null /*&& waiter.isAlive()*/) {       // Is this right?
-// 			Assert.that(waiter.isAlive());
-// //traceMonitor("releaseMonitor make thread runnable: ", monitor, monitor.object);
-// //VM.print("   made runnable - thread-");
-// //VM.print(waiter.getThreadNumber());
-// //VM.println();
-// 			/*
-// 			 * Restart execution of the thread.
-// 			 */
-// 			addToRunnableThreadsQueue(waiter);
-// 			return true;
-// 		} else {
-// 			return false;
-// 		}
+	}
+
+	/**
+	 * Let go of the monitor and notify the MMGR that we are now
+	 * waiting on it, and allow a thread waiting for the lock to
+	 * become runnable.  Does not give the waiting thread the monitor
+	 * - the waiter must try to get the lock.
+	 *
+	 * @param monitor the monitor
+	 */
+	private static void waitReleaseMonitor(Monitor monitor) {
+		// FIXME
+
+
+		/*
+		 * Drop the lock and notify the Monitor manager
+		 */
+		monitor.owner = null;
+		monitor.depth = 0;
+
+		/*
+		 * Keep the monitor locally for some rounds to reduce the
+		 * network traffic.
+		 */
+		if (monitor.threshold-- > 0) {
+			// We can still use this monitor.  Find a thread waiting
+			// for it and schedule it FIRST for execution.
+
+			// HACK: This way we give priority to waiting on
+			// monitors threads not respecting the actual thread
+			// priority, however we consider this to be fair since
+			// this thread already yielded at least once to wait
+			// for the monitor manager to reply.
+
+			VMThread waiter = monitor.removeMonitorWait();
+
+			if (waiter != null) {
+				Assert.that(waiter.isAlive());
+
+				addFirstToRunnableThreadsQueue(waiter);
+
+				// NOTE: The unblocked thread is still not guaranteed
+				// to run next.  reschedule() invokes rescheduleNext()
+				// which polls the mailbox for incoming messages and
+				// might detect a monitor ACK and add the
+				// corresponding thread to the top of the runnable
+				// threads queue.
+
+				MMGR.addWaiter(monitor.object);
+				return;
+			}
+		}
+
+		MMGR.waitMonitorExit(monitor.object);
 	}
 
 	/**
@@ -2620,7 +2655,7 @@ public final class VMThread implements GlobalStaticFields {
 		monitor.addCondvarWait(theCurrentThread);
 
 		// Having relinquished the monitor, get the next thread off its wait queue.
-		releaseMonitor(monitor);
+		waitReleaseMonitor(monitor);
 //traceMonitor("monitorWait: released monitor: ", monitor, object);
 
 		// Wait for a notify or a timeout.

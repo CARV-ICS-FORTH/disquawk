@@ -277,8 +277,11 @@ public final class Native {
     public final static int com_sun_squawk_SoftwareCache$translate        = 170;
     public final static int com_sun_squawk_platform_MMP$checkMailbox      = 171;
     public final static int com_sun_squawk_platform_MMP$spawnThread       = 172;
-    public final static int com_sun_squawk_platform_MMGR$monitorEnter     = 173;
-    public final static int com_sun_squawk_platform_MMGR$monitorExit      = 174;
-    public final static int com_sun_squawk_VM$lcmp                        = 175;
-    public final static int ENTRY_COUNT                                   = 176;
+    public final static int com_sun_squawk_platform_MMGR$addWaiter        = 173;
+    public final static int com_sun_squawk_platform_MMGR$monitorEnter     = 174;
+    public final static int com_sun_squawk_platform_MMGR$monitorExit      = 175;
+    public final static int com_sun_squawk_platform_MMGR$removeWaiter     = 176;
+    public final static int com_sun_squawk_platform_MMGR$waitMonitorExit  = 177;
+    public final static int com_sun_squawk_VM$lcmp                        = 178;
+    public final static int ENTRY_COUNT                                   = 179;
 }

@@ -40,8 +40,13 @@
 typedef struct wait_node waiter_queue_t;
 
 struct wait_node {
-	int            id;       /**< The waiter's ID packed as
-	                          * (board_ID << 3) | (core_ID) */
+	int            id;       /**< The waiter's ID along with a bit
+	                          * denoting if this struct is written on
+	                          * the first part of a memmory chunk
+	                          * allocated by monitor_malloc() (if
+	                          * WAITER_REUSE is defined) packed as
+	                          * (first << 16) | (board_ID << 3) |
+	                          * (core_ID) */
 	waiter_queue_t *next;    /**< Pointer to the next waiter in the
 	                          * queue */
 };
@@ -78,8 +83,13 @@ void        mmgrInitialize (mmgrGlobals *globals);
 #ifdef ARCH_MB
 void mmgrMonitorEnter (Address object);
 void mmgrMonitorExit (Address object);
+void mmgrWaitMonitorExit (Address object);
+void mmgrAddWaiter (Address object);
+void mmgrRemoveWaiter (Address object);
 #endif /* ARCH_MB */
 void mmgrMonitorEnterHandler (int bid, int cid, Address object);
-void mmgrMonitorExitHandler (int bid, int cid, Address object);
+void mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait);
+waiter_queue_t* mmgrRemoveWaiterHandler (int bid, int cid, Address object);
+void mmgrAddWaiterHandler (int bid, int cid, Address object);
 
 #endif /* MMGR_H_ */

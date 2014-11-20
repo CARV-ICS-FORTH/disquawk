@@ -381,7 +381,7 @@ mmgrGetManager (Address object, int *bid, int *cid)
 	 * Then skip the next 3 bits so that neighbor objects don't end at the same
 	 * monitor manager
 	 */
-	id3  = (((unsigned int)object) >> 9) & 0x7;
+	id3 = (((unsigned int)object) >> 9) & 0x7;
 
 #ifdef MMGR_ON_ARM
 
@@ -459,13 +459,55 @@ mmgrMonitorExit (Address object)
 
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_EXIT, object);
+}
+/**
+ * Request to exit the given object's monitor and notify the manager
+ * we will be waiting on it.
+ *
+ * @param object The object to exit its monitor
+ */
+void
+mmgrWaitMonitorExit (Address object)
+{
+#  ifdef VERY_VERBOSE
+	kt_printf("I sent a wait exit request\n");
+	ar_uart_flush();
+#  endif /* ifdef VERY_VERBOSE */
 
-	/*
-	 * For monitor exits we don't need to wait for a reply, since the
-	 * request returns only when it gets an ACK we can safely assume
-	 * that the manager has the message in its queue and will
-	 * eventually process it.
-	 */
+/*	assume(sc_in_heap(object)); */
+	mmgrRequest(MMP_OPS_MNTR_WAIT, object);
+}
+/**
+ * Request to add me to the given object's waiters queue.
+ *
+ * @param object The object
+ */
+void
+mmgrAddWaiter (Address object)
+{
+#  ifdef VERY_VERBOSE
+	kt_printf("I sent an add waiter request\n");
+	ar_uart_flush();
+#  endif /* ifdef VERY_VERBOSE */
+
+/*	assume(sc_in_heap(object)); */
+	mmgrRequest(MMP_OPS_MNTR_WAITER_ADD, object);
+}
+/**
+ * Request to remove me from the given object's waiters queue.
+ *
+ * @param object The object
+ */
+void
+mmgrRemoveWaiter (Address object)
+{
+#  ifdef VERY_VERBOSE
+	kt_printf("I sent a remove waiter request\n");
+	ar_uart_flush();
+#  endif /* ifdef VERY_VERBOSE */
+
+/*	assume(sc_in_heap(object)); */
+	mmgrRequest(MMP_OPS_MNTR_WAITER_REMOVE, object);
 }
 #endif /* ARCH_MB */
 
@@ -532,24 +574,103 @@ mmgrMonitorEnterHandler (int bid, int cid, Address object)
 /**
  * Handle a monitor exit request.
  *
- * @param bid The board id we got the request from
- * @param cid The core id we got the request from
+ * @param bid    The board id we got the request from
+ * @param cid    The core id we got the request from
  * @param object The object on which we were requested to act
  */
-void
-mmgrMonitorExitHandler (int bid, int cid, Address object)
+waiter_queue_t*
+mmgrRemoveWaiterHandler (int bid, int cid, Address object)
 {
-	monitor_t *monitor;
+	monitor_t      *monitor;
+	waiter_queue_t *waiter;
 
-	monitor        = mmgrGetMonitor(object);
+	monitor = mmgrGetMonitor(object);
 
 #ifdef VERY_VERBOSE
 	kt_printf(
-	    "I got an exit request for %p from %d : %d and the owner is %d : %d\n",
+	    "I got a remove waiter request for %p from %d : %d and the owner is %d : %d\n",
+		object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+
+	waiter           = monitor->waiters;
+	monitor->waiters = waiter->next;
+}
+/**
+ * Handle a monitor exit request.
+ *
+ * @param bid    The board id we got the request from
+ * @param cid    The core id we got the request from
+ * @param object The object on which we were requested to act
+ */
+void
+mmgrAddWaiterHandler (int bid, int cid, Address object)
+{
+	monitor_t      *monitor;
+	waiter_queue_t *waiter;
+
+	monitor = mmgrGetMonitor(object);
+
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got an add waiter request for %p from %d : %d and the owner is %d : %d\n",
 	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 
+#if WAITER_REUSE
+
+	/* HACK: Since a waiters queue node's size is roughly half of
+	 * the size of a monitor, we use the same allocation
+	 * granularity and mark the last waiter to know whether it is
+	 * the first or the second queue node in the allocated
+	 * chunk (see mmgr.h as well) */
+	if (monitor->waiters &&
+	    (monitor->waiters->id >> 16)) {
+		waiter = monitor->waiters + sizeof(waiter_queue_t);
+	}
+	else {
+		waiter     = (waiter_queue_t*)monitor_alloc();
+		waiter->id = 1 << 16;
+	}
+
+	waiter->id |= monitor->owner;
+#else /* if WAITER_REUSE */
+	waiter      = (waiter_queue_t*)monitor_alloc();
+	waiter->id  = monitor->owner;
+#endif /* if WAITER_REUSE */
+
+	waiter->next     = monitor->waiters;
+	monitor->waiters = waiter;
+
+	return;
+}                  /* mmgrAddWaiterHandler */
+/**
+ * Handle a monitor exit request.
+ *
+ * @param bid    The board id we got the request from
+ * @param cid    The core id we got the request from
+ * @param object The object on which we were requested to act
+ * @param iswait Whether this exit is a result of a wait() call
+ */
+void
+mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait)
+{
+	monitor_t *monitor;
+
+	monitor = mmgrGetMonitor(object);
+
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got a%s exit request for %p from %d : %d and the owner is %d : %d\n",
+	    iswait ? " wait" : "n", object, bid, cid, monitor->owner >> 3,
+	    monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+
 	assume( monitor->owner == ((bid << 3) | cid) );
+
+	if (iswait) {
+		mmgrAddWaiterHandler(bid, cid, object);
+	}
+
 	monitor->owner = -1;
 
 	/* TODO What happens with the waiters? */
