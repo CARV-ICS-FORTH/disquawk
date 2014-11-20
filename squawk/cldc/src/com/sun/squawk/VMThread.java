@@ -2341,6 +2341,9 @@ public final class VMThread implements GlobalStaticFields {
 			if (waiter != null) {
 				Assert.that(waiter.isAlive());
 
+				/* assign the monitor to the waiter, but do not set
+				 * the depth to 1 to avoid double locking */
+				monitor.owner = waiter;
 				addFirstToRunnableThreadsQueue(waiter);
 
 				// NOTE: The unblocked thread is still not guaranteed
@@ -2451,11 +2454,15 @@ public final class VMThread implements GlobalStaticFields {
 			// again later
 
 //			traceMonitor("monitorEnter: Must wait for local lock: ", monitor, object);
-			// NOTE: We could reuse this monitor and skip
-			// communicating with the monitor manager, but it is not
-			// valid to choose a thread arbitrarily, since they might
-			// have different priorities.
-			VMThread.yield();
+			do {
+				monitor = getMonitor(object);
+				Assert.that(monitor.owner != currentThread);
+				VMThread.yield();
+			} while (monitor.owner != null);
+			/*
+			 * NOTE: This recursion is not expected to go deeper than
+			 * Monitor.MONITOR_THRESHOLD
+			 */
 			VMThread.monitorEnter(object);
 		} else { // request the monitor
 //			traceMonitor("monitorEnter: Must wait for lock: ", monitor, object);
