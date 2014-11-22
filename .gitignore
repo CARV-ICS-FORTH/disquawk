@@ -47,26 +47,6 @@
 /squawk/vmcore/src/vm/vm2c.c.spp
 /squawk/doc/master.properties
 
-# Documentation
-/doc/manual/auto/
-/doc/manual/*.aux
-/doc/manual/*.fls
-/doc/manual/*.log
-/doc/manual/*.bbl
-/doc/manual/*.bcf
-/doc/manual/*.blg
-/doc/manual/*.out
-/doc/manual/*.tdo
-/doc/manual/*.toc
-/doc/manual/*.run.xml
-/doc/manual/*.synctex.gz
-/doc/manual/*.fdb_latexmk
-/doc/manual/figs/address_breakdown.pdf
-/doc/manual/figs/mmgr_reply.pdf
-/doc/manual/figs/mmgr_request.pdf
-/doc/manual/manual-blx.bib
-/doc/manual/manual.pdf
-
 # Formic-apps and Formic-tests
 /formic-apps/*/classes/
 /formic-tests/*/classes/
