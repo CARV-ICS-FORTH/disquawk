@@ -1373,6 +1373,13 @@ class NativeVerifierHelper {
             return;
         }
 
+        case Native.com_sun_squawk_platform_MMGR$notify: {
+            frame.pop(BOOLEAN); // boolean
+            frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
         case Native.com_sun_squawk_platform_MMGR$removeWaiter: {
             frame.pop(OOP); // java.lang.Object
             Assert.that(frame.isStackEmpty());

@@ -2170,6 +2170,7 @@ boolean sda_handleSingleStep(ByteAddress actual_ip, UWordAddress actual_fp, UWor
 	do_bbtarget_sys();
 	if (unlikely(bc_g++ >= 0)) {
 		bc_g = -TIMEQUANTA;
+/*		printf("MY QUANTUM is over!!!\n"); */
 		call(com_sun_squawk_VM_yield);
 	}
 }
@@ -4976,6 +4977,13 @@ static int collectGarbage(Address, Address, int);
 	case Native_com_sun_squawk_platform_MMGR_addWaiter: {
 		Address object = popAddress();
 		mmgrAddWaiter(object);
+		break;
+	}
+
+	case Native_com_sun_squawk_platform_MMGR_notify: {
+		Address object = popAddress();
+		int     all = popInt();
+		mmgrNotify(object, all);
 		break;
 	}
 

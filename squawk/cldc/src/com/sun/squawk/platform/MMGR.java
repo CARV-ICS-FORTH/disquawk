@@ -81,4 +81,14 @@ public final class MMGR {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 
+	/**
+	 * Request to notify some thread/threads waiting on the object
+	 *
+	 * @param object The object
+	 * @param all    Whether to notify all waiting threads or just one
+	 */
+	public static void notify(Object object, boolean all) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
 }

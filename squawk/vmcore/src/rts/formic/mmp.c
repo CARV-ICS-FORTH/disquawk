@@ -153,6 +153,11 @@ mmpCheckMailbox (Address type)
 		}
 
 		break;
+	case MMP_OPS_MNTR_NOTIFICATION:
+	case MMP_OPS_MNTR_NOTIFICATION_ALL:
+		/* this is a two-words message */
+		result = (Address)ar_mbox_get(sysGetCore());
+		break;
 #endif /* ARCH_ARM */
 	/* Monitor specific messages */
 	case MMP_OPS_MNTR_ENTER:

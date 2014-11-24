@@ -509,6 +509,23 @@ mmgrRemoveWaiter (Address object)
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_WAITER_REMOVE, object);
 }
+/**
+ * Request to notify the waiters in the given object's waiters queue.
+ *
+ * @param object The object
+ * @param all    Whether to notify all waiters or not
+ */
+void
+mmgrNotify (Address object, int all)
+{
+#  ifdef VERY_VERBOSE
+	kt_printf("I sent a notify%s request\n", all ? " all" : "");
+	ar_uart_flush();
+#  endif /* ifdef VERY_VERBOSE */
+
+/*	assume(sc_in_heap(object)); */
+	mmgrRequest(all ? MMP_OPS_MNTR_NOTIFY_ALL : MMP_OPS_MNTR_NOTIFY, object);
+}
 #endif /* ARCH_MB */
 
 /**
@@ -578,7 +595,7 @@ mmgrMonitorEnterHandler (int bid, int cid, Address object)
  * @param cid    The core id we got the request from
  * @param object The object on which we were requested to act
  */
-waiter_queue_t*
+void
 mmgrRemoveWaiterHandler (int bid, int cid, Address object)
 {
 	monitor_t      *monitor;
@@ -592,8 +609,11 @@ mmgrRemoveWaiterHandler (int bid, int cid, Address object)
 		object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 
-	waiter           = monitor->waiters;
-	monitor->waiters = waiter->next;
+	waiter = monitor->waiters;
+
+	if (waiter != NULL) {
+		monitor->waiters = waiter->next;
+	}
 }
 /**
  * Handle a monitor exit request.
@@ -672,6 +692,66 @@ mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait)
 	}
 
 	monitor->owner = -1;
+}                  /* mmgrMonitorExitHandler */
+/**
+ * Handle a monitor notify request.
+ *
+ * @param bid The board id we got the request from
+ * @param cid The core id we got the request from
+ * @param object The object on which we were requested to act
+ */
+void
+mmgrNotifyHandler (int bid, int cid, Address object, int all)
+{
+	monitor_t      *monitor;
+	waiter_queue_t *waiter;
 
-	/* TODO What happens with the waiters? */
+	monitor = mmgrGetMonitor(object);
+
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got a notify request for %p from %d : %d and the owner is %d : %d\n",
+	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+
+	/*
+	 * Sanity checks
+	 *
+	 * 1. The one that requested the notify is the owner of the
+	 * monitor
+	 * 2. The one that requests the notify is just a core that got
+	 * notified but did not have any waiters in its queue (they timed
+	 * out or got interrupted)
+	 *
+	 */
+	assume( (monitor->owner == ((bid << 3) | cid)) ||
+	        (monitor->owner == -1) );
+
+	/*
+	 * If there is at least one waiter remove him from the waiters
+	 * queue.
+	 */
+	do {
+		waiter = monitor->waiters;
+
+		if (waiter == NULL) {
+			break;
+		}
+
+		monitor->waiters = waiter->next;
+		/*
+		 * Send the notification
+		 *
+		 * FIXME: Do not send multiple messages to the same core
+		 * identifier even if it appears multiple times in the waiters
+		 * queue.
+		 */
+		mmpSend2(bid, cid,
+		         (unsigned int)( (monitor->owner << 16) |
+		                         all ? MMP_OPS_MNTR_NOTIFICATION_ALL
+		                             : MMP_OPS_MNTR_NOTIFICATION),
+		         (unsigned int)object);
+	} while (all);
+
+	monitor->owner = -1;
 }

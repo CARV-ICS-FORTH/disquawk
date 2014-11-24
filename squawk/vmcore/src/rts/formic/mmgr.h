@@ -81,15 +81,17 @@ __attribute__((aligned(MM_CACHELINE_SIZE)))
 void        mmgrInitialize (mmgrGlobals *globals);
 
 #ifdef ARCH_MB
-void mmgrMonitorEnter (Address object);
-void mmgrMonitorExit (Address object);
+void mmgrMonitorEnter    (Address object);
+void mmgrMonitorExit     (Address object);
 void mmgrWaitMonitorExit (Address object);
-void mmgrAddWaiter (Address object);
-void mmgrRemoveWaiter (Address object);
+void mmgrAddWaiter       (Address object);
+void mmgrRemoveWaiter    (Address object);
+void mmgrNotify          (Address object, int all);
 #endif /* ARCH_MB */
 void mmgrMonitorEnterHandler (int bid, int cid, Address object);
-void mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait);
-waiter_queue_t* mmgrRemoveWaiterHandler (int bid, int cid, Address object);
-void mmgrAddWaiterHandler (int bid, int cid, Address object);
+void mmgrMonitorExitHandler  (int bid, int cid, Address object, int iswait);
+void mmgrRemoveWaiterHandler (int bid, int cid, Address object);
+void mmgrAddWaiterHandler    (int bid, int cid, Address object);
+void mmgrNotifyHandler       (int bid, int cid, Address object, int all);
 
 #endif /* MMGR_H_ */

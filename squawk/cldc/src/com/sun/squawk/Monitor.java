@@ -29,6 +29,7 @@
 package com.sun.squawk;
 
 import com.sun.squawk.util.Assert;
+import com.sun.squawk.platform.MMGR;
 import java.io.PrintStream;
 
 /**
@@ -168,6 +169,13 @@ final class Monitor {
 			}
 			next.nextThread = thread;
 		}
+
+		/*
+		 * Note: we do not notify the MMGR about the waiter addition
+		 * here.  We let VMThread.waitReleaseMonitor() handle this.
+		 * That way we can sometimes pack 2 messages in 1 (the release
+		 * and the addWaiter).
+		 */
 	}
 
 	/**
@@ -182,6 +190,8 @@ final class Monitor {
 			thread.setNotInQueue(VMThread.Q_CONDVAR);
 			thread.monitor = null;
 			thread.nextThread = null;
+
+			MMGR.removeWaiter(this.object);
 		}
 		return thread;
 	}
@@ -209,6 +219,8 @@ final class Monitor {
 			thread.setNotInQueue(VMThread.Q_CONDVAR);
 			thread.monitor = null;
 			thread.nextThread = null;
+
+			MMGR.removeWaiter(this.object);
 		}
 	}
 

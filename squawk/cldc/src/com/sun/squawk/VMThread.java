@@ -1770,7 +1770,8 @@ public final class VMThread implements GlobalStaticFields {
 			 * Always Query the mailbox for new messages.
 			 */
 			object = MMP.checkMailbox(msg_op);
-			if (msg_op == MMP.OPS_TH_SPAWN) {
+			switch(msg_op) {
+			case MMP.OPS_TH_SPAWN: {
 				// There is a new thread for us
 				Assert.that(object != null);
 				thread = (VMThread) object;
@@ -1793,7 +1794,9 @@ public final class VMThread implements GlobalStaticFields {
 //VM.println();
 
 				addToRunnableThreadsQueue(thread);
-			} else if (msg_op == MMP.OPS_MNTR_ACK) {
+				break;
+			}
+			case MMP.OPS_MNTR_ACK: {
 				// We got a monitor.  Find a thread waiting for it and
 				// schedule it FIRST for execution.
 
@@ -1812,6 +1815,38 @@ public final class VMThread implements GlobalStaticFields {
 
 				monitor.threshold = Monitor.MONITOR_THRESHOLD;
 				addFirstToRunnableThreadsQueue(waiter);
+				break;
+			}
+			case MMP.OPS_MNTR_NOTIFICATION: {
+				Monitor monitor = getMonitor(object);
+				VMThread waiter = monitor.removeCondvarWait();
+
+				if (waiter == null) {
+					/*
+					 * No waiters here, notify someone else
+					 *
+					 * FIXME: Send a special message instead so that
+					 * all waiters from this core get erased
+					 */
+					MMGR.notify(monitor.object, false);
+				}
+				else {
+					addToRunnableThreadsQueue(waiter);
+				}
+				break;
+			}
+			case MMP.OPS_MNTR_NOTIFICATION_ALL: {
+				Monitor monitor = getMonitor(object);
+				VMThread waiter = monitor.removeCondvarWait();
+
+				while (waiter != null) {
+					addToRunnableThreadsQueue(waiter);
+					waiter = monitor.removeCondvarWait();
+				}
+				break;
+			}
+			default:
+				break;
 			}
 
 			/* TODO: Check pending DMAs and retry if they failed */
@@ -2373,9 +2408,6 @@ public final class VMThread implements GlobalStaticFields {
 	 * @param monitor the monitor
 	 */
 	private static void waitReleaseMonitor(Monitor monitor) {
-		// FIXME
-
-
 		/*
 		 * Drop the lock and notify the Monitor manager
 		 */
@@ -2387,29 +2419,41 @@ public final class VMThread implements GlobalStaticFields {
 		 * network traffic.
 		 */
 		if (monitor.threshold-- > 0) {
-			// We can still use this monitor.  Find a thread waiting
-			// for it and schedule it FIRST for execution.
-
-			// HACK: This way we give priority to waiting on
-			// monitors threads not respecting the actual thread
-			// priority, however we consider this to be fair since
-			// this thread already yielded at least once to wait
-			// for the monitor manager to reply.
+			/*
+			 * We can still use this monitor.  Find a thread waiting
+			 * for it and schedule it FIRST for execution.
+			 */
 
 			VMThread waiter = monitor.removeMonitorWait();
 
 			if (waiter != null) {
 				Assert.that(waiter.isAlive());
 
+				/*
+				 * HACK: This way we give priority to waiting on
+				 * monitors threads not respecting the actual thread
+				 * priority, however we consider this to be fair since
+				 * this thread already yielded at least once to wait
+				 * for the monitor manager to reply.
+				 */
 				addFirstToRunnableThreadsQueue(waiter);
+				/*
+				 * NOTE: The unblocked thread is still not guaranteed
+				 * to run next.  reschedule() invokes rescheduleNext()
+				 * which polls the mailbox for incoming messages and
+				 * might detect a monitor ACK and add the
+				 * corresponding thread to the top of the runnable
+				 * threads queue.
+				 */
 
-				// NOTE: The unblocked thread is still not guaranteed
-				// to run next.  reschedule() invokes rescheduleNext()
-				// which polls the mailbox for incoming messages and
-				// might detect a monitor ACK and add the
-				// corresponding thread to the top of the runnable
-				// threads queue.
-
+				/*
+				 * FIXME: Since the monitor is not returned to the
+				 * MMGR yet, we could delay the waiter addition as
+				 * well.  That way we could reduce the messages in
+				 * scenarios where the wait notify "sequence" happens
+				 * on the same coherent island (or by concurrent
+				 * threads on the same core).
+				 */
 				MMGR.addWaiter(monitor.object);
 				return;
 			}
@@ -2689,7 +2733,8 @@ public final class VMThread implements GlobalStaticFields {
 		/*
 		 * Signal any waiting threads.
 		 */
-		Monitor monitor = getMonitor(object);
+		Monitor  monitor = getMonitor(object);
+		VMThread waiter;
 
 		/*
 		 * Throw an exception if the object is not owned by the current thread.
@@ -2698,35 +2743,49 @@ public final class VMThread implements GlobalStaticFields {
 			throwIllegalMonitorStateException(monitor, object);
 		}
 
+
 		/*
 		 * Try and restart a thread.
 		 */
-		do {
+		waiter = monitor.removeCondvarWait();
+		if (waiter == null) {
+			MMGR.notify(monitor.object, notifyAll);
+		}
+		else if (notifyAll == false) {
+			timerQueue.remove(waiter);
+			// allow waiter to be runnable,
+			// the waiter will have to contend for the lock.
+			addToRunnableThreadsQueue(waiter);
+		}
+		else {
+
+			MMGR.notify(monitor.object, notifyAll);
 			/*
-			 * Get the next waiting thread.
+			 * Loop if this is a notifyAll operation.
 			 */
-			VMThread waiter = monitor.removeCondvarWait();
-			if (waiter == null) {
-				break;
-			}
+			while (waiter != null) {
 //traceMonitor("monitorNotify: ", monitor, object);
 //VM.print("   notifying thread- ");
 //VM.println(waiter.threadNumber);
 
-			/*
-			 * Remove timeout if there was one and restart
-			 */
-			timerQueue.remove(waiter);
-			monitor.addMonitorWait(waiter);
+				/*
+				 * Remove timeout if there was one and restart
+				 */
+				timerQueue.remove(waiter);
 
-			/*
-			 * Loop if it this is a notifyAll operation.
-			 */
-		} while (notifyAll);
+				/*
+				 * Get the next waiting thread.
+				 */
+				waiter = monitor.removeCondvarWait();
+				// allow waiter to be runnable,
+				// the waiter will have to contend for the lock.
+				addToRunnableThreadsQueue(waiter);
+			}
+		}
 
 		/*
-		 * Don't reschedule yet. We still have the lock.
-		 * This current thread will eventually do a final monitorExit(), and select
+		 * Don't reschedule yet. We still have the lock.  This current
+		 * thread will eventually do a final monitorExit(), and select
 		 * a waiting thread to be runnable.
 		 */
 	}
