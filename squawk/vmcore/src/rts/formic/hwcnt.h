@@ -77,6 +77,7 @@ hwcnt_next_free ()
 
 	return -1;
 }
+
 /**
  * hwcnt_get_free returns an available hardware counter.  Caution,
  * this is a blocking operation since if there is no available
@@ -90,7 +91,7 @@ hwcnt_get_free (hwcnt_e usage)
 {
 	int cnt, i;
 
-	cnt           = hwcnt_next_free();
+	cnt = hwcnt_next_free();
 
 	/*
 	 * If there is no available counter, go through them and check if
@@ -114,6 +115,7 @@ hwcnt_get_free (hwcnt_e usage)
 
 	return cnt;
 }
+
 /**
  * hwcnt_wait_pending
  *
