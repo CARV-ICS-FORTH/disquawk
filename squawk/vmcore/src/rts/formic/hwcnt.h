@@ -117,9 +117,11 @@ hwcnt_get_free (hwcnt_e usage)
 }
 
 /**
- * hwcnt_wait_pending
+ * hwcnt_wait_pending goes through all allocated, for the given
+ * reason, counters and spins on them until they all become zero
  *
- * @param reason TODO
+ * @param reason The given reason that the counters we want to spin on
+ * were allocated for
  */
 INLINE void
 hwcnt_wait_pending (hwcnt_e reason)
