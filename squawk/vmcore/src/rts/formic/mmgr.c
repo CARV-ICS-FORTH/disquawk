@@ -66,6 +66,7 @@ monitor_alloc ()
 
 	return new;
 }
+
 /**
  * Free up the memory allocated for monitor
  *
@@ -77,6 +78,7 @@ monitor_free (monitor_t *monitor)
 	monitor->rchild = mmgrAllocTop_g;
 	mmgrAllocTop_g  = monitor;
 }
+
 /******************************************************************************
  * Binary search tree hashtble chains
  ******************************************************************************/
@@ -104,6 +106,7 @@ bst_lookup (monitor_t *bst, Address object)
 
 	return NULL;
 }
+
 /**
  * Inserts monitor to bst
  *
@@ -146,6 +149,7 @@ bst_insert (monitor_t *bst, monitor_t *monitor)
 
 	return bst;
 }
+
 /**
  * Finds the right-most child of bst
  *
@@ -165,6 +169,7 @@ bst_find_max (monitor_t *bst)
 
 	return bst;
 }
+
 /* Forward declaration */
 static inline monitor_t*bst_remove (monitor_t *bst, Address object);
 
@@ -208,6 +213,7 @@ bst_remove_child (monitor_t *child)
 
 	return child;
 }
+
 /**
  * Remove object from bst
  *
@@ -233,6 +239,7 @@ bst_remove (monitor_t *bst, Address object)
 
 	return NULL;
 }
+
 /******************************************************************************
  * Hashtable implementation
  ******************************************************************************/
@@ -259,6 +266,7 @@ hashint (unsigned int a)
 
 	return a;
 }
+
 /**
  * Hash function for objects
  *
@@ -282,6 +290,7 @@ ht_hash (Address object)
 
 	return res;
 }
+
 /**
  * Searches object in the monitors' hashtable
  *
@@ -304,6 +313,7 @@ ht_lookup (Address object)
 
 	return res;
 }
+
 /**
  * Inserts monitor in the monitors' hashtable
  *
@@ -321,6 +331,7 @@ ht_insert (monitor_t *monitor)
 	else
 		mmgrHT_g[index] = bst_insert(mmgrHT_g[index], monitor);
 }
+
 /**
  * Removes object from the monitors' hashtable
  *
@@ -343,6 +354,7 @@ ht_remove (Address object)
 
 	return 0;
 }
+
 /**
  * Initialize the hashtable
  *
@@ -363,6 +375,7 @@ mmgrInitialize (mmgrGlobals *globals)
 
 	kt_memset(mmgrHT_g, 0, sizeof(monitor_t*) * MMGR_HT_SIZE);
 }
+
 /**
  * Find the manager responsible for the given object.
  *
@@ -396,6 +409,7 @@ mmgrGetManager (Address object, int *bid, int *cid)
 	*cid = id3;
 #endif /* MMGR_ON_ARM */
 }
+
 #ifdef ARCH_MB
 /**
  * Send a msg_op request regarding the given object.  The responsible
@@ -422,6 +436,7 @@ mmgrRequest (mmpMsgOp_t msg_op, Address object)
 
 	mmpSend2(target_bid, target_cid, msg0, (unsigned int)object);
 }
+
 /**
  * Request to enter the given object's monitor.
  *
@@ -444,6 +459,7 @@ mmgrMonitorEnter (Address object)
 	 * threads queue. This is done in VMThread.java
 	 */
 }
+
 /**
  * Request to exit the given object's monitor.
  *
@@ -460,6 +476,7 @@ mmgrMonitorExit (Address object)
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_EXIT, object);
 }
+
 /**
  * Request to exit the given object's monitor and notify the manager
  * we will be waiting on it.
@@ -477,6 +494,7 @@ mmgrWaitMonitorExit (Address object)
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_WAIT, object);
 }
+
 /**
  * Request to add me to the given object's waiters queue.
  *
@@ -493,6 +511,7 @@ mmgrAddWaiter (Address object)
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_WAITER_ADD, object);
 }
+
 /**
  * Request to remove me from the given object's waiters queue.
  *
@@ -509,6 +528,7 @@ mmgrRemoveWaiter (Address object)
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_WAITER_REMOVE, object);
 }
+
 /**
  * Request to notify the waiters in the given object's waiters queue.
  *
@@ -526,6 +546,7 @@ mmgrNotify (Address object, int all)
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(all ? MMP_OPS_MNTR_NOTIFY_ALL : MMP_OPS_MNTR_NOTIFY, object);
 }
+
 #endif /* ARCH_MB */
 
 /**
@@ -559,6 +580,7 @@ mmgrGetMonitor (Address object)
 
 	return res;
 }
+
 /**
  * Handle a monitor enter request.
  *
@@ -585,9 +607,10 @@ mmgrMonitorEnterHandler (int bid, int cid, Address object)
 
 	/* Reply back with the owner */
 	mmpSend2(bid, cid,
-	         (unsigned int)( (monitor->owner << 16) | MMP_OPS_MNTR_ACK),
+	         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
 	         (unsigned int)object);
 }
+
 /**
  * Handle a monitor exit request.
  *
@@ -604,9 +627,9 @@ mmgrRemoveWaiterHandler (int bid, int cid, Address object)
 	monitor = mmgrGetMonitor(object);
 
 #ifdef VERY_VERBOSE
-	kt_printf(
-	    "I got a remove waiter request for %p from %d : %d and the owner is %d : %d\n",
-		object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
+	kt_printf("I got a remove waiter request for %p from %d : %d \
+and the owner is %d : %d\n", object, bid, cid, monitor->owner >> 3,
+	          monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 
 	waiter = monitor->waiters;
@@ -615,6 +638,7 @@ mmgrRemoveWaiterHandler (int bid, int cid, Address object)
 		monitor->waiters = waiter->next;
 	}
 }
+
 /**
  * Handle a monitor exit request.
  *
@@ -632,8 +656,8 @@ mmgrAddWaiterHandler (int bid, int cid, Address object)
 
 #ifdef VERY_VERBOSE
 	kt_printf(
-	    "I got an add waiter request for %p from %d : %d and the owner is %d : %d\n",
-	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
+	    "I got an add waiter request for %p from %d : %d and the owner is %d : %d\n", object, bid, cid, monitor->owner >> 3, monitor->owner &
+	    7);
 #endif /* ifdef VERY_VERBOSE */
 
 #if WAITER_REUSE
@@ -643,8 +667,7 @@ mmgrAddWaiterHandler (int bid, int cid, Address object)
 	 * granularity and mark the last waiter to know whether it is
 	 * the first or the second queue node in the allocated
 	 * chunk (see mmgr.h as well) */
-	if (monitor->waiters &&
-	    (monitor->waiters->id >> 16)) {
+	if (monitor->waiters && (monitor->waiters->id >> 16)) {
 		waiter = monitor->waiters + sizeof(waiter_queue_t);
 	}
 	else {
@@ -663,6 +686,7 @@ mmgrAddWaiterHandler (int bid, int cid, Address object)
 
 	return;
 }                  /* mmgrAddWaiterHandler */
+
 /**
  * Handle a monitor exit request.
  *
@@ -685,7 +709,7 @@ mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait)
 	    monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 
-	assume( monitor->owner == ((bid << 3) | cid) );
+	assume( monitor->owner == ((bid << 3) | cid));
 
 	if (iswait) {
 		mmgrAddWaiterHandler(bid, cid, object);
@@ -693,6 +717,7 @@ mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait)
 
 	monitor->owner = -1;
 }                  /* mmgrMonitorExitHandler */
+
 /**
  * Handle a monitor notify request.
  *
@@ -724,8 +749,7 @@ mmgrNotifyHandler (int bid, int cid, Address object, int all)
 	 * out or got interrupted)
 	 *
 	 */
-	assume( (monitor->owner == ((bid << 3) | cid)) ||
-	        (monitor->owner == -1) );
+	assume((monitor->owner == ((bid << 3) | cid)) || (monitor->owner == -1));
 
 	/*
 	 * If there is at least one waiter remove him from the waiters
@@ -747,9 +771,9 @@ mmgrNotifyHandler (int bid, int cid, Address object, int all)
 		 * queue.
 		 */
 		mmpSend2(bid, cid,
-		         (unsigned int)( (monitor->owner << 16) |
-		                         all ? MMP_OPS_MNTR_NOTIFICATION_ALL
-		                             : MMP_OPS_MNTR_NOTIFICATION),
+		         (unsigned int)(monitor->owner << 16 |
+		                        all ? MMP_OPS_MNTR_NOTIFICATION_ALL :
+		                        MMP_OPS_MNTR_NOTIFICATION),
 		         (unsigned int)object);
 	} while (all);
 
