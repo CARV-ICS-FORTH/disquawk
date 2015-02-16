@@ -67,7 +67,8 @@ NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/Native
 	-DSQUAWK_PREFER_SIZE_OVER_SPEED \
 	-O1 \
 	-O2 \
-	-DMAXINLINE -O3 \
+	-O3 \
+	-DMAXINLINE \
 	-DPLATFORM_TYPE_BARE_METAL \
 	-DTRACE \
 	-DPROFILING \
@@ -88,6 +89,7 @@ NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/Native
 	-DLISP2_BITMAP \
 	-DHIER_BARRIER \
 	-DMMGR_ON_ARM \
+	-DWAITER_REUSE \
 # What we use
 # THESE MUST AGREE WITH build-mb.properties file
 CFLAGS =\
@@ -363,6 +365,12 @@ $(ELF): java.ld $(ELF_OBJS) $(MYRMICS_LINK_OBJS)
 ################################################################################
 # Manually define some dependencies
 ################################################################################
+$(MYRMICS_SRC)/java_main.c: \
+	$(VM_SRC)/util.h
+
+$(VM_SRC)/softcache.h: \
+	$(VM_SRC)/util.h
+
 $(VM_SRC)/squawk.c: \
 	$(VM_SRC)/platform.h\
 	$(VM_SRC)/buildflags.h\
