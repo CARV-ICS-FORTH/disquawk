@@ -506,7 +506,7 @@ public final class VMThread implements GlobalStaticFields {
 	 * @exception  IllegalThreadStateException  if the thread was already started.
 	 * @see        java.lang.Thread#run()
 	 */
-	public void localStart() {
+	private void localStart(Isolate theIsolate) {
 
 		/*
 		 * Check that the thread has not yet been started.
@@ -537,7 +537,7 @@ public final class VMThread implements GlobalStaticFields {
 //VM.printAddress(NativeUnsafe.getObject(stack, SC.owner));
 //VM.println();
 
-		isolate.addThread(this);
+		theIsolate.addThread(this);
 		addToRunnableThreadsQueue(this);
 
 /*if[ENABLE_SDA_DEBUGGER]*/
@@ -1352,8 +1352,9 @@ public final class VMThread implements GlobalStaticFields {
 		GC.setHeaderClass(serviceStack, Klass.LOCAL_ARRAY);
 
 		/*
-		 * NOTE: The service stack has no backpointer to the service thread, and
-		 * is not GC.registerStackChunks(). It is allocated by C code, and isn't really in the heap?
+		 * NOTE: The service stack has no backpointer to the service
+		 * thread, and is not GC.registerStackChunks(). It is
+		 * allocated by C code, and isn't really in the heap?
 		 */
 		//NativeUnsafe.setObject(serviceStack, SC.owner, serviceThread);
 		serviceThread.stack = serviceStack.toObject();
@@ -1412,7 +1413,7 @@ public final class VMThread implements GlobalStaticFields {
 	 * Special thread starter that reschedules the currently executing thread.
 	 */
 	final void primitiveThreadStart() {
-		localStart();
+		localStart(this.isolate);
 		rescheduleNext();
 	}
 
@@ -1775,25 +1776,8 @@ public final class VMThread implements GlobalStaticFields {
 				// There is a new thread for us
 				Assert.that(object != null);
 				thread = (VMThread) object;
-				Assert.always(thread.state == NEW);
-				// Now allocate a new stack for it and mark it ALIVE
-				thread.stack = newStack(thread.stackSize, thread, true);
-				if (thread.stack == null) {
-					VM.println("creating stack:");
-					throw VM.getOutOfMemoryError();
-				}
+				thread.localStart(VM.getCurrentIsolate());
 
-//VM.print("Thread::baptiseThread - stack size = ");
-//VM.println(stackSize);
-				thread.state = ALIVE;
-
-//VM.print("Thread::baptiseThread - owner of stack chunk ");
-//VM.printAddress(stack);
-//VM.print(" = ");
-//VM.printAddress(NativeUnsafe.getObject(stack, SC.owner));
-//VM.println();
-
-				addToRunnableThreadsQueue(thread);
 				break;
 			}
 			case MMP.OPS_MNTR_ACK: {
