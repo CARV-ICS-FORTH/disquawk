@@ -77,6 +77,7 @@ mmpCheckMailbox (Address type)
 	int          bid;
 	int          cid;
 	int          wait;
+	int          all;
 	mmpMsgOp_t   msg_type;
 	Address      result;
 	Address      object;
@@ -88,6 +89,7 @@ mmpCheckMailbox (Address type)
 
 	result = NULL;
 	wait   = 0;
+	all    = 0;
 
 	/* If there are, get the first */
 	msg0     = ar_mbox_get(sysGetCore());
@@ -174,6 +176,13 @@ mmpCheckMailbox (Address type)
 	case MMP_OPS_MNTR_WAITER_REMOVE:
 		mmgrRemoveWaiterHandler(bid, cid, object);
 		break;
+	case MMP_OPS_MNTR_NOTIFY_ALL:
+		all = 1;  /* Don't break here */
+	case MMP_OPS_MNTR_NOTIFY:
+		/* this is a two-words message */
+		object = (Address)ar_mbox_get(sysGetCore());
+		mmgrNotifyHandler(bid, cid, object, all);
+		break;
 	case MMP_OPS_MNTR_WAIT:
 		wait = 1;  /* Don't break here */
 	case MMP_OPS_MNTR_EXIT:
@@ -193,6 +202,7 @@ mmpCheckMailbox (Address type)
 	 */
 	default:
 		kt_printf("Error: Unknown message operator\n");
+		kt_printf("Error: OP = %2d\n", (int)msg_type);
 		ar_abort();
 		break;
 	}              /* switch */
