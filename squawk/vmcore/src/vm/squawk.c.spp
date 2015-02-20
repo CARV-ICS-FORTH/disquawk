@@ -61,15 +61,40 @@
 #ifndef DIAGNOSTICS_ENABLED
 /* for ARM, defined in arm-library, otherwise do it here. */
 
+#if defined(VERY_VERBOSE)
+#define db_printf(...) \
+	do { \
+		fprintf(stderr, __VA_ARGS__); \
+		fflush(stderr); \
+	} while(0);
+#elif defined(VERBOSE)
+#define db_printf(...) \
+	do { \
+		if (sysGetCore() == 0) { \
+			fprintf(stderr, __VA_ARGS__); \
+			fflush(stderr); \
+		} \
+	} while(0);
+#elif defined(INFO)
+#define db_printf(...) \
+	do { \
+		if (sysGetCore() == 0 && sysGetIsland()==0) { \
+			fprintf(stderr, __VA_ARGS__); \
+			fflush(stderr); \
+		} \
+	} while(0);
+#else
+#define db_printf(x)
+#endif
+
 #if defined(ASSUME) && ASSUME != 0
 #define DIAG_INTRO	"[DIAG] "
 void diagnosticPrimWithValue(char* msg, int len, int val) {
 /*if[MICROBLAZE_BUILD]*/
-    printf("%s %s %#x\r\n", DIAG_INTRO, msg, val);
+    db_printf("%s %s %#x\r\n", DIAG_INTRO, msg, val);
 /*else[MICROBLAZE_BUILD]*/
-//  printf("%s %.*s %#x\r\n", DIAG_INTRO, len, msg, val);
+//  db_printf("%s %.*s %#x\r\n", DIAG_INTRO, len, msg, val);
 /*end[MICROBLAZE_BUILD]*/
-    fflush(stdout);
 }
 void diagnostic(char * msg) {
 	diagnosticPrimWithValue(msg, strlen(msg), 0);
@@ -1167,10 +1192,10 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	memory_g = newBuffer(realMemorySize, "memory", true);
 	memoryEnd_g = Address_add(memory_g, memorySize_g);
 /*if[MICROBLAZE_BUILD]*/
-/*if[DEBUG_CODE_ENABLED]*/
-	printf("[DIAG]  Requested %dMB of memory\n", realMemorySize/(1024*1024));
-	printf("[DIAG]  Got range %p-%p\n", memory_g, memoryEnd_g);
-/*end[DEBUG_CODE_ENABLED]*/
+	db_printf("%s  Requested %dMB of memory\n",
+	          DIAG_INTRO, realMemorySize/(1024*1024));
+	db_printf("%s  Got range %p-%p\n",
+	          DIAG_INTRO, memory_g, memoryEnd_g);
 /*end[MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
 	bootstrapSize = loadBootstrapSuiteFromFlash(bootstrapSuiteFile,
@@ -1525,9 +1550,7 @@ Address processArgs(char *argv[], const int argc) {
 		char *arg = argv[oldIndex];
 		char *wholeArg = arg;
 
-/*if[DEBUG_CODE_ENABLED]*/
-		fprintf(stderr, "Argv[%d]= %s\n", oldIndex, wholeArg);
-/*end[DEBUG_CODE_ENABLED]*/
+		db_printf("Argv[%d]= %s\n", oldIndex, wholeArg);
 
 		if (arg[0] != '-') {
 			break; /* finished VM options part */
@@ -2172,13 +2195,13 @@ void Squawk_continue() {
 }
 
 void printRange(char* label, void* start, void* end) {
-	fprintf(stderr, "%s  : %p~%p [size:%d]\n",
+	db_printf("%s : %p~%p [size:%d]\n",
 	        label, start, end, ((char*)end - (char*)start));
 }
 
 int printValueInRange(Address value, char* valueName, Address low, Address high, char* rangeName) {
 	int result = (value >= low && value < high);
-	fprintf(stderr, "    %s: %p. Is %sin %s range %p .. %p\n", valueName, value, (result ? "" : "NOT "), rangeName, low, high);
+	db_printf("    %s: %p. Is %sin %s range %p .. %p\n", valueName, value, (result ? "" : "NOT "), rangeName, low, high);
 	return result;
 }
 

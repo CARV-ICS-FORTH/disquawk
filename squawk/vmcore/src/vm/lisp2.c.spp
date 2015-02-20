@@ -334,17 +334,15 @@ void bitmapInitialize(Address start, int size, Address objectMemoryStart) {
 	bitmap = start;
 	bitmapSize = size;
 
-/*if[DEBUG_CODE_ENABLED]*/
-	printf("===============Lisp2Bitmap================\n");
-	printf("=\tHEAP BASE   = %p\n", MM_MB_HEAP_BASE);
-	printf("=\tOMS         = %p\n", objectMemoryStart);
-	printf("=\tfirstVBI    = %p\n", firstValidBitIndex);
-	printf("=\tbitmapBase  = %p\n", bitmapBase);
-	printf("=\tbitmap      = %p\n", bitmap);
-	printf("=\tbitmapSize  = %d\n", bitmapSize);
-	printf("=\tbitWAddre   = %p\n", getAddressForBitmapWord(start));
-	printf("==========================================\n");
-/*end[DEBUG_CODE_ENABLED]*/
+	db_printf("===============Lisp2Bitmap================\n");
+	db_printf("=\tHEAP BASE   = %p\n", MM_MB_HEAP_BASE);
+	db_printf("=\tOMS         = %p\n", objectMemoryStart);
+	db_printf("=\tfirstVBI    = %p\n", firstValidBitIndex);
+	db_printf("=\tbitmapBase  = %p\n", bitmapBase);
+	db_printf("=\tbitmap      = %p\n", bitmap);
+	db_printf("=\tbitmapSize  = %d\n", bitmapSize);
+	db_printf("=\tbitWAddre   = %p\n", getAddressForBitmapWord(start));
+	db_printf("==========================================\n");
 
 	assume(getAddressOfBitmapWordFor(objectMemoryStart) == start);
 	assume(getAddressForBitmapWord(start) == objectMemoryStart);
