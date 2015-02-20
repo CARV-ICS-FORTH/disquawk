@@ -487,9 +487,9 @@ class AppThread extends Thread {
 		this.args = args;
 
 		if (VM.isVerbose()) {
-			VM.println("[DIAG]  AppThread Instantiated with: "+mainClass);
+			VM.println("[DIAG] AppThread Instantiated with: "+mainClass);
 			for (int i=0; i<args.length; ++i)
-				VM.println("[DIAG]    Arg["+i+"]: "+args[i]);
+				VM.println("[DIAG]   Arg["+i+"]: "+args[i]);
 		}
 	}
 

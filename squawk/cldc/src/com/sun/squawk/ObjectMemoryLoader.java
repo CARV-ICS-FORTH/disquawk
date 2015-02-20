@@ -366,12 +366,12 @@ System.out.println("filePathelements=" + filePathelements);
         }
 
         if (VM.isVerbose()) {
-          VM.print("[DIAG]  in load(bool)\n");
-          VM.print("        Minor     : "+minor+"\n");
-          VM.print("        Major     : "+major+"\n");
-          VM.print("        Attributes: "+attributes+"\n");
-          VM.print("        parentHash: 0x"+Integer.toHexString(parentHash)+"\n");
-          VM.print("        parentURI : "+parentURI+"\n");
+          VM.print("[DIAG] in load(bool)\n");
+          VM.print("       Minor     : "+minor+"\n");
+          VM.print("       Major     : "+major+"\n");
+          VM.print("       Attributes: "+attributes+"\n");
+          VM.print("       parentHash: 0x"+Integer.toHexString(parentHash)+"\n");
+          VM.print("       parentURI : "+parentURI+"\n");
         }
 
         // Load the parent of this object memory file
@@ -495,11 +495,11 @@ System.out.println("filePathelements=" + filePathelements);
         }
 
         if (VM.isVerbose()) {
-          VM.println("[DIAG]  in loadThis\n");
-          VM.println("        Read:"+reader.getBytesRead());
-          VM.println("        rootOffset: "+root);
-          VM.println("        memorySize: "+size);
-          VM.println("        hash      : 0x"+Integer.toHexString(hash));
+          VM.println("[DIAG] in loadThis\n");
+          VM.println("       Read:"+reader.getBytesRead());
+          VM.println("       rootOffset: "+root);
+          VM.println("       memorySize: "+size);
+          VM.println("       hash      : 0x"+Integer.toHexString(hash));
         }
 
         // Relocate the pointers in the memory and move the buffer into read-only memory if necessary

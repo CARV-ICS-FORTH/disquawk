@@ -264,7 +264,7 @@ public class VM implements GlobalStaticFields {
 	static void startup(Suite bootstrapSuite) throws InterpreterInvokedPragma {
 		/* We cannot invoke Debug.pdebug yet, we need an isolate for that */
 		if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
-			VM.println("[DIAG]  in STARTUP");
+			VM.println("[INFO] in STARTUP");
 		}
 
 		/*
@@ -298,7 +298,7 @@ public class VM implements GlobalStaticFields {
 		currentIsolate.initializeClassKlass();
 		/* We cannot invoke Debug.pdebug yet, we still need threading for that */
 		if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
-			VM.println("[DIAG]  Isolation initialized");
+			VM.println("[INFO] Isolation initialized");
 		}
 
 		/*
