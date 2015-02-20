@@ -262,7 +262,10 @@ public class VM implements GlobalStaticFields {
 	 * @param bootstrapSuite        the bootstrap suite
 	 */
 	static void startup(Suite bootstrapSuite) throws InterpreterInvokedPragma {
-		VM.println("[DIAG]  in STARTUP");
+		/* We cannot invoke Debug.pdebug yet, we need an isolate for that */
+		if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
+			VM.println("[DIAG]  in STARTUP");
+		}
 
 		/*
 		 * Set default for allowing Runtime.gc() to work.
@@ -293,22 +296,24 @@ public class VM implements GlobalStaticFields {
 		currentIsolate = new Isolate("com.sun.squawk.JavaApplicationManager",
 		                             args, bootstrapSuite);
 		currentIsolate.initializeClassKlass();
-		if (VM.isVerbose())
+		/* We cannot invoke Debug.pdebug yet, we still need threading for that */
+		if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
 			VM.println("[DIAG]  Isolation initialized");
+		}
 
 		/*
 		 * Initialise threading.
 		 */
 		VMThread.initializeThreading();
 		synchronizationEnabled = true;
+		Debug.pdebug("Threading initialized");
 
-		if (VM.isVerbose())
-			VM.println("[DIAG]  Threading initialized");
 		/*
 		 * Fill in the args array with the C command line arguments.
 		 */
 		GC.copyCStringArray(argv, args);
 
+		Debug.pdebug("Copied Strings");
 /*if[!PLATFORM_TYPE_BARE_METAL]*/
 		taskCache = new Stack();
 /*end[PLATFORM_TYPE_BARE_METAL]*/
@@ -339,8 +344,7 @@ public class VM implements GlobalStaticFields {
 			}
 /*end[MICROBLAZE_BUILD]*/
 			VMThread.initializeThreading2();
-			if (VM.isVerbose())
-				VM.println("[DIAG]  Service operation Loop is up and running");
+			Debug.pdebug("Service operation Loop is up and running");
 			ServiceOperation.execute();
 		} catch (Throwable ex) {
 			fatalVMError();

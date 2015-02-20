@@ -3561,12 +3561,14 @@ public class Klass<T> {
 		 * Math since only random is not static final and we can
 		 * safely have a different random generator per core.
 		 * VM to enable VM.println.
+		 * Debug to enable Debug.pinfo and Debug.pdebug.
 		 * Connector since all its non static final fields need not be
 		 * shared.
 		 */
 		if (name.equals("java.lang.System") ||
 		    name.equals("java.lang.Math") ||
 		    name.equals("com.sun.squawk.VM") ||
+		    name.equals("com.sun.squawk.Debug") ||
 		    name.equals("javax.microedition.io.Connector"))
 			nosync = true;
 

@@ -239,7 +239,9 @@ public class JavaApplicationManager {
 		/*
 		 * Show execution statistics if requested
 		 */
-		if (displayExecutionStatistics) {
+		if (displayExecutionStatistics &&
+			NativeUnsafe.getCore() == 0 &&
+		    NativeUnsafe.getIsland() == 0) {
 			long endTime = System.currentTimeMillis();
 			System.out.println();
 			System.out.println("=============================");
@@ -337,11 +339,18 @@ public class JavaApplicationManager {
 		} else if (arg.equals("-version")) {
 			showVersion(System.err);
 			VM.stopVM(0);
+		} else if (arg.equals("-info")) {
+			Debug.setlevel(1);
+			if (!VM.isVerbose()) {
+				VM.setVerboseLevel(1);
+			}
 		} else if (arg.equals("-verbose")) {
+			Debug.setlevel(2);
 			if (!VM.isVerbose()) {
 				VM.setVerboseLevel(1);
 			}
 		} else if (arg.equals("-veryverbose")) {
+			Debug.setlevel(3);
 			if (!VM.isVeryVerbose()) {
 				VM.setVerboseLevel(2);
 			}
