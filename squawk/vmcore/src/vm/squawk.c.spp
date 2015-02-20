@@ -84,11 +84,11 @@
 		} \
 	} while(0);
 #else
-#define db_printf(x)
+#define db_printf(...)
 #endif
 
 #if defined(ASSUME) && ASSUME != 0
-#define DIAG_INTRO	"[DIAG] "
+#define DIAG_INTRO	"[DIAG]"
 void diagnosticPrimWithValue(char* msg, int len, int val) {
 /*if[MICROBLAZE_BUILD]*/
     db_printf("%s %s %#x\r\n", DIAG_INTRO, msg, val);
@@ -1192,9 +1192,9 @@ Address setupMemory(int ramSize, int nvmSize, int argc, char *argv[], char *boot
 	memory_g = newBuffer(realMemorySize, "memory", true);
 	memoryEnd_g = Address_add(memory_g, memorySize_g);
 /*if[MICROBLAZE_BUILD]*/
-	db_printf("%s  Requested %dMB of memory\n",
+	db_printf("%s Requested %dMB of memory\n",
 	          DIAG_INTRO, realMemorySize/(1024*1024));
-	db_printf("%s  Got range %p-%p\n",
+	db_printf("%s Got range %p-%p\n",
 	          DIAG_INTRO, memory_g, memoryEnd_g);
 /*end[MICROBLAZE_BUILD]*/
 #ifdef FLASH_MEMORY
