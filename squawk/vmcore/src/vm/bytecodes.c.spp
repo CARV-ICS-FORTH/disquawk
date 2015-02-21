@@ -4468,12 +4468,12 @@ static int collectGarbage(Address, Address, int);
 	}
 /*end[TYPEMAP]*/
 
-	case Native_com_sun_squawk_NativeUnsafe_compareAndSwapInt: {
-		int value = popInt();
-		int expected = popInt();
-		Address obj = popAddress();
-		int res = sysCAS(obj, expected, value);
-		pushInt(res);
+	case Native_com_sun_squawk_NativeUnsafe_compareAndSwapInt0: {
+		int     value    = popInt();
+		int     expected = popInt();
+		Address obj      = popAddress();
+		int     event    = popInt();
+		sysCAS(obj, expected, value, event);
 		break;
 	}
 

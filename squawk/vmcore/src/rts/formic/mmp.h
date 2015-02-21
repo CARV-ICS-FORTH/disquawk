@@ -34,8 +34,8 @@
 #include "mmp_ops.h"
 #include "hwcnt.h"
 
-void    mmpSpawnThread (Address thread);
-Address mmpCheckMailbox (Address type);
+void    mmpSpawnThread(Address thread);
+Address mmpCheckMailbox(Address type);
 
 /**
  * Send a single word mailbox message to the given core.
@@ -45,14 +45,19 @@ Address mmpCheckMailbox (Address type);
  * @param msg    The word to send
  */
 INLINE void
-mmpSend (int to_bid, int to_cid, unsigned int msg)
+mmpSend(int to_bid, int to_cid, unsigned int msg)
 {
 	int cnt;
 	int ret;
 
-	cnt           = hwcnt_get_free(HWCNT_MMP_SEND1);
+	cnt = hwcnt_get_free(HWCNT_MMP_SEND1);
 
 	do {
+		/* Wait until our DMA engine can support at least one more DMA */
+		while (!(ar_ni_status_get(my_cid) & 0xFF)) {
+			;
+		}
+
 		/* kt_printf("Sending thread %p to 0x%02X/%d\n",
 		 *           thread, target_bid, target_cid); */
 		/* Send to dst mailbox, keeping track with a local counter */
@@ -60,18 +65,19 @@ mmpSend (int to_bid, int to_cid, unsigned int msg)
 		ar_mbox_send_ack(sysGetCore(), to_bid, to_cid,
 		                 sysGetIsland(), sysGetCore(), cnt, msg);
 
-		/* Spin until counter notification arrives FIXME: make it non blocking
-		**/
-		while ( (ret = ar_cnt_get_triggered(sysGetCore(), cnt)) == 0) {
+		/* Spin until counter notification arrives
+		 * FIXME: make it non blocking */
+		while ((ret = ar_cnt_get_triggered(sysGetCore(), cnt)) == 0) {
 			;
 		}
 	} while (ret == 3); /* Retry on Nack */
 
 	/* kt_printf("Sent\n"); */
-	assume(ret == 2);   /* Ack */
+	assume(ret == 2); /* Ack */
 	assume(ar_cnt_get(sysGetCore(), cnt) == 0);
 	hwcnts_g[cnt] = HWCNT_FREE;
 }
+
 /**
  * Send a 2-word mailbox message to the given core.
  *
@@ -81,23 +87,28 @@ mmpSend (int to_bid, int to_cid, unsigned int msg)
  * @param msg1   The second word to send
  */
 INLINE void
-mmpSend2 (int to_bid, int to_cid, unsigned int msg0, unsigned int msg1)
+mmpSend2(int to_bid, int to_cid, unsigned int msg0, unsigned int msg1)
 {
 	int cnt;
 	int ret;
 
-	cnt           = hwcnt_get_free(HWCNT_MMP_SEND2);
-	ret           = 0;
+	cnt = hwcnt_get_free(HWCNT_MMP_SEND2);
+	ret = 0;
 
 	do {
+		/* Wait until our DMA engine can support at least one more DMA */
+		while (!(ar_ni_status_get(my_cid) & 0xFF)) {
+			;
+		}
+
 		/* Send to dst mailbox, keeping track with a local counter */
 		ar_cnt_set(sysGetCore(), cnt, -8);
 		ar_mbox_send2_ack(sysGetCore(), to_bid, to_cid,
 		                  sysGetIsland(), sysGetCore(), cnt, msg0, msg1);
 
-		/* Spin until counter notification arrives FIXME: make it non
-		 * blocking */
-		while ( (ret = ar_cnt_get_triggered(sysGetCore(), cnt)) == 0) {
+		/* Spin until counter notification arrives
+		 * FIXME: make it non blocking */
+		while ((ret = ar_cnt_get_triggered(sysGetCore(), cnt)) == 0) {
 			;
 		}
 	} while (ret == 3);
@@ -106,4 +117,61 @@ mmpSend2 (int to_bid, int to_cid, unsigned int msg0, unsigned int msg1)
 	assume(ar_cnt_get(sysGetCore(), cnt) == 0);
 	hwcnts_g[cnt] = HWCNT_FREE;
 }
+
+/**
+ * Send a 16-word mailbox message to the given core.
+ *
+ * @param to_bid The target core's board ID
+ * @param to_cid The target core's core ID
+ * @param msg A 64-byte array containing the whole message to send
+ */
+INLINE void
+mmpSend16(int to_bid, int to_cid, unsigned int msg[16])
+{
+	int cnt;
+	int ret;
+
+	cnt = hwcnt_get_free(HWCNT_MMP_SEND2);
+	ret = 0;
+
+	do {
+		/* Wait until our DMA engine can support at least one more DMA */
+		while (!(ar_ni_status_get(my_cid) & 0xFF)) {
+			;
+		}
+
+		/* Send to dst mailbox, keeping track with a local counter */
+		ar_cnt_set(sysGetCore(), cnt, -64);
+		ar_dma_with_ack(sysGetCore(),                    /* my core id */
+		                sysGetIsland(),                  /* source board id */
+		                sysGetCore(),                    /* source core id */
+		                msg,                             /* source address */
+		                to_bid,                          /* destination board id
+		                                                  */
+		                to_cid,                          /* destination core id
+		                                                  */
+		                ar_addr_of_mbox(to_bid, to_cid), /* destination address
+		                                                  */
+		                sysGetIsland(),                  /* ack board id */
+		                sysGetCore(),                    /* ack core id */
+		                cnt,                             /* ack counter */
+		                64,                              /* data length */
+		                0,                               /* ignore dirty bit on
+		                                                  * source */
+		                0,                               /* force clean on dst
+		                                                  */
+		                0);                              /* write through */
+
+		/* Spin until counter notification arrives
+		 * FIXME: make it non blocking */
+		while ((ret = ar_cnt_get_triggered(sysGetCore(), cnt)) == 0) {
+			;
+		}
+	} while (ret == 3);
+
+	assume(ret == 2); /* Ack */
+	assume(ar_cnt_get(sysGetCore(), cnt) == 0);
+	hwcnts_g[cnt] = HWCNT_FREE;
+}
+
 #endif /* RTS_FORMIC_MMP_H */

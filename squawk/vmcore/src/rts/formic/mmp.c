@@ -76,8 +76,8 @@ mmpCheckMailbox (Address type)
 	unsigned int msg0;
 	int          bid;
 	int          cid;
-	int          wait;
-	int          all;
+	int          tmp;
+	int          new, expected, i;
 	mmpMsgOp_t   msg_type;
 	Address      result;
 	Address      object;
@@ -88,8 +88,7 @@ mmpCheckMailbox (Address type)
 	}
 
 	result = NULL;
-	wait   = 0;
-	all    = 0;
+	tmp    = 0;
 
 	/* If there are, get the first */
 	msg0     = ar_mbox_get(sysGetCore());
@@ -135,7 +134,7 @@ mmpCheckMailbox (Address type)
 		object = (Address)ar_mbox_get(sysGetCore());
 
 		/* If we do not own the monitor, retry */
-		if (bid != my_bid || cid != my_cid) {
+		if (bid != sysGetIsland() || cid != sysGetCore()) {
 #  ifdef VERY_VERBOSE
 			kt_printf("Monitor owner is %d:%d\n", bid, cid);
 			ar_uart_flush();
@@ -177,21 +176,43 @@ mmpCheckMailbox (Address type)
 		mmgrRemoveWaiterHandler(bid, cid, object);
 		break;
 	case MMP_OPS_MNTR_NOTIFY_ALL:
-		all = 1;  /* Don't break here */
+		tmp = 1;  /* Don't break here */
 	case MMP_OPS_MNTR_NOTIFY:
 		/* this is a two-words message */
 		object = (Address)ar_mbox_get(sysGetCore());
-		mmgrNotifyHandler(bid, cid, object, all);
+		mmgrNotifyHandler(bid, cid, object, tmp);
 		break;
 	case MMP_OPS_MNTR_WAIT:
-		wait = 1;  /* Don't break here */
+		tmp = 1;  /* Don't break here */
 	case MMP_OPS_MNTR_EXIT:
 		/* this is a two-words message */
 		object = (Address)ar_mbox_get(sysGetCore());
 		/* kt_printf("0x%02X/%d wants to exit monitor (%p)\n",
 		 *           from_bid, from_cid, object); */
 		assume(object != NULL);
-		mmgrMonitorExitHandler(bid, cid, object, wait);
+		mmgrMonitorExitHandler(bid, cid, object, tmp);
+		break;
+	/* Handle atomic primitives */
+	case MMP_OPS_AT_CAS:
+		/* this is a cache-line message */
+		object   = (Address)ar_mbox_get(sysGetCore());
+		assume(object   != NULL);
+		expected =     (int)ar_mbox_get(sysGetCore());
+		assume(expected != NULL);
+		new      =     (int)ar_mbox_get(sysGetCore());
+		assume(new      != NULL);
+
+		// pop the empty words...
+		for(i=0; i<12; ++i) {
+			(void)ar_mbox_get(sysGetCore());
+		}
+
+		mmgrCASHandler(bid, cid, object, expected, new);
+		break;
+	case MMP_OPS_AT_CAS_R:
+		object = (Address)ar_mbox_get(sysGetCore());
+		assume(object != NULL);
+		result = (Address)msg >> 16;
 		break;
 	/* TODO: Add Christi's op-codes here */
 	/*

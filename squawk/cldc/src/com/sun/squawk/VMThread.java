@@ -1040,6 +1040,10 @@ public final class VMThread implements GlobalStaticFields {
 
 	private int errno; /* save errno after native calls so java thread's will see correct errno value. */
 
+	/**
+	 * Holds the result from asynchronous functions (i.e., CAS)
+	 */
+	boolean result = false;
 
 	/**
 	 * Fail if thread invarients are true.
@@ -1852,6 +1856,13 @@ public final class VMThread implements GlobalStaticFields {
 					addToRunnableThreadsQueue(waiter);
 					waiter = monitor.removeCondvarWait();
 				}
+				break;
+			}
+			case MMP.OPS_AT_CAS_R: {
+				thread = events.findEvent((int)object);
+				assert(thread != null);
+				thread.result = (object != null);
+				addToRunnableThreadsQueue(thread);
 				break;
 			}
 			default:

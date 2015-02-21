@@ -32,6 +32,7 @@
  */
 
 #include "os.h"
+#include "mmp.h"
 
 /**
  * @brief Write back data from the local cache.
@@ -86,19 +87,24 @@ void exit(int status) {
 }
 
 /**
- * Compare and swap.
- *
- * @todo This is dummy, need to implement it right using the JVM design.
- *
- * @return >0 if succeeded, 0 otherwise
+ * Compare and swap.  An asynchronous implementation, sends a request
+ * to the atomic primitives manager.  The thread is then added to an
+ * event queue waiting for the request to be processed.
  */
-int sysCAS(void* ptr, int old, int new) {
-	int ret;
+void sysCAS(void* ptr, int old, int new) {
+	int ret, msg[16];
+	int dst_bid, dst_cid;
 
-	ret  = (*(int*)ptr == old);
-	*(int*)ptr = new;
+	/* FIXME: Choose dst_bid and dst_cid somehow */
+	dst_bid = 0;
+	dst_cid = 0;
 
-	return ret;
+	kt_memset(msg, 0, sizeof(msg));
+	msg[0] = MMP_OPS_AT_CAS;    /* The opcode */
+	msg[1] = ptr;               /* The object address */
+	msg[2] = old;               /* The expected value */
+	msg[3] = new;               /* The new value */
+	mmpSend16(dst_bid, dst_cid, msg);
 }
 
 /**

@@ -577,7 +577,8 @@ class NativeVerifierHelper {
             return;
         }
 
-        case Native.com_sun_squawk_NativeUnsafe$compareAndSwapInt: {
+        case Native.com_sun_squawk_NativeUnsafe$compareAndSwapInt0: {
+            frame.pop(INT); // int
             frame.pop(INT); // int
             frame.pop(INT); // int
             frame.pop(OOP); // java.lang.Object
@@ -980,13 +981,6 @@ class NativeVerifierHelper {
             frame.pop(INT); // int
             frame.pop(REF); // com.sun.squawk.Address
             frame.pop(INT); // int
-            frame.pop(REF); // com.sun.squawk.Address
-            Assert.that(frame.isStackEmpty());
-            return;
-        }
-
-        case Native.com_sun_squawk_VM$deadbeef: {
-            frame.pop(REF); // com.sun.squawk.Address
             frame.pop(REF); // com.sun.squawk.Address
             Assert.that(frame.isStackEmpty());
             return;
