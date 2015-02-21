@@ -1831,26 +1831,33 @@ public final class Isolate implements Runnable {
                       " "+NativeUnsafe.getCore());
         Assert.that(childThreads.containsKey(thread));
         childThreads.remove(thread);
-
+/*if[MICROBLAZE_BUILD]*/
         /*
-         * Check for rundown condition. That is, keep running the isolate
-         * if at least one non-daemon threading is still running.
+         * NOTE: We cannot allow an exit here since we might get new
+         * jobs later.
          */
-        if (thread.isDaemon()) {
-            return false; // exiting a daemon thread can't cause isolate to exit
-        }
+        return false;
+/*else[MICROBLAZE_BUILD]*/
+//         /*
+//          * Check for rundown condition. That is, keep running the isolate
+//          * if at least one non-daemon threading is still running.
+//          */
+//         if (thread.isDaemon()) {
+//             return false; // exiting a daemon thread can't cause isolate to exit
+//         }
 
-        for (Enumeration e = childThreads.elements(); e.hasMoreElements(); ) {
-            thread = (VMThread)e.nextElement();
-            if (!thread.isDaemon()) {
-                return false;
-            }
-        }
+//         for (Enumeration e = childThreads.elements(); e.hasMoreElements(); ) {
+//             thread = (VMThread)e.nextElement();
+//             if (!thread.isDaemon()) {
+//                 return false;
+//             }
+//         }
 
-        /*
-         * If all the non-daemon threads are dead then stop the isolate.
-         */
-        return true;
+//         /*
+//          * If all the non-daemon threads are dead then stop the isolate.
+//          */
+//         return true;
+/*end[MICROBLAZE_BUILD]*/
     }
 
     /**

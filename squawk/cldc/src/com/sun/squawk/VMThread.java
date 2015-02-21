@@ -1519,9 +1519,11 @@ public final class VMThread implements GlobalStaticFields {
 		joiners = null;
 		startJoiners(list, VMThread.Q_JOIN);
 
+/*if[!MICROBLAZE_BUILD]*/
 		if (exitIsolate) {
 			isolate.exit(uncaughtException ? 1 : 0);
 		}
+/*end[MICROBLAZE_BUILD]*/
 
 		state = DEAD;
 
