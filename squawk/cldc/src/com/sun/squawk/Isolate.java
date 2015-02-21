@@ -1741,8 +1741,7 @@ public final class Isolate implements Runnable {
      */
     static void runMain(String mainClassName, String[] args) {
         try {
-            if (VM.isVerbose())
-              VM.println("[DIAG]  in runMain: "+mainClassName);
+            Debug.pinfo("in runMain: "+mainClassName);
             Klass klass = Klass.forName(mainClassName);
             klass.main(args);
 
@@ -1812,6 +1811,9 @@ public final class Isolate implements Runnable {
      */
     void addThread(VMThread thread) {
         Assert.that(!childThreads.containsKey(thread));
+        Debug.pdebug3("Put thread = "+thread+
+                      " Isolate "+System.identityHashCode(this)+
+                      " "+NativeUnsafe.getCore());
         childThreads.put(thread, thread);
     }
 
@@ -1824,6 +1826,9 @@ public final class Isolate implements Runnable {
      * @return true if the isolate should exit.
      */
     boolean removeThread(VMThread thread) {
+        Debug.pdebug3("RM thread = "+thread+
+                      " Isolate "+System.identityHashCode(this)+
+                      " "+NativeUnsafe.getCore());
         Assert.that(childThreads.containsKey(thread));
         childThreads.remove(thread);
 

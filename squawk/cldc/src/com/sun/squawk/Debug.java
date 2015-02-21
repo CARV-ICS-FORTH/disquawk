@@ -77,4 +77,22 @@ public class Debug {
 		}
 	}
 
+	/**
+	 * Prints msg depending on the debug level.
+	 *
+	 * On info level prints only messages from the master core (like
+	 * pinfo).
+	 *
+	 * On verbose level prints messages from the first core of every
+	 * board.
+	 *
+	 * On veryverbose level prints messages from all cores.
+	 */
+	public static void pdebug3 (String msg) {
+		if ((level > 2)) {
+			VM.print("[DBG3] ");
+			VM.println(msg);
+		}
+	}
+
 }
