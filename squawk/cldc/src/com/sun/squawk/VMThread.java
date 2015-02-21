@@ -270,8 +270,8 @@ public final class VMThread implements GlobalStaticFields {
 //      this.isolate  = VM.getCurrentIsolate();
 /*end[ENABLE_MULTI_ISOLATE]*/
 
+		core   = VM.getCore();
 		if (currentThread != null) {
-			core   = VM.getCore();
 /*if[MICROBLAZE_BUILD]*/
 			island = VM.getIsland();
 			this.threadNumber = (island << 25) + (core << 22 ) + nextThreadNumber++;
@@ -297,6 +297,29 @@ public final class VMThread implements GlobalStaticFields {
 				this.name = "Thread-".concat(String.valueOf(threadNumber));
 			}
 		}
+	}
+
+	/**
+	 * Creates a new replica of a <code>VMThread</code> object.
+	 *
+	 * @param   thread The VMThread to copy
+	 */
+	public VMThread(VMThread thread) {
+		Assert.always(thread != null);
+		this.apiThread    = thread.apiThread;
+		/* We keep a thread counter per core and precede it with the
+		 * core id.  This way we have a unique identifier accross all
+		 * cores. */
+		this.state        = NEW;
+		this.stackSize    = INITIAL_STACK_SIZE;
+/*if[ENABLE_MULTI_ISOLATE]*/
+		// FIXME: If we need to support multi_isolate
+/*else[ENABLE_MULTI_ISOLATE]*/
+//      this.isolate  = VM.getCurrentIsolate();
+/*end[ENABLE_MULTI_ISOLATE]*/
+		this.threadNumber = thread.threadNumber;
+		this.priority     = thread.priority;
+		this.name         = thread.name;
 	}
 
 	/**
@@ -506,7 +529,7 @@ public final class VMThread implements GlobalStaticFields {
 	 * @exception  IllegalThreadStateException  if the thread was already started.
 	 * @see        java.lang.Thread#run()
 	 */
-	private void localStart(Isolate theIsolate) {
+	private void localStart() {
 
 		/*
 		 * Check that the thread has not yet been started.
@@ -537,7 +560,7 @@ public final class VMThread implements GlobalStaticFields {
 //VM.printAddress(NativeUnsafe.getObject(stack, SC.owner));
 //VM.println();
 
-		theIsolate.addThread(this);
+		isolate.addThread(this);
 		addToRunnableThreadsQueue(this);
 
 /*if[ENABLE_SDA_DEBUGGER]*/
@@ -1413,7 +1436,7 @@ public final class VMThread implements GlobalStaticFields {
 	 * Special thread starter that reschedules the currently executing thread.
 	 */
 	final void primitiveThreadStart() {
-		localStart(this.isolate);
+		localStart();
 		rescheduleNext();
 	}
 
@@ -1775,8 +1798,8 @@ public final class VMThread implements GlobalStaticFields {
 			case MMP.OPS_TH_SPAWN: {
 				// There is a new thread for us
 				Assert.that(object != null);
-				thread = (VMThread) object;
-				thread.localStart(VM.getCurrentIsolate());
+				thread = new VMThread((VMThread) object);
+				thread.localStart();
 
 				break;
 			}
