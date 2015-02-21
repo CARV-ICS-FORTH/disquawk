@@ -1397,8 +1397,8 @@ INLINE_UNALIGNED void setUnalignedLong(Address base, Offset offset, jlong value)
  * @return the value
  */
 /* HACK: Don't MACROIZE we need it in softcache.c */
-int getShort(Address $base, Offset $offset) {
-	return getShortTyped($base, $offset, AddressType_SHORT);
+int getShort(Address base, Offset offset) {
+	return getShortTyped(base, offset, AddressType_SHORT);
 }
 
 /**
@@ -1442,8 +1442,8 @@ int getShort(Address $base, Offset $offset) {
  * @return the value
  */
 /* HACK: Don't MACROIZE we need it in softcache.c */
-Address getObject(Address $base, Offset $offset) {
-	return (Address)getUWordTyped($base, $offset, AddressType_REF);
+Address getObject(Address base, Offset offset) {
+	return (Address)getUWordTyped(base, offset, AddressType_REF);
 }
 
 /**
@@ -1698,13 +1698,13 @@ void swap8(Address address) {
  * @param end the end address
  */
 /* HACK: Don't MACROIZE we need it in softcache.c */
-void zeroWords(UWordAddress $start, UWordAddress $end) {
-	assume(isWordAligned((UWord)$start));
-	assume(isWordAligned((UWord)$end));
-	zeroTypes($start, $end);
-	while ($start < $end) {
-		*$start = 0;
-		$start++;
+void zeroWords(UWordAddress start, UWordAddress end) {
+	assume(isWordAligned((UWord)start));
+	assume(isWordAligned((UWord)end));
+	zeroTypes(start, end);
+	while (start < end) {
+		*start = 0;
+		start++;
 	}
 }
 
@@ -1802,8 +1802,8 @@ Address allocate(int size, Address klass, int arrayLength) {
  * invoke this method on a possibly forwarded Klass object.
  */
 /* HACK: Don't MACROIZE we need it in softcache.c */
-int getDataSize(Address $klass) {
-	switch (com_sun_squawk_Klass_id_local($klass)) {
+int getDataSize(Address klass) {
+	switch (com_sun_squawk_Klass_id_local(klass)) {
 	case CID_BOOLEAN:
 	case CID_BYTECODE:
 	case CID_BYTE: {
