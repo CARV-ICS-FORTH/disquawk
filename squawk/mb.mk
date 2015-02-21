@@ -449,7 +449,7 @@ trace: all_suites.sym run.log
 ################################################################################
 # Create the suite maps (useful to translate the traces)
 ################################################################################
-map: all_suites.sym
+map: all_suites.sym $(ELF_DMP)
 
 all_suites.sym: squawk.suite.map FormicApp.suite.map
 	$(AT)grep -h METHOD $^ > $@
