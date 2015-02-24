@@ -30,10 +30,10 @@ void squawk_entry_point(void)
   fakeArgv[4] = "newthread.NewThread";
   fakeArgc    = 5;
 
-  kt_printf("Invoking squawk with:");
-  for(i=0; i<fakeArgc; ++i)
-    kt_printf(" %s", fakeArgv[i]);
-  kt_printf("\n");
+  /* kt_printf("Invoking squawk with:");
+   * for(i=0; i<fakeArgc; ++i)
+   *   kt_printf(" %s", fakeArgv[i]);
+   * kt_printf("\n"); */
 
   Squawk_main_wrapper(fakeArgc, fakeArgv);
 
