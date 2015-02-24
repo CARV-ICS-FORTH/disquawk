@@ -1043,7 +1043,15 @@ public final class VMThread implements GlobalStaticFields {
 	/**
 	 * Holds the result from asynchronous functions (i.e., CAS)
 	 */
-	boolean result = false;
+	private Object result;
+
+	public void setResult(Object res) {
+		result = res;
+	}
+
+	public Object getResult() {
+		return result;
+	}
 
 	/**
 	 * Fail if thread invarients are true.
@@ -1859,9 +1867,9 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 			case MMP.OPS_AT_CAS_R: {
-				thread = events.findEvent((int)object);
-				assert(thread != null);
-				thread.result = (object != null);
+				thread = events.findEvent(object.hashCode());
+				Assert.that(thread != null);
+				thread.setResult(object);
 				addToRunnableThreadsQueue(thread);
 				break;
 			}

@@ -92,7 +92,7 @@ void exit(int status) {
  * event queue waiting for the request to be processed.
  */
 void sysCAS(void* ptr, int old, int new) {
-	int ret, msg[16];
+	int msg[16];
 	int dst_bid, dst_cid;
 
 	/* FIXME: Choose dst_bid and dst_cid somehow */

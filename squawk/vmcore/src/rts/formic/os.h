@@ -141,7 +141,7 @@ INLINE jlong sysTimeMillis(void) {
 	return res;
 }
 
-int sysCAS(void* ptr, int old, int new);
+void sysCAS(void* ptr, int old, int new);
 void sysToggleMemoryProtection(char* start, char* end, boolean readonly);
 void sysGlobalMemoryProtection();
 

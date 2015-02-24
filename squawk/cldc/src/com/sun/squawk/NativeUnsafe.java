@@ -54,19 +54,20 @@ public final class NativeUnsafe {
 /*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
 /*end[JAVA5SYNTAX]*/
-	public static boolean compareAndSwapInt0(Object base, int expect, int value,
-	                                         int event) throws NativePragma {
+	public static boolean compareAndSwapInt0(Object base, int expect,
+	                                         int value) throws NativePragma {
 		return true;
 	}
 
-	public static boolean compareAndSwapInt(Object base, int expect, int value) {
+	public static boolean compareAndSwapInt(Object base, int expect,
+	                                        int value) {
 		VMThread thread;
 		int event;
 		thread = VMThread.currentThread();
 		event = 0/* FIXME: thread id and base combination */;
-		compareAndSwapInt0(base, expect, value, event);
+		compareAndSwapInt0(base, expect, value);
 		VMThread.waitForEvent(event);
-		return thread.result;
+		return thread.getResult() != null;
 	}
 
 /*if[MICROBLAZE_BUILD]*/

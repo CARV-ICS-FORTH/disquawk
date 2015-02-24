@@ -145,7 +145,7 @@ mmpSend16(int to_bid, int to_cid, unsigned int msg[16])
 		ar_dma_with_ack(sysGetCore(),                    /* my core id */
 		                sysGetIsland(),                  /* source board id */
 		                sysGetCore(),                    /* source core id */
-		                msg,                             /* source address */
+		                (unsigned int) msg,              /* source address */
 		                to_bid,                          /* destination board id
 		                                                  */
 		                to_cid,                          /* destination core id

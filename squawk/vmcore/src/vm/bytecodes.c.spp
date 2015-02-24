@@ -4472,8 +4472,7 @@ static int collectGarbage(Address, Address, int);
 		int     value    = popInt();
 		int     expected = popInt();
 		Address obj      = popAddress();
-		int     event    = popInt();
-		sysCAS(obj, expected, value, event);
+		sysCAS((void*)obj, expected, value);
 		break;
 	}
 

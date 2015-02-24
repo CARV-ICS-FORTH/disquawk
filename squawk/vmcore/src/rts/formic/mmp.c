@@ -34,6 +34,7 @@
 #include "os.h"
 #include "mmp.h"
 #include "mmgr.h"
+#include "apmgr.h"
 
 /**
  * Peeks a core to schedule the given thread.  Then sends a message to
@@ -207,12 +208,12 @@ mmpCheckMailbox (Address type)
 			(void)ar_mbox_get(sysGetCore());
 		}
 
-		mmgrCASHandler(bid, cid, object, expected, new);
+		apmgrCASHandler(bid, cid, object, expected, new);
 		break;
 	case MMP_OPS_AT_CAS_R:
 		object = (Address)ar_mbox_get(sysGetCore());
 		assume(object != NULL);
-		result = (Address)msg >> 16;
+		result = (Address)(msg0 >> 16);
 		break;
 	/* TODO: Add Christi's op-codes here */
 	/*

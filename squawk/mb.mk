@@ -121,9 +121,7 @@ CFLAGS =\
 	-DPLATFORM_BIG_ENDIAN=false \
 	-DPLATFORM_UNALIGNED_LOADS=true \
 	-DSC_NATIVE \
-	-DASSUME \
-
-#	-DMACROIZE \
+	-DMACROIZE \
 	-DMAXINLINE -O3 \
 
 #	-DASSUME \
@@ -220,6 +218,7 @@ SQUAWK_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(VM_SRC)/,$(SQUAWK_OBJS))
 FORMIC_OBJS =\
 	hwcnt.mb.o \
 	mmgr.mb.o \
+	apmgr.mb.o \
 	mmp.mb.o \
 	os.mb.o \
 

@@ -580,7 +580,6 @@ class NativeVerifierHelper {
         case Native.com_sun_squawk_NativeUnsafe$compareAndSwapInt0: {
             frame.pop(INT); // int
             frame.pop(INT); // int
-            frame.pop(INT); // int
             frame.pop(OOP); // java.lang.Object
             Assert.that(frame.isStackEmpty());
             frame.push(BOOLEAN); // boolean
