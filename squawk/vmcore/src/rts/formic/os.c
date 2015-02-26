@@ -91,8 +91,8 @@ void exit(int status) {
  * to the atomic primitives manager.  The thread is then added to an
  * event queue waiting for the request to be processed.
  */
-void sysCAS(void* ptr, int old, int new) {
-	int msg[16];
+void sysCAS(void* ptr, unsigned int old, unsigned int new) {
+	unsigned int msg[16];
 	int dst_bid, dst_cid;
 
 	/* FIXME: Choose dst_bid and dst_cid somehow */
@@ -101,7 +101,7 @@ void sysCAS(void* ptr, int old, int new) {
 
 	kt_memset(msg, 0, sizeof(msg));
 	msg[0] = MMP_OPS_AT_CAS;    /* The opcode */
-	msg[1] = ptr;               /* The object address */
+	msg[1] = (unsigned int)ptr; /* The object address */
 	msg[2] = old;               /* The expected value */
 	msg[3] = new;               /* The new value */
 	mmpSend16(dst_bid, dst_cid, msg);
