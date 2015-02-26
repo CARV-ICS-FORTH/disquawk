@@ -45,12 +45,12 @@
  *         NULL if there is not enough space
  */
 static inline monitor_t*
-monitor_alloc ()
+monitor_alloc()
 {
 	monitor_t *new;
 
 	/* If the freelist is empty */
-	if (unlikely(mmgrFreeNodes_g == NULL)) {
+	if (unlikely(mmgrMonitorFreeNodes_g == NULL)) {
 		if ((mmgrAllocTop_g + sizeof(monitor_t)) < mmgrAllocEnd_g) {
 			new             = mmgrAllocTop_g;
 			mmgrAllocTop_g += sizeof(monitor_t);
@@ -60,8 +60,8 @@ monitor_alloc ()
 		}
 	}
 	else {
-		new             = mmgrFreeNodes_g;
-		mmgrFreeNodes_g = mmgrFreeNodes_g->rchild;
+		new                    = mmgrMonitorFreeNodes_g;
+		mmgrMonitorFreeNodes_g = mmgrMonitorFreeNodes_g->rchild;
 	}
 
 	return new;
@@ -73,10 +73,10 @@ monitor_alloc ()
  * @param monitor The monitor whose memory to free up
  */
 static inline void
-monitor_free (monitor_t *monitor)
+monitor_free(monitor_t *monitor)
 {
-	monitor->rchild = mmgrAllocTop_g;
-	mmgrAllocTop_g  = monitor;
+	monitor->rchild        = mmgrMonitorFreeNodes_g;
+	mmgrMonitorFreeNodes_g = monitor;
 }
 
 /******************************************************************************
@@ -92,7 +92,7 @@ monitor_free (monitor_t *monitor)
  *         NULL if it was not found
  */
 static inline monitor_t*
-bst_lookup (monitor_t *bst, Address object)
+bst_lookup(monitor_t *bst, Address object)
 {
 
 	while (bst) {
@@ -115,7 +115,7 @@ bst_lookup (monitor_t *bst, Address object)
  * @return The head of the mofified binary search tree
  */
 static inline monitor_t*
-bst_insert (monitor_t *bst, monitor_t *monitor)
+bst_insert(monitor_t *bst, monitor_t *monitor)
 {
 	monitor_t *tmp;
 
@@ -158,7 +158,7 @@ bst_insert (monitor_t *bst, monitor_t *monitor)
  *         NULL if the tree is empty
  */
 static inline monitor_t*
-bst_find_max (monitor_t *bst)
+bst_find_max(monitor_t *bst)
 {
 	if (bst == NULL)
 		return NULL;
@@ -171,17 +171,18 @@ bst_find_max (monitor_t *bst)
 }
 
 /* Forward declaration */
-static inline monitor_t*bst_remove (monitor_t *bst, Address object);
+static inline monitor_t* bst_remove(monitor_t *bst, Address object);
 
 /**
  * Removes the root of the given subtree and returns a properly
  * modified tree.
  *
+ * @note not tested
  * @param child The child to remove (root of a subtree)
  * @return The properly modified subtree
  */
 static inline monitor_t*
-bst_remove_child (monitor_t *child)
+bst_remove_child(monitor_t *child)
 {
 	monitor_t *tmp;
 
@@ -192,6 +193,7 @@ bst_remove_child (monitor_t *child)
 		child->object  = tmp->object;
 		child->owner   = tmp->owner;
 		child->waiters = tmp->waiters;
+		child->pending = tmp->pending;
 		child->lchild  = bst_remove(child->lchild, child->object);
 
 		return child;
@@ -217,12 +219,13 @@ bst_remove_child (monitor_t *child)
 /**
  * Remove object from bst
  *
+ * @note not tested
  * @param bst    The binary search tree root
  * @param object The object to remove
  * @return The resulting tree after the removal
  */
 static inline monitor_t*
-bst_remove (monitor_t *bst, Address object)
+bst_remove(monitor_t *bst, Address object)
 {
 
 	while (bst) {
@@ -255,7 +258,7 @@ bst_remove (monitor_t *bst, Address object)
  * @return The calculated hash
  */
 static inline unsigned int
-hashint (unsigned int a)
+hashint(unsigned int a)
 {
 	a += ~(a << 15);
 	a ^= (a >> 10);
@@ -274,7 +277,7 @@ hashint (unsigned int a)
  * @return The calculated hash
  */
 static inline unsigned int
-ht_hash (Address object)
+ht_hash(Address object)
 {
 	unsigned int res;
 
@@ -299,7 +302,7 @@ ht_hash (Address object)
  *         NULL if not found
  */
 static inline monitor_t*
-ht_lookup (Address object)
+ht_lookup(Address object)
 {
 	unsigned int index;
 	Address      res;
@@ -320,7 +323,7 @@ ht_lookup (Address object)
  * @param monitor The monitor to insert
  */
 static inline void
-ht_insert (monitor_t *monitor)
+ht_insert(monitor_t *monitor)
 {
 	unsigned int index;
 
@@ -335,12 +338,13 @@ ht_insert (monitor_t *monitor)
 /**
  * Removes object from the monitors' hashtable
  *
+ * @note not tested
  * @param object The object to remove
  * @return 1 if it was found and removed or
  *         0 if not found
  */
 static inline int
-ht_remove (Address object)
+ht_remove(Address object)
 {
 	unsigned int index;
 
@@ -355,22 +359,93 @@ ht_remove (Address object)
 	return 0;
 }
 
+/******************************************************************************
+ * Stack
+ ******************************************************************************/
+
+/* TODO: Consider using a FIFO queue to service requests more fairly */
+
+/**
+ * push
+ *
+ * @param stack The stack to push to
+ * @param id The id to push
+ * @return The updated stack
+ */
+static inline waiter_t*
+push(waiter_t *stack, unsigned int id)
+{
+	waiter_t *waiter;
+
+#if WAITER_REUSE
+
+	/* HACK: Since a waiters stack node's size is 1/3 of the size of a
+	 * monitor, we use the same allocation granularity and pack 3
+	 * waiters in a single */
+
+	/* If there are available nodes in the free list use them */
+	if (likely(mmgrWaiterFreeNodes_g)) {
+		waiter                = mmgrWaiterFreeNodes_g;
+		mmgrWaiterFreeNodes_g = mmgrWaiterFreeNodes_g->next;
+	}
+	/* Otherwise allocate some space */
+	else {
+		waiter                = (waiter_t*)monitor_alloc();
+		/* Add the 2nd and 3rd waiters in the free list */
+		(waiter + 1)->next    = mmgrWaiterFreeNodes_g;
+		(waiter + 2)->next    = (waiter + 1);
+		mmgrWaiterFreeNodes_g = (waiter + 2);
+	}
+
+#else /* if WAITER_REUSE */
+	waiter = (waiter_t*)monitor_alloc();
+#endif /* if WAITER_REUSE */
+
+	waiter->id   = id;
+	waiter->next = stack;
+
+	return waiter;
+}
+
+/**
+ * pop
+ *
+ * @param stack The stack from which to pop an element
+ * @return The stack without the top element
+ */
+static inline waiter_t*
+pop(waiter_t *stack)
+{
+	waiter_t *to_free;
+
+	to_free               = stack;
+	stack                 = stack->next;
+	to_free->next         = mmgrWaiterFreeNodes_g;
+	mmgrWaiterFreeNodes_g = to_free;
+
+	return stack;
+}
+
+/******************************************************************************
+ * Interface Implementation
+ ******************************************************************************/
+
 /**
  * Initialize the hashtable
  *
  * @param mmgrHT The allocated memory for the monitors' hashtable
  */
 void
-mmgrInitialize (mmgrGlobals *globals)
+mmgrInitialize(mmgrGlobals *globals)
 {
-	mmgr_g          = globals;
-	mmgrFreeNodes_g = NULL;
+	mmgr_g                 = globals;
+	mmgrMonitorFreeNodes_g = NULL;
 #ifdef ARCH_MB
-	mmgrAllocTop_g  = (Address) mm_slice_base(sysGetCore());
-	mmgrAllocEnd_g  = mmgrAllocTop_g + MM_MB_SLICE_SIZE;
+	mmgrAllocTop_g         = (Address) mm_slice_base(sysGetCore());
+	mmgrAllocEnd_g         = mmgrAllocTop_g + MM_MB_SLICE_SIZE;
 #else /* ifdef ARCH_MB */
-	mmgrAllocTop_g  = (Address) mm_pa_kernel_base(sysGetCore());
-	mmgrAllocEnd_g  = mmgrAllocTop_g + MM_PA_KERNEL_SIZE;
+	mmgrAllocTop_g         = (Address) mm_pa_kernel_base(sysGetCore());
+	mmgrAllocEnd_g         = mmgrAllocTop_g + MM_PA_KERNEL_SIZE;
 #endif /* ifdef ARCH_MB */
 
 	kt_memset(mmgrHT_g, 0, sizeof(monitor_t*) * MMGR_HT_SIZE);
@@ -384,7 +459,7 @@ mmgrInitialize (mmgrGlobals *globals)
  * @param cid    The manager's cid (return)
  */
 static inline void
-mmgrGetManager (Address object, int *bid, int *cid)
+mmgrGetManager(Address object, int *bid, int *cid)
 {
 	/* We need only 3 bits since we have 2^3 monitor managers */
 	unsigned int id3;
@@ -420,7 +495,7 @@ mmgrGetManager (Address object, int *bid, int *cid)
  * @param object The object to operate on
  */
 static inline void
-mmgrRequest (mmpMsgOp_t msg_op, Address object)
+mmgrRequest(mmpMsgOp_t msg_op, Address object)
 {
 	unsigned int msg0;
 	int          target_cid;
@@ -444,7 +519,7 @@ mmgrRequest (mmpMsgOp_t msg_op, Address object)
  *
  */
 void
-mmgrMonitorEnter (Address object)
+mmgrMonitorEnter(Address object)
 {
 #  ifdef VERY_VERBOSE
 	kt_printf("I sent an enter request for %p\n", object);
@@ -466,7 +541,7 @@ mmgrMonitorEnter (Address object)
  * @param object The object to exit its monitor
  */
 void
-mmgrMonitorExit (Address object)
+mmgrMonitorExit(Address object)
 {
 #  ifdef VERY_VERBOSE
 	kt_printf("I sent an exit request\n");
@@ -484,7 +559,7 @@ mmgrMonitorExit (Address object)
  * @param object The object to exit its monitor
  */
 void
-mmgrWaitMonitorExit (Address object)
+mmgrWaitMonitorExit(Address object)
 {
 #  ifdef VERY_VERBOSE
 	kt_printf("I sent a wait exit request\n");
@@ -501,7 +576,7 @@ mmgrWaitMonitorExit (Address object)
  * @param object The object
  */
 void
-mmgrAddWaiter (Address object)
+mmgrAddWaiter(Address object)
 {
 #  ifdef VERY_VERBOSE
 	kt_printf("I sent an add waiter request\n");
@@ -518,7 +593,7 @@ mmgrAddWaiter (Address object)
  * @param object The object
  */
 void
-mmgrRemoveWaiter (Address object)
+mmgrRemoveWaiter(Address object)
 {
 #  ifdef VERY_VERBOSE
 	kt_printf("I sent a remove waiter request\n");
@@ -536,7 +611,7 @@ mmgrRemoveWaiter (Address object)
  * @param all    Whether to notify all waiters or not
  */
 void
-mmgrNotify (Address object, int all)
+mmgrNotify(Address object, int all)
 {
 #  ifdef VERY_VERBOSE
 	kt_printf("I sent a notify%s request\n", all ? " all" : "");
@@ -558,7 +633,7 @@ mmgrNotify (Address object, int all)
  * @return       The object's monitor
  */
 static inline monitor_t*
-mmgrGetMonitor (Address object)
+mmgrGetMonitor(Address object)
 {
 	monitor_t *res;
 
@@ -572,6 +647,7 @@ mmgrGetMonitor (Address object)
 		assume(res != NULL);
 		res->owner   = -1;
 		res->waiters = NULL;
+		res->pending = NULL;
 		res->lchild  = NULL;
 		res->rchild  = NULL;
 		res->object  = object;
@@ -589,14 +665,21 @@ mmgrGetMonitor (Address object)
  * @param object The object on which we were requested to act
  */
 void
-mmgrMonitorEnterHandler (int bid, int cid, Address object)
+mmgrMonitorEnterHandler(int bid, int cid, Address object)
 {
 	monitor_t *monitor;
 
 	monitor = mmgrGetMonitor(object);
 
+	/* If the monitor is available acquire it */
 	if (monitor->owner == -1) {
 		monitor->owner = (bid << 3) | cid;
+	}
+	/* else add the requester to the queue holding the requesters
+	 * waiting for this monitor */
+	else {
+		/* kt_printf("Queued enter request\n"); */
+		monitor->pending = push(monitor->pending, (bid << 3) | cid);
 	}
 
 #ifdef VERY_VERBOSE
@@ -617,86 +700,10 @@ mmgrMonitorEnterHandler (int bid, int cid, Address object)
  * @param bid    The board id we got the request from
  * @param cid    The core id we got the request from
  * @param object The object on which we were requested to act
- */
-void
-mmgrRemoveWaiterHandler (int bid, int cid, Address object)
-{
-	monitor_t      *monitor;
-	waiter_queue_t *waiter;
-
-	monitor = mmgrGetMonitor(object);
-
-#ifdef VERY_VERBOSE
-	kt_printf("I got a remove waiter request for %p from %d : %d \
-and the owner is %d : %d\n", object, bid, cid, monitor->owner >> 3,
-	          monitor->owner & 7);
-#endif /* ifdef VERY_VERBOSE */
-
-	waiter = monitor->waiters;
-
-	if (waiter != NULL) {
-		monitor->waiters = waiter->next;
-	}
-}
-
-/**
- * Handle a monitor exit request.
- *
- * @param bid    The board id we got the request from
- * @param cid    The core id we got the request from
- * @param object The object on which we were requested to act
- */
-void
-mmgrAddWaiterHandler (int bid, int cid, Address object)
-{
-	monitor_t      *monitor;
-	waiter_queue_t *waiter;
-
-	monitor = mmgrGetMonitor(object);
-
-#ifdef VERY_VERBOSE
-	kt_printf(
-	    "I got an add waiter request for %p from %d : %d and the owner is %d : %d\n", object, bid, cid, monitor->owner >> 3, monitor->owner &
-	    7);
-#endif /* ifdef VERY_VERBOSE */
-
-#if WAITER_REUSE
-
-	/* HACK: Since a waiters queue node's size is roughly half of
-	 * the size of a monitor, we use the same allocation
-	 * granularity and mark the last waiter to know whether it is
-	 * the first or the second queue node in the allocated
-	 * chunk (see mmgr.h as well) */
-	if (monitor->waiters && (monitor->waiters->id >> 16)) {
-		waiter = monitor->waiters + sizeof(waiter_queue_t);
-	}
-	else {
-		waiter     = (waiter_queue_t*)monitor_alloc();
-		waiter->id = 1 << 16;
-	}
-
-	waiter->id |= monitor->owner;
-#else /* if WAITER_REUSE */
-	waiter      = (waiter_queue_t*)monitor_alloc();
-	waiter->id  = monitor->owner;
-#endif /* if WAITER_REUSE */
-
-	waiter->next     = monitor->waiters;
-	monitor->waiters = waiter;
-
-	return;
-}                  /* mmgrAddWaiterHandler */
-
-/**
- * Handle a monitor exit request.
- *
- * @param bid    The board id we got the request from
- * @param cid    The core id we got the request from
- * @param object The object on which we were requested to act
  * @param iswait Whether this exit is a result of a wait() call
  */
 void
-mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait)
+mmgrMonitorExitHandler(int bid, int cid, Address object, int iswait)
 {
 	monitor_t *monitor;
 
@@ -709,14 +716,94 @@ mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait)
 	    monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 
-	assume( monitor->owner == ((bid << 3) | cid));
+	assume(monitor->owner == ((bid << 3) | cid));
 
 	if (iswait) {
 		mmgrAddWaiterHandler(bid, cid, object);
 	}
 
+	/* If there are pending threads give monitor to the next pending
+	 * thread */
+	if (monitor->pending) {
+		/* kt_printf("There are pending monitors %p\n"); */
+		monitor->owner   = monitor->pending->id;
+		bid              = monitor->owner >> 3;
+		cid              = monitor->owner & 0x7;
+		/* FIXME: free the pending node */
+		monitor->pending = monitor->pending->next;
+		mmpSend2(bid, cid,
+		         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
+		         (unsigned int)object);
+	}
+
+	/* TODO: Consider freeing the monitor if there are no pending or
+	 * waiting threads */
+
 	monitor->owner = -1;
 }                  /* mmgrMonitorExitHandler */
+
+/**
+ * Handle a remove waiter request.
+ *
+ * @param bid    The board id we got the request from
+ * @param cid    The core id we got the request from
+ * @param object The object on which we were requested to act
+ */
+void
+mmgrRemoveWaiterHandler(int bid, int cid, Address object)
+{
+	monitor_t *monitor;
+	waiter_t  *waiter;
+	waiter_t  *prev;
+
+	monitor = mmgrGetMonitor(object);
+
+#ifdef VERY_VERBOSE
+	kt_printf("I got a remove waiter request for %p from %d : %d \
+and the owner is %d : %d\n", object, bid, cid, monitor->owner >> 3,
+	          monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+
+	waiter = monitor->waiters;
+	prev   = waiter;
+
+	while (waiter != NULL) {
+		if (waiter->id == (bid << 3) || cid) {
+			/* Free the node */
+			prev->next = pop(waiter);
+			break;
+		}
+
+		prev   = waiter;
+		waiter = waiter->next;
+	}
+}
+
+/**
+ * Handle a monitor exit request.
+ *
+ * @param bid    The board id we got the request from
+ * @param cid    The core id we got the request from
+ * @param object The object on which we were requested to act
+ */
+void
+mmgrAddWaiterHandler(int bid, int cid, Address object)
+{
+	monitor_t *monitor;
+	waiter_t  *waiter;
+
+	monitor = mmgrGetMonitor(object);
+
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got an add waiter request for %p from %d : %d and the owner is %d : %d\n",
+	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+
+	monitor->waiters = push(monitor->waiters, monitor->owner);
+
+	return;
+}                  /* mmgrAddWaiterHandler */
 
 /**
  * Handle a monitor notify request.
@@ -726,10 +813,10 @@ mmgrMonitorExitHandler (int bid, int cid, Address object, int iswait)
  * @param object The object on which we were requested to act
  */
 void
-mmgrNotifyHandler (int bid, int cid, Address object, int all)
+mmgrNotifyHandler(int bid, int cid, Address object, int all)
 {
-	monitor_t      *monitor;
-	waiter_queue_t *waiter;
+	monitor_t *monitor;
+	waiter_t  *waiter;
 
 	monitor = mmgrGetMonitor(object);
 
@@ -762,7 +849,6 @@ mmgrNotifyHandler (int bid, int cid, Address object, int all)
 			break;
 		}
 
-		monitor->waiters = waiter->next;
 		/*
 		 * Send the notification
 		 *
@@ -775,6 +861,9 @@ mmgrNotifyHandler (int bid, int cid, Address object, int all)
 		                        all ? MMP_OPS_MNTR_NOTIFICATION_ALL :
 		                        MMP_OPS_MNTR_NOTIFICATION),
 		         (unsigned int)object);
+
+		/* Free the waiters node */
+		monitor->waiters = pop(monitor->waiters);
 	} while (all);
 
 	monitor->owner = -1;

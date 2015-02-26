@@ -31,45 +31,47 @@
 #include <arch.h>
 #include <address.h>
 
-#define MMGR_HT_SIZE    128
-#define mmgrHT_g        mmgr_g->mmgrHT
-#define mmgrFreeNodes_g mmgr_g->mmgrFreeNodes
-#define mmgrAllocTop_g  mmgr_g->mmgrAllocTop
-#define mmgrAllocEnd_g  mmgr_g->mmgrAllocEnd
+#define MMGR_HT_SIZE           128
+#define mmgrHT_g               mmgr_g->mmgrHT
+#define mmgrMonitorFreeNodes_g mmgr_g->mmgrMonitorFreeNodes
+#define mmgrWaiterFreeNodes_g  mmgr_g->mmgrWaiterFreeNodes
+#define mmgrAllocTop_g         mmgr_g->mmgrAllocTop
+#define mmgrAllocEnd_g         mmgr_g->mmgrAllocEnd
 
-typedef struct wait_node waiter_queue_t;
+typedef struct wait_node waiter_t;
 
 struct wait_node {
-	int            id;       /**< The waiter's ID along with a bit
-	                          * denoting if this struct is written on
-	                          * the first part of a memmory chunk
-	                          * allocated by monitor_malloc() (if
-	                          * WAITER_REUSE is defined) packed as
-	                          * (first << 16) | (board_ID << 3) |
-	                          * (core_ID) */
-	waiter_queue_t *next;    /**< Pointer to the next waiter in the
-	                          * queue */
+	unsigned int id; /**< The waiter's ID along with a bit denoting if
+	                  * this struct is written on the first part of a
+	                  * memmory chunk allocated by monitor_malloc()
+	                  * packed as (board_ID << 3) | (core_ID) */
+	waiter_t *next;  /**< Pointer to the next waiter in the
+	                  * queue */
 };
 
-typedef struct monitor   monitor_t;
+typedef struct monitor monitor_t;
 
 struct monitor {
-	void           *object;  /**< The object's reference coupled
-	                          * with this monitor */
-	int            owner;    /**< The owner's ID packed as
-	                          * (board_ID << 3) | (core_ID) */
-	waiter_queue_t *waiters; /**< Pointer to the list of waiters */
-	monitor_t      *lchild;  /**< Pointer to the left child in the
-	                          * Monitor Manager's monitor binary
-	                          * search tree */
-	monitor_t      *rchild;  /**< Pointer to the right child in the
-	                          * Monitor Manager's monitor binary
-	                          * search tree */
+	void         *object;  /**< The object's reference coupled
+	                        * with this monitor */
+	unsigned int owner;    /**< The owner's ID packed as
+	                        * (board_ID << 3) | (core_ID) */
+	waiter_t     *waiters; /**< Pointer to the list of waiters
+	                        * (wait/notify) */
+	waiter_t     *pending; /**< Pointer to the list of pending
+	                        * requesters of this monitor */
+	monitor_t    *lchild;  /**< Pointer to the left child in the
+	                        * Monitor Manager's monitor binary
+	                        * search tree */
+	monitor_t *rchild;     /**< Pointer to the right child in the
+	                        * Monitor Manager's monitor binary
+	                        * search tree */
 };
 
 typedef struct mmgrGlobalsStruct {
 	monitor_t *mmgrHT[MMGR_HT_SIZE];
-	monitor_t *mmgrFreeNodes;
+	monitor_t *mmgrMonitorFreeNodes;
+	waiter_t  *mmgrWaiterFreeNodes;
 	Address   mmgrAllocTop;
 	Address   mmgrAllocEnd;
 } mmgrGlobals
@@ -78,20 +80,21 @@ __attribute__((aligned(MM_CACHELINE_SIZE)))
 #endif /* ifdef __MICROBLAZE__ */
 ;
 
-void        mmgrInitialize (mmgrGlobals *globals);
+void mmgrInitialize(mmgrGlobals *globals);
 
 #ifdef ARCH_MB
-void mmgrMonitorEnter    (Address object);
-void mmgrMonitorExit     (Address object);
-void mmgrWaitMonitorExit (Address object);
-void mmgrAddWaiter       (Address object);
-void mmgrRemoveWaiter    (Address object);
-void mmgrNotify          (Address object, int all);
+void mmgrMonitorEnter(Address object);
+void mmgrMonitorExit(Address object);
+void mmgrWaitMonitorExit(Address object);
+void mmgrAddWaiter(Address object);
+void mmgrRemoveWaiter(Address object);
+void mmgrNotify(Address object, int all);
+
 #endif /* ARCH_MB */
-void mmgrMonitorEnterHandler (int bid, int cid, Address object);
-void mmgrMonitorExitHandler  (int bid, int cid, Address object, int iswait);
-void mmgrRemoveWaiterHandler (int bid, int cid, Address object);
-void mmgrAddWaiterHandler    (int bid, int cid, Address object);
-void mmgrNotifyHandler       (int bid, int cid, Address object, int all);
+void mmgrMonitorEnterHandler(int bid, int cid, Address object);
+void mmgrMonitorExitHandler(int bid, int cid, Address object, int iswait);
+void mmgrRemoveWaiterHandler(int bid, int cid, Address object);
+void mmgrAddWaiterHandler(int bid, int cid, Address object);
+void mmgrNotifyHandler(int bid, int cid, Address object, int all);
 
 #endif /* MMGR_H_ */

@@ -134,25 +134,35 @@ mmpCheckMailbox (Address type)
 		 */
 		object = (Address)ar_mbox_get(sysGetCore());
 
-		/* If we do not own the monitor, retry */
-		if (bid != sysGetIsland() || cid != sysGetCore()) {
+		/* Since we added queues at the lock manager we should always
+		 * get the lock at acks */
+		assume(bid == sysGetIsland() && cid == sysGetCore());
 #  ifdef VERY_VERBOSE
-			kt_printf("Monitor owner is %d:%d\n", bid, cid);
-			ar_uart_flush();
+		kt_printf("Monitor for %p acquired\n", object);
+		ar_uart_flush();
 #  endif /* ifdef VERY_VERBOSE */
 
-			/* Resend a request */
-			mmgrMonitorEnter(object);
-			set_java_lang_Integer_value(type, MMP_OPS_NOP);
-		}
-		else {
-#  ifdef VERY_VERBOSE
-			kt_printf("Monitor for %p acquired\n", object);
-			ar_uart_flush();
-#  endif /* ifdef VERY_VERBOSE */
+		result = object;
 
-			result = object;
-		}
+/* 		/\* If we do not own the monitor, retry *\/
+ * 		if (bid != sysGetIsland() || cid != sysGetCore()) {
+ * #  ifdef VERY_VERBOSE
+ * 			kt_printf("Monitor owner is %d:%d\n", bid, cid);
+ * 			ar_uart_flush();
+ * #  endif /\* ifdef VERY_VERBOSE *\/
+ *
+ * 			/\* Resend a request *\/
+ * 			mmgrMonitorEnter(object);
+ * 			set_java_lang_Integer_value(type, MMP_OPS_NOP);
+ * 		}
+ * 		else {
+ * #  ifdef VERY_VERBOSE
+ * 			kt_printf("Monitor for %p acquired\n", object);
+ * 			ar_uart_flush();
+ * #  endif /\* ifdef VERY_VERBOSE *\/
+ *
+ * 			result = object;
+ * 		} */
 
 		break;
 	case MMP_OPS_MNTR_NOTIFICATION:
