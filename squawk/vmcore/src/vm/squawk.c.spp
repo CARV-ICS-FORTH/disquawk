@@ -87,8 +87,8 @@
 #define db_printf(...)
 #endif
 
-#if defined(ASSUME) && ASSUME != 0
 #define DIAG_INTRO	"[DIAG]"
+#if defined(ASSUME) && ASSUME != 0
 void diagnosticPrimWithValue(char* msg, int len, int val) {
 /*if[MICROBLAZE_BUILD]*/
     db_printf("%s %s %#x\r\n", DIAG_INTRO, msg, val);

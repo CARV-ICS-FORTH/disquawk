@@ -266,6 +266,37 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 #define checkPush()
 #endif /* ASSUME */
 
+#ifdef __MICROBLAZE__
+/**
+ * Gets the length of a local array object.
+ *
+ * @param  oop the pointer to the array.
+ * @return the length
+ */
+/*MAC*/ int getLocalArrayLength(Address $oop) {
+	int length = (int)(getLocalUWord($oop, HDR_length) >> 2);
+	assume(length >= 0);
+	return length;
+}
+
+/**
+ * Sets the length of a local array object.
+ *
+ * @param oop the pointer to the array
+ * @param size the length
+ * @return false if length was too large
+ */
+/*MAC*/ boolean setLocalArrayLength(Address $oop, int $size) {
+	assume($size >= 0);
+	if ($size > 0x3FFFFFF) {
+		return false;
+	}
+	setLocalUWord($oop, HDR_length, ($size << HDR_headerTagBits) | HDR_arrayHeaderTag);
+	return true;
+}
+
+#endif /* __MICROBLAZE__ */
+
 #if ASSUME && defined(__MICROBLAZE__)
 /*MAC*/ void checkLocalPush() {
 /*if[REVERSE_PARAMETERS]*/
@@ -778,37 +809,6 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	setUWord($oop, HDR_length, ($size << HDR_headerTagBits) | HDR_arrayHeaderTag);
 	return true;
 }
-
-#ifdef __MICROBLAZE__
-/**
- * Gets the length of a local array object.
- *
- * @param  oop the pointer to the array.
- * @return the length
- */
-/*MAC*/ int getLocalArrayLength(Address $oop) {
-	int length = (int)(getLocalUWord($oop, HDR_length) >> 2);
-	assume(length >= 0);
-	return length;
-}
-
-/**
- * Sets the length of a local array object.
- *
- * @param oop the pointer to the array
- * @param size the length
- * @return false if length was too large
- */
-/*MAC*/ boolean setLocalArrayLength(Address $oop, int $size) {
-	assume($size >= 0);
-	if ($size > 0x3FFFFFF) {
-		return false;
-	}
-	setLocalUWord($oop, HDR_length, ($size << HDR_headerTagBits) | HDR_arrayHeaderTag);
-	return true;
-}
-
-#endif /* __MICROBLAZE__ */
 
 /**
  * Gets the Klass or the ObjectAssociation of an object.
