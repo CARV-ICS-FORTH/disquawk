@@ -674,6 +674,11 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 	/* If the monitor is available acquire it */
 	if (monitor->owner == -1) {
 		monitor->owner = (bid << 3) | cid;
+
+		/* Reply back with the owner */
+		mmpSend2(bid, cid,
+		         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
+		         (unsigned int)object);
 	}
 	/* else add the requester to the queue holding the requesters
 	 * waiting for this monitor */
@@ -687,11 +692,6 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 	    "I got an enter request for %p from %d : %d and the owner is %d : %d\n",
 	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
-
-	/* Reply back with the owner */
-	mmpSend2(bid, cid,
-	         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
-	         (unsigned int)object);
 }
 
 /**
@@ -734,12 +734,12 @@ mmgrMonitorExitHandler(int bid, int cid, Address object, int iswait)
 		mmpSend2(bid, cid,
 		         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
 		         (unsigned int)object);
+	} else {
+		monitor->owner = -1;
 	}
 
 	/* TODO: Consider freeing the monitor if there are no pending or
 	 * waiting threads */
-
-	monitor->owner = -1;
 }                  /* mmgrMonitorExitHandler */
 
 /**

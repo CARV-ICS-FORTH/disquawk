@@ -1900,13 +1900,14 @@ public final class VMThread implements GlobalStaticFields {
 				 */
 				if (monitor != null) {
 					monitor.removeCondvarWait(thread);
-					/* Stop wait for condvar, and make runnable.
-					 * when eventually run, the code in monitorWait will attempt to grab the monitor.
+					/* Stop waiting for condvar, and make runnable.
+					 * when eventually run, the code in monitorWait
+					 * will attempt to grab the monitor.
 					 */
 				} else {
 					/*
-					 * Otherwise it is just waking up from a sleep() so it is now
-					 * ready to run.
+					 * Otherwise it is just waking up from a sleep()
+					 * so it is now ready to run.
 					 */
 					thread.setNotInQueue(Q_TIMER);
 				}
