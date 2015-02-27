@@ -42,18 +42,65 @@
  * @param new The value we want to assign to the object
  */
 void
-apmgrCASHandler (int bid, int cid, Address object, int expected, int new)
+apmgrCASHandler (int bid, int cid, Address object,
+                 unsigned int expected, unsigned int new)
 {
-	int tmp, res;
+	unsigned int tmp, res;
+	Address tmpa;
 
 	res = 0;
-	tmp = java_lang_Integer_value(object);
+	tmpa = object;
+	object = (Address)0x04400000; /* Test with an arbitrary address */
+	tmp = *(unsigned int*)object;
+
+	kt_printf("This is a CAS(%u, %u) from %d:%d ~ %u\n",
+	          expected, new, bid, cid, tmp);
 
 	if ( tmp == expected ) {
-		set_java_lang_Integer_value(object, new);
+		res = 1;
+		*(unsigned int*)object = new;
 	}
 	/* Send back the reply */
 	mmpSend2(bid, cid,
-	         (unsigned int)(res << 16 | MMP_OPS_AT_CAS_R),
+	         (unsigned int)(res ? MMP_OPS_AT_CAS_ACK : MMP_OPS_AT_CAS_NACK),
+	         (unsigned int)tmpa);
+}
+
+/**
+ * Handle an atomic set request.
+ *
+ * @param bid The board id we got the request from
+ * @param cid The core id we got the request from
+ * @param object The object on which we were requested to act
+ * @param new The value we want to assign to the object
+ */
+void
+apmgrSetHandler (int bid, int cid, Address object, unsigned int new)
+{
+	int tmp, res;
+
+	set_java_lang_Integer_value(object, new);
+
+	/* Send back the reply (ACK) */
+	mmpSend2(bid, cid,
+	         (unsigned int)MMP_OPS_AT_SET_R,
+	         (unsigned int)object);
+}
+
+/**
+ * Handle an atomic get request.
+ *
+ * @param bid The board id we got the request from
+ * @param cid The core id we got the request from
+ * @param object The object on which we were requested to act
+ */
+void
+apmgrGetHandler (int bid, int cid, Address object)
+{
+	unsigned int tmp, res;
+
+	/* Send back the reply */
+	mmpSend2(bid, cid,
+	         (unsigned int)MMP_OPS_AT_GET_R,
 	         (unsigned int)object);
 }

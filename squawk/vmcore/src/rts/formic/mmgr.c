@@ -438,6 +438,7 @@ pop(waiter_t *stack)
 void
 mmgrInitialize(mmgrGlobals *globals)
 {
+	*(unsigned int*)0x04400000 = 0;
 	mmgr_g                 = globals;
 	mmgrMonitorFreeNodes_g = NULL;
 #ifdef ARCH_MB

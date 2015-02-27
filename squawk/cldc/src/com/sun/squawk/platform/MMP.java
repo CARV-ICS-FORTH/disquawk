@@ -40,7 +40,8 @@ public final class MMP {
 	public static final int OPS_MNTR_ACK              = 2;
 	public static final int OPS_MNTR_NOTIFICATION     = 3;
 	public static final int OPS_MNTR_NOTIFICATION_ALL = 4;
-	public static final int OPS_AT_CAS_R              = 5;
+	public static final int OPS_AT_CAS_ACK            = 18;
+	public static final int OPS_AT_CAS_NACK           = 28;
 
 	/**
 	 * Query the mailbox for incoming messages and return a thread object

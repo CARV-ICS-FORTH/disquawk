@@ -208,10 +208,8 @@ mmpCheckMailbox (Address type)
 		/* this is a cache-line message */
 		object   = (Address)ar_mbox_get(sysGetCore());
 		assume(object   != NULL);
-		expected =     (int)ar_mbox_get(sysGetCore());
-		assume(expected != NULL);
-		new      =     (int)ar_mbox_get(sysGetCore());
-		assume(new      != NULL);
+		expected = (int)ar_mbox_get(sysGetCore());
+		new      = (int)ar_mbox_get(sysGetCore());
 
 		// pop the empty words...
 		for(i=0; i<12; ++i) {
@@ -220,10 +218,13 @@ mmpCheckMailbox (Address type)
 
 		apmgrCASHandler(bid, cid, object, expected, new);
 		break;
-	case MMP_OPS_AT_CAS_R:
-		object = (Address)ar_mbox_get(sysGetCore());
-		assume(object != NULL);
-		result = (Address)(msg0 >> 16);
+	case MMP_OPS_AT_CAS_ACK:
+		result = (Address)ar_mbox_get(sysGetCore());
+		assume(result != NULL);
+		break;
+	case MMP_OPS_AT_CAS_NACK:
+		result = (Address)ar_mbox_get(sysGetCore());
+		assume(result != NULL);
 		break;
 	/* TODO: Add Christi's op-codes here */
 	/*

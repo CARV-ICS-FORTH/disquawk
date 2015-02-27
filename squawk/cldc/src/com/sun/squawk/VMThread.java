@@ -1866,10 +1866,17 @@ public final class VMThread implements GlobalStaticFields {
 				}
 				break;
 			}
-			case MMP.OPS_AT_CAS_R: {
-				thread = events.findEvent(object.hashCode());
+			case MMP.OPS_AT_CAS_ACK: {
+				thread = events.findEvent(GC.getHashCode(object));
 				Assert.that(thread != null);
 				thread.setResult(object);
+				addToRunnableThreadsQueue(thread);
+				break;
+			}
+			case MMP.OPS_AT_CAS_NACK: {
+				thread = events.findEvent(GC.getHashCode(object));
+				Assert.that(thread != null);
+				thread.setResult(null);
 				addToRunnableThreadsQueue(thread);
 				break;
 			}

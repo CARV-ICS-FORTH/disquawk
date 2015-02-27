@@ -64,7 +64,7 @@ public final class NativeUnsafe {
 		VMThread thread;
 		int event;
 		thread = VMThread.currentThread();
-		event = 0/* FIXME: thread id and base combination */;
+		event = GC.getHashCode(base); /* FIXME: thread id and base combination */;
 		compareAndSwapInt0(base, expect, value);
 		VMThread.waitForEvent(event);
 		return thread.getResult() != null;

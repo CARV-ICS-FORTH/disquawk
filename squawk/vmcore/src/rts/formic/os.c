@@ -96,11 +96,11 @@ void sysCAS(void* ptr, unsigned int old, unsigned int new) {
 	int dst_bid, dst_cid;
 
 	/* FIXME: Choose dst_bid and dst_cid somehow */
-	dst_bid = 0;
+	dst_bid = 0x3F;
 	dst_cid = 0;
 
 	kt_memset(msg, 0, sizeof(msg));
-	msg[0] = MMP_OPS_AT_CAS;    /* The opcode */
+	msg[0] = ((my_bid << 3) | my_cid) << 16 | MMP_OPS_AT_CAS; /* The opcode */
 	msg[1] = (unsigned int)ptr; /* The object address */
 	msg[2] = old;               /* The expected value */
 	msg[3] = new;               /* The new value */

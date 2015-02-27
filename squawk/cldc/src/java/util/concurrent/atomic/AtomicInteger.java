@@ -54,14 +54,13 @@ public class AtomicInteger extends Number implements java.io.Serializable {
 
     private static final long serialVersionUID = 6214790243416807050L;
 
-    // setup to use Unsafe.compareAndSwapInt for updates
-
     /**
      * Creates a new AtomicInteger with the given initial value.
      *
      * @param initialValue the initial value
      */
     public AtomicInteger(int initialValue) {
+	    // FIXME: Replace with asynchronous remote set
         value = initialValue;
     }
 
@@ -69,6 +68,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * Creates a new AtomicInteger with initial value {@code 0}.
      */
     public AtomicInteger() {
+	    // FIXME: Replace with asynchronous remote set
     }
 
     /**
@@ -77,6 +77,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the current value
      */
     public final int get() {
+	    // FIXME: Replace with asynchronous remote get
         return value;
     }
 
@@ -86,6 +87,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @param newValue the new value
      */
     public final void set(int newValue) {
+	    // FIXME: Replace with asynchronous remote set
         value = newValue;
     }
 
