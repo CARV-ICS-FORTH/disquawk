@@ -1827,7 +1827,7 @@ public final class VMThread implements GlobalStaticFields {
 				// this thread already yielded at least once to wait
 				// for the monitor manager to reply.
 
-				Monitor monitor = getMonitor(object);
+				Monitor monitor = GC.getMonitor(object);
 				VMThread waiter = monitor.removeMonitorWait();
 
 				Assert.that(waiter != null);
@@ -1839,7 +1839,7 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 			case MMP.OPS_MNTR_NOTIFICATION: {
-				Monitor monitor = getMonitor(object);
+				Monitor monitor = GC.getMonitor(object);
 				VMThread waiter = monitor.removeCondvarWait();
 
 				if (waiter == null) {
@@ -1857,7 +1857,7 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 			case MMP.OPS_MNTR_NOTIFICATION_ALL: {
-				Monitor monitor = getMonitor(object);
+				Monitor monitor = GC.getMonitor(object);
 				VMThread waiter = monitor.removeCondvarWait();
 
 				while (waiter != null) {
@@ -2492,15 +2492,6 @@ public final class VMThread implements GlobalStaticFields {
 	}
 
 	/**
-	 * Gets a monitor.
-	 *
-	 * @param object the object to be synchronized upon
-	 */
-	static Monitor getMonitor(Object object) {
-		return GC.getMonitor(object);
-	}
-
-	/**
 	 * After a thread fails to get a monitor, or ends a monitorWait, it must try to aquire the monitor.
 	 * On exit, the currentThread will be the owner of the monitor. Note that the monitor may have
 	 * been been deleted and replaced since we came back from a reschedule, so get the monitor
@@ -2519,7 +2510,7 @@ public final class VMThread implements GlobalStaticFields {
 		VMThread.monitorEnter(object);
 
 //traceMonitor("retryMonitor: Now has the lock: ", monitor, object);
-		Monitor monitor = getMonitor(object);
+		Monitor monitor = GC.getMonitor(object);
 
 		Assert.that(monitor.owner == null);
 		Assert.that(monitor.depth == 0);
@@ -2542,7 +2533,7 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	static void monitorEnter(Object object) {
 		currentThread.checkInvarients();
-		Monitor monitor = getMonitor(object);
+		Monitor monitor = GC.getMonitor(object);
 
 		// If we own the lock we only need to increase its depth
 		if (monitor.owner == currentThread) {
@@ -2563,7 +2554,7 @@ public final class VMThread implements GlobalStaticFields {
 
 //			traceMonitor("monitorEnter: Must wait for local lock: ", monitor, object);
 			do {
-				monitor = getMonitor(object);
+				monitor = GC.getMonitor(object);
 				Assert.that(monitor.owner != currentThread);
 				VMThread.yield();
 			} while (monitor.owner != null);
@@ -2612,7 +2603,7 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	static void monitorExit(Object object) {
 		currentThread.checkInvarients();
-		Monitor monitor = getMonitor(object);
+		Monitor monitor = GC.getMonitor(object);
 
 		/*
 		 * Throw an exception if things look bad
@@ -2701,7 +2692,7 @@ public final class VMThread implements GlobalStaticFields {
 	public static void monitorWait(Object object, long delta) throws InterruptedException {
 		VMThread theCurrentThread = VMThread.currentThread;
 		theCurrentThread.checkInvarients();
-		Monitor monitor = getMonitor(object);
+		Monitor monitor = GC.getMonitor(object);
 
 		// Throw an exception if things look bad
 		if (monitor.owner != theCurrentThread) {
@@ -2762,7 +2753,7 @@ public final class VMThread implements GlobalStaticFields {
 		/*
 		 * Signal any waiting threads.
 		 */
-		Monitor  monitor = getMonitor(object);
+		Monitor  monitor = GC.getMonitor(object);
 		VMThread waiter;
 
 		/*
