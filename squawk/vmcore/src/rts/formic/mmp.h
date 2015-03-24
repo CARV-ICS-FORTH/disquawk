@@ -128,8 +128,14 @@ mmpSend2(int to_bid, int to_cid, unsigned int msg0, unsigned int msg1)
 INLINE void
 mmpSend16(int to_bid, int to_cid, unsigned int msg[16])
 {
-	int cnt;
-	int ret;
+	int cnt, ret;
+	unsigned int buff[32], *msg_al;
+
+	/* Align message if needed */
+	if ((unsigned int)msg & 0x3F) {
+		msg_al = (unsigned int*)((unsigned int)(buff + 16) & 0xFFFFFFC0);
+		msg = kt_memcpy(msg_al, msg, 64);
+	}
 
 	cnt = hwcnt_get_free(HWCNT_MMP_SEND2);
 	ret = 0;
