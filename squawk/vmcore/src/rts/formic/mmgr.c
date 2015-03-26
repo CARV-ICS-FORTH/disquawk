@@ -1,22 +1,20 @@
 /*
- * Copyright (C) 2013-2014 FORTH-ICS / CARV
- *                         (Foundation for Research & Technology -- Hellas,
- *                          Institute of Computer Science,
- *                          Computer Architecture & VLSI Systems Laboratory)
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
+ * Copyright (c) 2013-15, FORTH-ICS / CARV
+ *                        (Foundation for Research & Technology -- Hellas,
+ *                         Institute of Computer Science,
+ *                         Computer Architecture & VLSI Systems Laboratory)
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 /**
  * @file   mmgr.c
@@ -125,7 +123,7 @@ bst_insert(monitor_t *bst, monitor_t *monitor)
 	tmp = bst;
 
 	while (tmp) {
-		ar_assert(tmp->object != monitor->object);
+		assume(tmp->object != monitor->object);
 
 		if (tmp->object > monitor->object) {
 			if (tmp->lchild) {
@@ -809,13 +807,12 @@ void
 mmgrAddWaiterHandler(int bid, int cid, Address object)
 {
 	monitor_t *monitor;
-	waiter_t  *waiter;
 
 	monitor = mmgrGetMonitor(object);
 
 #ifdef VERY_VERBOSE
 	kt_printf(
-	    "I got an add waiter request for %p from %d : %d and the owner is %d : %d\n",
+	    "I got an add waiter request for %p from %d:%d the owner is %d:%d\n",
 	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 
@@ -887,3 +884,195 @@ mmgrNotifyHandler(int bid, int cid, Address object, int all)
 
 	monitor->owner = -1;
 }
+
+/**
+ * Reader-Writer locks handling.  We keep 2 different queues per lock
+ * (monitor_t): the readers queue (pending) and the writers queue
+ * (writers).
+ *
+ * The readers queue holds the threads waiting to acquire the lock for
+ * read.  The writers queue holds the threads waiting to acquire the
+ * lock for write.
+ *
+ * As long as the writers' queue is empty the lock gets shared by
+ * multiple readers.  When a write-lock request arrives, reader-lock
+ * requests start being enqueued in the readers queue to give priority
+ * to the write-lock request.  Subsequent write-locks get queued in
+ * the writers' queue (if they are try locks a NACK is send back and
+ * nothing is added to the queue).  When the writers' queue becomes
+ * empty again the lock is passed to any waiting readers and so on.
+ *
+ * monitor->owner holds the write owner or the number of readers minus
+ * one.  The monitor is completely free when its owner is set to -1.
+ */
+
+/**
+ * Handle a RW write try lock request.
+ *
+ * @param bid    The board id we got the request from
+ * @param cid    The core id we got the request from
+ * @param object The object on which we were requested to act
+ * @param istry  Whether this is a try lock or not
+ */
+void
+mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
+{
+	monitor_t *monitor;
+
+	monitor = mmgrGetMonitor(object);
+
+	/* If the monitor is available (neither read nor write acquired)
+	 * acquire it */
+	if (monitor->owner == -1) {
+		assume(monitor->pending == NULL);
+		assume(monitor->writers == NULL);
+		monitor->owner = (bid << 3) | cid;
+
+		/* Reply back with the owner */
+		mmpSend2(bid, cid,
+		         (unsigned int)((monitor->owner << 16) | MMP_OPS_RW_WRITE_ACK),
+		         (unsigned int)object);
+	}
+	/* Else if is a try lock send a NACK */
+	else if (istry) {
+		mmpSend2(bid, cid,
+		         (unsigned int)((monitor->owner << 16) | MMP_OPS_RW_WRITE_NACK),
+		         (unsigned int)object);
+	}
+	/* Else add it to the queue */
+	else {
+		/* kt_printf("Queued enter request\n"); */
+		monitor->writers = push(monitor->writers, (bid << 3) | cid);
+	}
+
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got a write%s lock request for %p from %d:%d the owner is %d:%d\n",
+	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
+	    monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+}
+
+/**
+ * Handle a monitor exit request.
+ *
+ * @param bid    The board id we got the request from
+ * @param cid    The core id we got the request from
+ * @param object The object on which we were requested to act
+ * @param istry  Whether this is a try lock
+ */
+void
+mmgrReadLockHandler(int bid, int cid, Address object, int istry)
+{
+	monitor_t *monitor;
+
+	monitor = mmgrGetMonitor(object);
+
+	/* If the monitor is not write locked (or going to be), acquire it */
+	if (monitor->writers == NULL) {
+		monitor->owner++;
+
+		/* Reply back with the owner */
+		mmpSend2(bid, cid,
+		         (unsigned int)((monitor->owner << 16) | MMP_OPS_RW_READ_ACK),
+		         (unsigned int)object);
+	}
+	/* Else if is a try lock send a NACK */
+	else if (istry) {
+		mmpSend2(bid, cid,
+		         (unsigned int)((monitor->owner << 16) | MMP_OPS_RW_READ_NACK),
+		         (unsigned int)object);
+	}
+	/* Else add it to the queue */
+	else {
+		/* kt_printf("Queued enter request\n"); */
+		monitor->pending = push(monitor->pending, (bid << 3) | cid);
+	}
+
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got a read%s lock request for %p from %d:%d the owner is %d:%d\n",
+	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
+	    monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+}
+
+/**
+ * Handle a readers-writers unlock request.
+ *
+ * @param bid    The board id we got the request from
+ * @param cid    The core id we got the request from
+ * @param object The object on which we were requested to act
+ * @param isread Whether it releases a reader or a writer lock
+ */
+void
+mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
+{
+	monitor_t *monitor;
+
+	monitor = mmgrGetMonitor(object);
+	assume(monitor->owner > -1);
+
+	/* If it was a read lock */
+	if (isread) {
+		/* Decrease readers' count and check if the monitor is now available */
+		if (--monitor->owner == -1) {
+			assume(monitor->pending == NULL || monitor->writers);
+
+			/* If there are pending writer lock requests serve the first one */
+			if (monitor->writers) {
+				monitor->owner = monitor->writers->id;
+				bid            = monitor->owner >> 3;
+				cid            = monitor->owner & 0x7;
+				/* And notify the owner */
+				mmpSend2(bid, cid,
+				         (unsigned int)((monitor->owner <<
+				                         16) | MMP_OPS_RW_WRITE_ACK),
+				         (unsigned int)object);
+			}
+		}
+	}
+	/* If it was a write lock */
+	else {
+		/* We must be the first in the writers queue */
+		assume(monitor->writers);
+		assume(monitor->writers->id == (bid << 3) | cid);
+
+		monitor->writers = monitor->writers->next;
+
+		/* If there are pending writer lock requests serve the first one */
+		if (monitor->writers) {
+			monitor->owner = monitor->writers->id;
+			/* And notify the owner */
+			bid            = monitor->owner >> 3;
+			cid            = monitor->owner & 0x7;
+			mmpSend2(bid, cid,
+			         (unsigned int)((monitor->owner <<
+			                         16) | MMP_OPS_RW_WRITE_ACK),
+			         (unsigned int)object);
+		}
+		/* Else give the reader lock to the pending readers (if any) */
+		else {
+			monitor->owner = -1;
+
+			while (monitor->pending) {
+				bid = monitor->pending->id >> 3;
+				cid = monitor->pending->id & 0x7;
+				monitor->owner++;
+				/* Notify with the owner */
+				mmpSend2(bid, cid,
+				         (unsigned int)((monitor->owner <<
+				                         16) | MMP_OPS_RW_READ_ACK),
+				         (unsigned int)object);
+				monitor->pending = monitor->pending->next;
+			}
+		}
+	}
+
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got a read%s lock request for %p from %d:%d the owner is %d:%d\n",
+	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
+	    monitor->owner & 7);
+#endif /* ifdef VERY_VERBOSE */
+}                  /* mmgrRWunlockHandler */

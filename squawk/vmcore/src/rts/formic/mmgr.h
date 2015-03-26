@@ -52,20 +52,24 @@ struct wait_node {
 typedef struct monitor monitor_t;
 
 struct monitor {
-	void         *object;  /**< The object's reference coupled
-	                        * with this monitor */
-	unsigned int owner;    /**< The owner's ID packed as
-	                        * (board_ID << 3) | (core_ID) */
-	waiter_t     *waiters; /**< Pointer to the list of waiters
-	                        * (wait/notify) */
-	waiter_t     *pending; /**< Pointer to the list of pending
-	                        * requesters of this monitor */
-	monitor_t    *lchild;  /**< Pointer to the left child in the
-	                        * Monitor Manager's monitor binary
-	                        * search tree */
-	monitor_t *rchild;     /**< Pointer to the right child in the
-	                        * Monitor Manager's monitor binary
-	                        * search tree */
+	void         *object; /**< The object's reference coupled
+	                       * with this monitor */
+	unsigned int owner;   /**< The owner's ID packed as
+	                       * (board_ID << 3) | (core_ID) */
+	union {
+		waiter_t *waiters; /**< Pointer to the list of waiters
+		                    * (wait/notify) */
+		waiter_t *writers; /**< Pointer to the list of waiters
+		                    * (wait/notify) */
+	};
+	waiter_t  *pending; /**< Pointer to the list of pending
+	                     * requesters of this monitor */
+	monitor_t *lchild;  /**< Pointer to the left child in the
+	                     * Monitor Manager's monitor binary
+	                     * search tree */
+	monitor_t *rchild;  /**< Pointer to the right child in the
+	                     * Monitor Manager's monitor binary
+	                     * search tree */
 };
 
 typedef struct mmgrGlobalsStruct {

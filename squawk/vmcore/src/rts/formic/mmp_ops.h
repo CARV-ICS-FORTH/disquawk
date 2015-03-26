@@ -33,7 +33,7 @@
  * This enum can only take values up to 64, because it is getting
  * packed in the messages and there are only 6 bits reserved for it
  *
- * The values should much the ones in MMP.java
+ * The values should match the ones in MMP.java
  */
 typedef enum {
 	// nop
@@ -72,6 +72,17 @@ typedef enum {
 	// Synchronize
 	MMP_OPS_SY_JOIN=26,
 	MMP_OPS_SY_TERMINATE=27,
+	// Reader/Writer locks
+	MMP_OPS_RW_WRITE=30,
+	MMP_OPS_RW_WRITE_TRY=31,
+	MMP_OPS_RW_WRITE_ACK=32,
+	MMP_OPS_RW_WRITE_NACK=33,
+	MMP_OPS_RW_WRITE_UNLOCK=34,
+	MMP_OPS_RW_READ=35,
+	MMP_OPS_RW_READ_TRY=36,
+	MMP_OPS_RW_READ_ACK=37,
+	MMP_OPS_RW_READ_NACK=38,
+	MMP_OPS_RW_READ_UNLOCK=39
 } mmpMsgOp_t;
 
 #endif /* _MMP_OPS_H */
