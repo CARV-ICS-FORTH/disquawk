@@ -5031,6 +5031,28 @@ static int collectGarbage(Address, Address, int);
 	}
 /*end[KERNEL_SQUAWK]*/
 
+	/* RWlock  Natives */
+	case Native_com_sun_squawk_RWlock_readLock0: {
+		Address this  = popAddress();
+		int     istry = popInt();
+		mmgrReadLock(this, istry);
+		break;
+	}
+
+	case Native_com_sun_squawk_RWlock_unlock0: {
+		Address this   = popAddress();
+		int     isread = popInt();
+		mmgrRWunlock(this, isread);
+		break;
+	}
+
+	case Native_com_sun_squawk_RWlock_writeLock0: {
+		Address this  = popAddress();
+		int     istry = popInt();
+		mmgrWriteLock(this, istry);
+		break;
+	}
+
 	default: {
 		fprintf(stderr, "*** Undefined (in %s:%d) native method: %d ***\n",
 		        __FILE__, __LINE__, iparm_g);

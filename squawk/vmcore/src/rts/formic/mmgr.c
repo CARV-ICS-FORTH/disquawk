@@ -906,6 +906,59 @@ mmgrNotifyHandler(int bid, int cid, Address object, int all)
  * one.  The monitor is completely free when its owner is set to -1.
  */
 
+
+/**
+ * Send a RW write (try) lock request.
+ *
+ * @param object The object on which we were requested to act
+ * @param istry  Whether this is a try lock or not
+ */
+void
+mmgrWriteLock(Address object, int istry)
+{
+#ifdef VERY_VERBOSE
+	kt_printf("I sent a write%s lock request\n", istry ? " try" : "");
+	ar_uart_flush();
+#endif /* ifdef VERY_VERBOSE */
+
+	mmgrRequest(istry ? MMP_OPS_RW_WRITE_TRY : MMP_OPS_RW_WRITE, object);
+}
+
+/**
+ * Send a RW read/write unlock request.
+ *
+ * @param object The object on which we were requested to act
+ * @param isread Whether this was a read or a write lock
+ */
+void
+mmgrRWunlock(Address object, int istry)
+{
+#ifdef VERY_VERBOSE
+	kt_printf("I sent a read%s lock request\n", istry ? " try" : "");
+	ar_uart_flush();
+#endif /* ifdef VERY_VERBOSE */
+
+	mmgrRequest(istry ? MMP_OPS_RW_READ_TRY : MMP_OPS_RW_READ, object);
+}
+
+/**
+ * Send a RW read (try) lock request.
+ *
+ * @param object The object on which we were requested to act
+ * @param istry  Whether this is a try lock or not
+ */
+void
+mmgrReadLock(Address object, int isread)
+{
+#ifdef VERY_VERBOSE
+	kt_printf("I sent a %s unlock request\n", isread ? "read" : "write");
+	ar_uart_flush();
+#endif /* ifdef VERY_VERBOSE */
+
+	mmgrRequest(isread ? MMP_OPS_RW_READ_UNLOCK : MMP_OPS_RW_WRITE_UNLOCK,
+	            object);
+}
+
 /**
  * Handle a RW write try lock request.
  *
@@ -1071,8 +1124,8 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 
 #ifdef VERY_VERBOSE
 	kt_printf(
-	    "I got a read%s lock request for %p from %d:%d the owner is %d:%d\n",
-	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
+	    "I got a %s unlock request for %p from %d:%d the owner is %d:%d\n",
+	    isread ? "read" : "write", object, bid, cid, monitor->owner >> 3,
 	    monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 }                  /* mmgrRWunlockHandler */

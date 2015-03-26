@@ -32,7 +32,7 @@ import com.sun.squawk.pragma.*;
 import com.sun.squawk.util.*;
 
 public class RWlock {
-    private void writeLock0(boolean istry) throws NativePragma {
+    private final void writeLock0(boolean istry) throws NativePragma {
         throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
 
@@ -53,7 +53,7 @@ public class RWlock {
         return;
     }
 
-    private void readLock0(boolean istry) throws NativePragma {
+    private final void readLock0(boolean istry) throws NativePragma {
         throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
 
@@ -74,7 +74,7 @@ public class RWlock {
         return;
     }
 
-    private void unlock0(boolean isread) throws NativePragma {
+    private final void unlock0(boolean isread) throws NativePragma {
         throw Assert.shouldNotReachHere("unimplemented when hosted");
     }
 

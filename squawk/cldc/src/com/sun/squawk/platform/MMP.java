@@ -43,6 +43,17 @@ public final class MMP {
 	public static final int OPS_AT_CAS_ACK            = 18;
 	public static final int OPS_AT_CAS_NACK           = 28;
 
+	public static final int OPS_RW_WRITE              = 30;
+	public static final int OPS_RW_WRITE_TRY          = 31;
+	public static final int OPS_RW_WRITE_ACK          = 32;
+	public static final int OPS_RW_WRITE_NACK         = 33;
+	public static final int OPS_RW_WRITE_UNLOCK       = 34;
+	public static final int OPS_RW_READ               = 35;
+	public static final int OPS_RW_READ_TRY           = 36;
+	public static final int OPS_RW_READ_ACK           = 37;
+	public static final int OPS_RW_READ_NACK          = 38;
+	public static final int OPS_RW_READ_UNLOCK        = 39;
+
 	/**
 	 * Query the mailbox for incoming messages and return a thread object
 	 * if one of the messages was about scheduling a thread to this core.

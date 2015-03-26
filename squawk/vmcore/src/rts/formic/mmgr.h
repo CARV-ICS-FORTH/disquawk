@@ -101,4 +101,8 @@ void mmgrRemoveWaiterHandler(int bid, int cid, Address object);
 void mmgrAddWaiterHandler(int bid, int cid, Address object);
 void mmgrNotifyHandler(int bid, int cid, Address object, int all);
 
+void mmgrWriteLock(Address object, int istry);
+void mmgrRWunlock(Address object, int istry);
+void mmgrReadLock(Address object, int isread);
+
 #endif /* MMGR_H_ */

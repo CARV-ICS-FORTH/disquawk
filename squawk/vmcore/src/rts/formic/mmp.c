@@ -249,6 +249,8 @@ mmpCheckMailbox(Address type)
 	case MMP_OPS_AT_CAS_NACK:
 	case MMP_OPS_RW_READ_ACK:
 	case MMP_OPS_RW_READ_NACK:
+	case MMP_OPS_RW_WRITE_ACK:
+	case MMP_OPS_RW_WRITE_NACK:
 		result = (Address)ar_mbox_get(sysGetCore());
 		assume(result != NULL);
 		break;
