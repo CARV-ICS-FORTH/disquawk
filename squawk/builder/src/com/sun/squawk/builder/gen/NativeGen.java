@@ -166,8 +166,7 @@ public class NativeGen {
 		}
 
 		lookup(Class.forName("com.sun.squawk.NativeUnsafe"));
-		Class<?> VM = Class.forName("com.sun.squawk.VM");
-		lookup(VM);
+		lookup(Class.forName("com.sun.squawk.VM"));
 		lookup(Class.forName("com.sun.squawk.CheneyCollector"));
 		lookup(Class.forName("com.sun.squawk.ServiceOperation"));
 		lookup(Class.forName("com.sun.squawk.GarbageCollector"));
@@ -177,6 +176,7 @@ public class NativeGen {
 		lookup(Class.forName("com.sun.squawk.SoftwareCache"));
 		lookup(Class.forName("com.sun.squawk.platform.MMP"));
 		lookup(Class.forName("com.sun.squawk.platform.MMGR"));
+		lookup(Class.forName("com.sun.squawk.RWlock"));
 
 		output(Class.forName("com.sun.squawk.VM"), "lcmp", true, new Class[] { Long.TYPE, Long.TYPE }, Integer.TYPE);
 

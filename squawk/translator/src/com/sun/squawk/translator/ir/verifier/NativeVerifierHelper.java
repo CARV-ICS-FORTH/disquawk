@@ -1392,6 +1392,27 @@ class NativeVerifierHelper {
             return;
         }
 
+        case Native.com_sun_squawk_RWlock$readLock0: {
+            frame.pop(BOOLEAN); // boolean
+            frame.pop(OOP); // com.sun.squawk.RWlock (receiver)
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
+        case Native.com_sun_squawk_RWlock$unlock0: {
+            frame.pop(BOOLEAN); // boolean
+            frame.pop(OOP); // com.sun.squawk.RWlock (receiver)
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
+        case Native.com_sun_squawk_RWlock$writeLock0: {
+            frame.pop(BOOLEAN); // boolean
+            frame.pop(OOP); // com.sun.squawk.RWlock (receiver)
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
         case Native.com_sun_squawk_VM$lcmp: {
             frame.pop(LONG); // long
             frame.pop(LONG); // long

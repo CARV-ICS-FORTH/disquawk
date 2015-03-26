@@ -283,6 +283,9 @@ public final class Native {
     public final static int com_sun_squawk_platform_MMGR$notify           = 176;
     public final static int com_sun_squawk_platform_MMGR$removeWaiter     = 177;
     public final static int com_sun_squawk_platform_MMGR$waitMonitorExit  = 178;
-    public final static int com_sun_squawk_VM$lcmp                        = 179;
-    public final static int ENTRY_COUNT                                   = 180;
+    public final static int com_sun_squawk_RWlock$readLock0               = 179;
+    public final static int com_sun_squawk_RWlock$unlock0                 = 180;
+    public final static int com_sun_squawk_RWlock$writeLock0              = 181;
+    public final static int com_sun_squawk_VM$lcmp                        = 182;
+    public final static int ENTRY_COUNT                                   = 183;
 }
