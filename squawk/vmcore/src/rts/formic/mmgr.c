@@ -193,7 +193,9 @@ bst_remove_child(monitor_t *child)
 		child->object  = tmp->object;
 		child->owner   = tmp->owner;
 		child->waiters = tmp->waiters;
+#ifdef MMGR_QUEUE
 		child->pending = tmp->pending;
+#endif /* ifdef MMGR_QUEUE */
 		child->lchild  = bst_remove(child->lchild, child->object);
 
 		return child;
@@ -439,14 +441,14 @@ void
 mmgrInitialize(mmgrGlobals *globals)
 {
 	*(unsigned int*)0x04400000 = 0;
-	mmgr_g                 = globals;
-	mmgrMonitorFreeNodes_g = NULL;
+	mmgr_g                     = globals;
+	mmgrMonitorFreeNodes_g     = NULL;
 #ifdef ARCH_MB
-	mmgrAllocTop_g         = (Address) mm_slice_base(sysGetCore());
-	mmgrAllocEnd_g         = mmgrAllocTop_g + MM_MB_SLICE_SIZE;
+	mmgrAllocTop_g             = (Address) mm_slice_base(sysGetCore());
+	mmgrAllocEnd_g             = mmgrAllocTop_g + MM_MB_SLICE_SIZE;
 #else /* ifdef ARCH_MB */
-	mmgrAllocTop_g         = (Address) mm_pa_kernel_base(sysGetCore());
-	mmgrAllocEnd_g         = mmgrAllocTop_g + MM_PA_KERNEL_SIZE;
+	mmgrAllocTop_g             = (Address) mm_pa_kernel_base(sysGetCore());
+	mmgrAllocEnd_g             = mmgrAllocTop_g + MM_PA_KERNEL_SIZE;
 #endif /* ifdef ARCH_MB */
 
 	kt_memset(mmgrHT_g, 0, sizeof(monitor_t*) * MMGR_HT_SIZE);
@@ -648,7 +650,9 @@ mmgrGetMonitor(Address object)
 		assume(res != NULL);
 		res->owner   = -1;
 		res->waiters = NULL;
+#ifdef MMGR_QUEUE
 		res->pending = NULL;
+#endif /* ifdef MMGR_QUEUE */
 		res->lchild  = NULL;
 		res->rchild  = NULL;
 		res->object  = object;
@@ -681,11 +685,18 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 		         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
 		         (unsigned int)object);
 	}
-	/* else add the requester to the queue holding the requesters
-	 * waiting for this monitor */
 	else {
+#ifdef MMGR_QUEUE
+		/* else add the requester to the queue holding the requesters
+		 * waiting for this monitor */
 		/* kt_printf("Queued enter request\n"); */
 		monitor->pending = push(monitor->pending, (bid << 3) | cid);
+#else /* ifdef MMGR_QUEUE */
+		/* Reply back with the owner */
+		mmpSend2(bid, cid,
+		         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
+		         (unsigned int)object);
+#endif /* ifdef MMGR_QUEUE */
 	}
 
 #ifdef VERY_VERBOSE
@@ -723,6 +734,8 @@ mmgrMonitorExitHandler(int bid, int cid, Address object, int iswait)
 		mmgrAddWaiterHandler(bid, cid, object);
 	}
 
+#ifdef MMGR_QUEUE
+
 	/* If there are pending threads give monitor to the next pending
 	 * thread */
 	if (monitor->pending) {
@@ -735,9 +748,14 @@ mmgrMonitorExitHandler(int bid, int cid, Address object, int iswait)
 		mmpSend2(bid, cid,
 		         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
 		         (unsigned int)object);
-	} else {
+	}
+	else {
 		monitor->owner = -1;
 	}
+
+#else /* ifdef MMGR_QUEUE */
+	monitor->owner = -1;
+#endif /* ifdef MMGR_QUEUE */
 
 	/* TODO: Consider freeing the monitor if there are no pending or
 	 * waiting threads */

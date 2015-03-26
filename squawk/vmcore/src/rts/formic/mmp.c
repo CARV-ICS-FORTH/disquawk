@@ -46,7 +46,7 @@
  * @param thread The thread object's address
  */
 void
-mmpSpawnThread (Address thread)
+mmpSpawnThread(Address thread)
 {
 	unsigned int msg0;
 	int          target_cid;
@@ -64,6 +64,7 @@ mmpSpawnThread (Address thread)
 
 	mmpSend2(target_bid, target_cid, msg0, (unsigned int)thread);
 }
+
 /**
  * Query the mailbox for incoming messages and return a thread object
  * if one of the messages was about scheduling a thread to this core.
@@ -72,7 +73,7 @@ mmpSpawnThread (Address thread)
  *         a thread to this core or NULL otherwise
  */
 Address
-mmpCheckMailbox (Address type)
+mmpCheckMailbox(Address type)
 {
 	unsigned int msg0;
 	int          bid;
@@ -84,7 +85,7 @@ mmpCheckMailbox (Address type)
 	Address      object;
 
 	/* First check to see if there are any messages (non blocking) */
-	if ( (ar_mbox_status_get(sysGetCore()) & 0xFFFF) == 0) {
+	if ((ar_mbox_status_get(sysGetCore()) & 0xFFFF) == 0) {
 		return NULL;
 	}
 
@@ -134,35 +135,41 @@ mmpCheckMailbox (Address type)
 		 */
 		object = (Address)ar_mbox_get(sysGetCore());
 
+#  ifdef MMGR_QUEUE
 		/* Since we added queues at the lock manager we should always
 		 * get the lock at acks */
 		assume(bid == sysGetIsland() && cid == sysGetCore());
-#  ifdef VERY_VERBOSE
+
+#    ifdef VERY_VERBOSE
 		kt_printf("Monitor for %p acquired\n", object);
 		ar_uart_flush();
-#  endif /* ifdef VERY_VERBOSE */
+#    endif /* ifdef VERY_VERBOSE */
 
 		result = object;
 
-/* 		/\* If we do not own the monitor, retry *\/
- * 		if (bid != sysGetIsland() || cid != sysGetCore()) {
- * #  ifdef VERY_VERBOSE
- * 			kt_printf("Monitor owner is %d:%d\n", bid, cid);
- * 			ar_uart_flush();
- * #  endif /\* ifdef VERY_VERBOSE *\/
- *
- * 			/\* Resend a request *\/
- * 			mmgrMonitorEnter(object);
- * 			set_java_lang_Integer_value(type, MMP_OPS_NOP);
- * 		}
- * 		else {
- * #  ifdef VERY_VERBOSE
- * 			kt_printf("Monitor for %p acquired\n", object);
- * 			ar_uart_flush();
- * #  endif /\* ifdef VERY_VERBOSE *\/
- *
- * 			result = object;
- * 		} */
+#  else /* ifdef MMGR_QUEUE */
+
+		/* If we do not own the monitor, retry */
+		if (bid != sysGetIsland() || cid != sysGetCore()) {
+#    ifdef VERY_VERBOSE
+			kt_printf("Monitor owner is %d:%d\n", bid, cid);
+			ar_uart_flush();
+#    endif /* ifdef VERY_VERBOSE */
+
+			/* Resend a request */
+			mmgrMonitorEnter(object);
+			set_java_lang_Integer_value(type, MMP_OPS_NOP);
+		}
+		else {
+#    ifdef VERY_VERBOSE
+			kt_printf("Monitor for %p acquired\n", object);
+			ar_uart_flush();
+#    endif /* ifdef VERY_VERBOSE */
+
+			result = object;
+		}
+
+#  endif /* ifdef MMGR_QUEUE */
 
 		break;
 	case MMP_OPS_MNTR_NOTIFICATION:
@@ -187,14 +194,14 @@ mmpCheckMailbox (Address type)
 		mmgrRemoveWaiterHandler(bid, cid, object);
 		break;
 	case MMP_OPS_MNTR_NOTIFY_ALL:
-		tmp = 1;  /* Don't break here */
+		tmp = 1;   /* Don't break here */
 	case MMP_OPS_MNTR_NOTIFY:
 		/* this is a two-words message */
 		object = (Address)ar_mbox_get(sysGetCore());
 		mmgrNotifyHandler(bid, cid, object, tmp);
 		break;
 	case MMP_OPS_MNTR_WAIT:
-		tmp = 1;  /* Don't break here */
+		tmp = 1;   /* Don't break here */
 	case MMP_OPS_MNTR_EXIT:
 		/* this is a two-words message */
 		object = (Address)ar_mbox_get(sysGetCore());
@@ -207,12 +214,12 @@ mmpCheckMailbox (Address type)
 	case MMP_OPS_AT_CAS:
 		/* this is a cache-line message */
 		object   = (Address)ar_mbox_get(sysGetCore());
-		assume(object   != NULL);
+		assume(object != NULL);
 		expected = (int)ar_mbox_get(sysGetCore());
 		new      = (int)ar_mbox_get(sysGetCore());
 
-		// pop the empty words...
-		for(i=0; i<12; ++i) {
+		/* pop the empty words... */
+		for (i = 0; i < 12; ++i) {
 			(void)ar_mbox_get(sysGetCore());
 		}
 
