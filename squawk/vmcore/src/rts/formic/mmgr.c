@@ -726,7 +726,7 @@ mmgrMonitorExitHandler(int bid, int cid, Address object, int iswait)
 	    monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 
-	assume(monitor->owner == ((bid << 3) | cid));
+	ar_assert(monitor->owner == ((bid << 3) | cid));
 
 	if (iswait) {
 		mmgrAddWaiterHandler(bid, cid, object);
@@ -852,7 +852,7 @@ mmgrNotifyHandler(int bid, int cid, Address object, int all)
 	 * out or got interrupted)
 	 *
 	 */
-	assume((monitor->owner == ((bid << 3) | cid)) || (monitor->owner == -1));
+	ar_assert((monitor->owner == ((bid << 3) | cid)) || (monitor->owner == -1));
 
 	/*
 	 * If there is at least one waiter remove him from the waiters
@@ -974,11 +974,18 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 
 	monitor = mmgrGetMonitor(object);
 
+/* #ifdef VERY_VERBOSE */
+	kt_printf(
+	    "I got a write%s lock request for %p from %d:%d the owner is %d:%d\n",
+	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
+	    monitor->owner & 7);
+/* #endif /\* ifdef VERY_VERBOSE *\/ */
+
 	/* If the monitor is available (neither read nor write acquired)
 	 * acquire it */
 	if (monitor->owner == -1) {
-		assume(monitor->pending == NULL);
-		assume(monitor->writers == NULL);
+		ar_assert(monitor->pending == NULL);
+		ar_assert(monitor->writers == NULL);
 		monitor->owner = (bid << 3) | cid;
 
 		/* Reply back with the owner */
@@ -998,12 +1005,6 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 		monitor->writers = push(monitor->writers, (bid << 3) | cid);
 	}
 
-#ifdef VERY_VERBOSE
-	kt_printf(
-	    "I got a write%s lock request for %p from %d:%d the owner is %d:%d\n",
-	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
-	    monitor->owner & 7);
-#endif /* ifdef VERY_VERBOSE */
 }
 
 /**
@@ -1020,6 +1021,13 @@ mmgrReadLockHandler(int bid, int cid, Address object, int istry)
 	monitor_t *monitor;
 
 	monitor = mmgrGetMonitor(object);
+
+/* #ifdef VERY_VERBOSE */
+	kt_printf(
+	    "I got a read%s lock request for %p from %d:%d the owner is %d:%d\n",
+	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
+	    monitor->owner & 7);
+/* #endif /\* ifdef VERY_VERBOSE *\/ */
 
 	/* If the monitor is not write locked (or going to be), acquire it */
 	if (monitor->writers == NULL) {
@@ -1042,12 +1050,6 @@ mmgrReadLockHandler(int bid, int cid, Address object, int istry)
 		monitor->pending = push(monitor->pending, (bid << 3) | cid);
 	}
 
-#ifdef VERY_VERBOSE
-	kt_printf(
-	    "I got a read%s lock request for %p from %d:%d the owner is %d:%d\n",
-	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
-	    monitor->owner & 7);
-#endif /* ifdef VERY_VERBOSE */
 }
 
 /**
@@ -1063,14 +1065,21 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 {
 	monitor_t *monitor;
 
+/* #ifdef VERY_VERBOSE */
+	kt_printf(
+	    "I got a %s unlock request for %p from %d:%d the owner is %d:%d\n",
+	    isread ? "read" : "write", object, bid, cid, monitor->owner >> 3,
+	    monitor->owner & 7);
+/* #endif /\* ifdef VERY_VERBOSE *\/ */
+
 	monitor = mmgrGetMonitor(object);
-	assume(monitor->owner > -1);
+	ar_assert(monitor->owner > -1);
 
 	/* If it was a read lock */
 	if (isread) {
 		/* Decrease readers' count and check if the monitor is now available */
 		if (--monitor->owner == -1) {
-			assume(monitor->pending == NULL || monitor->writers);
+			ar_assert(monitor->pending == NULL || monitor->writers);
 
 			/* If there are pending writer lock requests serve the first one */
 			if (monitor->writers) {
@@ -1088,8 +1097,8 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 	/* If it was a write lock */
 	else {
 		/* We must be the first in the writers queue */
-		assume(monitor->writers);
-		assume(monitor->writers->id == (bid << 3) | cid);
+		ar_assert(monitor->writers);
+		ar_assert(monitor->writers->id == (bid << 3) | cid);
 
 		monitor->writers = monitor->writers->next;
 
@@ -1122,10 +1131,4 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 		}
 	}
 
-#ifdef VERY_VERBOSE
-	kt_printf(
-	    "I got a %s unlock request for %p from %d:%d the owner is %d:%d\n",
-	    isread ? "read" : "write", object, bid, cid, monitor->owner >> 3,
-	    monitor->owner & 7);
-#endif /* ifdef VERY_VERBOSE */
 }                  /* mmgrRWunlockHandler */
