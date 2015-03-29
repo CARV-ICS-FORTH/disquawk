@@ -34,6 +34,7 @@
  */
 
 package java.util.concurrent.atomic;
+import com.sun.squawk.*;
 
 /**
  * An {@code int} value that may be updated atomically.  See the
@@ -50,7 +51,8 @@ package java.util.concurrent.atomic;
  * @author Foivos S. Zakkak
 */
 public class AtomicInteger2 extends Number {
-    private volatile int value;
+    private int value;
+    private RWlock lock;
 
     /**
      * Creates a new AtomicInteger2 with the given initial value.
@@ -58,13 +60,16 @@ public class AtomicInteger2 extends Number {
      * @param initialValue the initial value
      */
     public AtomicInteger2(int initialValue) {
+        lock = new RWlock();
         value = initialValue;
+        // TODO write-back after constructor
     }
 
     /**
      * Creates a new AtomicInteger2 with initial value {@code 0}.
      */
     public AtomicInteger2() {
+        lock = new RWlock();
     }
 
     /**
@@ -72,8 +77,12 @@ public class AtomicInteger2 extends Number {
      *
      * @return the current value
      */
-    public final synchronized int get() {
-        return value;
+    public final int get() {
+        int ret;
+        lock.readLock();
+        ret = value;
+        lock.readUnlock();
+        return ret;
     }
 
     /**
@@ -81,8 +90,10 @@ public class AtomicInteger2 extends Number {
      *
      * @param newValue the new value
      */
-    public final synchronized void set(int newValue) {
+    public final void set(int newValue) {
+        lock.writeLock();
         value = newValue;
+        lock.writeUnlock();
     }
 
     // /**
@@ -102,11 +113,14 @@ public class AtomicInteger2 extends Number {
      * @return the previous value
      */
     public final int getAndSet(int newValue) {
-        for (;;) {
-            int current = get();
-            if (compareAndSet(current, newValue))
-                return current;
-        }
+        int current;
+
+        lock.writeLock();
+        current = value;
+        value   = newValue;
+        lock.writeUnlock();
+
+        return current;
     }
 
     /**
@@ -118,13 +132,20 @@ public class AtomicInteger2 extends Number {
      * @return true if successful. False return indicates that
      * the actual value was not equal to the expected value.
      */
-    public final synchronized boolean compareAndSet(int expect, int update) {
-        if (value != expect)
-            return false;
+    public final boolean compareAndSet(int expect, int update) {
+        if (lock.tryWriteLock()) {
+            // TODO: Optimize by getting a read lock first and only
+            // update to write if needed
+            if (value != expect) {
+                lock.writeUnlock();
+                return false;
+            }
 
-        value = update;
-
-        return true;
+            value = update;
+            lock.writeUnlock();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -139,7 +160,7 @@ public class AtomicInteger2 extends Number {
      * @param update the new value
      * @return true if successful.
      */
-    public final synchronized boolean weakCompareAndSet(int expect, int update) {
+    public final boolean weakCompareAndSet(int expect, int update) {
         return compareAndSet(expect, update);
     }
 
@@ -149,12 +170,7 @@ public class AtomicInteger2 extends Number {
      * @return the previous value
      */
     public final int getAndIncrement() {
-        for (;;) {
-            int current = get();
-            int next = current + 1;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        return getAndAdd(1);
     }
 
     /**
@@ -163,12 +179,7 @@ public class AtomicInteger2 extends Number {
      * @return the previous value
      */
     public final int getAndDecrement() {
-        for (;;) {
-            int current = get();
-            int next = current - 1;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        return getAndAdd(-1);
     }
 
     /**
@@ -178,12 +189,14 @@ public class AtomicInteger2 extends Number {
      * @return the previous value
      */
     public final int getAndAdd(int delta) {
-        for (;;) {
-            int current = get();
-            int next = current + delta;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        int current;
+
+        lock.writeLock();
+        current = value;
+        value   = current + delta;
+        lock.writeUnlock();
+
+        return current;
     }
 
     /**
@@ -192,12 +205,7 @@ public class AtomicInteger2 extends Number {
      * @return the updated value
      */
     public final int incrementAndGet() {
-        for (;;) {
-            int current = get();
-            int next = current + 1;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        return addAndGet(1);
     }
 
     /**
@@ -206,12 +214,7 @@ public class AtomicInteger2 extends Number {
      * @return the updated value
      */
     public final int decrementAndGet() {
-        for (;;) {
-            int current = get();
-            int next = current - 1;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        return addAndGet(-1);
     }
 
     /**
@@ -221,12 +224,14 @@ public class AtomicInteger2 extends Number {
      * @return the updated value
      */
     public final int addAndGet(int delta) {
-        for (;;) {
-            int current = get();
-            int next = current + delta;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        int next;
+
+        lock.writeLock();
+        next  = value + delta;
+        value = next;
+        lock.writeUnlock();
+
+        return next;
     }
 
     /**

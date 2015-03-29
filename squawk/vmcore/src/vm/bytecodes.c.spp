@@ -4980,8 +4980,8 @@ static int collectGarbage(Address, Address, int);
 	}
 
 	case Native_com_sun_squawk_platform_MMGR_notify: {
-		Address object = popAddress();
 		int     all = popInt();
+		Address object = popAddress();
 		mmgrNotify(object, all);
 		break;
 	}
@@ -5033,22 +5033,22 @@ static int collectGarbage(Address, Address, int);
 
 	/* RWlock  Natives */
 	case Native_com_sun_squawk_RWlock_readLock0: {
-		Address this  = popAddress();
 		int     istry = popInt();
+		Address this  = popAddress();
 		mmgrReadLock(this, istry);
 		break;
 	}
 
 	case Native_com_sun_squawk_RWlock_unlock0: {
-		Address this   = popAddress();
 		int     isread = popInt();
+		Address this   = popAddress();
 		mmgrRWunlock(this, isread);
 		break;
 	}
 
 	case Native_com_sun_squawk_RWlock_writeLock0: {
-		Address this  = popAddress();
 		int     istry = popInt();
+		Address this  = popAddress();
 		mmgrWriteLock(this, istry);
 		break;
 	}

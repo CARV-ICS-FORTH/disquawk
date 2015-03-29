@@ -233,16 +233,25 @@ mmpCheckMailbox(Address type)
 	case MMP_OPS_RW_READ_TRY:
 		tmp = 1;   /* Don't break here */
 	case MMP_OPS_RW_READ:
+		/* this is a two-words message */
+		object = (Address)ar_mbox_get(sysGetCore());
+		ar_assert(object != NULL);
 		mmgrReadLockHandler(bid, cid, object, tmp);
 		break;
 	case MMP_OPS_RW_WRITE_TRY:
 		tmp = 1;   /* Don't break here */
 	case MMP_OPS_RW_WRITE:
+		/* this is a two-words message */
+		object = (Address)ar_mbox_get(sysGetCore());
+		ar_assert(object != NULL);
 		mmgrWriteLockHandler(bid, cid, object, tmp);
 		break;
 	case MMP_OPS_RW_READ_UNLOCK:
 		tmp = 1;   /* Don't break here */
 	case MMP_OPS_RW_WRITE_UNLOCK:
+		/* this is a two-words message */
+		object = (Address)ar_mbox_get(sysGetCore());
+		ar_assert(object != NULL);
 		mmgrRWunlockHandler(bid, cid, object, tmp);
 		break;
 	case MMP_OPS_AT_CAS_ACK:

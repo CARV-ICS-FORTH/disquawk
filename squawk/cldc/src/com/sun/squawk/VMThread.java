@@ -2815,9 +2815,9 @@ public final class VMThread implements GlobalStaticFields {
 		}
 
 		/*
-		 * Don't reschedule yet. We still have the lock.  This current
-		 * thread will eventually do a final monitorExit(), and select
-		 * a waiting thread to be runnable.
+		 * Don't reschedule yet. We might still have the lock.  This
+		 * current thread will eventually do a final monitorExit(),
+		 * and select a waiting thread to be runnable.
 		 */
 	}
 
