@@ -36,12 +36,12 @@ boolean openTraceFile() {
 		if (traceFile_g == NULL) {
 			traceFile_g = fopen(inKernelMode() ? "ktrace" : "trace", "w");
 		}
-		fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*:%d:%d\n"),
+		fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*NVM*:%A:%A:*%d*\n"),
 		        com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
 		        com_sun_squawk_GC_nvmStart, com_sun_squawk_GC_nvmEnd,
-		        SQUAWK_64 ? 64 : 32, sysGetIsland, sysGetCore);
+		        SQUAWK_64 ? 64 : 32);
 /*else[MICROBLAZE_BUILD]*/
-//      fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*%d*:%d:%d\n"),
+//      fprintf(traceFile_g, format("*TRACE*:*ROM*:%A:%A:*%d*\n"),
 //              com_sun_squawk_VM_romStart, com_sun_squawk_VM_romEnd,
 //              SQUAWK_64 ? 64 : 32);
 /*end[MICROBLAZE_BUILD]*/

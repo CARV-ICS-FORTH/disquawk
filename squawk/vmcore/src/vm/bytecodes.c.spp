@@ -1337,7 +1337,7 @@ if (!runningOnServiceThread_g &&                                                
 		set_sda_bp_set_or_stepping(null); /* coming on to service thread */
 	}
 
-	if (TRACE) {
+	if (TRACE == 2) {
 		if(runningOnServiceThread_g)
 			printStackTracePrim(-1, ip_g, fp_g, "switched to service thread\n", null);
 		else
@@ -3410,7 +3410,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 		/* Pass the minimum amount (in words) by which the stack must grow. */
 		com_sun_squawk_ServiceOperation_i1 = overflow;
 
-		if (TRACE)
+		if (TRACE == 2)
 			printStackTracePrim(-1, ip_g, fp_g, "extending stack", null);
 
 		if (unlikely(runningOnServiceThread_g))
