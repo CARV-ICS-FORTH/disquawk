@@ -49,27 +49,34 @@ struct wait_node {
 	                  * queue */
 };
 
+typedef struct wait_queue wait_queue_t;
+
+struct wait_queue {
+	waiter_t *head;
+	waiter_t *tail;
+};
+
 typedef struct monitor monitor_t;
 
 struct monitor {
-	void         *object; /**< The object's reference coupled
-	                       * with this monitor */
-	unsigned int owner;   /**< The owner's ID packed as
-	                       * (board_ID << 3) | (core_ID) */
+	void *object;  /**< The object's reference coupled
+	                * with this monitor */
+	int  owner;    /**< The owner's ID packed as
+	                * (board_ID << 3) | (core_ID) */
 	union {
-		waiter_t *waiters; /**< Pointer to the list of waiters
-		                    * (wait/notify) */
-		waiter_t *writers; /**< Pointer to the list of waiters
-		                    * (wait/notify) */
+		wait_queue_t waiters; /**< Pointer to the list of waiters
+		                       * (wait/notify) */
+		wait_queue_t writers; /**< Pointer to the list of waiters
+		                       * (wait/notify) */
 	};
-	waiter_t  *pending; /**< Pointer to the list of pending
-	                     * requesters of this monitor */
-	monitor_t *lchild;  /**< Pointer to the left child in the
-	                     * Monitor Manager's monitor binary
-	                     * search tree */
-	monitor_t *rchild;  /**< Pointer to the right child in the
-	                     * Monitor Manager's monitor binary
-	                     * search tree */
+	wait_queue_t pending; /**< Pointer to the list of pending
+	                       * requesters of this monitor */
+	monitor_t    *lchild; /**< Pointer to the left child in the
+	                       * Monitor Manager's monitor binary search
+	                       * tree */
+	monitor_t *rchild;    /**< Pointer to the right child in the
+	                       * Monitor Manager's monitor binary
+	                       * search tree */
 };
 
 typedef struct mmgrGlobalsStruct {
@@ -104,5 +111,8 @@ void mmgrNotifyHandler(int bid, int cid, Address object, int all);
 void mmgrWriteLock(Address object, int istry);
 void mmgrRWunlock(Address object, int istry);
 void mmgrReadLock(Address object, int isread);
+void mmgrWriteLockHandler(int bid, int cid, Address object, int istry);
+void mmgrReadLockHandler(int bid, int cid, Address object, int istry);
+void mmgrRWunlockHandler(int bid, int cid, Address object, int isread);
 
 #endif /* MMGR_H_ */
