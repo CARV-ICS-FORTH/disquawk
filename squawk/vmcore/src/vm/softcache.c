@@ -94,7 +94,7 @@ struct sc_object {
  * @return The address of the cached object or NULL if it was not
  *         found
  */
-static inline Address
+static inline sc_object_st*
 dir_lookup(UWord key)
 {
 	int          i    = 1;
@@ -103,7 +103,7 @@ dir_lookup(UWord key)
 	sc_object_st *ret = &cacheDirectory_g[hash];
 
 	if (((ret->key ^ key) >> 6) == 0)
-		return (Address)ret->val;
+		return ret;
 	else if (ret->key) {
 		hash2 = dir_hash2(key);
 
@@ -112,7 +112,7 @@ dir_lookup(UWord key)
 			ret  = &cacheDirectory_g[hash];
 
 			if (((ret->key ^ key) >> 6) == 0)
-				return (Address)ret->val;
+				return ret;
 			else if (ret->key == NULL)
 				return NULL;
 
@@ -134,7 +134,7 @@ dir_lookup(UWord key)
  * @param key The key of the new node
  * @param val The value of the new node
  */
-static inline void
+static inline sc_object_st*
 dir_insert(UWord key, UWord val)
 {
 	int          i     = 1;
@@ -164,6 +164,8 @@ dir_insert(UWord key, UWord val)
 
 		assume(i < SC_HASHTABLE_SIZE);
 	}
+
+	return node;
 }
 
 /**
@@ -466,7 +468,7 @@ sc_fetch(Address from, Address to, int size, int cid)
 	                0);                   /* write through */
 
 /*	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, sysGetIsland(), to);
- **/
+**/
 
 	/*
 	 * FIXME: We are not sure the DMA reached completion (probably
@@ -610,10 +612,11 @@ block_to_oop(Address obj, Address oop, int cid)
  *
  * @return The cached object
  */
-Address
+sc_object_st*
 sc_put(Address obj, int cid)
 {
-	Address ret;
+	Address      ret;
+	sc_object_st *node;
 
 	if (unlikely(cacheAllocTemp_g != NULL)) {
 		/*
@@ -651,13 +654,13 @@ sc_put(Address obj, int cid)
 	ret = block_to_oop(obj, ret, cid);
 
 	/* Update the directory */
-	dir_insert((UWord)obj, (UWord)ret);
+	node = dir_insert((UWord)obj, (UWord)ret);
 
 	cacheObjects_g++;
 
 	/* printf("Put %p\n", ret); */
 
-	return ret;
+	return node;
 }
 
 /**
@@ -672,7 +675,8 @@ sc_put(Address obj, int cid)
 Address
 sc_get(Address obj, int is_write)
 {
-	Address ret;
+	sc_object_st *ret;
+	Address      retval;
 
 	/* printf("Searching for %p\n", obj); */
 
@@ -685,14 +689,65 @@ sc_get(Address obj, int is_write)
 		ret = sc_put(obj, -1);
 	}
 
+	/* if (is_write) {
+	 *  printf("Marked %p\n", obj);
+	 * } */
+
+	ret->key |= (is_write & 1);
+	retval    = (Address)ret->val;
+
 	/*
 	 * printf(" %p found at %p\n", obj, ret);
 	 * Assert ret is in the cache
 	 */
-	assume( hieq(ret, cacheStart_g));
-	assume(   lt(ret, cacheEnd_g));
+	assume(hieq(retval, cacheStart_g));
+	assume(lt(retval, cacheEnd_g));
 
-	return ret;
+	return retval;
+}
+
+/**
+ * Looks up the cache to find the requested object and marks it as
+ * dirty.  If it fails (miss), it first fetches it and adds it to the
+ * cache.
+ *
+ * @param obj The object to mark as dirty in the cache
+ */
+void
+sc_mark_dirty(Address obj)
+{
+	UWord        key  = (UWord)obj;
+	int          i    = 1;
+	int          hash = dir_hash(key);
+	int          hash2;
+	sc_object_st *ret = &cacheDirectory_g[hash];
+
+	printf("Marking %p\n", obj);
+
+	/* If the first cell is not empty and id doesn't match */
+	if ((((ret->key ^ key) >> 6) != 0) && (ret->key)) {
+		hash2 = dir_hash2(key);
+
+		while (i < SC_HASHTABLE_SIZE) {
+			hash = (hash + hash2) % SC_HASHTABLE_SIZE;
+			ret  = &cacheDirectory_g[hash];
+
+			/* Break if we find a match or an empty cell */
+			if ((((ret->key ^ key) >> 6) == 0) || (ret->key == NULL))
+				break;
+
+			++i;
+		}
+	}
+
+	/* If we find it we mark it */
+	if ((i < SC_HASHTABLE_SIZE) && ret->key)
+		ret->key |= 1;
+	/* Else something is wrong */
+	else
+		assume(0);
+
+	printf("Marked %p\n", obj);
 }
 
 /**

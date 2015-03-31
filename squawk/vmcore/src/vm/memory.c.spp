@@ -1168,7 +1168,10 @@ void setInt(Address base, Offset offset, int value) {
 //	ea = (&((int *)$base)[$offset]);
 /*end[SQUAWK_64]*/
 
+    /* If it is cacheable, we do not care about garbage collecting it.
+     * But we need to set its dirty bit in the cache */
 	if ( sc_is_cacheable(ea) ) {
+		sc_mark_dirty(ea);
 	}
 
 /*if[WRITE_BARRIER]*/

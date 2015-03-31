@@ -75,10 +75,11 @@ typedef struct sc_object sc_object_st;
 /* The size of a Klass object instance (72) rounded up to cache line size */
 #define SC_KLASS_SIZE 128
 
-void    sc_initialize();
-Address sc_get(Address obj, int is_write);
-Address sc_put(Address obj, int cid);
-void    sc_flush();
+void        sc_initialize();
+Address     sc_get(Address obj, int is_write);
+void        sc_mark_dirty(Address obj);
+void        sc_flush();
+sc_object_st* sc_put(Address obj, int cid);
 
 /**
  * Checks if an address is in the heap address space.  Heap addresses
@@ -129,7 +130,7 @@ sc_is_cacheable(Address obj)
 	 *         obj, bid, cid, sysGetIsland() + 1, sysGetCore());
 	 * } */
 
-	return bid && ((bid != (sysGetIsland() + 1)) || (cid != sysGetCore()));
+	return (bid != (sysGetIsland() + 1)) || (cid != sysGetCore());
 }
 
 /**
@@ -166,10 +167,8 @@ sc_translate(Address obj, int is_write)
 		return sc_get(obj, is_write);
 	}
 	else {
-		/*
-		 * kt_printf("%p is in local heap\n", obj);
-		 * It is in the local heap slice, strip the tag
-		 */
+		/* kt_printf("%p is in local heap\n", obj); */
+		/* It is in the local heap slice, strip the tag */
 		obj = (Address)(((UWord)obj & 0x3FFFFFF) | MM_MB_HEAP_BASE);
 		/* Assert obj is in the HEAP */
 		assume(hieq(obj, (Address)MM_MB_HEAP_BASE));
