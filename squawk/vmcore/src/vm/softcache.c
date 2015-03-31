@@ -74,7 +74,7 @@ struct sc_object {
  *
  * @param key The key to hash
  */
-#define sc_dir_hash(key) (((key >> 20) ^ (key >> 6)) % SC_HASHTABLE_SIZE)
+#define dir_hash(key) (((key >> 20) ^ (key >> 6)) % SC_HASHTABLE_SIZE)
 
 /**
  * The second hash function, used to resolve collisions
@@ -84,7 +84,7 @@ struct sc_object {
  *
  * @param key The key to hash
  */
-#define sc_dir_hash2(key) (key >> 23)
+#define dir_hash2(key) (key >> 23)
 
 /**
  * Looks up the cache directory to find the requested object.
@@ -95,17 +95,17 @@ struct sc_object {
  *         found
  */
 static inline Address
-sc_dir_lookup (UWord key)
+dir_lookup(UWord key)
 {
 	int          i    = 1;
-	int          hash = sc_dir_hash(key);
+	int          hash = dir_hash(key);
 	int          hash2;
 	sc_object_st *ret = &cacheDirectory_g[hash];
 
 	if (((ret->key ^ key) >> 6) == 0)
 		return (Address)ret->val;
 	else if (ret->key) {
-		hash2 = sc_dir_hash2(key);
+		hash2 = dir_hash2(key);
 
 		while (i < SC_HASHTABLE_SIZE) {
 			hash = (hash + hash2) % SC_HASHTABLE_SIZE;
@@ -135,10 +135,10 @@ sc_dir_lookup (UWord key)
  * @param val The value of the new node
  */
 static inline void
-sc_dir_insert (UWord key, UWord val)
+dir_insert(UWord key, UWord val)
 {
 	int          i     = 1;
-	int          hash  = sc_dir_hash(key);
+	int          hash  = dir_hash(key);
 	int          hash2;
 	sc_object_st *node = &cacheDirectory_g[hash];
 
@@ -147,7 +147,7 @@ sc_dir_insert (UWord key, UWord val)
 		node->val = val;
 	}
 	else {
-		hash2 = sc_dir_hash2(key);
+		hash2 = dir_hash2(key);
 
 		while (i < SC_HASHTABLE_SIZE) {
 			hash = (hash + hash2) % SC_HASHTABLE_SIZE;
@@ -162,7 +162,7 @@ sc_dir_insert (UWord key, UWord val)
 			++i;
 		}
 
-		assume( i < SC_HASHTABLE_SIZE );
+		assume(i < SC_HASHTABLE_SIZE);
 	}
 }
 
@@ -170,7 +170,7 @@ sc_dir_insert (UWord key, UWord val)
  * Clears all records except the read-only ones
  */
 static inline void
-sc_dir_clear ()
+dir_clear()
 {
 	int i;
 
@@ -186,7 +186,7 @@ sc_dir_clear ()
  * Clears the read-only records
  */
 static inline void
-sc_dir_ro_clear ()
+dir_ro_clear()
 {
 	int i;
 
@@ -209,7 +209,7 @@ sc_dir_ro_clear ()
  * function in this file.
  */
 void
-sc_initialize ()
+sc_initialize()
 {
 	/* The cache directory. */
 	cacheDirectory_g = (sc_object_st*)roundUp((UWord)mm_scache_base(
@@ -231,8 +231,7 @@ sc_initialize ()
 	cacheROAllocTop_g  = cacheEnd_g;
 	/* The allocation threshold/limit address for read-only Objects. */
 	cacheROThreshold_g = (Address)roundUp(
-	    (UWord)(cacheEnd_g - (cacheSize_g / 2)),
-	    sysGetCachelineSize());
+	    (UWord)(cacheEnd_g - (cacheSize_g / 2)), sysGetCachelineSize());
 	/* Counter for the number of flushes due to full cache. */
 	cacheFlushes_g = 0;
 	/* Counts how many times the cache was cleared. */
@@ -240,12 +239,11 @@ sc_initialize ()
 	/* Counter for the number of cached objects. */
 	cacheObjects_g = 0;
 
-	sc_dir_clear();
-	sc_dir_ro_clear();
+	dir_clear();
+	dir_ro_clear();
 #if 0
 	fprintf(stderr, "+------------------ SOFTWARE-CACHE -------------------\n");
-	printRange("| Directory",
-	           cacheDirectory_g,
+	printRange("| Directory", cacheDirectory_g,
 	           (Address)cacheDirectory_g + SC_DIRECTORY_SIZE);
 	printRange("| Cache", cacheStart_g, cacheEnd_g);
 	fprintf(stderr, "| CacheSize = %d\n", cacheSize_g);
@@ -261,7 +259,7 @@ sc_initialize ()
  * @return a pointer to the allocated memory or NULL if the allocation failed
  */
 static inline Address
-sc_alloc (int size)
+alloc(int size)
 {
 	Address ret       = cacheAllocTop_g;
 	Offset  available = Address_diff(cacheROAllocTop_g, ret);
@@ -297,7 +295,7 @@ sc_alloc (int size)
  * @return a pointer to the allocated memory or NULL if the allocation failed
  */
 static inline Address
-sc_ro_alloc ()
+ro_alloc()
 {
 	Address ret = Address_sub(cacheROAllocTop_g, SC_KLASS_SIZE);
 	Offset  available;
@@ -337,10 +335,10 @@ sc_ro_alloc ()
  * Clears all non read-only records and frees the memory
  */
 static inline void
-sc_clear ()
+clear()
 {
 	/* remove the records from the directory */
-	sc_dir_clear();
+	dir_clear();
 	/* reset the allocation pointer */
 	cacheAllocTop_g = cacheStart_g;
 }
@@ -349,10 +347,10 @@ sc_clear ()
  * Clears all read-only records and frees the memory
  */
 static inline void
-sc_ro_clear ()
+ro_clear()
 {
 	/* remove the records from the directory */
-	sc_dir_ro_clear();
+	dir_ro_clear();
 	/* reset the allocation pointer */
 	cacheROAllocTop_g = cacheEnd_g;
 }
@@ -366,28 +364,28 @@ sc_ro_clear ()
  * @return  a pointer to the allocated memory
  */
 static inline Address
-sc_malloc (unsigned int size)
+challoc(unsigned int size)
 {
 	Address ret;
 
 	size = size ? size : sysGetCachelineSize();
-	ret  = sc_alloc(size);
+	ret  = alloc(size);
 
 	if (unlikely(ret == NULL)) { /* there is not enough space left */
 		/* Write back any dirty objects */
 		sc_flush();
 		cacheFlushes_g++;
 		/* clear the cache but keep the read-only objects */
-		sc_clear();
+		clear();
 		/* Try to allocate again */
-		ret = sc_alloc(size);
+		ret = alloc(size);
 
 		if (unlikely(ret == NULL)) { /* there is still not enough space */
 			/* also clear the read-only cached objects */
-			sc_ro_clear();
+			ro_clear();
 			cacheClears_g++;
 			/* Try to allocate again */
-			ret = sc_alloc(size);
+			ret = alloc(size);
 			assume(ret != NULL);
 		}
 	}
@@ -404,15 +402,15 @@ sc_malloc (unsigned int size)
  * @param cid  The core id from whose cache to fetch the data
  */
 void
-sc_fetch (Address from, Address to, int size, int cid)
+sc_fetch(Address from, Address to, int size, int cid)
 {
 	int cnt;
 	/* The object's home node board id */
 	int from_bid;
 
 	/* Make sure we do not cache our own objects */
-	assume(      sc_in_heap(from));
-	assume( sc_is_cacheable(from));
+	assume(sc_in_heap(from));
+	assume(sc_is_cacheable(from));
 
 	/*
 	 * make sure size <= 1MB, this is the upper limit for a DMA
@@ -526,7 +524,7 @@ sc_fetch (Address from, Address to, int size, int cid)
  * cldc/src/com/sun/squawk/GC.java
  */
 static inline Address
-sc_block_to_oop (Address obj, Address oop, int cid)
+block_to_oop(Address obj, Address oop, int cid)
 {
 	int size, length;
 
@@ -544,7 +542,7 @@ sc_block_to_oop (Address obj, Address oop, int cid)
 		 */
 		if (unlikely(size > sysGetCachelineSize())) {
 			cacheAllocTemp_g = oop;
-			oop              = sc_malloc(size);
+			oop              = challoc(size);
 			/* Fetch data */
 			sc_fetch(obj, oop, size, cid);
 		}
@@ -572,7 +570,7 @@ sc_block_to_oop (Address obj, Address oop, int cid)
 			 * whole array if we don't need it)
 			 */
 			cacheAllocTemp_g = oop;
-			oop              = sc_malloc(size);
+			oop              = challoc(size);
 			/* Fetch data */
 			sc_fetch(obj, oop, size, cid);
 		}
@@ -599,7 +597,7 @@ sc_block_to_oop (Address obj, Address oop, int cid)
 	}              /* switch */
 
 	return oop;
-}                  /* sc_block_to_oop */
+}                  /* block_to_oop */
 
 /**
  * Fetches an object to cache it.  Allocates the appropriate space and
@@ -613,7 +611,7 @@ sc_block_to_oop (Address obj, Address oop, int cid)
  * @return The cached object
  */
 Address
-sc_put (Address obj, int cid)
+sc_put(Address obj, int cid)
 {
 	Address ret;
 
@@ -630,7 +628,7 @@ sc_put (Address obj, int cid)
 		 * Allocate memory. We use the cache line size since we don't
 		 * know the object's size a priori
 		 */
-		ret = sc_malloc(sysGetCachelineSize());
+		ret = challoc(sysGetCachelineSize());
 	}
 
 	/* Fetch data */
@@ -650,10 +648,10 @@ sc_put (Address obj, int cid)
 	 * Make sure the whole object is here and move the pointer to the
 	 * proper offset from the cache-line head
 	 */
-	ret = sc_block_to_oop(obj, ret, cid);
+	ret = block_to_oop(obj, ret, cid);
 
 	/* Update the directory */
-	sc_dir_insert((UWord)obj, (UWord)ret);
+	dir_insert((UWord)obj, (UWord)ret);
 
 	cacheObjects_g++;
 
@@ -678,7 +676,7 @@ sc_get (Address obj)
 	/* printf("Searching for %p\n", obj); */
 
 	/* Check if it is cached */
-	ret = sc_dir_lookup((UWord)obj);
+	ret = dir_lookup((UWord)obj);
 
 	if (ret == NULL) { /* miss */
 		/* printf(" %p not found\n", obj); */
@@ -704,15 +702,15 @@ sc_get (Address obj)
  * @param size The size of the object
  */
 void
-sc_write_back (Address from, Address to, int size)
+sc_write_back(Address from, Address to, int size)
 {
 	int cnt;
 	/* The object's home node board id */
 	int to_bid;
 
 	/* Make sure we do not cache our own objects */
-	assume(      sc_in_heap(to));
-	assume( sc_is_cacheable(to));
+	assume(sc_in_heap(to));
+	assume(sc_is_cacheable(to));
 
 	/*
 	 * make sure size <= 1MB, this is the upper limit for a DMA
@@ -775,7 +773,7 @@ sc_write_back (Address from, Address to, int size)
  * Write-back any dirty objects in the software cache
  */
 void
-sc_flush ()
+sc_flush()
 {
 	int i;
 
@@ -825,7 +823,7 @@ sc_flush ()
  *         0 if it is a class instance
  */
 static inline int
-sc_object_size_and_type (Address oop, int *size_in_bytes)
+object_size_and_type(Address oop, int *size_in_bytes)
 {
 	int length;
 
