@@ -197,7 +197,7 @@
  * @return the index of the bit in the bitmap for <code>ea</code>
  */
 /*MAC*/ UWord asBitIndex(Address $ea) {
-	$ea = sc_translate($ea) - MM_MB_HEAP_BASE;
+	$ea = sc_translate($ea, 0) - MM_MB_HEAP_BASE;
 	return (((UWord)$ea) >> HDR_LOG2_BYTES_PER_CACHE_LINE);
 }
 

@@ -1109,12 +1109,12 @@ int printJavaString(Address str) {
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
 		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
-			unsigned char *chars = (unsigned char *)sc_translate(str);
+			unsigned char *chars = (unsigned char *)sc_translate(str, 0);
 			fprintf(out, "%.*s", length, chars);
 			written = length;
 #ifdef UNICODE
 		} else {
-			unsigned short *chars = (unsigned short *)sc_translate(str);
+			unsigned short *chars = (unsigned short *)sc_translate(str, 0);
 			if (com_sun_squawk_Klass_id_local(cls) != com_sun_squawk_String) {
 				fatalVMError("com_sun_squawk_VM_printString was not passed a string");
 			}
@@ -1157,7 +1157,7 @@ int printJavaStringBuf(Address str, char *buf, int bufLength) {
 		assume(((UWord)getObject(str, HDR_klass) & HDR_headerTagMask) == 0);
 		if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) {
 #endif
-			unsigned char *chars = (unsigned char *)sc_translate(str);
+			unsigned char *chars = (unsigned char *)sc_translate(str, 0);
 			int min = length;
 			if (min > bufLength) {
 				min = bufLength;
@@ -4988,7 +4988,7 @@ static int collectGarbage(Address, Address, int);
 
 	case Native_com_sun_squawk_SoftwareCache_translate: {
 		Address addr = popAddress();
-		pushAddress(sc_translate(addr));
+		pushAddress(sc_translate(addr, 0));
 		break;
 	}
 

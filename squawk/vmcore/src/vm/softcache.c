@@ -664,12 +664,13 @@ sc_put(Address obj, int cid)
  * Looks up the cache to find the requested object. If it fails
  * (miss), it fetches it and adds it to the cache.
  *
- * @param obj The object to get from the cache
+ * @param obj      The object to get from the cache
+ * @param is_write Whether it is going to be written after translation
  *
  * @return The cached object
  */
 Address
-sc_get (Address obj)
+sc_get(Address obj, int is_write)
 {
 	Address ret;
 
