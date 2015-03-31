@@ -164,6 +164,9 @@ sc_translate(Address obj, int is_write)
 		/* printf("%p is cacheable\n", obj); */
 
 		/* It is cacheable, get it from the cache */
+
+		/* TODO: Improve performance by marking as dirty only cachelines and
+		 * not the whole object. */
 		return sc_get(obj, is_write);
 	}
 	else {

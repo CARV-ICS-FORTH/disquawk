@@ -846,6 +846,7 @@ sc_flush()
 			Address oop    = (Address)cacheDirectory_g[i].key;
 			int     size   = com_sun_squawk_Klass_instanceSizeBytes(oop);
 			/* TODO: Make sure this size is correct */
+			/* TODO: Write-back only dirty cache lines not the whole object */
 			sc_write_back(cached,
 			              (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE),
 			              size);
