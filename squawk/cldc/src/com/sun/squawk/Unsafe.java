@@ -149,16 +149,41 @@ public final class Unsafe {
         NativeUnsafe.setAddress(base, offset, value);
     }
 
-//    /**
-//     * Sets a pointer value in memory and updates the write barrier.
-//     *
-//     * @param base   the base address
-//     * @param offset the offset (in UWords) from <code>base</code> at which to write
-//     * @param value  the value to write
-//     */
-//    public static void setObject(Address base, int offset, Address value) {
-//        NativeUnsafe.setObject(base, offset, value);
-//    }
+    /**
+     * Sets a pointer value in memory and updates the write barrier.
+     *
+     * @param base   the base address
+     * @param offset the offset (in UWords) from <code>base</code> at which to write
+     * @param value  the value to write
+     */
+    public static void setObject(Address base, int offset, Address value) {
+        NativeUnsafe.setObject(base, offset, value);
+    }
+
+    /**
+     * Sets a pointer value in memory and updates the write barrier.
+     *
+     * @param base   the base address
+     * @param offset the offset (in UWords) from <code>base</code> at which to write
+     * @param value  the value to write
+     */
+    public static void putObject(Object base, long offset, Object value) {
+        setObject(Address.fromObject(base), (int)offset, Address.fromObject(value));
+    }
+
+    /**
+     * Fetches a reference value from a given Java variable, with volatile
+     * load semantics. Otherwise identical to {@link #getObject(Object, long)}
+     */
+    public static Object getObjectVolatile(Object o, long offset) {
+        Object ret;
+
+        VMThread.monitorEnter(o);
+        ret = getAddress(Address.fromObject(o), (int)offset).toObject();
+        VMThread.monitorExit(o);
+
+        return ret;
+    }
 
     /**
      * Gets a signed 8 bit value from memory.

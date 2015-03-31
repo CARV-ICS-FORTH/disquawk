@@ -162,6 +162,41 @@ public class Thread implements Runnable {
     }
 
     /**
+     * Causes the currently executing thread to sleep (cease execution)
+     * for the specified number of milliseconds plus the specified number
+     * of nanoseconds, subject to the precision and accuracy of system
+     * timers and schedulers. The thread does not lose ownership of any
+     * monitors.
+     *
+     * @param      millis   the length of time to sleep in milliseconds.
+     * @param      nanos    0-999999 additional nanoseconds to sleep.
+     * @exception  IllegalArgumentException  if the value of millis is
+     *             negative or the value of nanos is not in the range
+     *             0-999999.
+     * @exception  InterruptedException if any thread has interrupted
+     *             the current thread.  The <i>interrupted status</i> of the
+     *             current thread is cleared when this exception is thrown.
+     * @see        Object#notify()
+     */
+    public static void sleep(long millis, int nanos)
+    throws InterruptedException {
+        if (millis < 0) {
+            throw new IllegalArgumentException("timeout value is negative");
+        }
+
+        if (nanos < 0 || nanos > 999999) {
+            throw new IllegalArgumentException(
+                                "nanosecond timeout value out of range");
+        }
+
+        if (nanos >= 500000 || (nanos != 0 && millis == 0)) {
+            millis++;
+        }
+
+        sleep(millis);
+    }
+
+    /**
      * Allocates a new <code>Thread</code> object.
      * <p>
      * Threads created this way must have overridden their
@@ -333,6 +368,71 @@ public class Thread implements Runnable {
     }
 
     /**
+     * Waits at most <code>millis</code> milliseconds for this thread to
+     * die. A timeout of <code>0</code> means to wait forever.
+     *
+     * @param      millis   the time to wait in milliseconds.
+     * @exception  InterruptedException if any thread has interrupted
+     *             the current thread.  The <i>interrupted status</i> of the
+     *             current thread is cleared when this exception is thrown.
+     */
+    public final synchronized void join(long millis)
+    throws InterruptedException {
+        long base = System.currentTimeMillis();
+        long now = 0;
+
+        if (millis < 0) {
+            throw new IllegalArgumentException("timeout value is negative");
+        }
+
+        if (millis == 0) {
+            while (isAlive()) {
+                wait(0);
+            }
+        } else {
+            while (isAlive()) {
+                long delay = millis - now;
+                if (delay <= 0) {
+                    break;
+                }
+                wait(delay);
+                now = System.currentTimeMillis() - base;
+            }
+        }
+    }
+
+    /**
+     * Waits at most <code>millis</code> milliseconds plus
+     * <code>nanos</code> nanoseconds for this thread to die.
+     *
+     * @param      millis   the time to wait in milliseconds.
+     * @param      nanos    0-999999 additional nanoseconds to wait.
+     * @exception  IllegalArgumentException  if the value of millis is negative
+     *               the value of nanos is not in the range 0-999999.
+     * @exception  InterruptedException if any thread has interrupted
+     *             the current thread.  The <i>interrupted status</i> of the
+     *             current thread is cleared when this exception is thrown.
+     */
+    public final synchronized void join(long millis, int nanos)
+    throws InterruptedException {
+
+        if (millis < 0) {
+            throw new IllegalArgumentException("timeout value is negative");
+        }
+
+        if (nanos < 0 || nanos > 999999) {
+            throw new IllegalArgumentException(
+                                "nanosecond timeout value out of range");
+        }
+
+        if (nanos >= 500000 || (nanos != 0 && millis == 0)) {
+            millis++;
+        }
+
+        join(millis);
+    }
+
+    /**
      * Waits for this thread to die.
      *
      * @exception  InterruptedException if another thread has interrupted
@@ -340,7 +440,7 @@ public class Thread implements Runnable {
      *             current thread is cleared when this exception is thrown.
      */
     public final void join() throws InterruptedException {
-        vmThread.join();
+        join(0);
     }
 
     /**

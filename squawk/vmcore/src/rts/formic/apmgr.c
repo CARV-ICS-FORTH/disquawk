@@ -53,8 +53,8 @@ apmgrCASHandler (int bid, int cid, Address object,
 	object = (Address)0x04400000; /* Test with an arbitrary address */
 	tmp = *(unsigned int*)object;
 
-	kt_printf("This is a CAS(%u, %u) from %d:%d ~ %u\n",
-	          expected, new, bid, cid, tmp);
+	/* kt_printf("This is a CAS(%u, %u) from %d:%d ~ %u\n",
+	 *           expected, new, bid, cid, tmp); */
 
 	if ( tmp == expected ) {
 		res = 1;
