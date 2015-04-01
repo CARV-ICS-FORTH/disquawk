@@ -50,7 +50,7 @@ import com.sun.squawk.Unsafe;
  * @author Doug Lea
 */
 public class AtomicInteger extends Number implements java.io.Serializable {
-    private volatile int value;
+    private int value;
 
     private static final long serialVersionUID = 6214790243416807050L;
 
