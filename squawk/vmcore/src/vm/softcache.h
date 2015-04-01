@@ -45,21 +45,7 @@ typedef struct sc_object sc_object_st;
  */
 #define SC_DIRTY_MASK   0x01 /* 0000 0001 */
 #define SC_CNT_MASK     0x3E /* 0011 1110 */
-#define SC_ADDRESS_MASK ~((SC_CNT_MASK) &(SC_DIRTY_MASK))
-
-/**
- * For the write back DMA acknowledgments we use the hardware counters
- * NOC_MAX_COUNTERS-32 ~ NOC_MAX_COUNTERS
- * We can only issue 32 DMAs from our engine so 32 counters are enough.
- */
-#define SC_DMA_WB_CNT_START ((NOC_MAX_COUNTERS)-32)
-/**
- * For the fetch DMA acknowledgments we use the hardware counters
- * SC_DMA_WB_CNT_START-32 ~ SC_DMA_WB_CNT_START
- * Support up to 32 outstanding fetches (this leaves us with only 59
- * free counters)
- */
-#define SC_DMA_FE_CNT_START ((SC_DMA_WB_CNT_START)-32)
+#define SC_ADDRESS_MASK ~((SC_CNT_MASK) | (SC_DIRTY_MASK))
 
 /*
  * The hash-table size must be the closest prime to the cache-lines
@@ -146,6 +132,7 @@ sc_is_cacheable(Address obj)
 INLINE Address
 sc_translate(Address obj, int is_write)
 {
+	assume(is_write >> 1 == 0);
 
 	if (obj == NULL)
 		return NULL;

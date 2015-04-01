@@ -129,7 +129,7 @@ dir_lookup(UWord key)
 }
 
 /**
- * Inserts a key-value per in the directory
+ * Inserts a key-value pair in the directory
  *
  * @param key The key of the new node
  * @param val The value of the new node
@@ -141,6 +141,8 @@ dir_insert(UWord key, UWord val)
 	int          hash  = dir_hash(key);
 	int          hash2;
 	sc_object_st *node = &cacheDirectory_g[hash];
+
+	assume(!(key & ~SC_ADDRESS_MASK));
 
 	if (node->key == NULL) {
 		node->key = key;
@@ -241,8 +243,8 @@ sc_initialize()
 	/* Counter for the number of cached objects. */
 	cacheObjects_g = 0;
 
-	dir_clear();
-	dir_ro_clear();
+	/* Make sure the cache is empty */
+	memset(cacheDirectory_g, 0, SC_DIRECTORY_SIZE);
 #if 0
 	fprintf(stderr, "+------------------ SOFTWARE-CACHE -------------------\n");
 	printRange("| Directory", cacheDirectory_g,
@@ -654,7 +656,7 @@ sc_put(Address obj, int cid)
 	ret = block_to_oop(obj, ret, cid);
 
 	/* Update the directory */
-	node = dir_insert((UWord)obj, (UWord)ret);
+	node = dir_insert((UWord)obj & SC_ADDRESS_MASK, (UWord)ret);
 
 	cacheObjects_g++;
 
@@ -678,6 +680,8 @@ sc_get(Address obj, int is_write)
 	sc_object_st *ret;
 	Address      retval;
 
+	assume(is_write >> 1 == 0);
+
 	/* printf("Searching for %p\n", obj); */
 
 	/* Check if it is cached */
@@ -693,7 +697,7 @@ sc_get(Address obj, int is_write)
 	 *  printf("Marked %p\n", obj);
 	 * } */
 
-	ret->key |= (is_write & 1);
+	ret->key |= is_write;
 	retval    = (Address)ret->val;
 
 	/*
@@ -776,6 +780,18 @@ sc_write_back(Address from, Address to, int size)
 
 	/* Find an available counter to use */
 	cnt = hwcnt_get_free(HWCNT_SC_WB);
+	assume(cnt >= 0);
+
+	/* kt_printf("Write-back %3d %p to %p size = %d\n", cnt, from, to, size); */
+	/*
+	 * DMAs are working on cache-line alignment and granularity
+	 * (64B). So we round up the size and mask the from address
+	 * accordingly to take the pure, cache-aligned address (offset) on
+	 * the remote node.
+	 */
+	size = roundUp(size, sysGetCachelineSize());
+	assume(!((UWord)from & ~SC_ADDRESS_MASK) &&
+	       !((UWord)to & ~SC_ADDRESS_MASK));
 
 	/*
 	 * Write-backs can be made from the HW cache or the DRAM.  In the
