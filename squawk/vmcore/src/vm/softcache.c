@@ -338,13 +338,14 @@ ro_alloc()
 /**
  * Clears all non read-only records and frees the memory
  */
-static inline void
-clear()
+void
+sc_clear()
 {
 	/* remove the records from the directory */
 	dir_clear();
 	/* reset the allocation pointer */
 	cacheAllocTop_g = cacheStart_g;
+	/* TODO: Clear the hardware cache */
 }
 
 /**
@@ -377,10 +378,10 @@ challoc(unsigned int size)
 
 	if (unlikely(ret == NULL)) { /* there is not enough space left */
 		/* Write back any dirty objects */
-		sc_flush();
+		sc_flush(1);
 		cacheFlushes_g++;
 		/* clear the cache but keep the read-only objects */
-		clear();
+		sc_clear();
 		/* Try to allocate again */
 		ret = alloc(size);
 
@@ -760,9 +761,11 @@ sc_mark_dirty(Address obj)
  * @param from The object to write back
  * @param to   The home address of the object
  * @param size The size of the object
+ *
+ * @return The used counter for the ack
  */
-void
-sc_write_back(Address from, Address to, int size)
+static inline int
+write_back(Address from, Address to, int size)
 {
 	int cnt;
 	/* The object's home node board id */
@@ -829,7 +832,9 @@ sc_write_back(Address from, Address to, int size)
 	                                 * since we are writing directly on
 	                                 * DRAM)
 	                                 */
-}  /* sc_write_back */
+
+	return cnt;
+}                  /* write_back */
 
 /**
  * Wait for all pending write backs to reach completion
@@ -843,11 +848,14 @@ sc_write_back(Address from, Address to, int size)
 
 /**
  * Write-back any dirty objects in the software cache
+ *
+ * @param blocking Whether we should wait for the DMAs to reach completion or
+ *                 not
  */
 void
-sc_flush()
+sc_flush(int blocking)
 {
-	int i;
+	int i, cnt;
 
 	/*
 	 * Wait for pending write backs to complete in order to avoid
@@ -859,26 +867,36 @@ sc_flush()
 	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {
 		if (cacheDirectory_g[i].key & SC_DIRTY_MASK) {
 			Address cached = (Address)cacheDirectory_g[i].val;
-			Address oop    = (Address)cacheDirectory_g[i].key;
+			Address oop    =
+			    (Address)(cacheDirectory_g[i].key & SC_ADDRESS_MASK);
 			int     size   = com_sun_squawk_Klass_instanceSizeBytes(oop);
+
 			/* TODO: Make sure this size is correct */
+			assume(size > 0);
+
 			/* TODO: Write-back only dirty cache lines not the whole object */
-			sc_write_back(cached,
-			              (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE),
-			              size);
+			cnt =
+			    write_back((Address)((UWord)cached & SC_ADDRESS_MASK),
+			               (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE),
+			               size);
+
+			/* FIXME cnt might be larger than 32 */
+			assume(cnt < 32);
+			/* Remove dirty bit and add cnt */
+			/* TODO: Should dirty bit be removed after completion? */
+			cacheDirectory_g[i].key =
+			    (cacheDirectory_g[i].key & SC_ADDRESS_MASK) | (cnt << 1);
 		}
 	}
 
 	/* Check if we need to wait for completion */
-	/* if (likely(blocking)) { */
-	/* wait for the RDMAs to reach completion */
-	sc_wait_pending_wb();
-	/*
-	 * } else {
-	 * com_sun_squawk_SoftwareCache_pendingWriteBacks = 1;
-	 * }
-	 */
-}
+	if (likely(blocking)) {
+		/* wait for the RDMAs to reach completion */
+		sc_wait_pending_wb();
+	}
+
+	/* TODO: Flush the hardware cache as well */
+}                  /* sc_flush */
 
 /**
  * Checks the object type and calculates its size and returns its
