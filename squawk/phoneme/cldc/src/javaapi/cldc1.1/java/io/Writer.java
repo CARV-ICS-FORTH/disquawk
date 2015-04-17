@@ -1,24 +1,24 @@
 /*
- *   
+ *
  *
  * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
  * 2 only, as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included at /legal/license.txt).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa
  * Clara, CA 95054 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -38,6 +38,9 @@ package java.io;
  * @see     java.io.Reader
  */
 
+/* HACK: We only use the writer from PrintStream where we synchronize,
+   so there is no need for an extra synchronization point here.  Thus
+   we commend out the synchronized diretives bellow */
 public abstract class Writer {
 
     /**
@@ -92,20 +95,20 @@ public abstract class Writer {
      * @exception  IOException  If an I/O error occurs
      */
     public void write(int c) throws IOException {
-        synchronized (lock) {
+        // synchronized (lock) {
             if (writeBuffer == null){
                 writeBuffer = new char[writeBufferSize];
             }
             writeBuffer[0] = (char) c;
             write(writeBuffer, 0, 1);
-        }
+        // }
     }
 
     /**
      * Write an array of characters.
      *
      * @param  cbuf  Array of characters to be written
-     * 
+     *
      * @exception  IOException  If an I/O error occurs
      */
     public void write(char cbuf[]) throws IOException {
@@ -144,7 +147,7 @@ public abstract class Writer {
      * @exception  IOException  If an I/O error occurs
      */
     public void write(String str, int off, int len) throws IOException {
-        synchronized (lock) {
+        // synchronized (lock) {
             char cbuf[];
             if (len <= writeBufferSize) {
                 if (writeBuffer == null) {
@@ -156,7 +159,7 @@ public abstract class Writer {
             }
             str.getChars(off, (off + len), cbuf, 0);
             write(cbuf, 0, len);
-        }
+        // }
     }
 
     /**
