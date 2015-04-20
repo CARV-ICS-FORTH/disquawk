@@ -406,8 +406,8 @@ challoc(unsigned int size)
  * @param size The size of the object (must be less than 1MB)
  * @param cid  The core id from whose cache to fetch the data
  */
-void
-sc_fetch(Address from, Address to, int size, int cid)
+static void
+fetch(Address from, Address to, int size, int cid)
 {
 	int cnt;
 	/* The object's home node board id */
@@ -493,7 +493,7 @@ sc_fetch(Address from, Address to, int size, int cid)
 
 	/* Mark the counter as available */
 	hwcnts_g[cnt] = HWCNT_FREE;
-}                  /* sc_fetch */
+}                  /* fetch */
 
 /**
  * Get the address at which the body of an object starts given the
@@ -549,7 +549,7 @@ block_to_oop(Address obj, Address oop, int cid)
 			cacheAllocTemp_g = oop;
 			oop              = challoc(size);
 			/* Fetch data */
-			sc_fetch(obj, oop, size, cid);
+			fetch(obj, oop, size, cid);
 		}
 
 		oop += 4;
@@ -577,7 +577,7 @@ block_to_oop(Address obj, Address oop, int cid)
 			cacheAllocTemp_g = oop;
 			oop              = challoc(size);
 			/* Fetch data */
-			sc_fetch(obj, oop, size, cid);
+			fetch(obj, oop, size, cid);
 		}
 
 		oop += 8;
@@ -638,7 +638,7 @@ sc_put(Address obj, int cid)
 	}
 
 	/* Fetch data */
-	sc_fetch(obj, ret, sysGetCachelineSize(), cid);
+	fetch(obj, ret, sysGetCachelineSize(), cid);
 
 	/*
 	 * The object's Klass is always here and resides in the ROM so
