@@ -378,7 +378,7 @@ challoc(unsigned int size)
 
 	if (unlikely(ret == NULL)) { /* there is not enough space left */
 		/* Write back any dirty objects */
-		sc_flush(1);
+		sc_flush(SC_BLOCKING);
 		cacheFlushes_g++;
 		/* clear the cache but keep the read-only objects */
 		sc_clear();

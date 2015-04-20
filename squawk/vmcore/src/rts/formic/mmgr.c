@@ -576,6 +576,12 @@ mmgrMonitorEnter(Address object)
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_ENTER, object);
 
+	/* Empty our software cache.  There is no need to for writing back any
+	dirty
+	 * data, since they should be the result of a data race */
+	/* sc_flush(); */
+	sc_clear();
+
 	/*
 	 * Remove me from the runnable threads and add me to the blocked
 	 * threads queue. This is done in VMThread.java
@@ -595,7 +601,10 @@ mmgrMonitorExit(Address object)
 	ar_uart_flush();
 #  endif /* ifdef VERY_VERBOSE */
 
-/*	assume(sc_in_heap(object)); */
+	/* Write back any dirty data */
+	sc_flush(SC_BLOCKING);
+
+	/* assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_EXIT, object);
 }
 
@@ -612,6 +621,9 @@ mmgrWaitMonitorExit(Address object)
 	kt_printf("I sent a wait exit request\n");
 	ar_uart_flush();
 #  endif /* ifdef VERY_VERBOSE */
+
+	/* Write back any dirty data */
+	sc_flush(SC_BLOCKING);
 
 /*	assume(sc_in_heap(object)); */
 	mmgrRequest(MMP_OPS_MNTR_WAIT, object);
@@ -954,6 +966,16 @@ mmgrWriteLock(Address object, int istry)
 #endif /* ifdef VERY_VERBOSE */
 
 	mmgrRequest(istry ? MMP_OPS_RW_WRITE_TRY : MMP_OPS_RW_WRITE, object);
+
+	/* If it is a try only empty our cache if we manage to acquire the lock
+	 */
+	/* if (!istry) { */
+	 /* Empty our software cache.  There is no need to for writing back any
+	  * dirty
+	  * data, since they should be the result of a data race */
+	 /* sc_flush(); */
+	 sc_clear();
+	/* } */
 }
 
 /**
@@ -972,6 +994,16 @@ mmgrReadLock(Address object, int istry)
 #endif /* ifdef VERY_VERBOSE */
 
 	mmgrRequest(istry ? MMP_OPS_RW_READ_TRY : MMP_OPS_RW_READ, object);
+
+	/* If it is a try only empty our cache if we manage to acquire the lock
+	*/
+	/* if (!istry) { */
+	 /* Empty our software cache.  There is no need to for writing back any
+	  * dirty
+	  * data, since they should be the result of a data race */
+	 /* sc_flush(); */
+	 sc_clear();
+	/* } */
 }
 
 /**
@@ -988,6 +1020,11 @@ mmgrRWunlock(Address object, int isread)
 	          object);
 	ar_uart_flush();
 #endif /* ifdef VERY_VERBOSE */
+
+	if (!isread) {
+		/* Write back any dirty data */
+		sc_flush(SC_BLOCKING);
+	}
 
 	mmgrRequest(isread ? MMP_OPS_RW_READ_UNLOCK : MMP_OPS_RW_WRITE_UNLOCK,
 	            object);

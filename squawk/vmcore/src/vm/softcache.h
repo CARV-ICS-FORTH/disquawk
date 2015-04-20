@@ -39,6 +39,13 @@ typedef struct sc_object sc_object_st;
 #include <util.h>
 
 /**
+ * Flags marking whether a flush/write-back/fetch should be blocking
+ * (synchronous/inorder) or not (asynchronous/inteleaved).
+ */
+#define SC_BLOCKING     1
+#define SC_NON_BLOCKING 0
+
+/**
  * Since objects are cache line aligned we use the LSB as the dirty
  * bit and the 1-5 bits to store the acknowledgment counter for the
  * object if there is a pending DMA transfer for it
@@ -47,7 +54,7 @@ typedef struct sc_object sc_object_st;
 #define SC_CNT_MASK     0x3E /* 0011 1110 */
 #define SC_ADDRESS_MASK ~((SC_CNT_MASK) | (SC_DIRTY_MASK))
 
-/*
+/**
  * The hash-table size must be the closest prime to the cache-lines
  * that can fit in the cache. To calculate this value use the
  * cache_memory/(cache_line_size+sizeof(2*(void*))) formula and pass it to

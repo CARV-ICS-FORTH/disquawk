@@ -254,11 +254,17 @@ mmpCheckMailbox(Address type)
 		ar_assert(object != NULL);
 		mmgrRWunlockHandler(bid, cid, object, tmp);
 		break;
-	case MMP_OPS_AT_CAS_ACK:
-	case MMP_OPS_AT_CAS_NACK:
 	case MMP_OPS_RW_READ_ACK:
-	case MMP_OPS_RW_READ_NACK:
 	case MMP_OPS_RW_WRITE_ACK:
+		/* /\* Empty our software cache.  There is no need to for writing back any
+		 *  * dirty
+		 *  * data, since they should be the result of a data race *\/
+		 * /\* sc_flush(); *\/
+		 * sc_clear(); */
+	case MMP_OPS_AT_CAS_ACK:
+		/* For CAS we clear the cache at reuest */
+	case MMP_OPS_AT_CAS_NACK:
+	case MMP_OPS_RW_READ_NACK:
 	case MMP_OPS_RW_WRITE_NACK:
 		result = (Address)ar_mbox_get(sysGetCore());
 		assume(result != NULL);
