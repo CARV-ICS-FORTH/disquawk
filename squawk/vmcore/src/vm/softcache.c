@@ -869,7 +869,36 @@ sc_flush(int blocking)
 			Address cached = (Address)cacheDirectory_g[i].val;
 			Address oop    =
 			    (Address)(cacheDirectory_g[i].key & SC_ADDRESS_MASK);
-			int     size   = com_sun_squawk_Klass_instanceSizeBytes(oop);
+			int     size, length;
+
+			switch ((*(int*)oop) & HDR_headerTagMask) {
+
+			case HDR_basicHeaderTag: /* Class Instance */
+				size = com_sun_squawk_Klass_instanceSizeBytes(
+				    (Address) * (int*)oop);
+				break;
+
+			case HDR_arrayHeaderTag: /* Array */
+
+				/* Check if we brought the whole array or not */
+				length = (*(int*)oop) >> 2;
+				size   = length * getDataSize(com_sun_squawk_Klass_componentType(
+				                                  (Address) * (int*)(oop + 4)));
+				break;
+			case HDR_methodHeaderTag: /* Method */
+				printf("%p is a method!\n", oop);
+
+				/*
+				 * HACK: crash on method header accesses, until we fully
+				 * understand their usage
+				 */
+				fatalVMError("Method header");
+				break;
+				break;
+			default:
+				fatalVMError("Wrong header tag");
+				break;
+			}
 
 			/* TODO: Make sure this size is correct */
 			assume(size > 0);
