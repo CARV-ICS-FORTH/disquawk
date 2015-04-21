@@ -1459,6 +1459,7 @@ public class ObjectMemoryMapper {
                           "method "+getMethodSignature(oop) + classWordAnnotation(oop), true);
             /* FIXME: It doesn't work for FormicApp */
             out.println("METHOD."+oop.sub(HDR.basicHeaderSize-4)+".NAME="+getMethodSignature(oop));
+            out.println();
         }
         oopNext = true;
         return headerLength;
