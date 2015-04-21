@@ -262,7 +262,7 @@ mmpCheckMailbox(Address type)
 		 * /\* sc_flush(); *\/
 		 * sc_clear(); */
 	case MMP_OPS_AT_CAS_ACK:
-		/* For CAS we clear the cache at reuest */
+		/* For CAS we clear the cache at request */
 	case MMP_OPS_AT_CAS_NACK:
 	case MMP_OPS_RW_READ_NACK:
 	case MMP_OPS_RW_WRITE_NACK:

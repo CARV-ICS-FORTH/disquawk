@@ -105,6 +105,11 @@ void sysCAS(void* ptr, unsigned int old, unsigned int new) {
 	msg[2] = old;               /* The expected value */
 	msg[3] = new;               /* The new value */
 	mmpSend16(dst_bid, dst_cid, msg);
+
+	/* Empty our software cache.  There is no need to for writing back any dirty
+	 * data, since they should be the result of a data race */
+	/* sc_flush(); */
+	sc_clear();
 }
 
 /**
