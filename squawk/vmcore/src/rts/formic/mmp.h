@@ -133,7 +133,7 @@ mmpSend16(int to_bid, int to_cid, unsigned int msg[16])
 
 	/* Align message if needed */
 	if ((unsigned int)msg & 0x3F) {
-		msg_al = (unsigned int*)((unsigned int)(buff + 16) & 0xFFFFFFC0);
+		msg_al = (unsigned int*)((unsigned int)(buff + 15) & 0xFFFFFFC0);
 		msg = kt_memcpy(msg_al, msg, 64);
 	}
 
