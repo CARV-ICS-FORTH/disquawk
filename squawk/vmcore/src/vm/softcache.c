@@ -875,7 +875,7 @@ sc_flush(int blocking)
 
 			case HDR_basicHeaderTag: /* Class Instance */
 				size = com_sun_squawk_Klass_instanceSizeBytes(
-				    (Address) * (int*)oop);
+				    (Address) * (int*)oop) + 4;
 				break;
 
 			case HDR_arrayHeaderTag: /* Array */
@@ -883,7 +883,8 @@ sc_flush(int blocking)
 				/* Check if we brought the whole array or not */
 				length = (*(int*)oop) >> 2;
 				size   = length * getDataSize(com_sun_squawk_Klass_componentType(
-				                                  (Address) * (int*)(oop + 4)));
+				                                  (Address) *
+				                                  (int*)(oop + 4))) + 8;
 				break;
 			case HDR_methodHeaderTag: /* Method */
 				printf("%p is a method!\n", oop);
