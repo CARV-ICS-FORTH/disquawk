@@ -18,21 +18,16 @@
 
 void squawk_entry_point(void)
 {
-  extern int __linker_squawk_suite_start;
-  char          *fakeArgv[4];
-  int           fakeArgc, i;
+	extern int __linker_squawk_suite_start;
+	char          *fakeArgv[4];
+	int           fakeArgc;
 
-  fakeArgv[0] = "dummy";
-  fakeArgv[1] = "-spotsuite:FormicApp";
-  fakeArgv[2] = "HelloWorld";
-  fakeArgc    = 3;
+	fakeArgv[0] = "dummy";
+	fakeArgv[1] = "-spotsuite:FormicApp";
+	fakeArgv[2] = "HelloWorld";
+	fakeArgc    = 3;
 
-  kt_printf("Invoking squawk with:");
-  for(i=0; i<fakeArgc; ++i)
-    kt_printf(" %s", fakeArgv[i]);
-  kt_printf("\n");
+	Squawk_main_wrapper(fakeArgc, fakeArgv);
 
-  Squawk_main_wrapper(fakeArgc, fakeArgv);
-
-  return;
+	return;
 }

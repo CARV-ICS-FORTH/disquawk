@@ -2446,6 +2446,14 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
      * Given that this function should never return this is OK.
      */
 	Globals userGlobals;
+	int i;
+
+	if (sysGetCore() == 0 && sysGetIsland()==0) {
+		kt_printf("Invoking squawk with:");
+		for(i=0; i<argc; ++i)
+			kt_printf(" %s", argv[i]);
+		kt_printf("\n");
+	}
 
 	initializeGlobals(&userGlobals);
 
