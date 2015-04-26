@@ -14,7 +14,8 @@
 #                                                                              #
 ################################################################################
 
-PATH+=:/opt/Xilinx/12.4/ISE_DS/EDK/gnu/microblaze/lin64/bin
+#PATH+=:/opt/Xilinx/12.4/ISE_DS/EDK/gnu/microblaze/lin64/bin
+PATH+=:/opt/mb-gcc-5.1.0/bin
 
 ################################################################################
 # Other variables
@@ -148,7 +149,7 @@ ARCH_FLAGS?=-DAR_CONFIGURE_THROUGH_MAKE=1 \
 		-DAR_FORMIC_MAX_Z=3
 
 CFLAGS+=$(ARCH_FLAGS)
-LDFLAGS=--format elf32-microblazele --oformat elf32-microblazele
+LDFLAGS=--format elf32-microblazeel --oformat elf32-microblazeel
 ################################################################################
 
 
@@ -324,7 +325,7 @@ $(BUILD_DIR)/obj/$(VM_SRC)/fp/%.mb.o: $(VM_SRC)/fp/%.c \
 $(BUILD_DIR)/obj/%.mb.o: %.s
 	$(AT)echo $(STR_ASM) $<
 	$(AT)mkdir -p $(dir $@)
-	$(AT)mb-as -defsym SQUAWK=1 $< -mlittle-endian -o $@
+	$(AT)mb-as -defsym SQUAWK=1 $< -o $@
 
 $(BUILD_DIR)/obj/%.mb.o: %.c $(BUILD_DIR)/dep/%.d
 	$(AT)echo $(STR_GCC) $<
