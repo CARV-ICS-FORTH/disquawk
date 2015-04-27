@@ -1524,7 +1524,7 @@ void setupSignals() {
 Address processArgs(char *argv[], const int argc) {
 	int newIndex = 0;
 	int oldIndex = 0;
-	char *javaVMArgs[MAX_JVM_ARGS];
+	char *javaVMArgs[MAX_JVM_ARGS] __attribute__((unused));
 	int   javaVMArgsCount = 0;
 	char *bootstrapSuiteFile = "squawk.suite";
 
@@ -2448,14 +2448,14 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
 	Globals userGlobals;
 	int i;
 
-	if (sysGetCore() == 0 && sysGetIsland()==0) {
-		kt_printf("Invoking squawk with:");
-		for(i=0; i<argc; ++i)
-			kt_printf(" %s", argv[i]);
-		kt_printf("\n");
+	db_printf("Invoking squawk with:");
+	for(i=0; i<argc; ++i) {
+		db_printf(" %s", argv[i]);
 	}
+	db_printf("\n");
 
 	initializeGlobals(&userGlobals);
+	/* db_printf("Globals have been initialized\n"); */
 
 /*if[EMULATOR_LAUNCHER]*/
 	char *executable = argv[0];
