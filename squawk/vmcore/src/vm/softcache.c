@@ -39,6 +39,10 @@
 #include "softcache.h"
 #include "hwcnt.h"
 
+#ifdef ASSUME
+void zeroWords(UWordAddress start, UWordAddress end);
+#endif
+
 /******************************************************************************\
 |*                                                                            *|
 |*                Implementation of the cache directory                       *|
