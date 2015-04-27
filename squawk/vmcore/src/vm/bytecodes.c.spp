@@ -5978,11 +5978,9 @@ static int collectGarbage(Address, Address, int);
  */
 /*MAC*/ void do_monitorenter() {
 	Address obj = popAddress();
-	Address assn;
 
 	nullCheck(obj);
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
-	assn = getClassOrAssociation(obj);
 	pushAddress(obj);
 	call(com_sun_squawk_VM_monitorenter);
 }
@@ -5996,11 +5994,9 @@ static int collectGarbage(Address, Address, int);
  */
 /*MAC*/ void do_monitorexit() {
 	Address obj = popAddress();
-	Address assn;
 
 	nullCheck(obj);
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
-	assn = getClassOrAssociation(obj);
 	pushAddress(obj);
 	call(com_sun_squawk_VM_monitorexit);
 }
