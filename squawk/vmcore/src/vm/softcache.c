@@ -38,6 +38,7 @@
 
 #include "softcache.h"
 #include "hwcnt.h"
+#include "hwcache.h"
 
 #ifdef ASSUME
 void zeroWords(UWordAddress start, UWordAddress end);
@@ -349,7 +350,11 @@ sc_clear()
 	dir_clear();
 	/* reset the allocation pointer */
 	cacheAllocTop_g = cacheStart_g;
-	/* TODO: Clear the hardware cache */
+	/* flush and clear the hardware cache.
+	 * NOTE: Here we need to flash to make sure the software cache
+	 * changes will persist. */
+	hwcache_flush_clear();
+	/* kt_printf("Clear CACHE\n"); */
 }
 
 /**
@@ -458,10 +463,7 @@ fetch(Address from, Address to, int size, int cid)
 /*	kt_printf("Issued DMA from %p of size %d\n", from, size); */
 	ar_dma_with_ack(sysGetCore(),         /* my core id */
 	                from_bid - 1,         /* source board id */
-	                (cid >= 0) ? cid : 0, /* source core id, HACK: ATM fetch
-	                                       * from the cache, untill the
-	                                       * flush/invalidate mechanisms are
-	                                       * ready. */
+	                0xC,                  /* source core id */
 	                (int)from,            /* source address */
 	                sysGetIsland(),       /* destination board id */
 	                sysGetCore(),         /* destination core id */
@@ -829,7 +831,10 @@ write_back(Address from, Address to, int size)
 	                sysGetCore(),   /* ack core id */
 	                cnt,            /* ack counter */
 	                size,           /* data length */
-	                1,              /* ignore dirty bit on source */
+	                0,              /* Do not ignore dirty bit on
+	                                   source on write-backs, this
+	                                   might result in losing writes
+	                                   to the software cache */
 	                0,              /* force clean on dst */
 	                1);             /*
 	                                 * write through (doesn't really matter
@@ -929,7 +934,8 @@ sc_flush(int blocking)
 		sc_wait_pending_wb();
 	}
 
-	/* TODO: Flush the hardware cache as well */
+	/* Flush the hardware cache as well */
+	hwcache_flush();
 }                  /* sc_flush */
 
 /**
