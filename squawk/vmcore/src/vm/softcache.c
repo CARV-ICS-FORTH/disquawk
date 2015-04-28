@@ -497,6 +497,9 @@ fetch(Address from, Address to, int size, int cid)
 		ar_abort();
 	}
 
+	/* kt_printf("Fetched %3d %p from %p size = %d\n", cnt, to, from, size);
+	 * sc_dump(); */
+
 	/* Mark the counter as available */
 	hwcnts_g[cnt] = HWCNT_FREE;
 }                  /* fetch */
@@ -668,6 +671,7 @@ sc_put(Address obj, int cid)
 	cacheObjects_g++;
 
 	/* printf("Put %p\n", ret); */
+	/* sc_dump(); */
 
 	return node;
 }
@@ -792,6 +796,14 @@ write_back(Address from, Address to, int size)
 	assume(cnt >= 0);
 
 	/* kt_printf("Write-back %3d %p to %p size = %d\n", cnt, from, to, size); */
+	/* int i;
+	 * for (i=0; i<size; i+=4) {
+	 * 	kt_printf("\t %p\t=%p --> %p\t=%p\n",
+	 * 	          (UWord)from+i, *(int*)((UWord)from+i),
+	 * 	          (UWord)to+i, *(int*)((UWord)to+i));
+	 * } */
+	/* sc_dump(); */
+
 	/*
 	 * DMAs are working on cache-line alignment and granularity
 	 * (64B). So we round up the size and mask the from address
@@ -841,6 +853,12 @@ write_back(Address from, Address to, int size)
 	                                 * since we are writing directly on
 	                                 * DRAM)
 	                                 */
+
+	/* while (ar_cnt_get(sysGetCore(), cnt) != 0) {
+	 * 	;
+	 * } */
+
+	/* sc_dump(); */
 
 	return cnt;
 }                  /* write_back */
@@ -997,4 +1015,30 @@ object_size_and_type(Address oop, int *size_in_bytes)
 
 		return -1;
 	}
+}
+
+/**
+ * Dumps the contents of the cache
+ */
+void
+sc_dump() {
+	int     i, j;
+	Address key, val;
+
+	printf("-------------------- CACHE DUMP START --------------------\n");
+	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {
+		if (cacheDirectory_g[i].val && cacheDirectory_g[i].val < (UWord)cacheAllocTop_g) {
+			key = cacheDirectory_g[i].key & SC_ADDRESS_MASK;
+			val = cacheDirectory_g[i].val & SC_ADDRESS_MASK;
+			printf("%p cached @ %p\n",
+			       key,
+			       val);
+			for (j=0; j<12; j+=4, key+=4, val+=4) {
+				printf("\t %p = %p |? (%p = %p) \n",
+				       val, *(int*)val,
+				       key, *(int*)key);
+			}
+		}
+	}
+	printf("--------------------  CACHE DUMP END  --------------------\n");
 }

@@ -73,6 +73,7 @@ Address     sc_get(Address obj, int is_write);
 void        sc_mark_dirty(Address obj);
 void        sc_flush(int blocking);
 void        sc_clear();
+void        sc_dump();
 sc_object_st* sc_put(Address obj, int cid);
 
 /**
