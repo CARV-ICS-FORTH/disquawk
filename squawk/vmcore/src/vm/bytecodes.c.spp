@@ -790,6 +790,10 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 	Address vtable;
 	assume($cls);
 	vtable = com_sun_squawk_Klass_virtualMethods($cls);
+	/* if ((unsigned int)$index >= (unsigned int)getArrayLength(vtable))
+	 * 	/\* printf("GVM CLS %p[%d] failed\n", $cls, $index); *\/
+	 * 	printf("GVM CLS %p[%d] failed size is %u\n", $cls, $index,
+	 * 	       (unsigned int)getArrayLength(vtable)); */
 	assume((unsigned int)$index < (unsigned int)getArrayLength(vtable));
 	return ((Address *)vtable)[$index];
 }
@@ -3297,8 +3301,29 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	resetStackPointerIfNotRevParms();
 	obj = (Address)peek();
 	nullCheck(obj);
+	/* printf("Invoking %p\n", obj); */
+	/* if (((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) != 0)
+	 * 	printf("Invoking %p failed\n", obj); */
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
 	cls = getClassOrAssociation(obj);
+	/* if (!((UWord)cls < 0x08000000))
+	 * 	printf("CLS = %p OBJ = %p OBJ[-1] =\n", cls, obj); */
+	/* if ((UWord)obj == 0x04005784 || (UWord)obj == 0x04005fc4) {
+	 * 	/\* int i; *\/
+	 * 	Address tr_obj;
+	 * 	tr_obj = sc_translate(obj, 0);
+	 * 	printf("CLS = %p OBJ = %p TR = %p\n", cls, obj, tr_obj);
+	 * 	/\* for (i=-132; i<8; i+=4) {
+	 * 	 * 	kt_printf("\t %p[%d]\t=%p --> %p[%d]\t=%p\n",
+	 * 	 * 	          (UWord)obj, i, *(int*)((UWord)obj+i),
+	 * 	 * 	          (UWord)tr_obj, i, *(int*)((UWord)tr_obj+i));
+	 * 	 * } *\/
+	 * 	kt_printf("Get it again %p[%d], %p\n", obj, HDR_klass, getClassOrAssociation(obj));
+	 * } */
+	/* if ((UWord)cls == NULL) {
+	 * 	printf("CLS = %p OBJ = %p\n", cls, obj);
+	 * } */
+	/* assume((UWord)cls < 0x08000000); */
 	callNoReset(getVirtualMethod(cls, iparm_g));
 }
 

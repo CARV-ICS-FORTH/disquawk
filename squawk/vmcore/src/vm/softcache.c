@@ -184,7 +184,7 @@ dir_clear()
 	int i;
 
 	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {
-		if (cacheDirectory_g[i].val < (UWord)cacheAllocTop_g) {
+		if (cacheDirectory_g[i].val && cacheDirectory_g[i].val < (UWord)cacheAllocTop_g) {
 			cacheDirectory_g[i].key = NULL;
 			cacheDirectory_g[i].val = NULL;
 		}
@@ -593,7 +593,7 @@ block_to_oop(Address obj, Address oop, int cid)
 		break;
 
 	case HDR_methodHeaderTag: /* Method */
-		/* printf("%p is a method!\n", oop); */
+		printf("%p is a method!\n", oop);
 		/* TODO: What's the size of a method? Did we bring the whole method? */
 		oop += ((*(int*)oop) >> HDR_headerTagBits) * HDR_BYTES_PER_WORD;
 
