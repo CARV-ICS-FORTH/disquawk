@@ -18,245 +18,73 @@ public class Worker implements Runnable {
 	}
 
 	public void run() {
-		int addr  = Address.fromObject(myint).toUWord().toPrimitive();
-		int addr2 = Address.fromObject(myint2).toUWord().toPrimitive();
+		// int addr  = Address.fromObject(myint).toUWord().toPrimitive();
+		// int addr2 = Address.fromObject(myint2).toUWord().toPrimitive();
 
 		// Greetings
-		System.out.println("Hello World I am cid=" +
-		                   NativeUnsafe.getCore() +
-		                   " bid=" +
-		                   NativeUnsafe.getIsland() +
-		                   " myint= " +
-		                   Integer.toHexString(addr) +
-		                   " myint2= " +
-		                   Integer.toHexString(addr2) );
+		// System.out.println("Hello World I am cid=" +
+		//                    NativeUnsafe.getCore() +
+		//                    " bid=" +
+		//                    NativeUnsafe.getIsland() +
+		//                    " myint= " +
+		//                    Integer.toHexString(addr) +
+		//                    " myint2= " +
+		//                    Integer.toHexString(addr2) );
 
 
-		int current = myint.get();
-		long start, end;
+		// int current = myint.get();
+		// long start, end;
 
 
-		for (int i=0; i< 10; ++i) {
-			myint.compareAndSet(current, current+1);
-		}
+		// for (int i=0; i< 10; ++i) {
+		// 	myint.getAndIncrement();
+		// }
 
-		// Start timer
-		start = System.currentTimeMillis();
+		// // Start timer
+		// start = System.currentTimeMillis();
 
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
-		myint.compareAndSet(current, current+1);
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
+		// myint.getAndIncrement();
 
-		end = System.currentTimeMillis();
+		// end = System.currentTimeMillis();
 
-		System.out.println("Maxi took me " + (end-start)/100 + " ms " +
-		                   NativeUnsafe.getIsland() + ":" + NativeUnsafe.getCore());
+		// System.out.println("Maxi took me " + (end-start)/10 + " ms " +
+		//                    NativeUnsafe.getIsland() + ":" + NativeUnsafe.getCore());
+		// System.out.println("Maxi = " + myint.get() + " " +
+		//                    NativeUnsafe.getIsland() + ":" + NativeUnsafe.getCore());
 
-		// Start timer
-		start = System.currentTimeMillis();
+		// for (int i=0; i< 10; ++i) {
+		// 	myint2.getAndIncrement();
+		// }
 
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
-		myint2.compareAndSet(current, current+1);
+		// // Start timer
+		// start = System.currentTimeMillis();
 
-		end = System.currentTimeMillis();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
+		myint2.getAndIncrement();
 
-		System.out.println("Mini took me " + (end-start)/100 + " ms " +
-		                   NativeUnsafe.getIsland() + ":" + NativeUnsafe.getCore());
+		// end = System.currentTimeMillis();
+
+		// System.out.println("Mini took me " + (end-start)/10 + " ms " +
+		//                    NativeUnsafe.getIsland() + ":" + NativeUnsafe.getCore());
+		// System.out.println("Mini = " + myint2.get() + " " +
+		//                    NativeUnsafe.getIsland() + ":" + NativeUnsafe.getCore());
 
 		// if (myint.compareAndSet(current, current+1))
 
@@ -283,6 +111,7 @@ public class Worker implements Runnable {
 		// 	                   Integer.toHexString(addr2) );
 
 
+		while(true);
 	}
 
 }
