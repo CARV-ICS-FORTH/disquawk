@@ -43,8 +43,7 @@ public class Main {
 
 		System.out.println("It took me " + (end-start) + " ms");
 		System.out.println("myint2 = " + task.myint2.get());
-		System.out.println(
-			"I am done (This should be printed after the Hello messages)");
+		System.out.println("I am done");
 
 		while(true) {
 			;
