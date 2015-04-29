@@ -424,10 +424,11 @@ q_enqueue(wait_queue_t *queue, unsigned int id)
 
 		/* The first waiter is going to be used and the last is directly
 		 * assigned to the free-list, so we start from 2 */
-		for (i=2;
+		for (i = 2;
 		     i < sizeof(monitor_t)/sizeof(waiter_t);
-		     i++, free++) {
-			free->next = waiter + i - 1;
+		     i++) {
+			free++;
+			free->next = free - 1;
 		}
 		mmgrWaiterFreeNodes_g = free;
 #endif /* if WAITER_REUSE */
@@ -528,8 +529,6 @@ q_dequeue(wait_queue_t *queue)
 static inline int
 q_peek(wait_queue_t *queue)
 {
-	int      ret;
-
 	if (!queue->head)
 		return -1;
 
