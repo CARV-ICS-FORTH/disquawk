@@ -363,7 +363,28 @@ ht_remove(Address object)
  * FIFO queue
  ******************************************************************************/
 
-/* TODO: Consider using a FIFO queue to service requests more fairly */
+/**
+ * q_dump
+ *
+ * @param queue The queue to dump
+ */
+static inline void
+q_dump(wait_queue_t *queue)
+{
+	waiter_t *curr;
+
+	curr = queue->head;
+
+	kt_printf("-------------------- DUMP %p QUEUE --------------------\n",
+	          queue);
+	while (curr != NULL) {
+		kt_printf("curr id %d:%d (%d)\n",
+		          curr->id >> 3, curr->id & 7, curr->id);
+		curr = curr->next;
+	}
+	kt_printf("-------------------- DUMP %p END   --------------------\n",
+	          queue);
+}
 
 /**
  * q_enqueue
@@ -376,53 +397,70 @@ static inline void
 q_enqueue(wait_queue_t *queue, unsigned int id)
 {
 	waiter_t *waiter;
+#if WAITER_REUSE
+	int i;
+	waiter_t *free;
+#endif /* if WAITER_REUSE */
 
 	ar_assert(queue);
 
-#if WAITER_REUSE
-
-	/* HACK: Since a waiters queue node's size is 1/4 of the size of a
-	 * monitor, we use the same allocation granularity and pack 4
-	 * waiters in a single monitor */
-
 	/* If there are available nodes in the free list use them */
-	if (likely(mmgrWaiterFreeNodes_g)) {
+	if (likely(mmgrWaiterFreeNodes_g != NULL)) {
 		waiter                = mmgrWaiterFreeNodes_g;
 		mmgrWaiterFreeNodes_g = mmgrWaiterFreeNodes_g->next;
 	}
 	/* Otherwise allocate some space */
 	else {
-		waiter                = (waiter_t*)monitor_alloc();
-		/* Add the 2nd, 3rd and 4th waiters in the free list */
-		(waiter + 1)->next    = mmgrWaiterFreeNodes_g;
-		(waiter + 2)->next    = (waiter + 1);
-		(waiter + 3)->next    = (waiter + 2);
-		mmgrWaiterFreeNodes_g = (waiter + 3);
-	}
+		waiter = (waiter_t*)monitor_alloc();
 
-#else /* if WAITER_REUSE */
-	waiter = (waiter_t*)monitor_alloc();
+#ifdef WAITER_REUSE
+		/* HACK: Since a waiters queue node's size is 1/4 of the size of a
+		 * monitor, we use the same allocation granularity and pack 4
+		 * waiters in a single monitor */
+		ar_assert(sizeof(monitor_t)/sizeof(waiter_t) >= 2);
+
+		free = waiter+1;
+		free->next = mmgrWaiterFreeNodes_g;
+
+		/* The first waiter is going to be used and the last is directly
+		 * assigned to the free-list, so we start from 2 */
+		for (i=2;
+		     i < sizeof(monitor_t)/sizeof(waiter_t);
+		     i++, free++) {
+			free->next = waiter + i - 1;
+		}
+		mmgrWaiterFreeNodes_g = free;
 #endif /* if WAITER_REUSE */
+	}
 
 	waiter->id   = id;
 	waiter->next = NULL;
 
-	if (!queue->head)
+	/* Append to the end of the list */
+	if (likely(queue->tail == NULL)) {
+		ar_assert(queue->head == NULL);
 		queue->head = waiter;
+		queue->tail = waiter;
+	} else {
+		ar_assert(queue->head != NULL);
+		queue->tail->next = waiter;
+		queue->tail = waiter;
+	}
 
-	queue->tail = waiter;
+	/* kt_printf("Enqueue\n");
+	 * q_dump(queue); */
 }
 
 /**
  * q_remove
  *
- * @param queue The queue from which to remove an element
- * @return The queue without the top element
+ * @param queue The queue from which to remove the element with id
+ * <code>id</code>
+ * @param id    The id to remove
  */
 static inline void
 q_remove(wait_queue_t *queue, int id)
 {
-	waiter_t *to_free;
 	waiter_t *prev;
 	waiter_t *curr;
 
@@ -430,16 +468,24 @@ q_remove(wait_queue_t *queue, int id)
 	prev = NULL;
 
 	while (curr != NULL) {
-		if (curr->id == id) {
-			to_free = curr;
+		if (curr->id == id) {   /* Found it */
 
-			if (prev == NULL) {
+			if (queue->tail == curr) { /* It's on the tail */
+				queue->tail = prev;
+			}
+
+			if (prev == NULL) { /* It's on the head */
 				queue->head = curr->next;
 			}
 
-			to_free->next         = mmgrWaiterFreeNodes_g;
-			mmgrWaiterFreeNodes_g = to_free;
+			curr->next            = mmgrWaiterFreeNodes_g;
+			mmgrWaiterFreeNodes_g = curr;
+
+			/* kt_printf("Remove\n");
+			 * q_dump(queue); */
+			return;
 		}
+		curr = curr->next;
 	}
 }
 
@@ -447,7 +493,7 @@ q_remove(wait_queue_t *queue, int id)
  * q_dequeue
  *
  * @param queue The queue from which to dequeue an element
- * @return The queue without the top element
+ * @return The id of the removed element or -1 if the queue is empty
  */
 static inline int
 q_dequeue(wait_queue_t *queue)
@@ -468,7 +514,26 @@ q_dequeue(wait_queue_t *queue)
 	to_free->next         = mmgrWaiterFreeNodes_g;
 	mmgrWaiterFreeNodes_g = to_free;
 
+	/* kt_printf("Dequeue\n");
+	 * q_dump(queue); */
 	return ret;
+}
+
+/**
+ * q_peek
+ *
+ * @param queue The queue from which to peek the top element
+ * @return The id of the peeked element or -1 if the queue is empty
+ */
+static inline int
+q_peek(wait_queue_t *queue)
+{
+	int      ret;
+
+	if (!queue->head)
+		return -1;
+
+	return queue->head->id;
 }
 
 /******************************************************************************
@@ -485,6 +550,7 @@ mmgrInitialize(mmgrGlobals *globals)
 {
 	*(unsigned int*)0x04400000 = 0;
 	mmgr_g                     = globals;
+	mmgrWaiterFreeNodes_g      = NULL;
 	mmgrMonitorFreeNodes_g     = NULL;
 #ifdef ARCH_MB
 	mmgrAllocTop_g             = (Address) mm_slice_base(sysGetCore());
@@ -1045,6 +1111,13 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 
 	monitor = mmgrGetMonitor(object);
 
+#ifdef VERY_VERBOSE
+	kt_printf(
+	    "I got a write%s lock request for %p from %d:%d the owner is %d:%d (%d)\n",
+	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
+		    monitor->owner & 7, monitor->owner);
+#endif /* ifdef VERY_VERBOSE */
+
 	/* If the monitor is available (neither read nor write acquired)
 	 * acquire it */
 	if (monitor->owner == -1) {
@@ -1052,7 +1125,7 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 		ar_assert(monitor->writers.head == NULL);
 		monitor->owner = (bid << 3) | cid;
 
-		/* Reply back with the owner */
+		/* Send ACK */
 		mmpSend2(bid, cid,
 		         (unsigned int)((monitor->owner << 16) | MMP_OPS_RW_WRITE_ACK),
 		         (unsigned int)object);
@@ -1062,14 +1135,16 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 		mmpSend2(bid, cid,
 		         (unsigned int)((monitor->owner << 16) | MMP_OPS_RW_WRITE_NACK),
 		         (unsigned int)object);
+
+		return;
 	}
 
-	/* Always add it to the queue */
+	/* If it was not a failed try lock we must add it to the queue */
 	q_enqueue(&monitor->writers, (bid << 3) | cid);
 
 #ifdef VERY_VERBOSE
 	kt_printf(
-	    "I got a write%s lock request for %p from %d:%d the owner is %d:%d\n",
+	    "I got the write%s lock request for %p from %d:%d the owner is %d:%d\n",
 	    istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
 	    monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
@@ -1152,7 +1227,7 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 			    monitor->pending.head == NULL || monitor->writers.head != NULL);
 
 			/* If there are pending writer lock requests serve the first one */
-			if ((id = q_dequeue(&monitor->writers)) != -1) {
+			if ((id = q_peek(&monitor->writers)) != -1) {
 				monitor->owner = id;
 				bid            = id >> 3;
 				cid            = id & 0x7;
@@ -1160,6 +1235,11 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 				mmpSend2(bid, cid,
 				         (unsigned int)((id << 16) | MMP_OPS_RW_WRITE_ACK),
 				         (unsigned int)object);
+#ifdef VERY_VERBOSE
+				kt_printf("%p is now owned by %d:%d (%d)\n",
+				          object, monitor->owner >> 3,
+				          monitor->owner & 7, monitor->owner);
+#endif /* ifdef VERY_VERBOSE */
 			}
 		}
 	}
@@ -1173,7 +1253,7 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 		q_dequeue(&monitor->writers);
 
 		/* If there are pending writer lock requests serve the first one */
-		if ((id = q_dequeue(&monitor->writers)) != -1) {
+		if ((id = q_peek(&monitor->writers)) != -1) {
 			monitor->owner = id;
 			/* And notify the owner */
 			bid            = id >> 3;
@@ -1181,11 +1261,20 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 			mmpSend2(bid, cid,
 			         (unsigned int)((id << 16) | MMP_OPS_RW_WRITE_ACK),
 			         (unsigned int)object);
+#ifdef VERY_VERBOSE
+			kt_printf("%p is now owned by %d:%d (%d)\n",
+			          object, monitor->owner >> 3,
+			          monitor->owner & 7, monitor->owner);
+#endif /* ifdef VERY_VERBOSE */
 		}
 		/* Else give the reader lock to the pending readers (if any) */
 		else {
 			monitor->owner = -1;
 
+#ifdef VERY_VERBOSE
+			kt_printf("No pending writers found giving %p to readers\n",
+			          object);
+#endif /* ifdef VERY_VERBOSE */
 			while ((id = q_dequeue(&monitor->pending)) != -1) {
 				bid = id >> 3;
 				cid = id & 0x7;
