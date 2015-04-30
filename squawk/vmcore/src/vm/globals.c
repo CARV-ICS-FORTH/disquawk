@@ -78,7 +78,7 @@ int initializeGlobals(Globals *globals) {
 #if TRACE
 	setTraceStart(TRACESTART);
 	setTraceEnd(TRACESTART);
-	traceLastThreadID_g = -2;
+	traceLastThreadID_g  = -2;
 	traceServiceThread_g = true;
 #endif /* TRACE */
 
@@ -91,6 +91,8 @@ int initializeGlobals(Globals *globals) {
 
 	sleepManagerRunning_g    = 1;
 	minimumDeepSleepMillis_g = 0x7FFFFFFFFFFFFFFFLL;
+
+	BufferCount_g = 0;
 
 	return 0;
 }

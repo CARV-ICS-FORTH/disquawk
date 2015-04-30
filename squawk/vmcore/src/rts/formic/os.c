@@ -71,7 +71,7 @@ void sysInvalidateCacheLine(void * address) {
  *
  * @param status The exit status
  */
-void exit(int status) {
+NORETURN void exit(int status) {
 	kt_printf("Board=%d Core=%d : Exited with %d\n",
 	          my_bid, my_cid, status);
 

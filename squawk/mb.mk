@@ -109,6 +109,8 @@ CFLAGS =\
 	-Wall \
 	-Wno-unused-function \
 	-Wno-attributes \
+	-Wno-overflow \
+	-Wno-strict-aliasing \
 	-I$(MYRMICS_SRC)/include \
 	-I$(RTS_SRC) \
 	-I$(VM_SRC) \

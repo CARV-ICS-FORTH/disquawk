@@ -95,7 +95,7 @@
 
 void sysFlushData(void * address, int size, int blocking);
 void sysInvalidateCacheLine(void * address);
-void exit(int status);
+NORETURN void exit(int status);
 
 //extern int __linker_end_bss;
 extern int __linker_squawk_suite_end;

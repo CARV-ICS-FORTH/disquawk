@@ -28,7 +28,7 @@
 #ifndef __SOFTCACHE_H__
 #define __SOFTCACHE_H__
 
-#include <address.h>
+#include <memory.h>
 #include <os.h>
 
 /**

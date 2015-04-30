@@ -1023,7 +1023,7 @@ object_size_and_type(Address oop, int *size_in_bytes)
 void
 sc_dump() {
 	int     i, j;
-	Address key, val;
+	UWord   key, val;
 
 	printf("-------------------- CACHE DUMP START --------------------\n");
 	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {

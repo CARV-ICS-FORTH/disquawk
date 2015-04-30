@@ -486,6 +486,13 @@ void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
 	int pageSize = sysGetPageSize();
 	int actualSize = (size + (pageSize - 1)) & ~(pageSize - 1);
 
+	/*
+	 * Register the buffer.
+	 */
+	if (BufferCount_g >= MAX_BUFFERS) {
+		fatalVMError("exceeded MAX_BUFFERS allocations");
+	}
+
 	buffer = sysValloc(actualSize);
 
 //fprintf(stderr, format("newBuffer: desc=%s, size=%A, actualSize=%O buffer=%A\n"), desc, size, actualSize, buffer);
@@ -511,12 +518,6 @@ void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
 	memset(buffer, 0, (int)size);
 #endif
 
-	/*
-	 * Register the buffer.
-	 */
-	if (BufferCount_g >= MAX_BUFFERS) {
-		fatalVMError("exceeded MAX_BUFFERS allocations");
-	}
 	Buffers_g[BufferCount_g++] = buffer;
 
 	return buffer;
@@ -530,7 +531,8 @@ void freeBuffer(Address buffer) {
 	int i = 0;
 	int insert = 0;
 
-	while (i != BufferCount_g) {
+	assume(BufferCount_g < MAX_BUFFERS);
+	while (i < BufferCount_g) {
 		if (Buffers_g[i] == buffer) {
 //fprintf(stderr, format("freeBuffer: buffer=%A\n"), buffer);
 			sysVallocFree(buffer);
@@ -2446,9 +2448,9 @@ int Squawk_main_wrapper(int argc, char *argv[]) {
      * Given that this function should never return this is OK.
      */
 	Globals userGlobals;
-	int i;
 
 	/* db_printf("Invoking squawk with:");
+	 * int i;
 	 * for(i=0; i<argc; ++i) {
 	 * 	db_printf(" %s", argv[i]);
 	 * }
