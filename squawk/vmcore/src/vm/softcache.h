@@ -39,6 +39,11 @@ typedef struct sc_object sc_object_st;
 #include <util.h>
 
 /**
+ * Enable statistics
+ */
+#define SC_STATS
+
+/**
  * Flags marking whether a flush/write-back/fetch should be blocking
  * (synchronous/inorder) or not (asynchronous/inteleaved).
  */
@@ -74,6 +79,7 @@ void        sc_mark_dirty(Address obj);
 void        sc_flush(int blocking);
 void        sc_clear();
 void        sc_dump();
+void        sc_stats();
 sc_object_st* sc_put(Address obj, int cid);
 
 /**

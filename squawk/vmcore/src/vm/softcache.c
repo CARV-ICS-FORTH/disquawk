@@ -42,7 +42,8 @@
 
 #ifdef ASSUME
 void zeroWords(UWordAddress start, UWordAddress end);
-#endif
+
+#endif /* ifdef ASSUME */
 
 /******************************************************************************\
 |*                                                                            *|
@@ -178,34 +179,7 @@ dir_insert(UWord key, UWord val)
 /**
  * Clears all records except the read-only ones
  */
-static inline void
-dir_clear()
-{
-	int i;
-
-	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {
-		if (cacheDirectory_g[i].val && cacheDirectory_g[i].val < (UWord)cacheAllocTop_g) {
-			cacheDirectory_g[i].key = NULL;
-			cacheDirectory_g[i].val = NULL;
-		}
-	}
-}
-
-/**
- * Clears the read-only records
- */
-static inline void
-dir_ro_clear()
-{
-	int i;
-
-	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {
-		if (cacheDirectory_g[i].val >= (UWord)cacheROAllocTop_g) {
-			cacheDirectory_g[i].key = NULL;
-			cacheDirectory_g[i].val = NULL;
-		}
-	}
-}
+#define dir_clear() memset(cacheDirectory_g, 0, SC_DIRECTORY_SIZE)
 
 /******************************************************************************\
 |*                                                                            *|
@@ -231,25 +205,20 @@ sc_initialize()
 	cacheEnd_g = (Address)roundDown((UWord)cacheStart_g + SC_CACHE_SIZE,
 	                                sysGetCachelineSize());
 	/* Size of the software cache in bytes. */
-	cacheSize_g        = cacheEnd_g - cacheStart_g;
+	cacheSize_g      = cacheEnd_g - cacheStart_g;
 	/* The next allocation address. */
-	cacheAllocTop_g    = cacheStart_g;
+	cacheAllocTop_g  = cacheStart_g;
 	/* Temp pointer to the last allocated cache-line if it was not used. */
-	cacheAllocTemp_g   = NULL;
-	/* The allocation address for read-only Objects. */
-	cacheROAllocTop_g  = cacheEnd_g;
-	/* The allocation threshold/limit address for read-only Objects. */
-	cacheROThreshold_g = (Address)roundUp(
-	    (UWord)(cacheEnd_g - (cacheSize_g / 2)), sysGetCachelineSize());
+	cacheAllocTemp_g = NULL;
 	/* Counter for the number of flushes due to full cache. */
-	cacheFlushes_g = 0;
+	cacheFlushes_g   = 0;
 	/* Counts how many times the cache was cleared. */
-	cacheClears_g  = 0;
+	cacheClears_g    = 0;
 	/* Counter for the number of cached objects. */
-	cacheObjects_g = 0;
+	cacheObjects_g   = 0;
 
 	/* Make sure the cache is empty */
-	memset(cacheDirectory_g, 0, SC_DIRECTORY_SIZE);
+	dir_clear();
 #if 0
 	fprintf(stderr, "+------------------ SOFTWARE-CACHE -------------------\n");
 	printRange("| Directory", cacheDirectory_g,
@@ -271,7 +240,7 @@ static inline Address
 alloc(int size)
 {
 	Address ret       = cacheAllocTop_g;
-	Offset  available = Address_diff(cacheROAllocTop_g, ret);
+	Offset  available = Address_diff(cacheEnd_g, ret);
 
 	assume(size >= 0 && size <= cacheSize_g);
 
@@ -292,50 +261,6 @@ alloc(int size)
 	/* zero the memory */
 	zeroWords(ret, cacheAllocTop_g);
 #endif /* ifdef ASSUME */
-	cacheObjects_g++;
-
-	return (Address)ret;
-}
-
-/**
- * Allocate a chunk of memory from the software cache for a read-only
- * object
- *
- * @return a pointer to the allocated memory or NULL if the allocation failed
- */
-static inline Address
-ro_alloc()
-{
-	Address ret = Address_sub(cacheROAllocTop_g, SC_KLASS_SIZE);
-	Offset  available;
-
-	/* if there are RW cache objects in the "RO section" of the cache */
-	if (unlikely(lt(cacheROThreshold_g, cacheAllocTop_g))) {
-		/* diff with cacheAllocTop_g */
-		available = Address_diff(cacheROAllocTop_g, cacheAllocTop_g);
-	}
-	else {
-		/*
-		 * else diff with cacheROThreshold_g to avoid using "precious"
-		 * memory for RO objects
-		 */
-		available = Address_diff(cacheROAllocTop_g, cacheROThreshold_g);
-	}
-
-	/*
-	 * If there is not enough space return NULL and let the caller
-	 * handle it
-	 */
-	if (unlikely(lt(available, SC_KLASS_SIZE))) {
-		return NULL;
-	}
-
-	cacheROAllocTop_g = ret;
-#ifdef ASSUME
-	/* zero the memory */
-	zeroWords(ret, cacheAllocTop_g);
-#endif /* ifdef ASSUME */
-	cacheObjects_g++;
 
 	return (Address)ret;
 }
@@ -351,22 +276,13 @@ sc_clear()
 	/* reset the allocation pointer */
 	cacheAllocTop_g = cacheStart_g;
 	/* flush and clear the hardware cache.
-	 * NOTE: Here we need to flash to make sure the software cache
+	 * NOTE: Here we need to flush to make sure the software cache
 	 * changes will persist. */
 	hwcache_flush_clear();
 	/* kt_printf("Clear CACHE\n"); */
-}
-
-/**
- * Clears all read-only records and frees the memory
- */
-static inline void
-ro_clear()
-{
-	/* remove the records from the directory */
-	dir_ro_clear();
-	/* reset the allocation pointer */
-	cacheROAllocTop_g = cacheEnd_g;
+#ifdef SC_STATS
+	cacheClears_g++;
+#endif /* ifdef SC_STATS */
 }
 
 /**
@@ -388,20 +304,12 @@ challoc(unsigned int size)
 	if (unlikely(ret == NULL)) { /* there is not enough space left */
 		/* Write back any dirty objects */
 		sc_flush(SC_BLOCKING);
-		cacheFlushes_g++;
 		/* clear the cache but keep the read-only objects */
 		sc_clear();
 		/* Try to allocate again */
 		ret = alloc(size);
 
-		if (unlikely(ret == NULL)) { /* there is still not enough space */
-			/* also clear the read-only cached objects */
-			ro_clear();
-			cacheClears_g++;
-			/* Try to allocate again */
-			ret = alloc(size);
-			assume(ret != NULL);
-		}
+		assume(ret != NULL);
 	}
 
 	return ret;
@@ -461,20 +369,20 @@ fetch(Address from, Address to, int size, int cid)
 	ar_cnt_set(sysGetCore(), cnt, -size);
 	/* Issue the DMA */
 /*	kt_printf("Issued DMA from %p of size %d\n", from, size); */
-	ar_dma_with_ack(sysGetCore(),         /* my core id */
-	                from_bid - 1,         /* source board id */
-	                0xC,                  /* source core id */
-	                (int)from,            /* source address */
-	                sysGetIsland(),       /* destination board id */
-	                sysGetCore(),         /* destination core id */
-	                (int)to,              /* destination address */
-	                sysGetIsland(),       /* ack board id */
-	                sysGetCore(),         /* ack core id */
-	                cnt,                  /* ack counter */
-	                size,                 /* data length */
-	                0,                    /* ignore dirty bit on source */
-	                0,                    /* force clean on dst */
-	                0);                   /* write through */
+	ar_dma_with_ack(sysGetCore(),   /* my core id */
+	                from_bid - 1,   /* source board id */
+	                0xC,            /* source core id */
+	                (int)from,      /* source address */
+	                sysGetIsland(), /* destination board id */
+	                sysGetCore(),   /* destination core id */
+	                (int)to,        /* destination address */
+	                sysGetIsland(), /* ack board id */
+	                sysGetCore(),   /* ack core id */
+	                cnt,            /* ack counter */
+	                size,           /* data length */
+	                0,              /* ignore dirty bit on source */
+	                0,              /* force clean on dst */
+	                0);             /* write through */
 
 /*	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, sysGetIsland(), to);
 **/
@@ -798,9 +706,9 @@ write_back(Address from, Address to, int size)
 	/* kt_printf("Write-back %3d %p to %p size = %d\n", cnt, from, to, size); */
 	/* int i;
 	 * for (i=0; i<size; i+=4) {
-	 * 	kt_printf("\t %p\t=%p --> %p\t=%p\n",
-	 * 	          (UWord)from+i, *(int*)((UWord)from+i),
-	 * 	          (UWord)to+i, *(int*)((UWord)to+i));
+	 *  kt_printf("\t %p\t=%p --> %p\t=%p\n",
+	 *            (UWord)from+i, *(int*)((UWord)from+i),
+	 *            (UWord)to+i, *(int*)((UWord)to+i));
 	 * } */
 	/* sc_dump(); */
 
@@ -844,9 +752,9 @@ write_back(Address from, Address to, int size)
 	                cnt,            /* ack counter */
 	                size,           /* data length */
 	                0,              /* Do not ignore dirty bit on
-	                                   source on write-backs, this
-	                                   might result in losing writes
-	                                   to the software cache */
+	                                 *  source on write-backs, this
+	                                 *  might result in losing writes
+	                                 *  to the software cache */
 	                0,              /* force clean on dst */
 	                1);             /*
 	                                 * write through (doesn't really matter
@@ -855,7 +763,7 @@ write_back(Address from, Address to, int size)
 	                                 */
 
 	/* while (ar_cnt_get(sysGetCore(), cnt) != 0) {
-	 * 	;
+	 *  ;
 	 * } */
 
 	/* sc_dump(); */
@@ -954,6 +862,9 @@ sc_flush(int blocking)
 
 	/* Flush the hardware cache as well */
 	hwcache_flush();
+#ifdef SC_STATS
+	cacheFlushes_g++;
+#endif /* ifdef SC_STATS */
 }                  /* sc_flush */
 
 /**
@@ -1021,24 +932,87 @@ object_size_and_type(Address oop, int *size_in_bytes)
  * Dumps the contents of the cache
  */
 void
-sc_dump() {
-	int     i, j;
-	UWord   key, val;
+sc_dump()
+{
+	int   i, j;
+	UWord key, val;
 
 	printf("-------------------- CACHE DUMP START --------------------\n");
+
 	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {
-		if (cacheDirectory_g[i].val && cacheDirectory_g[i].val < (UWord)cacheAllocTop_g) {
+		if (cacheDirectory_g[i].val && cacheDirectory_g[i].val <
+		    (UWord)cacheAllocTop_g) {
 			key = cacheDirectory_g[i].key & SC_ADDRESS_MASK;
 			val = cacheDirectory_g[i].val & SC_ADDRESS_MASK;
-			printf("%p cached @ %p\n",
-			       key,
-			       val);
-			for (j=0; j<12; j+=4, key+=4, val+=4) {
-				printf("\t %p = %p |? (%p = %p) \n",
-				       val, *(int*)val,
-				       key, *(int*)key);
+			printf("%p cached @ %p\n", key, val);
+
+			for (j = 0; j < 12; j += 4, key += 4, val += 4) {
+				printf("\t %p = %p |? (%p = %p) \n", val, *(int*)val, key,
+				       *(int*)key);
 			}
 		}
 	}
+
 	printf("--------------------  CACHE DUMP END  --------------------\n");
 }
+
+/**
+ * Dumps the statistics of the cache
+ */
+void
+sc_stats()
+{
+#ifdef SC_STATS
+	int start, end;
+
+	if (sysGetCore() != 0 || sysGetIsland() != 0)
+		return;
+
+	printf("-------------------- CACHE DUMP STATS --------------------\n");
+
+	/* Counter for the number of flushes due to full cache. */
+	printf(" Flushes: %10u\n", cacheFlushes_g);
+	/* Counts how many times the cache was cleared. */
+	printf(" Clears:  %10u\n", cacheClears_g);
+	/* Counter for the number of cached objects. */
+	printf(" Cached:  %10u\n", cacheObjects_g);
+
+	start = sysGetTicks();
+	sc_flush(1);
+	sc_flush(1);
+	sc_flush(1);
+	sc_flush(1);
+	sc_flush(1);
+	end = sysGetTicks();
+	printf(" SW Flush takes:      %10u cc\n", (end - start) / 5);
+
+	start = sysGetTicks();
+	sc_clear();
+	sc_clear();
+	sc_clear();
+	sc_clear();
+	sc_clear();
+	end = sysGetTicks();
+	printf(" SW Clear takes:      %10u cc\n", (end - start) / 5);
+
+	start = sysGetTicks();
+	hwcache_flush();
+	hwcache_flush();
+	hwcache_flush();
+	hwcache_flush();
+	hwcache_flush();
+	end = sysGetTicks();
+	printf(" HW Flush takes:      %10u cc\n", (end - start) / 5);
+
+	start = sysGetTicks();
+	hwcache_flush_clear();
+	hwcache_flush_clear();
+	hwcache_flush_clear();
+	hwcache_flush_clear();
+	hwcache_flush_clear();
+	end = sysGetTicks();
+	printf(" HW FlushClear takes: %10u cc\n", (end - start) / 5);
+
+	printf("----------------------------------------------------------\n");
+#endif /* ifdef SC_STATS */
+}                  /* sc_stats */
