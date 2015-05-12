@@ -186,9 +186,19 @@ mmpCheckMailbox(Address type)
 		mmgrMonitorEnterHandler(bid, cid, object);
 		break;
 	case MMP_OPS_MNTR_WAITER_ADD:
+		/* this is a two-words message */
+		object = (Address)ar_mbox_get(sysGetCore());
+		/* kt_printf("0x%02X/%d wants to enter monitor (%p)\n",
+		 *           from_bid, from_cid, object); */
+		assume(object != NULL);
 		mmgrAddWaiterHandler(bid, cid, object);
 		break;
 	case MMP_OPS_MNTR_WAITER_REMOVE:
+		/* this is a two-words message */
+		object = (Address)ar_mbox_get(sysGetCore());
+		/* kt_printf("0x%02X/%d wants to enter monitor (%p)\n",
+		 *           from_bid, from_cid, object); */
+		assume(object != NULL);
 		mmgrRemoveWaiterHandler(bid, cid, object);
 		break;
 	case MMP_OPS_MNTR_NOTIFY_ALL:
