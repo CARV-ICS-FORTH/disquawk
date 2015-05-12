@@ -125,9 +125,14 @@ INLINE void* sysValloc(size_t size) {
 /**
  * Return the current time in microseconds.
  */
+#define sysGetTicks() ar_free_timer_get_cycles()
+
+/**
+ * Return the current time in microseconds.
+ */
 INLINE jlong sysTimeMicros() {
 	// get the cycles, each cycle is 100ns
-	jlong res = (jlong)ar_free_timer_get_cycles();
+	jlong res = (jlong)sysGetTicks();
 	res = res / 10;
 	return res;
 }
@@ -136,8 +141,8 @@ INLINE jlong sysTimeMicros() {
  * @return the current time in milliseconds.
  */
 INLINE jlong sysTimeMillis(void) {
-	jlong res = sysTimeMicros();
-	res = res / 1000;
+	jlong res = (jlong)sysGetTicks();
+	res = res / 10000;
 	return res;
 }
 
