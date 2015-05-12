@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-15, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -34,7 +38,7 @@
  */
 
 package java.util.concurrent.atomic;
-import com.sun.squawk.Unsafe;
+import com.sun.squawk.*;
 
 /**
  * An {@code int} value that may be updated atomically.  See the
@@ -48,11 +52,11 @@ import com.sun.squawk.Unsafe;
  *
  * @since 1.5
  * @author Doug Lea
+ * @author Foivos S. Zakkak
 */
-public class AtomicInteger extends Number implements java.io.Serializable {
+public class AtomicInteger extends Number {
     private int value;
-
-    private static final long serialVersionUID = 6214790243416807050L;
+    private RWlock lock;
 
     /**
      * Creates a new AtomicInteger with the given initial value.
@@ -60,15 +64,16 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @param initialValue the initial value
      */
     public AtomicInteger(int initialValue) {
-	    // FIXME: Replace with asynchronous remote set
+        lock = new RWlock();
         value = initialValue;
+        // TODO write-back after constructor
     }
 
     /**
      * Creates a new AtomicInteger with initial value {@code 0}.
      */
     public AtomicInteger() {
-	    // FIXME: Replace with asynchronous remote set
+        lock = new RWlock();
     }
 
     /**
@@ -77,8 +82,11 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the current value
      */
     public final int get() {
-	    // FIXME: Replace with asynchronous remote get
-        return value;
+        int ret;
+        lock.readLock();
+        ret = value;
+        lock.readUnlock();
+        return ret;
     }
 
     /**
@@ -87,8 +95,9 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @param newValue the new value
      */
     public final void set(int newValue) {
-	    // FIXME: Replace with asynchronous remote set
+        lock.writeLock();
         value = newValue;
+        lock.writeUnlock();
     }
 
     // /**
@@ -108,11 +117,14 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the previous value
      */
     public final int getAndSet(int newValue) {
-        for (;;) {
-            int current = get();
-            if (compareAndSet(current, newValue))
-                return current;
-        }
+        int current;
+
+        lock.writeLock();
+        current = value;
+        value   = newValue;
+        lock.writeUnlock();
+
+        return current;
     }
 
     /**
@@ -125,7 +137,17 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * the actual value was not equal to the expected value.
      */
     public final boolean compareAndSet(int expect, int update) {
-        return Unsafe.compareAndSwapInt(this.value, expect, update);
+        lock.writeLock();
+        // TODO: Optimize by getting a read lock first and only
+        // update to write if needed
+        if (value != expect) {
+            lock.writeUnlock();
+            return false;
+        }
+
+        value = update;
+        lock.writeUnlock();
+        return true;
     }
 
     /**
@@ -141,7 +163,19 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return true if successful.
      */
     public final boolean weakCompareAndSet(int expect, int update) {
-        return Unsafe.compareAndSwapInt(this.value, expect, update);
+        if (lock.tryWriteLock()) {
+            // TODO: Optimize by getting a read lock first and only
+            // update to write if needed
+            if (value != expect) {
+                lock.writeUnlock();
+                return false;
+            }
+
+            value = update;
+            lock.writeUnlock();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -150,12 +184,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the previous value
      */
     public final int getAndIncrement() {
-        for (;;) {
-            int current = get();
-            int next = current + 1;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        return getAndAdd(1);
     }
 
     /**
@@ -164,12 +193,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the previous value
      */
     public final int getAndDecrement() {
-        for (;;) {
-            int current = get();
-            int next = current - 1;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        return getAndAdd(-1);
     }
 
     /**
@@ -179,12 +203,14 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the previous value
      */
     public final int getAndAdd(int delta) {
-        for (;;) {
-            int current = get();
-            int next = current + delta;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        int current;
+
+        lock.writeLock();
+        current = value;
+        value   = current + delta;
+        lock.writeUnlock();
+
+        return current;
     }
 
     /**
@@ -193,12 +219,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the updated value
      */
     public final int incrementAndGet() {
-        for (;;) {
-            int current = get();
-            int next = current + 1;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        return addAndGet(1);
     }
 
     /**
@@ -207,12 +228,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the updated value
      */
     public final int decrementAndGet() {
-        for (;;) {
-            int current = get();
-            int next = current - 1;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        return addAndGet(-1);
     }
 
     /**
@@ -222,12 +238,14 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @return the updated value
      */
     public final int addAndGet(int delta) {
-        for (;;) {
-            int current = get();
-            int next = current + delta;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        int next;
+
+        lock.writeLock();
+        next  = value + delta;
+        value = next;
+        lock.writeUnlock();
+
+        return next;
     }
 
     /**
