@@ -227,7 +227,55 @@ sc_initialize()
 	fprintf(stderr, "| CacheSize = %d\n", cacheSize_g);
 	fprintf(stderr, "+-----------------------------------------------------\n");
 #endif /* if 0 */
-}
+
+#if 1
+	int start, end;
+
+	if (sysGetCore() == 0 && sysGetIsland() == 0) {
+
+		printf("-------------------- CACHE DUMP STATS --------------------\n");
+
+		start = sysGetTicks();
+		sc_flush(1);
+		sc_flush(1);
+		sc_flush(1);
+		sc_flush(1);
+		sc_flush(1);
+		end = sysGetTicks();
+		printf(" SW Flush takes:      %10u cc\n", (end - start) / 5);
+
+		start = sysGetTicks();
+		sc_clear();
+		sc_clear();
+		sc_clear();
+		sc_clear();
+		sc_clear();
+		end = sysGetTicks();
+		printf(" SW Clear takes:      %10u cc\n", (end - start) / 5);
+
+		start = sysGetTicks();
+		hwcache_flush();
+		hwcache_flush();
+		hwcache_flush();
+		hwcache_flush();
+		hwcache_flush();
+		end = sysGetTicks();
+		printf(" HW Flush takes:      %10u cc\n", (end - start) / 5);
+
+		start = sysGetTicks();
+		hwcache_flush_clear();
+		hwcache_flush_clear();
+		hwcache_flush_clear();
+		hwcache_flush_clear();
+		hwcache_flush_clear();
+		end = sysGetTicks();
+		printf(" HW FlushClear takes: %10u cc\n", (end - start) / 5);
+
+		printf("----------------------------------------------------------\n");
+	}
+
+#endif /* if 1 */
+}                  /* sc_initialize */
 
 /**
  * Allocate a chunk of memory from the software cache
@@ -963,11 +1011,6 @@ void
 sc_stats()
 {
 #ifdef SC_STATS
-	int start, end;
-
-	if (sysGetCore() != 0 || sysGetIsland() != 0)
-		return;
-
 	printf("-------------------- CACHE DUMP STATS --------------------\n");
 
 	/* Counter for the number of flushes due to full cache. */
@@ -976,42 +1019,6 @@ sc_stats()
 	printf(" Clears:  %10u\n", cacheClears_g);
 	/* Counter for the number of cached objects. */
 	printf(" Cached:  %10u\n", cacheObjects_g);
-
-	start = sysGetTicks();
-	sc_flush(1);
-	sc_flush(1);
-	sc_flush(1);
-	sc_flush(1);
-	sc_flush(1);
-	end = sysGetTicks();
-	printf(" SW Flush takes:      %10u cc\n", (end - start) / 5);
-
-	start = sysGetTicks();
-	sc_clear();
-	sc_clear();
-	sc_clear();
-	sc_clear();
-	sc_clear();
-	end = sysGetTicks();
-	printf(" SW Clear takes:      %10u cc\n", (end - start) / 5);
-
-	start = sysGetTicks();
-	hwcache_flush();
-	hwcache_flush();
-	hwcache_flush();
-	hwcache_flush();
-	hwcache_flush();
-	end = sysGetTicks();
-	printf(" HW Flush takes:      %10u cc\n", (end - start) / 5);
-
-	start = sysGetTicks();
-	hwcache_flush_clear();
-	hwcache_flush_clear();
-	hwcache_flush_clear();
-	hwcache_flush_clear();
-	hwcache_flush_clear();
-	end = sysGetTicks();
-	printf(" HW FlushClear takes: %10u cc\n", (end - start) / 5);
 
 	printf("----------------------------------------------------------\n");
 #endif /* ifdef SC_STATS */
