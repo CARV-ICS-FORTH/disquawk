@@ -1,8 +1,7 @@
 package atomicint;
 
 import java.lang.Runnable;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicInteger2;
+import java.util.concurrent.atomic.*;
 import com.sun.squawk.*;
 
 // On C level it goes up to 60-70 kops/sec with a single server
@@ -10,11 +9,9 @@ import com.sun.squawk.*;
 public class Worker implements Runnable {
 
 	AtomicInteger   myint;
-	AtomicInteger2  myint2;
 
 	public Worker() {
 		myint  = new AtomicInteger();
-		myint2 = new AtomicInteger2();
 	}
 
 	public void run() {
@@ -68,16 +65,16 @@ public class Worker implements Runnable {
 		// // Start timer
 		// start = System.currentTimeMillis();
 
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
-		myint2.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
+		myint.getAndIncrement();
 
 		// end = System.currentTimeMillis();
 

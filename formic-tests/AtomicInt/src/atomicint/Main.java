@@ -13,11 +13,14 @@ public class Main {
 
 		Worker task = new Worker();
 		Thread t;
-		int    tasks = 63;
+		int    tasks = 10;
 		int    res;
 		long   start, end;
 
 		// Start timer
+		start = System.currentTimeMillis();
+		end = System.currentTimeMillis();
+		System.out.println("currentTimeMillis took me " + (end-start) + " ms");
 		start = System.currentTimeMillis();
 
 		for (int i = 0; i<tasks; i++) {
@@ -35,14 +38,14 @@ public class Main {
 		// t7.join();
 		// t8.join();
 
-		while((res = task.myint2.get()) != tasks*10) {
-			System.out.println("myint2 = " + res);
+		while((res = task.myint.get()) != tasks*10) {
+			System.out.println("myint = " + res);
 		}
 
 		end = System.currentTimeMillis();
 
 		System.out.println("It took me " + (end-start) + " ms");
-		System.out.println("myint2 = " + task.myint2.get());
+		System.out.println("myint = " + task.myint.get());
 		System.out.println("I am done");
 
 		while(true) {
