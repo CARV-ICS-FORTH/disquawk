@@ -228,7 +228,7 @@ sc_initialize()
 	fprintf(stderr, "+-----------------------------------------------------\n");
 #endif /* if 0 */
 
-#if 1
+#if 0
 	int start, end;
 
 	if (sysGetCore() == 0 && sysGetIsland() == 0) {
@@ -236,11 +236,11 @@ sc_initialize()
 		printf("-------------------- CACHE DUMP STATS --------------------\n");
 
 		start = sysGetTicks();
-		sc_flush(1);
-		sc_flush(1);
-		sc_flush(1);
-		sc_flush(1);
-		sc_flush(1);
+		sc_flush(SC_BLOCKING);
+		sc_flush(SC_BLOCKING);
+		sc_flush(SC_BLOCKING);
+		sc_flush(SC_BLOCKING);
+		sc_flush(SC_BLOCKING);
 		end = sysGetTicks();
 		printf(" SW Flush takes:      %10u cc\n", (end - start) / 5);
 
@@ -274,22 +274,24 @@ sc_initialize()
 		printf("----------------------------------------------------------\n");
 	}
 
-#endif /* if 1 */
+#endif /* if 0 */
 }                  /* sc_initialize */
 
 /**
  * Allocate a chunk of memory from the software cache
  *
  * @param   size        the length in bytes of the object and its header
- *                      (i.e. the total number of bytes to be allocated).
+ *                      (i.e. the total number of bytes to be allocated). If 0
+ *                      it will allocate one cache-line.
  * @return a pointer to the allocated memory or NULL if the allocation failed
  */
 static inline Address
-alloc(int size)
+challoc(int size)
 {
 	Address ret       = cacheAllocTop_g;
 	Offset  available = Address_diff(cacheEnd_g, ret);
 
+	size = size ? size : sysGetCachelineSize();
 	assume(size >= 0 && size <= cacheSize_g);
 
 #ifdef __MICROBLAZE__
@@ -298,20 +300,25 @@ alloc(int size)
 #endif /* ifdef __MICROBLAZE__ */
 
 	if (unlikely(lt(available, size))) {
-		/* If there is not enough space return NULL and let the caller */
+		/* If there is not enough space write back any dirty objects */
+		sc_flush(SC_BLOCKING);
+		/* and clear the cache */
+		sc_clear();
+		/* Try to allocate again */
+		ret = challoc(size);
 
-		/* handle it */
-		return NULL;
+		assume(ret != NULL);
+	}
+	else {
+		cacheAllocTop_g = Address_add(ret, size);
+#ifdef ASSUME
+		/* zero the memory */
+		zeroWords(ret, cacheAllocTop_g);
+#endif /* ifdef ASSUME */
 	}
 
-	cacheAllocTop_g = Address_add(ret, size);
-#ifdef ASSUME
-	/* zero the memory */
-	zeroWords(ret, cacheAllocTop_g);
-#endif /* ifdef ASSUME */
-
 	return (Address)ret;
-}
+}                  /* challoc */
 
 /**
  * Clears all non read-only records and frees the memory
@@ -331,36 +338,6 @@ sc_clear()
 #ifdef SC_STATS
 	cacheClears_g++;
 #endif /* ifdef SC_STATS */
-}
-
-/**
- * Allocate a chunk of memory from the software cache
- *
- * @param   size        the length in bytes of the object and its header
- *                      (i.e. the total number of bytes to be allocated). If 0
- *                      it will allocate one cache-line.
- * @return  a pointer to the allocated memory
- */
-static inline Address
-challoc(unsigned int size)
-{
-	Address ret;
-
-	size = size ? size : sysGetCachelineSize();
-	ret  = alloc(size);
-
-	if (unlikely(ret == NULL)) { /* there is not enough space left */
-		/* Write back any dirty objects */
-		sc_flush(SC_BLOCKING);
-		/* clear the cache but keep the read-only objects */
-		sc_clear();
-		/* Try to allocate again */
-		ret = alloc(size);
-
-		assume(ret != NULL);
-	}
-
-	return ret;
 }
 
 /**
@@ -417,20 +394,20 @@ fetch(Address from, Address to, int size, int cid)
 	ar_cnt_set(sysGetCore(), cnt, -size);
 	/* Issue the DMA */
 /*	kt_printf("Issued DMA from %p of size %d\n", from, size); */
-	ar_dma_with_ack(sysGetCore(),   /* my core id */
-	                from_bid - 1,   /* source board id */
-	                0xC,            /* source core id */
-	                (int)from,      /* source address */
-	                sysGetIsland(), /* destination board id */
-	                sysGetCore(),   /* destination core id */
-	                (int)to,        /* destination address */
-	                sysGetIsland(), /* ack board id */
-	                sysGetCore(),   /* ack core id */
-	                cnt,            /* ack counter */
-	                size,           /* data length */
-	                0,              /* ignore dirty bit on source */
-	                0,              /* force clean on dst */
-	                0);             /* write through */
+	ar_dma_with_ack(sysGetCore(),            /* my core id */
+	                from_bid - 1,            /* source board id */
+	                (cid == -1) ? 0xC : cid, /* source core id */
+	                (int)from,               /* source address */
+	                sysGetIsland(),          /* destination board id */
+	                sysGetCore(),            /* destination core id */
+	                (int)to,                 /* destination address */
+	                sysGetIsland(),          /* ack board id */
+	                sysGetCore(),            /* ack core id */
+	                cnt,                     /* ack counter */
+	                size,                    /* data length */
+	                0,                       /* ignore dirty bit on source */
+	                0,                       /* force clean on dst */
+	                0);                      /* write through */
 
 /*	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, sysGetIsland(), to);
 **/
@@ -496,14 +473,17 @@ fetch(Address from, Address to, int size, int cid)
 static inline Address
 block_to_oop(Address obj, Address oop, int cid)
 {
-	int size, length;
+	int     size, length;
+	Address classOrAssociation, klass;
 
 	switch ((*(int*)oop) & HDR_headerTagMask) {
 
 	case HDR_basicHeaderTag: /* Class Instance */
+		classOrAssociation = (Address) * (int*)oop;
+		klass              = com_sun_squawk_Klass_self(classOrAssociation);
 
 		/* Check if we brought the whole instance or not */
-		size = com_sun_squawk_Klass_instanceSizeBytes((Address) * (int*)oop);
+		size = com_sun_squawk_Klass_instanceSizeBytes(klass);
 		/* printf("Klass size = %d\n", size); */
 
 		/*
@@ -514,20 +494,23 @@ block_to_oop(Address obj, Address oop, int cid)
 			cacheAllocTemp_g = oop;
 			oop              = challoc(size);
 			/* Fetch data */
+			/* printf("Fetch again = %d (%p -- %p) Name=%s\n", size, (Address) *
+			 *        (int*)cacheAllocTemp_g, obj,
+			 *        com_sun_squawk_Klass_name(klass)); */
 			fetch(obj, oop, size, cid);
 		}
 
-		oop += 4;
+		oop += HDR_basicHeaderSize;
 		break;
 
 	case HDR_arrayHeaderTag: /* Array */
+		classOrAssociation = (Address) * (int*)(oop + 4);
+		klass              = com_sun_squawk_Klass_self(classOrAssociation);
 
 		/* Check if we brought the whole array or not */
 		length = (*(int*)oop) >> 2;
 		size   = length *
-		         getDataSize(com_sun_squawk_Klass_componentType((Address) *
-		                                                        (int*)(oop +
-		                                                               4)));
+		         getDataSize(com_sun_squawk_Klass_componentType(klass));
 		/* printf("Array [%d] size = %d\n", length, size); */
 
 		/*
@@ -545,7 +528,7 @@ block_to_oop(Address obj, Address oop, int cid)
 			fetch(obj, oop, size, cid);
 		}
 
-		oop += 8;
+		oop += HDR_arrayHeaderSize;
 		break;
 
 	case HDR_methodHeaderTag: /* Method */
@@ -599,7 +582,7 @@ sc_put(Address obj, int cid)
 		 * Allocate memory. We use the cache line size since we don't
 		 * know the object's size a priori
 		 */
-		ret = challoc(sysGetCachelineSize());
+		ret = challoc(0);
 	}
 
 	/* Fetch data */
@@ -630,7 +613,7 @@ sc_put(Address obj, int cid)
 	/* sc_dump(); */
 
 	return node;
-}
+}                  /* sc_put */
 
 /**
  * Looks up the cache to find the requested object. If it fails
@@ -693,7 +676,7 @@ sc_mark_dirty(Address obj)
 	int          hash2;
 	sc_object_st *ret = &cacheDirectory_g[hash];
 
-	printf("Marking %p\n", obj);
+	/* printf("Marking %p\n", obj); */
 
 	/* If the first cell is not empty and id doesn't match */
 	if ((((ret->key ^ key) >> 6) != 0) && (ret->key)) {
@@ -718,7 +701,7 @@ sc_mark_dirty(Address obj)
 	else
 		assume(0);
 
-	printf("Marked %p\n", obj);
+	/* printf("Marked %p\n", obj); */
 }
 
 /**
@@ -853,21 +836,28 @@ sc_flush(int blocking)
 			Address oop    =
 			    (Address)(cacheDirectory_g[i].key & SC_ADDRESS_MASK);
 			int     size, length;
+			Address classOrAssociation, klass;
 
 			switch ((*(int*)oop) & HDR_headerTagMask) {
 
 			case HDR_basicHeaderTag: /* Class Instance */
-				size = com_sun_squawk_Klass_instanceSizeBytes(
-				    (Address) * (int*)oop) + 4;
+				classOrAssociation = (Address) * (int*)oop;
+				klass              = com_sun_squawk_Klass_self(
+				    classOrAssociation);
+
+				size = com_sun_squawk_Klass_instanceSizeBytes(klass) +
+				       HDR_basicHeaderSize;
 				break;
 
 			case HDR_arrayHeaderTag: /* Array */
+				classOrAssociation = (Address) * (int*)(oop + 4);
+				klass              = com_sun_squawk_Klass_self(
+				    classOrAssociation);
 
 				/* Check if we brought the whole array or not */
 				length = (*(int*)oop) >> 2;
 				size   = length * getDataSize(com_sun_squawk_Klass_componentType(
-				                                  (Address) *
-				                                  (int*)(oop + 4))) + 8;
+				                                  klass)) + HDR_arrayHeaderSize;
 				break;
 			case HDR_methodHeaderTag: /* Method */
 				printf("%p is a method!\n", oop);
