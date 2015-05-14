@@ -56,13 +56,18 @@ void zeroWords(UWordAddress start, UWordAddress end);
  * cached object addresses
  */
 struct sc_object {
-	UWord key;     /**< The original/remote address of the object. Since
-	                * objects are cache line aligned we can use the LSB
-	                * as the dirty bit and the 1-5 bits to store the
-	                * acknowledgment counter for the object if there is
-	                * a pending DMA transfer for it */
-	UWord val;     /**< The local address of the cached object. Again we
-	                * can use the 6 LSBs for metadata */
+	UWord key;                 /**< The original/remote address of the
+	                            * object.  Since objects are cache
+	                            * line aligned we can use the LSB as
+	                            * the dirty bit and the 1-5 bits to
+	                            * store the acknowledgment counter for
+	                            * the object if there is a pending DMA
+	                            * transfer for it */
+	UWord val;                 /**< The local address of the cached
+	                            * object.  Again we can use the 6 LSBs
+	                            * for metadata */
+	sc_object_st *next_dirty;  /**< Pointer to the next dirty element */
+	sc_object_st *next_cached; /**< Pointer to the next cached object */
 };
 
 /**
@@ -173,13 +178,38 @@ dir_insert(UWord key, UWord val)
 		assume(i < SC_HASHTABLE_SIZE);
 	}
 
+	node->next_dirty  = NULL;
+	node->next_cached = cachedObjects_g;
+	cachedObjects_g   = node;
+
 	return node;
 }
 
 /**
- * Clears all records except the read-only ones
+ * Clears all records
  */
-#define dir_clear() memset(cacheDirectory_g, 0, SC_DIRECTORY_SIZE)
+static inline void
+dir_clear()
+{
+	sc_object_st *tmp;
+
+	while (tmp = cachedObjects_g) {
+
+#ifdef ASSUME
+
+		if (tmp->next_dirty)
+			printf("WARNING: clearing dirty entry\n");
+
+#endif /* ifdef ASSUME */
+		assume(tmp->next_dirty == NULL);
+		cachedObjects_g  = tmp->next_cached;
+		tmp->next_cached = NULL;
+		tmp->key         = NULL;
+		tmp->val         = NULL;
+	}
+
+	cacheDirty_g = NULL;
+}
 
 /******************************************************************************\
 |*                                                                            *|
@@ -216,9 +246,13 @@ sc_initialize()
 	cacheClears_g    = 0;
 	/* Counter for the number of cached objects. */
 	cacheObjects_g   = 0;
+	/* List of dirty entries */
+	cacheDirty_g     = NULL;
+	/* List of cached entries */
+	cachedObjects_g  = NULL;
 
 	/* Make sure the cache is empty */
-	dir_clear();
+	memset(cacheDirectory_g, 0, SC_DIRECTORY_SIZE);
 #if 0
 	fprintf(stderr, "+------------------ SOFTWARE-CACHE -------------------\n");
 	printRange("| Directory", cacheDirectory_g,
@@ -393,7 +427,8 @@ fetch(Address from, Address to, int size, int cid)
 	/* Init ACK counter to -size */
 	ar_cnt_set(sysGetCore(), cnt, -size);
 	/* Issue the DMA */
-/*	kt_printf("Issued DMA from %p of size %d\n", from, size); */
+	/* kt_printf("Issued DMA from %p (%d) of size %d\n", from,
+	 *           (cid == -1) ? 0xC : cid, size); */
 	ar_dma_with_ack(sysGetCore(),            /* my core id */
 	                from_bid - 1,            /* source board id */
 	                (cid == -1) ? 0xC : cid, /* source core id */
@@ -432,6 +467,9 @@ fetch(Address from, Address to, int size, int cid)
 
 	/* kt_printf("Fetched %3d %p from %p size = %d\n", cnt, to, from, size);
 	 * sc_dump(); */
+	/* kt_printf("Fetched klass = %p to = %p name = %s\n", *(int*)to, to,
+	 * com_sun_squawk_Klass_name(
+	 *               *(int*)to)); */
 
 	/* Mark the counter as available */
 	hwcnts_g[cnt] = HWCNT_FREE;
@@ -492,7 +530,7 @@ block_to_oop(Address obj, Address oop, int cid)
 		 */
 		if (unlikely(size > sysGetCachelineSize())) {
 			cacheAllocTemp_g = oop;
-			oop              = challoc(size);
+			oop              = challoc(size + HDR_basicHeaderSize);
 			/* Fetch data */
 			/* printf("Fetch again = %d (%p -- %p) Name=%s\n", size, (Address) *
 			 *        (int*)cacheAllocTemp_g, obj,
@@ -523,7 +561,7 @@ block_to_oop(Address obj, Address oop, int cid)
 			 * whole array if we don't need it)
 			 */
 			cacheAllocTemp_g = oop;
-			oop              = challoc(size);
+			oop              = challoc(size + HDR_arrayHeaderSize);
 			/* Fetch data */
 			fetch(obj, oop, size, cid);
 		}
@@ -643,12 +681,15 @@ sc_get(Address obj, int is_write)
 		ret = sc_put(obj, -1);
 	}
 
-	/* if (is_write) {
-	 *  printf("Marked %p\n", obj);
-	 * } */
+	/* If it is requested to be written and is not already marked as dirty */
+	if (is_write && !(ret->key & SC_DIRTY_MASK)) {
+		/* printf("Marked %p\n", obj); */
+		ret->key       |= is_write;
+		ret->next_dirty = cacheDirty_g;
+		cacheDirty_g    = ret;
+	}
 
-	ret->key |= is_write;
-	retval    = (Address)ret->val;
+	retval = (Address)ret->val;
 
 	/*
 	 * printf(" %p found at %p\n", obj, ret);
@@ -693,6 +734,8 @@ sc_mark_dirty(Address obj)
 			++i;
 		}
 	}
+
+	assume(0);
 
 	/* If we find it we mark it */
 	if ((i < SC_HASHTABLE_SIZE) && ret->key)
@@ -830,72 +873,69 @@ sc_flush(int blocking)
 	sc_wait_pending_wb();
 
 	/* Go through the dirty objects and issue write-back RDMAs */
-	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {
-		if (cacheDirectory_g[i].key & SC_DIRTY_MASK) {
-			UWord   cached = cacheDirectory_g[i].val & SC_ADDRESS_MASK;
-			Address oop    =
-			    (Address)(cacheDirectory_g[i].key & SC_ADDRESS_MASK);
-			int     size, length;
-			Address classOrAssociation, klass;
+	while (cacheDirty_g) {
+		assume(cacheDirty_g->key & SC_DIRTY_MASK);
+		UWord   cached = cacheDirty_g->val & SC_ADDRESS_MASK;
+		Address oop    = (Address)(cacheDirty_g->key & SC_ADDRESS_MASK);
+		int     size, length;
+		Address classOrAssociation, klass;
 
-			switch ((*(int*)oop) & HDR_headerTagMask) {
+		switch ((*(int*)oop) & HDR_headerTagMask) {
 
-			case HDR_basicHeaderTag: /* Class Instance */
-				classOrAssociation = (Address) * (int*)cached;
-				klass              = com_sun_squawk_Klass_self(
-				    classOrAssociation);
+		case HDR_basicHeaderTag: /* Class Instance */
+			classOrAssociation = (Address) * (int*)cached;
+			klass              = com_sun_squawk_Klass_self(classOrAssociation);
 
-				size = com_sun_squawk_Klass_instanceSizeBytes(klass) +
-				       HDR_basicHeaderSize;
+			size               = com_sun_squawk_Klass_instanceSizeBytes(klass) +
+			                     HDR_basicHeaderSize;
 
-				assume(size != HDR_basicHeaderSize);
-				/* printf("Size = %d HDR = %d name = %s\n", size,
-				 *        HDR_basicHeaderSize,
-				 *        com_sun_squawk_Klass_name(klass)); */
+			assume(size != HDR_basicHeaderSize);
+			/* printf("Size = %d HDR = %d name = %s\n", size,
+			 *        HDR_basicHeaderSize,
+			 *        com_sun_squawk_Klass_name(klass)); */
 
-				break;
+			break;
 
-			case HDR_arrayHeaderTag: /* Array */
-				classOrAssociation = (Address) * (int*)(cached + 4);
-				klass              = com_sun_squawk_Klass_self(
-				    classOrAssociation);
+		case HDR_arrayHeaderTag: /* Array */
+			classOrAssociation = (Address) * (int*)(cached + 4);
+			klass              = com_sun_squawk_Klass_self(classOrAssociation);
 
-				/* Check if we brought the whole array or not */
-				length = (*(int*)cached) >> 2;
-				size   = length * getDataSize(com_sun_squawk_Klass_componentType(
-				                                  klass)) + HDR_arrayHeaderSize;
-				break;
-			case HDR_methodHeaderTag: /* Method */
-				printf("%p is a method!\n", oop);
+			/* Check if we brought the whole array or not */
+			length = (*(int*)cached) >> 2;
+			size   = length *
+			         getDataSize(com_sun_squawk_Klass_componentType(klass)) +
+			         HDR_arrayHeaderSize;
+			break;
+		case HDR_methodHeaderTag: /* Method */
+			printf("%p is a method!\n", oop);
 
-				/*
-				 * HACK: crash on method header accesses, until we fully
-				 * understand their usage
-				 */
-				fatalVMError("Method header");
-				break;
-				break;
-			default:
-				fatalVMError("Wrong header tag");
-				break;
-			}
-
-			/* TODO: Make sure this size is correct */
-			assume(size > 0);
-
-			/* TODO: Write-back only dirty cache lines not the whole object */
-			cnt =
-			    write_back((Address)cached,
-			               (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE),
-			               size);
-
-			/* FIXME cnt might be larger than 32 */
-			assume(cnt < 32);
-			/* Remove dirty bit and add cnt */
-			/* TODO: Should dirty bit be removed after completion? */
-			cacheDirectory_g[i].key =
-			    (cacheDirectory_g[i].key & SC_ADDRESS_MASK) | (cnt << 1);
+			/*
+			 * HACK: crash on method header accesses, until we fully
+			 * understand their usage
+			 */
+			fatalVMError("Method header");
+			break;
+			break;
+		default:
+			fatalVMError("Wrong header tag");
+			break;
 		}
+
+		/* TODO: Make sure this size is correct */
+		assume(size > 0);
+
+		/* TODO: Write-back only dirty cache lines not the whole object */
+		cnt =
+		    write_back((Address)cached,
+		               (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE),
+		               size);
+
+		/* FIXME cnt might be larger than 32 */
+		assume(cnt < 32);
+		/* Remove dirty bit and add cnt */
+		/* TODO: Should dirty bit be removed after completion? */
+		cacheDirty_g->key = (cacheDirty_g->key & SC_ADDRESS_MASK) | (cnt << 1);
+		cacheDirty_g      = cacheDirty_g->next_dirty;
 	}
 
 	/* Check if we need to wait for completion */
