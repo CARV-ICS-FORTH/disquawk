@@ -832,7 +832,7 @@ sc_flush(int blocking)
 	/* Go through the dirty objects and issue write-back RDMAs */
 	for (i = 0; i < SC_HASHTABLE_SIZE; ++i) {
 		if (cacheDirectory_g[i].key & SC_DIRTY_MASK) {
-			Address cached = (Address)cacheDirectory_g[i].val;
+			UWord   cached = cacheDirectory_g[i].val & SC_ADDRESS_MASK;
 			Address oop    =
 			    (Address)(cacheDirectory_g[i].key & SC_ADDRESS_MASK);
 			int     size, length;
@@ -841,21 +841,27 @@ sc_flush(int blocking)
 			switch ((*(int*)oop) & HDR_headerTagMask) {
 
 			case HDR_basicHeaderTag: /* Class Instance */
-				classOrAssociation = (Address) * (int*)oop;
+				classOrAssociation = (Address) * (int*)cached;
 				klass              = com_sun_squawk_Klass_self(
 				    classOrAssociation);
 
 				size = com_sun_squawk_Klass_instanceSizeBytes(klass) +
 				       HDR_basicHeaderSize;
+
+				assume(size != HDR_basicHeaderSize);
+				/* printf("Size = %d HDR = %d name = %s\n", size,
+				 *        HDR_basicHeaderSize,
+				 *        com_sun_squawk_Klass_name(klass)); */
+
 				break;
 
 			case HDR_arrayHeaderTag: /* Array */
-				classOrAssociation = (Address) * (int*)(oop + 4);
+				classOrAssociation = (Address) * (int*)(cached + 4);
 				klass              = com_sun_squawk_Klass_self(
 				    classOrAssociation);
 
 				/* Check if we brought the whole array or not */
-				length = (*(int*)oop) >> 2;
+				length = (*(int*)cached) >> 2;
 				size   = length * getDataSize(com_sun_squawk_Klass_componentType(
 				                                  klass)) + HDR_arrayHeaderSize;
 				break;
@@ -879,7 +885,7 @@ sc_flush(int blocking)
 
 			/* TODO: Write-back only dirty cache lines not the whole object */
 			cnt =
-			    write_back((Address)((UWord)cached & SC_ADDRESS_MASK),
+			    write_back((Address)cached,
 			               (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE),
 			               size);
 
