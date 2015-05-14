@@ -1171,6 +1171,7 @@ void setInt(Address base, Offset offset, int value) {
     /* If it is cacheable, we do not care about garbage collecting it.
      * But we need to set its dirty bit in the cache */
 	if ( sc_is_cacheable(ea) ) {
+		assume(0 && "IT FINALLY GOT HERE"); /* FIXME Test to see if this is ever reached */
 		sc_mark_dirty(ea);
 	}
 
@@ -1763,6 +1764,9 @@ Address allocate(int size, Address klass, int arrayLength) {
 	if (arrayLength == -1) {
 		oop = Address_add(block, HDR_basicHeaderSize);
 		setObject(oop, HDR_klass, klass);
+		/* if(sysGetCore() == 0 && sysGetIsland() == 0)
+		 * 	printf("oop=%p klass=%p size=%d name=%s\n", oop, klass, size,
+		 * 	       com_sun_squawk_Klass_name(klass)); */
 	} else {
 		oop = Address_add(block, HDR_arrayHeaderSize);
 		setObject(oop, HDR_klass, klass);

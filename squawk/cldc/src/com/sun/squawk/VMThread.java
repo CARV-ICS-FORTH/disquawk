@@ -1750,6 +1750,7 @@ public final class VMThread implements GlobalStaticFields {
 				VM.print("Uncaught out of memory error on thread - aborting isolate ");
 				VM.printThread(this);
 				VM.println();
+				VM.printExceptionAndTrace(e, "Uncaught out of memory error on thread");
 				isolate.abort(999);
 				didAbort = true;
 			} catch (Throwable ex) {
