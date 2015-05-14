@@ -59,6 +59,7 @@ mmpSpawnThread(Address thread)
 	msg0 = (sysGetIsland() << 19) | (sysGetCore() << 16) | MMP_OPS_TH_SPAWN;
 
 	schdlrNext(&target_bid, &target_cid);
+	sc_flush(SC_BLOCKING);
 
 	mmpSend2(target_bid, target_cid, msg0, (unsigned int)thread);
 }
