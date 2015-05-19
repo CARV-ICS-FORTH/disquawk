@@ -1358,6 +1358,8 @@ if (!runningOnServiceThread_g &&                                                
 		fp_g = null;      /* The return FP should be zero */
 		ip_g = null;      /* The return IP should be zero */
 		sp_g = &ss_g[getArrayLength(ss_g)];
+		/* kt_printf("sc_flush\n"); */
+		sc_flush(SC_BLOCKING);  /* Write back the updated fields of the thread */
 		/* kt_printf("swi2 fp=%d ip=%d sp=%p\n", fp_g, ip_g, sp_g); */
 /*if[REVERSE_PARAMETERS]*/
 		call(com_sun_squawk_VM_callRun);

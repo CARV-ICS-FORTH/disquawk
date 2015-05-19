@@ -197,8 +197,11 @@ dir_clear()
 
 #ifdef ASSUME
 
-		if (tmp->next_dirty)
-			printf("WARNING: clearing dirty entry\n");
+		if (tmp->next_dirty) {
+			printf("WARNING: clearing dirty entry %p\n", tmp->next_dirty);
+			printf("WARNING: entry is %p->%p\n", tmp->next_dirty->key,
+			       tmp->next_dirty->val);
+		}
 
 #endif /* ifdef ASSUME */
 		assume(tmp->next_dirty == NULL);
@@ -735,16 +738,17 @@ sc_mark_dirty(Address obj)
 		}
 	}
 
-	assume(0);
+	/* printf("i=%d key=%p\n", i, ret->key); */
+	assume(i < SC_HASHTABLE_SIZE && ret->key);
 
-	/* If we find it we mark it */
-	if ((i < SC_HASHTABLE_SIZE) && ret->key)
-		ret->key |= 1;
-	/* Else something is wrong */
-	else
-		assume(0);
-
-	/* printf("Marked %p\n", obj); */
+	/* If we find it and it is not marked already, we mark it */
+	if (  /* (i < SC_HASHTABLE_SIZE) &&  */ !(ret->key & SC_DIRTY_MASK)) {
+		/* printf("Marked %p\n", obj); */
+		ret->key       |= 1;
+		assume(ret->next_dirty == NULL);
+		ret->next_dirty = cacheDirty_g;
+		cacheDirty_g    = ret;
+	}
 }
 
 /**
@@ -864,7 +868,8 @@ write_back(Address from, Address to, int size)
 void
 sc_flush(int blocking)
 {
-	int i, cnt;
+	int          i, cnt;
+	sc_object_st *tmp;
 
 	/*
 	 * Wait for pending write backs to complete in order to avoid
@@ -935,7 +940,9 @@ sc_flush(int blocking)
 		/* Remove dirty bit and add cnt */
 		/* TODO: Should dirty bit be removed after completion? */
 		cacheDirty_g->key = (cacheDirty_g->key & SC_ADDRESS_MASK) | (cnt << 1);
+		tmp               = cacheDirty_g;
 		cacheDirty_g      = cacheDirty_g->next_dirty;
+		tmp->next_dirty   = NULL;
 	}
 
 	/* Check if we need to wait for completion */

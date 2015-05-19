@@ -1170,9 +1170,9 @@ void setInt(Address base, Offset offset, int value) {
 
     /* If it is cacheable, we do not care about garbage collecting it.
      * But we need to set its dirty bit in the cache */
-	if ( sc_is_cacheable(ea) ) {
-		assume(0 && "IT FINALLY GOT HERE"); /* FIXME Test to see if this is ever reached */
-		sc_mark_dirty(ea);
+	if ( sc_is_cacheable($base) ) {
+		/* printf("%p-%p is dirty and cacheable\n", $base, ea); */
+		sc_mark_dirty($base);
 	}
 
 /*if[WRITE_BARRIER]*/

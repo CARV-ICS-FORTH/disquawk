@@ -1038,7 +1038,7 @@ mmgrWriteLock(Address object, int istry)
 	 /* Empty our software cache.  There is no need to for writing back any
 	  * dirty
 	  * data, since they should be the result of a data race */
-	 /* sc_flush(); */
+	 /* sc_flush(SC_BLOCKING); */
 	 sc_clear();
 	/* } */
 }

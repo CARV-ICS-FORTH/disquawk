@@ -103,6 +103,10 @@ typedef struct globalsStruct {
 	int               _cacheClears;
 	/** Counter for the number of cached objects. */
 	int               _cacheObjects;
+	/** List of dirty cached entries. */
+	sc_object_st     *_cacheDirty;
+	/** List of cached entries. */
+	sc_object_st     *_cachedObjects;
 #else
 #error Software caching is only supported on Formic microblazes
 #endif /* __MICROBLAZE__ */
@@ -368,6 +372,8 @@ extern __thread Globals kernelGlobals;    /* The kernel mode execution context *
 #define cacheFlushes_g                      defineGlobal(cacheFlushes)
 #define cacheClears_g                       defineGlobal(cacheClears)
 #define cacheObjects_g                      defineGlobal(cacheObjects)
+#define cacheDirty_g                        defineGlobal(cacheDirty)
+#define cachedObjects_g                     defineGlobal(cachedObjects)
 #else
 #error Software caching is only supported on Formic microblazes
 #endif /* __MICROBLAZE__ */

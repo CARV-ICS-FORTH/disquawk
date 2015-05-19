@@ -1969,7 +1969,7 @@ public final class VMThread implements GlobalStaticFields {
 // 			}
 		}
 
-//VM.println("scheduling thread " + thread);
+		// VM.println("scheduling thread " + thread);
 
 		/*
 		 * Set the next thread.
