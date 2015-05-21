@@ -21,7 +21,7 @@ extern void Squawk_main_wrapper(int fakeArgc, char** fakeArgv);
 void squawk_entry_point(void)
 {
   char          *fakeArgv[5];
-  int           fakeArgc, i;
+  int           fakeArgc;
 
   fakeArgv[0] = "dummy";
   fakeArgv[1] = "-spotsuite:FormicApp";

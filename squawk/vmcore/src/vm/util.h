@@ -30,7 +30,8 @@
 #ifndef VM_UTIL_H_
 #define VM_UTIL_H_
 
-#include "globals.h"
+#include <jni.h>
+#include <rom.h>
 
 /*---------------------------------------------------------------------------*\
  *                               Debugger                                    *
@@ -61,9 +62,9 @@ Address getInterpreterInvokedFrame(UWordAddress beginFP, UWordAddress endFP);
 void dumpSteppingInfo(Offset ipOffset, Offset fpOffset, Address stepInfo);
 #else
 #define set_sda_bp_set_or_stepping(_isolate_)
-/*if[!MACROIZE]*/
+#ifndef MACROIZE
 #define sda_bp_set_or_stepping FALSE
-/*end[MACROIZE]*/
+#endif  /* #ifndef MACROIZE */
 #endif /* SDA_DEBUGGER */
 
 #ifdef __GNUC__
@@ -110,13 +111,13 @@ NORETURN void fatalVMError(char *msg);
 /**
  * Exits the VM with an error message including various interpreter state.
  */
-/*if[MACROIZE]*/
+#ifdef MACROIZE
 #define fatalInterpreterError(_msg) \
     fatalInterpreterError0(_msg, opcode, iparm_g, ip_g, fp_g, sp_g, __FILE__, __LINE__)
-/*else[MACROIZE]*/
-//#define fatalInterpreterError(_msg) \
-//  fatalInterpreterError0(_msg,      0, iparm_g, ip_g, fp_g, sp_g, __FILE__, __LINE__)
-/*end[MACROIZE]*/
+#else  /* #ifdef MACROIZE */
+#define fatalInterpreterError(_msg) \
+  fatalInterpreterError0(_msg,      0, iparm_g, ip_g, fp_g, sp_g, __FILE__, __LINE__)
+#endif  /* #ifdef MACROIZE */
 
 void printJavaStrSafely(Address value, char* valueName);
 
@@ -249,12 +250,12 @@ INLINE int    i2c(int i)                   { return (char)i;                  }
 INLINE jlong  i2l(int i)                   { return (jlong)i;                 }
 INLINE int    l2i(jlong l)                 { return (int)l;                   }
 
-/*if[FLOATS]*/
+#ifdef FLOATS
 
 #include "fp/global.h"
-/*if[MICROBLAZE_BUILD]*/
+#ifdef FORMIC
 #include "fp/fdlibm.h"
-/*end[MICROBLAZE_BUILD]*/
+#endif  /* #ifdef FORMIC */
 
 #ifndef C_FP_CONVERSIONS_OK // default to safe unless told otherwise
 #define C_FP_CONVERSIONS_OK 0
@@ -335,6 +336,6 @@ int    d2f(jlong l);
 \*---------------------------------------------------------------------------*/
 
 jlong math(int op, jlong rs1_l, jlong rs2_l);
-/*end[FLOATS]*/
+#endif  /* #ifdef FLOATS */
 
 #endif /* VM_UTIL_H_ */

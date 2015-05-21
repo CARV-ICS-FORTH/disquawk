@@ -30,6 +30,7 @@
 #include <os.h>
 
 #include "util.h"
+#include "globals.h"
 #include "squawk.h"
 
 /*---------------------------------------------------------------------------*\

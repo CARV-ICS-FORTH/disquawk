@@ -65,6 +65,7 @@ NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/Native
 	-DARCH_MB \
 	-DFORMIC \
 	-DSQUAWK \
+	-DFLOATS \
 	-DSQUAWK_PREFER_SIZE_OVER_SPEED \
 	-O1 \
 	-O2 \
@@ -119,6 +120,7 @@ CFLAGS =\
 	-DARCH_MB \
 	-DFORMIC \
 	-DSQUAWK \
+	-DFLOATS \
 	-DPLATFORM_TYPE_BARE_METAL \
 	-DSQUAWK_64=false \
 	-DWRITE_BARRIER \

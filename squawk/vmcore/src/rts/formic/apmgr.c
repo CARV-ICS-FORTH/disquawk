@@ -95,8 +95,6 @@ apmgrSetHandler (int bid, int cid, Address object, unsigned int new)
 void
 apmgrGetHandler (int bid, int cid, Address object)
 {
-	unsigned int tmp, res;
-
 	/* Send back the reply */
 	mmpSend2(bid, cid,
 	         (unsigned int)MMP_OPS_AT_GET_R,

@@ -123,7 +123,7 @@ mmpCheckMailbox(Address type)
 		 * get refetched from the other board's main memory where it might
 		 * be outdated.
 		 */
-/*		kt_printf("Our new thread %p is in cache\n", object); */
+		/* kt_printf("Our new thread %p is in cache\n", object); */
 		result = object;
 		break;
 	/* Handle Monitor Manager replies */

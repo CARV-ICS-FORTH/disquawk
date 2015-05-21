@@ -2173,9 +2173,9 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	 * Prune stack chunks that have been marked as unused. Can be called in both partial and full collections.
 	 */
 	private void findUnusedStackChunks() throws NotInlinedPragma {
+/*if[DEBUG_CODE_ENABLED]*/
 		int keptCount = 0;
 		int prunedCount = 0;
-/*if[DEBUG_CODE_ENABLED]*/
 		if (tracing()) {
 			VM.println("Lisp2GenerationalCollector::findUnsedStackChunks --------------- Start");
 		}
@@ -2252,9 +2252,9 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	private void pruneStackChunks() throws NotInlinedPragma {
 		Assert.always(isFullCollection());
 
+/*if[DEBUG_CODE_ENABLED]*/
 		int keptCount = 0;
 		int prunedCount = 0;
-/*if[DEBUG_CODE_ENABLED]*/
 		if (tracing()) {
 			VM.println("Lisp2GenerationalCollector::pruneStackChunks --------------- Start");
 		}
