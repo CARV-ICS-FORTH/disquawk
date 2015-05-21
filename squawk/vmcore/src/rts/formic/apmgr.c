@@ -77,8 +77,6 @@ apmgrCASHandler (int bid, int cid, Address object,
 void
 apmgrSetHandler (int bid, int cid, Address object, unsigned int new)
 {
-	int tmp, res;
-
 	set_java_lang_Integer_value(object, new);
 
 	/* Send back the reply (ACK) */

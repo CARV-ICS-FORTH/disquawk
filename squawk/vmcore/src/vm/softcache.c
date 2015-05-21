@@ -186,30 +186,185 @@ dir_insert(UWord key, UWord val)
 }
 
 /**
+ * Write back a dirty Object
+ *
+ * @param from The object to write back
+ * @param to   The home address of the object
+ * @param size The size of the object
+ *
+ * @return The used counter for the ack
+ */
+static inline int
+write_back(Address from, Address to)
+{
+	int     cnt;
+	/* The object's home node board id */
+	int     to_bid;
+	int     size, length;
+	Address classOrAssociation, klass;
+
+	switch ((*(int*)to) & HDR_headerTagMask) {
+
+	case HDR_basicHeaderTag: /* Class Instance */
+		classOrAssociation = (Address) * (int*)from;
+		klass              = com_sun_squawk_Klass_self(classOrAssociation);
+
+		size               = com_sun_squawk_Klass_instanceSizeBytes(klass) +
+		                     HDR_basicHeaderSize;
+
+		assume(size != HDR_basicHeaderSize);
+		/* printf("Size = %d HDR = %d name = %s\n", size,
+		 *        HDR_basicHeaderSize,
+		 *        com_sun_squawk_Klass_name(klass)); */
+
+		break;
+
+	case HDR_arrayHeaderTag: /* Array */
+		classOrAssociation = (Address) * (int*)(from + 4);
+		klass              = com_sun_squawk_Klass_self(classOrAssociation);
+
+		/* Check if we brought the whole array or not */
+		length = (*(int*)from) >> 2;
+		size   = length *
+		         getDataSize(com_sun_squawk_Klass_componentType(klass)) +
+		         HDR_arrayHeaderSize;
+		break;
+	case HDR_methodHeaderTag: /* Method */
+		printf("%p is a method!\n", to);
+
+		/*
+		 * HACK: crash on method header accesses, until we fully
+		 * understand their usage
+		 */
+		fatalVMError("Method header");
+		break;
+		break;
+	default:
+		fatalVMError("Wrong header tag");
+		break;
+	}
+
+	/* Make sure we do not cache our own objects */
+	assume(sc_in_heap(to));
+	assume(sc_is_cacheable(to));
+
+	/*
+	 * make sure size <= 1MB, this is the upper limit for a DMA
+	 * transfer
+	 */
+	assume((size > 0) && (size <= 0x100000));
+
+	/* Find an available counter to use */
+	cnt = hwcnt_get_free(HWCNT_SC_WB);
+	assume(cnt >= 0);
+
+	/* kt_printf("Write-back %3d %p to %p size = %d\n", cnt, from, to, size); */
+	/* int i;
+	 * for (i=0; i<size; i+=4) {
+	 *  kt_printf("\t %p\t=%p --> %p\t=%p\n",
+	 *            (UWord)from+i, *(int*)((UWord)from+i),
+	 *            (UWord)to+i, *(int*)((UWord)to+i));
+	 * } */
+	/* sc_dump(); */
+
+	/*
+	 * DMAs are working on cache-line alignment and granularity
+	 * (64B). So we round up the size and mask the from address
+	 * accordingly to take the pure, cache-aligned address (offset) on
+	 * the remote node.
+	 */
+	size = roundUp(size, sysGetCachelineSize());
+	assume(!((UWord)from & ~SC_ADDRESS_MASK) &&
+	       !((UWord)to & ~SC_ADDRESS_MASK));
+
+	/*
+	 * Write-backs can be made from the HW cache or the DRAM.  In the
+	 * second case, they are directly passed to the local DRAM but
+	 * have to be pushed to the local DMA engine first.
+	 */
+
+	/* Wait until our DMA engine can support at least one more DMA */
+	while (!(ar_ni_status_get(sysGetCore()) & 0xFF)) {
+		;
+	}
+
+	/* Init counter to -size */
+	ar_cnt_set(sysGetCore(), cnt, -size);
+	/* Get the object's home node cid and bid */
+	sysHomeOfAddress(to, &to_bid, NULL);
+	/* to_bid can't be zero */
+	assume(to_bid);
+	/* Issue the DMA */
+	ar_dma_with_ack(sysGetCore(),   /* my core id */
+	                sysGetIsland(), /* source board id */
+	                sysGetCore(),   /* source core id */
+	                (int)from,      /* source address */
+	                to_bid - 1,     /* destination board id */
+	                0xC,            /* destination core id */
+	                (int)to,        /* destination address */
+	                sysGetIsland(), /* ack board id */
+	                sysGetCore(),   /* ack core id */
+	                cnt,            /* ack counter */
+	                size,           /* data length */
+	                0,              /* Do not ignore dirty bit on
+	                                 *  source on write-backs, this
+	                                 *  might result in losing writes
+	                                 *  to the software cache */
+	                0,              /* force clean on dst */
+	                1);             /*
+	                                 * write through (doesn't really matter
+	                                 * since we are writing directly on
+	                                 * DRAM)
+	                                 */
+
+	/* while (ar_cnt_get(sysGetCore(), cnt) != 0) {
+	 *  ;
+	 * } */
+
+	/* sc_dump(); */
+
+	return cnt;
+}                  /* write_back */
+
+/**
+ * Wait for all pending write backs to reach completion
+ */
+#define wait_pending_wb() hwcnt_wait_pending(HWCNT_SC_WB)
+
+/**
+ * Wait for all pending fetches to reach completion
+ */
+#define wait_pending_fe() hwcnt_wait_pending(HWCNT_SC_FETCH)
+
+/**
  * Clears all records
  */
 static inline void
 dir_clear()
 {
 	sc_object_st *tmp;
+	int          cnt;
+	UWord        cached;
 
 	while (tmp = cachedObjects_g) {
 
-#ifdef ASSUME
-
-		if (tmp->next_dirty) {
-			printf("WARNING: clearing dirty entry %p\n", tmp->next_dirty);
-			printf("WARNING: entry is %p->%p\n", tmp->next_dirty->key,
-			       tmp->next_dirty->val);
+		/* NOTE: need to write-back to be safe in case of nested monitor
+		 * acquisition */
+		if (tmp->key & SC_DIRTY_MASK) {
+			cached = tmp->val & SC_ADDRESS_MASK;
+			cnt    =
+			    write_back((Address)cached,
+			               (Address)(((UWord)tmp->key &
+			                          0x3FFFFC0) | MM_MB_HEAP_BASE));
 		}
 
-#endif /* ifdef ASSUME */
-		assume(tmp->next_dirty == NULL);
 		cachedObjects_g  = tmp->next_cached;
 		tmp->next_cached = NULL;
 		tmp->key         = NULL;
 		tmp->val         = NULL;
 	}
+
+	wait_pending_wb();
 
 	cacheDirty_g = NULL;
 }
@@ -363,6 +518,7 @@ challoc(int size)
 void
 sc_clear()
 {
+	/* printf("SC_CLEAR\n"); */
 	/* remove the records from the directory */
 	dir_clear();
 	/* reset the allocation pointer */
@@ -371,7 +527,6 @@ sc_clear()
 	 * NOTE: Here we need to flush to make sure the software cache
 	 * changes will persist. */
 	hwcache_flush_clear();
-	/* kt_printf("Clear CACHE\n"); */
 #ifdef SC_STATS
 	cacheClears_g++;
 #endif /* ifdef SC_STATS */
@@ -702,7 +857,7 @@ sc_get(Address obj, int is_write)
 	assume(lt(retval, cacheEnd_g));
 
 	return retval;
-}
+}                  /* sc_get */
 
 /**
  * Looks up the cache to find the requested object and marks it as
@@ -752,114 +907,6 @@ sc_mark_dirty(Address obj)
 }
 
 /**
- * Write back a dirty Object
- *
- * @param from The object to write back
- * @param to   The home address of the object
- * @param size The size of the object
- *
- * @return The used counter for the ack
- */
-static inline int
-write_back(Address from, Address to, int size)
-{
-	int cnt;
-	/* The object's home node board id */
-	int to_bid;
-
-	/* Make sure we do not cache our own objects */
-	assume(sc_in_heap(to));
-	assume(sc_is_cacheable(to));
-
-	/*
-	 * make sure size <= 1MB, this is the upper limit for a DMA
-	 * transfer
-	 */
-	assume((size > 0) && (size <= 0x100000));
-
-	/* Find an available counter to use */
-	cnt = hwcnt_get_free(HWCNT_SC_WB);
-	assume(cnt >= 0);
-
-	/* kt_printf("Write-back %3d %p to %p size = %d\n", cnt, from, to, size); */
-	/* int i;
-	 * for (i=0; i<size; i+=4) {
-	 *  kt_printf("\t %p\t=%p --> %p\t=%p\n",
-	 *            (UWord)from+i, *(int*)((UWord)from+i),
-	 *            (UWord)to+i, *(int*)((UWord)to+i));
-	 * } */
-	/* sc_dump(); */
-
-	/*
-	 * DMAs are working on cache-line alignment and granularity
-	 * (64B). So we round up the size and mask the from address
-	 * accordingly to take the pure, cache-aligned address (offset) on
-	 * the remote node.
-	 */
-	size = roundUp(size, sysGetCachelineSize());
-	assume(!((UWord)from & ~SC_ADDRESS_MASK) &&
-	       !((UWord)to & ~SC_ADDRESS_MASK));
-
-	/*
-	 * Write-backs can be made from the HW cache or the DRAM.  In the
-	 * second case, they are directly passed to the local DRAM but
-	 * have to be pushed to the local DMA engine first.
-	 */
-
-	/* Wait until our DMA engine can support at least one more DMA */
-	while (!(ar_ni_status_get(sysGetCore()) & 0xFF)) {
-		;
-	}
-
-	/* Init counter to -size */
-	ar_cnt_set(sysGetCore(), cnt, -size);
-	/* Get the object's home node cid and bid */
-	sysHomeOfAddress(to, &to_bid, NULL);
-	/* to_bid can't be zero */
-	assume(to_bid);
-	/* Issue the DMA */
-	ar_dma_with_ack(sysGetCore(),   /* my core id */
-	                sysGetIsland(), /* source board id */
-	                sysGetCore(),   /* source core id */
-	                (int)from,      /* source address */
-	                to_bid - 1,     /* destination board id */
-	                0xC,            /* destination core id */
-	                (int)to,        /* destination address */
-	                sysGetIsland(), /* ack board id */
-	                sysGetCore(),   /* ack core id */
-	                cnt,            /* ack counter */
-	                size,           /* data length */
-	                0,              /* Do not ignore dirty bit on
-	                                 *  source on write-backs, this
-	                                 *  might result in losing writes
-	                                 *  to the software cache */
-	                0,              /* force clean on dst */
-	                1);             /*
-	                                 * write through (doesn't really matter
-	                                 * since we are writing directly on
-	                                 * DRAM)
-	                                 */
-
-	/* while (ar_cnt_get(sysGetCore(), cnt) != 0) {
-	 *  ;
-	 * } */
-
-	/* sc_dump(); */
-
-	return cnt;
-}                  /* write_back */
-
-/**
- * Wait for all pending write backs to reach completion
- */
-#define sc_wait_pending_wb() hwcnt_wait_pending(HWCNT_SC_WB)
-
-/**
- * Wait for all pending fetches to reach completion
- */
-#define sc_wait_pending_fe() hwcnt_wait_pending(HWCNT_SC_FETCH)
-
-/**
  * Write-back any dirty objects in the software cache
  *
  * @param blocking Whether we should wait for the DMAs to reach completion or
@@ -868,72 +915,27 @@ write_back(Address from, Address to, int size)
 void
 sc_flush(int blocking)
 {
-	int          i, cnt;
+	int          cnt;
 	sc_object_st *tmp;
+
+	/* printf("SC_FLUSH\n"); */
 
 	/*
 	 * Wait for pending write backs to complete in order to avoid
 	 * double write backs
 	 */
-	sc_wait_pending_wb();
+	wait_pending_wb();
 
 	/* Go through the dirty objects and issue write-back RDMAs */
 	while (cacheDirty_g) {
 		assume(cacheDirty_g->key & SC_DIRTY_MASK);
 		UWord   cached = cacheDirty_g->val & SC_ADDRESS_MASK;
 		Address oop    = (Address)(cacheDirty_g->key & SC_ADDRESS_MASK);
-		int     size, length;
-		Address classOrAssociation, klass;
-
-		switch ((*(int*)oop) & HDR_headerTagMask) {
-
-		case HDR_basicHeaderTag: /* Class Instance */
-			classOrAssociation = (Address) * (int*)cached;
-			klass              = com_sun_squawk_Klass_self(classOrAssociation);
-
-			size               = com_sun_squawk_Klass_instanceSizeBytes(klass) +
-			                     HDR_basicHeaderSize;
-
-			assume(size != HDR_basicHeaderSize);
-			/* printf("Size = %d HDR = %d name = %s\n", size,
-			 *        HDR_basicHeaderSize,
-			 *        com_sun_squawk_Klass_name(klass)); */
-
-			break;
-
-		case HDR_arrayHeaderTag: /* Array */
-			classOrAssociation = (Address) * (int*)(cached + 4);
-			klass              = com_sun_squawk_Klass_self(classOrAssociation);
-
-			/* Check if we brought the whole array or not */
-			length = (*(int*)cached) >> 2;
-			size   = length *
-			         getDataSize(com_sun_squawk_Klass_componentType(klass)) +
-			         HDR_arrayHeaderSize;
-			break;
-		case HDR_methodHeaderTag: /* Method */
-			printf("%p is a method!\n", oop);
-
-			/*
-			 * HACK: crash on method header accesses, until we fully
-			 * understand their usage
-			 */
-			fatalVMError("Method header");
-			break;
-			break;
-		default:
-			fatalVMError("Wrong header tag");
-			break;
-		}
-
-		/* TODO: Make sure this size is correct */
-		assume(size > 0);
 
 		/* TODO: Write-back only dirty cache lines not the whole object */
 		cnt =
 		    write_back((Address)cached,
-		               (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE),
-		               size);
+		               (Address)(((UWord)oop & 0x3FFFFC0) | MM_MB_HEAP_BASE));
 
 		/* FIXME cnt might be larger than 32 */
 		assume(cnt < 32);
@@ -948,7 +950,7 @@ sc_flush(int blocking)
 	/* Check if we need to wait for completion */
 	if (likely(blocking)) {
 		/* wait for the RDMAs to reach completion */
-		sc_wait_pending_wb();
+		wait_pending_wb();
 	}
 
 	/* Flush the hardware cache as well */
