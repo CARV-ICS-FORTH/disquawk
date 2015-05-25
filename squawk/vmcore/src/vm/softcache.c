@@ -344,19 +344,17 @@ static inline void
 dir_clear()
 {
 	sc_object_st *tmp;
-	int          cnt;
 	UWord        cached;
 
-	while (tmp = cachedObjects_g) {
+	while ((tmp = cachedObjects_g)) {
 
 		/* NOTE: need to write-back to be safe in case of nested monitor
 		 * acquisition */
 		if (tmp->key & SC_DIRTY_MASK) {
 			cached = tmp->val & SC_ADDRESS_MASK;
-			cnt    =
-			    write_back((Address)cached,
-			               (Address)(((UWord)tmp->key &
-			                          0x3FFFFC0) | MM_MB_HEAP_BASE));
+			write_back((Address)cached,
+			           (Address)(((UWord)tmp->key &
+			                      0x3FFFFC0) | MM_MB_HEAP_BASE));
 		}
 
 		cachedObjects_g  = tmp->next_cached;

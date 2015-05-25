@@ -662,6 +662,8 @@ public final class VMThread implements GlobalStaticFields {
 	 *             current thread is cleared when this exception is thrown.
 	 */
 	public final void join() throws InterruptedException {
+		// FIXME: this join seems to not be invoked
+		Assert.shouldNotReachHere();
 		if (this != currentThread && isAlive()) {
 
 			// Was the current thread interrupted?

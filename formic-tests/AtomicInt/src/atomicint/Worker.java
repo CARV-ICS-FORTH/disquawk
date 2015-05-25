@@ -2,6 +2,7 @@ package atomicint;
 
 import java.lang.Runnable;
 import java.util.concurrent.atomic.*;
+//import com.sun.squawk.*;
 
 // On C level it goes up to 60-70 kops/sec with a single server
 
@@ -21,11 +22,7 @@ public class Worker implements Runnable {
 		// System.out.println("Hello World I am cid=" +
 		//                    NativeUnsafe.getCore() +
 		//                    " bid=" +
-		//                    NativeUnsafe.getIsland() +
-		//                    " myint= " +
-		//                    Integer.toHexString(addr) +
-		//                    " myint2= " +
-		//                    Integer.toHexString(addr2) );
+		//                    NativeUnsafe.getIsland());
 
 
 		// int current = myint.get();
