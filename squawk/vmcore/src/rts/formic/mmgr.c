@@ -32,6 +32,8 @@
 #include "globals.h"
 #include "arch.h"
 
+#define VERY_VERBOSE 1
+
 /******************************************************************************
  * Custom allocator for the Monitor Manager
  ******************************************************************************/
@@ -948,8 +950,9 @@ mmgrNotifyHandler(int bid, int cid, Address object, int all)
 
 #ifdef VERY_VERBOSE
 	kt_printf(
-	    "I got a notify request for %p from %d:%d and the owner is %d:%d\n",
-	    object, bid, cid, monitor->owner >> 3, monitor->owner & 7);
+	    "I got a notify%s request for %p from %d:%d and the owner is %d:%d\n",
+	    all ? " all" : "", object, bid, cid,
+	    monitor->owner >> 3, monitor->owner & 7);
 #endif /* ifdef VERY_VERBOSE */
 
 	/*
@@ -978,6 +981,7 @@ mmgrNotifyHandler(int bid, int cid, Address object, int all)
 		bid = waiter >> 3;
 		cid = waiter & 7;
 
+		/* kt_printf("I notify %d:%d\n", bid, cid); */
 		/*
 		 * Send the notification
 		 *

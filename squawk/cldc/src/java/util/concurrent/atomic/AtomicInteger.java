@@ -208,6 +208,9 @@ public class AtomicInteger extends Number {
         lock.writeLock();
         current = value;
         value   = current + delta;
+        // System.out.print("Current = " + current +
+        //                  " Delta = " + delta +
+        //                  " Value = " + value + "\n");
         lock.writeUnlock();
 
         return current;

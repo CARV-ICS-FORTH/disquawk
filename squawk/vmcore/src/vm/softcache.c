@@ -212,10 +212,11 @@ write_back(Address from, Address to)
 		size               = com_sun_squawk_Klass_instanceSizeBytes(klass) +
 		                     HDR_basicHeaderSize;
 
+		/* printf("coa= %p klass = %p\n", classOrAssociation, klass);
+		 * printf("Size = %d HDR = %d name = %s\n", size, HDR_basicHeaderSize,
+		 *com_sun_squawk_Klass_name(
+		 *            klass)); */
 		assume(size != HDR_basicHeaderSize);
-		/* printf("Size = %d HDR = %d name = %s\n", size,
-		 *        HDR_basicHeaderSize,
-		 *        com_sun_squawk_Klass_name(klass)); */
 
 		break;
 
@@ -672,14 +673,22 @@ block_to_oop(Address obj, Address oop, int cid)
 	int     size, length;
 	Address classOrAssociation, klass;
 
+	/* int     start, end; */
+
 	switch ((*(int*)oop) & HDR_headerTagMask) {
 
 	case HDR_basicHeaderTag: /* Class Instance */
+		/* start              = sysGetTicks(); */
 		classOrAssociation = (Address) * (int*)oop;
 		klass              = com_sun_squawk_Klass_self(classOrAssociation);
+		/* end                = sysGetTicks();
+		 * printf("Find klass took %10u cc \n", end - start); */
 
 		/* Check if we brought the whole instance or not */
+		/* start = sysGetTicks(); */
 		size = com_sun_squawk_Klass_instanceSizeBytes(klass);
+		/* end   = sysGetTicks();
+		 * printf("Find size took %10u cc \n", end - start); */
 		/* printf("Klass size = %d\n", size); */
 
 		/*
@@ -687,6 +696,7 @@ block_to_oop(Address obj, Address oop, int cid)
 		 * to fetch the rest
 		 */
 		if (unlikely(size > sysGetCachelineSize())) {
+			/* start            = sysGetTicks(); */
 			cacheAllocTemp_g = oop;
 			oop              = challoc(size + HDR_basicHeaderSize);
 			/* Fetch data */
@@ -694,6 +704,8 @@ block_to_oop(Address obj, Address oop, int cid)
 			 *        (int*)cacheAllocTemp_g, obj,
 			 *        com_sun_squawk_Klass_name(klass)); */
 			fetch(obj, oop, size, cid);
+			/* end = sysGetTicks();
+			 * printf("refetch took %10u cc \n", end - start); */
 		}
 
 		oop += HDR_basicHeaderSize;
@@ -798,10 +810,17 @@ sc_put(Address obj, int cid)
 	 * Make sure the whole object is here and move the pointer to the
 	 * proper offset from the cache-line head
 	 */
+	/* int start, end;
+	 * start = sysGetTicks(); */
 	ret = block_to_oop(obj, ret, cid);
+	/* end   = sysGetTicks();
+	 * printf("block_to_oop takes %10u cc\n", end - start); */
 
 	/* Update the directory */
+	/* start = sysGetTicks(); */
 	node = dir_insert((UWord)obj & SC_ADDRESS_MASK, (UWord)ret);
+	/* end   = sysGetTicks();
+	 * printf("dir_insert takes %10u cc\n", end - start); */
 
 	cacheObjects_g++;
 
@@ -830,22 +849,40 @@ sc_get(Address obj, int is_write)
 
 	/* printf("Searching for %p\n", obj); */
 
+	/* int start, end;
+	 * start = sysGetTicks(); */
 	/* Check if it is cached */
 	ret = dir_lookup((UWord)obj);
+	/* end   = sysGetTicks();
+	 * printf("dir_lookup takes %10u cc\n", end - start); */
 
 	if (ret == NULL) { /* miss */
 		/* printf(" %p not found\n", obj); */
 		/* Cache the object */
+		/* start = sysGetTicks(); */
 		ret = sc_put(obj, -1);
+		/* end   = sysGetTicks();
+		 * printf("sc_put takes %10u cc\n", end - start); */
 	}
+
+	/* Address classOrAssociation, klass;
+	 * classOrAssociation = (Address) * (int*)(ret->val & SC_ADDRESS_MASK);
+	 * klass              = com_sun_squawk_Klass_self(classOrAssociation); */
 
 	/* If it is requested to be written and is not already marked as dirty */
 	if (is_write && !(ret->key & SC_DIRTY_MASK)) {
-		/* printf("Marked %p\n", obj); */
+		/* printf("Marked %p name = %s\n", obj,
+		 * com_sun_squawk_Klass_name(klass)); */
 		ret->key       |= is_write;
 		ret->next_dirty = cacheDirty_g;
 		cacheDirty_g    = ret;
 	}
+
+	/* else if (is_write && (ret->key & SC_DIRTY_MASK)) {
+	 *  printf("Did not mark because it is dirty %p name = %s\n", obj,
+	 * com_sun_squawk_Klass_name(
+	 *             klass));
+	 * } */
 
 	retval = (Address)ret->val;
 

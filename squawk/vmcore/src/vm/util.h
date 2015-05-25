@@ -30,6 +30,7 @@
 #ifndef VM_UTIL_H_
 #define VM_UTIL_H_
 
+#include <os.h>
 #include <jni.h>
 #include <rom.h>
 

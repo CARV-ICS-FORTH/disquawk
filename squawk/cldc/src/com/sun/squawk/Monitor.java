@@ -100,6 +100,8 @@ final class Monitor {
 	 * @param thread the thread to add
 	 */
 	void addMonitorWait(VMThread thread) {
+		// VM.print("Add " + thread + " to the queue\n");
+		Assert.that(!thread.isServiceThread()); // service thread waits for no-one?
 		thread.setInQueue(VMThread.Q_MONITOR);
 		Assert.that(thread.nextThread == null);
 		VMThread next = monitorQueue;
