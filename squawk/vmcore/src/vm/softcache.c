@@ -944,6 +944,24 @@ sc_mark_dirty(Address obj)
 }
 
 /**
+ * Write-back object
+ *
+ * @param object the object to write back
+ */
+void
+sc_write_back(Address object)
+{
+	sc_object_st *entry;
+
+	entry = dir_lookup((UWord)object);
+
+	kt_printf("to=%p from=%p\n", object, entry->val);
+	write_back((Address)entry->val, object);
+
+	wait_pending_wb();
+}
+
+/**
  * Write-back any dirty objects in the software cache
  *
  * @param blocking Whether we should wait for the DMAs to reach completion or

@@ -76,6 +76,7 @@ typedef struct sc_object sc_object_st;
 void        sc_initialize();
 Address     sc_get(Address obj, int is_write);
 void        sc_mark_dirty(Address obj);
+void        sc_write_back(Address object);
 void        sc_flush(int blocking);
 void        sc_clear();
 void        sc_dump();

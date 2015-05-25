@@ -1342,6 +1342,12 @@ class NativeVerifierHelper {
             return;
         }
 
+        case Native.com_sun_squawk_SoftwareCache$writeBack: {
+            frame.pop(OOP); // java.lang.Object
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
         case Native.com_sun_squawk_platform_MMP$checkMailbox: {
             frame.pop(OOP); // java.lang.Integer
             Assert.that(frame.isStackEmpty());
@@ -1350,7 +1356,7 @@ class NativeVerifierHelper {
         }
 
         case Native.com_sun_squawk_platform_MMP$spawnThread: {
-            frame.pop(OOP); // com.sun.squawk.VMThread
+            frame.pop(OOP); // java.lang.Thread
             Assert.that(frame.isStackEmpty());
             return;
         }

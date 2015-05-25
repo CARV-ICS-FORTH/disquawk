@@ -42,4 +42,8 @@ public final class SoftwareCache {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 
+	static void writeBack(Object oop) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
 }
