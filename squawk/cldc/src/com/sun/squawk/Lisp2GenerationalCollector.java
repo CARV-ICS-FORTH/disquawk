@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 FORTH-ICS / CARV
+ * Copyright (C) 2013-2015 FORTH-ICS / CARV
  *                         (Foundation for Research & Technology -- Hellas,
  *                          Institute of Computer Science,
  *                          Computer Architecture & VLSI Systems Laboratory)
@@ -1489,7 +1489,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 		}
 /*end[DEBUG_CODE_ENABLED]*/
 
-		// The class/ObjectAssociation pointer is handled specially
+		// The class pointer is handled specially
 		if (visitor == MARK_VISITOR) {
 			markOop(object, HDR.klass);
 		} else {
@@ -1498,13 +1498,8 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 /*if[ENABLE_DYNAMIC_CLASSLOADING]*/
 				updateClassPointerIfClassIsForwarded(object);
 /*else[ENABLE_DYNAMIC_CLASSLOADING]*/
-//              Assert.that(!isClassPointer(object, getClassOrAssociationFromForwardedObject(object))
-//                          || !isForwarded(getClassOrAssociationFromForwardedObject(object))); // class is not forwarded if no DYNAMIC_CLASSLOADING
+//              Assert.that(!isForwarded(getClassFromForwardedObject(object))); // class is not forwarded if no DYNAMIC_CLASSLOADING
 /*end[ENABLE_DYNAMIC_CLASSLOADING]*/
-			} else {
-				// Update the pointer to a forwarded ObjectAssociation
-				// so that it doesn't have to be done in compactObjects
-				updateOAPointerIfOAIsForwarded(object);
 			}
 		}
 
@@ -1688,34 +1683,22 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	}
 
 	/**
-	 * Updates the class pointer for a forwarded object if the class is forwarded and
-	 * there is no interleaving ObjectAssociation. This is required as objects are always at a
-	 * higher address than their class and so in the {@link #compactObjects compact objects}
-	 * phase, its class will already have been moved.
+	 * Updates the class pointer for a forwarded object if the class
+	 * is forwarded. This is required as objects are always at a
+	 * higher address than their class and so in the
+	 * {@link #compactObjects compact objects} phase, its class will already
+	 * have been moved.
 	 *
-	 * @param object  an object whose (encoded) class pointer is to be updated if its class
-	 *                is forwarded and there is no interleaving ObjectAssociation
+	 * @param object  an object whose (encoded) class pointer is to be
+	 *                updated if its class is forwarded
 	 */
 	private void updateClassPointerIfClassIsForwarded(Address object) {
-		Address classOrAssociation = getClassOrAssociationFromForwardedObject(object);
-		if (isClassPointer(object, classOrAssociation)) {
-			if (isForwarded(classOrAssociation)) {
-				Address destination = getForwardedObject(object);
-				NativeUnsafe.setAddress(object, HDR.klass, getForwardedObject(classOrAssociation));
-				forwardObject(object, destination);
-			}
-		}
-	}
-
-	/**
-	 * Updates the pointer to an ObjectAssociation for an object that is not forwarded.
-	 *
-	 * @param object  an object whose class pointer is to be updated if it points to a forwarded ObjectAssociation
-	 */
-	private void updateOAPointerIfOAIsForwarded(Address object) {
-		Address classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
-		if (!isClassPointer(object, classOrAssociation)) {
-			updateOop(object, HDR.klass);
+		Address classPointer = getClassFromForwardedObject(object);
+		if (isForwarded(classPointer)) {
+			Address destination = getForwardedObject(object);
+			NativeUnsafe.setAddress(object, HDR.klass,
+			                        getForwardedObject(classPointer));
+			forwardObject(object, destination);
 		}
 	}
 
@@ -2334,10 +2317,11 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 
 /*if[FINALIZATION]*/
 	/**
-	 * Process the finalizer queue, setting the flag in each finalizer indicating if the associated
-	 * object is referenced by something else besides the finalizer object. This flag will be used
-	 * after the collector has finished to modify the global queue of pending finalizers and the
-	 * per-isolate queue of finalizers.
+	 * Process the finalizer queue, setting the flag in each finalizer
+	 * indicating if the associated object is referenced by something
+	 * else besides the finalizer object. This flag will be used after
+	 * the collector has finished to modify the global queue of
+	 * pending finalizers and the per-isolate queue of finalizers.
 	 */
 	private void processFinalizers() {
 /*if[DEBUG_CODE_ENABLED]*/
@@ -3086,9 +3070,12 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	 * @param objectDestination the address to which the object will be moved during compaction
 	 */
 	private void forwardObject(Address object, Address objectDestination) {
-		Address classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
-		UWord encodedClassWord = encodeForwardingPointer(object, objectDestination).or(encodeClassOrAssociationPointer(classOrAssociation));
-		NativeUnsafe.setAddress(object, HDR.klass, Address.zero().or(encodedClassWord));
+		Address classPointer = NativeUnsafe.getAddress(object, HDR.klass);
+		UWord encodedClassWord =
+			encodeForwardingPointer(object, objectDestination).
+			or(encodeClassPointer(classPointer));
+		NativeUnsafe.setAddress(object, HDR.klass,
+		                        Address.zero().or(encodedClassWord));
 	}
 
 	/**
@@ -3132,59 +3119,64 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	}
 
 	/**
-	 * Encodes a class or association pointer as an offset (in words) within its memory space (i.e. the heap, NVM or ROM).
+	 * Encodes a class pointer as an offset (in words) within its
+	 * memory space (i.e. the heap, NVM or ROM).
 	 *
-	 * @param classOrAssociation  a pointer to a Klass or ObjectAssociation
+	 * @param classPointer  a pointer to a Klass
 	 * @return the pointer as an offset in words from the start of its memory space, left shifted by {@link ClassWordTag#BIT_COUNT}
 	 *         and or'ed with {@link ClassWordTag#HEAP}, {@link ClassWordTag#NVM} or {@link ClassWordTag#ROM}
 	 */
-	private UWord encodeClassOrAssociationPointer(Address classOrAssociation) {
+	private UWord encodeClassPointer(Address classPointer) {
 
-		Offset classOrAssociationOffset;
+		Offset offset;
 		int tag;
 
-		if (inHeap(classOrAssociation)) {
-			classOrAssociationOffset = getOffsetInHeap(classOrAssociation);
+		if (inHeap(classPointer)) {
+			offset = getOffsetInHeap(classPointer);
 			tag = ClassWordTag.HEAP;
-		} else if (VM.inRom(classOrAssociation)) {
-			classOrAssociationOffset = VM.getOffsetInRom(classOrAssociation);
+		} else if (VM.inRom(classPointer)) {
+			offset = VM.getOffsetInRom(classPointer);
 			tag = ClassWordTag.ROM;
 		} else {
 /*if[MICROBLAZE_BUILD]*/
 			Assert.shouldNotReachHere();
-			classOrAssociationOffset = Offset.zero();
+			offset = Offset.zero();
 /*else[MICROBLAZE_BUILD]*/
-//          Assert.that(GC.inNvm(classOrAssociation));
-//          classOrAssociationOffset = GC.getOffsetInNvm(classOrAssociation);
+//          Assert.that(GC.inNvm(classPointer));
+//          offset = GC.getOffsetInNvm(classPointer);
 /*end[MICROBLAZE_BUILD]*/
 			// In microblaze builds this is just to compile, we should
 			// never reach here
 			tag = ClassWordTag.NVM;
 		}
-		classOrAssociationOffset = classOrAssociationOffset.bytesToWords(); // convert to word-base offset
-		Assert.that(classOrAssociationOffset.ge(Offset.zero()) && classOrAssociationOffset.lt(Offset.fromPrimitive(1 << classOffsetBits)),
-		            "encoded class or association pointer does not fit in reserved bits");
+		offset = offset.bytesToWords(); // convert to word-base offset
+		Assert.that(offset.ge(Offset.zero()) &&
+		            offset.lt(Offset.fromPrimitive(1 << classOffsetBits)),
+		            "encoded class pointer does not fit in reserved bits");
 
 		// Construct and return the encoded pointer
-		UWord encodedClassOrAssociation = UWord.fromPrimitive(classOrAssociationOffset.toPrimitive() << ClassWordTag.BIT_COUNT);
-		encodedClassOrAssociation = encodedClassOrAssociation.or(UWord.fromPrimitive(tag));
-		return encodedClassOrAssociation;
+		UWord encodedClass = UWord.fromPrimitive(offset.toPrimitive() <<
+		                                         ClassWordTag.BIT_COUNT);
+		encodedClass = encodedClass.or(UWord.fromPrimitive(tag));
+		return encodedClass;
 	}
 
 	/**
-	 * Decodes a class or association pointer that was encoded by {@link #encodeClassOrAssociationPointer}.
+	 * Decodes a class pointer that was encoded by {@link #encodeClassPointer}.
 	 *
-	 * @param encodedClassOrAssociation   an encoded class or association pointer
-	 * @return the decoded version of <code>encodedClassOrAssociation</code>
+	 * @param encodedClass an encoded class pointer
+	 * @return the decoded version of <code>encodedClass</code>
 	 */
-	private Address decodeClassOrAssociationPointer(UWord encodedClassOrAssociation) {
-		int tag = (int)encodedClassOrAssociation.toPrimitive() & ClassWordTag.MASK;
-		Offset classOrAssociationOffset = Offset.fromPrimitive((encodedClassOrAssociation.toPrimitive() & classOffsetMask) >>> ClassWordTag.BIT_COUNT).wordsToBytes();
+	private Address decodeClassPointer(UWord encodedClass) {
+		int tag = (int)encodedClass.toPrimitive() & ClassWordTag.MASK;
+		Offset offset = Offset.fromPrimitive((encodedClass.toPrimitive() &
+		                                      classOffsetMask) >>>
+		                                     ClassWordTag.BIT_COUNT).wordsToBytes();
 		switch (tag) {
-		case ClassWordTag.HEAP: return getObjectInHeap(classOrAssociationOffset);
-		case ClassWordTag.ROM:  return VM.getObjectInRom(classOrAssociationOffset);
+		case ClassWordTag.HEAP: return getObjectInHeap(offset);
+		case ClassWordTag.ROM:  return VM.getObjectInRom(offset);
 /*if[!MICROBLAZE_BUILD]*/
-		case ClassWordTag.NVM:  return GC.getObjectInNvm(classOrAssociationOffset);
+		case ClassWordTag.NVM:  return GC.getObjectInNvm(offset);
 /*end[MICROBLAZE_BUILD]*/
 		default:
 			Assert.shouldNotReachHere();
@@ -3227,40 +3219,19 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	}
 
 	/**
-	 * Decodes and returns the encoded pointer in a forwarded object's header that points to
-	 * the object's class or ObjectAssociation. The returned pointer may itself be pointing
-	 * to an object that will be moved.
+	 * Decodes and returns the encoded pointer in a forwarded object's
+	 * header that points to the object's class. The returned pointer
+	 * may itself be pointing to an object that will be moved.
 	 *
 	 * @param object    address of a object whose header has been modified to encode both the
-	 *                  location of its class or ObjectAssociation as well as where it will be
+	 *                  location of its class as well as where it will be
 	 *                  moved to
-	 * @return the value of <code>object</code>'s klass or ObjectAssociation
+	 * @return the value of <code>object</code>'s klass
 	 */
-	private Address getClassOrAssociationFromForwardedObject(Address object) {
+	private Address getClassFromForwardedObject(Address object) {
 		Assert.that(isForwarded(object));
-		UWord encodedClassOrAssociation = NativeUnsafe.getAddress(object, HDR.klass).toUWord();
-		return decodeClassOrAssociationPointer(encodedClassOrAssociation);
-	}
-
-	/**
-	 * Given an object's address and the value of the class pointer word in its header,
-	 * determines if the pointer points to the class or to an ObjectAssociation. This
-	 * test relies on the fact that an object's class will always be at a lower address
-	 * in the heap or not in the heap at all.
-	 *
-	 * If !ENABLE_DYNAMIC_CLASSLOADING, then classes will never be in heap, so use simpler test
-	 *
-	 * @param object              an object's address
-	 * @param classOrAssociation  the value of the class pointer word in <code>object</code>'s header
-	 * @return true if <code>classOrAssociation</code> is a pointer outside of the heap or to a heap address lower than <code>object</code>
-	 */
-	private static boolean isClassPointer(Address object, Address classOrAssociation) throws AllowInlinedPragma {
-		Assert.that(classOrAssociation.ne(object));
-/*if[ENABLE_DYNAMIC_CLASSLOADING]*/
-		return !GC.inRam(classOrAssociation) || classOrAssociation.lo(object);
-/*else[ENABLE_DYNAMIC_CLASSLOADING]*/
-//      return !GC.inRam(classOrAssociation);
-/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
+		UWord encodedClass = NativeUnsafe.getAddress(object, HDR.klass).toUWord();
+		return decodeClassPointer(encodedClass);
 	}
 
 	/**
@@ -3270,24 +3241,12 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	 * @return the address of <code>object</code>'s class which may itself be forwarded
 	 */
 	private Address getKlass(Address object) {
-		Address classOrAssociation;
+		Address klass;
 		if (isForwarded(object)) {
-			classOrAssociation = getClassOrAssociationFromForwardedObject(object);
+			klass = getClassFromForwardedObject(object);
 		} else {
-			classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
+			klass = NativeUnsafe.getAddress(object, HDR.klass);
 		}
-		Assert.that(!classOrAssociation.isZero());
-		Assert.that(!classOrAssociation.eq(Address.fromPrimitive(0xDEADBEEF)));
-
-		Address klass = NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
-//        if (!isClassPointer(object, classOrAssociation)) {
-//            klass = NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
-//            // Must be an ObjectAssociation
-//            Assert.that(klass.ne(classOrAssociation));
-//        } else {
-//            klass = classOrAssociation;
-//        }
-
 		Assert.that(!klass.isZero());
 		Assert.that(!klass.eq(Address.fromPrimitive(0xDEADBEEF)));
 		return klass;
@@ -3649,7 +3608,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 				VM.println(klass.getInternalName());
 			}
 			Assert.that(GC.getKlass(klass).getSystemID() == CID.KLASS, "class of referenced object is invalid");
-			// Verify the pointer to the class or ObjectAssociation
+			// Verify the pointer to the class
 			visitOop(VERIFY_VISITOR, object, HDR.klass);
 
 			if (Klass.isSquawkArray(klass)) { // any kind of array
@@ -3943,7 +3902,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 		timer.reset();
 
 		Address object;
-		Address classOrAssociation;
+		Address classPointer;
 
 		// Iterate over all the marked objects in the collection space
 		Lisp2Bitmap.Iterator.start(start, end, true);
@@ -3955,8 +3914,8 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 				break;
 			}
 
-			classOrAssociation = getClassOrAssociationFromForwardedObject(object);
-			NativeUnsafe.setAddress(object, HDR.klass, classOrAssociation);
+			classPointer = getClassFromForwardedObject(object);
+			NativeUnsafe.setAddress(object, HDR.klass, classPointer);
 		}
 
 		timer.finish(Timer.UNFORWARD);
@@ -3988,7 +3947,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 			Klass klass = GC.getKlass(object);
 			klassAddress = Address.fromObject(klass);
 
-			// Update the pointer to the class or ObjectAssociation
+			// Update the pointer to the class
 			visitOop(UPDATE_VISITOR, object, HDR.klass);
 
 			if (Klass.isSquawkArray(klass)) {
@@ -4113,27 +4072,8 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 
 			// Get a pointer to the object's class.
 			Klass klass;
-			Address classOrAssociation = getClassOrAssociationFromForwardedObject(object);
-			if (isClassPointer(object, classOrAssociation)) {
-				// The class of an object is always moved before the object itself so the
-				// value of classOrAssociation is a pointer to a valid class
-				klass = VM.asKlass(classOrAssociation);
-			} else {
-
-				// An object is always moved before its ObjectAssociation
-				Assert.that(isForwarded(classOrAssociation));
-
-				// The 'self' pointer must be dereferenced in the old copy of the ObjectAssociation
-				// as the new copy will be made during a subsequent iteration of this loop
-				klass = VM.asKlass(NativeUnsafe.getObject(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self));
-
-				// Now get the address to which the ObjectAssociation will be moved
-				classOrAssociation = getForwardedObject(classOrAssociation);
-			}
-
-			// Update the class pointer
-			Assert.that(!classOrAssociation.isZero());
-			NativeUnsafe.setAddress(object, HDR.klass, classOrAssociation);
+			Address classPointer = getClassFromForwardedObject(object);
+			klass = VM.asKlass(classPointer);
 
 			int headerSize = object.diff(GC.oopToBlock(klass, object)).toInt();
 			int size = GC.getBodySize(klass, object);

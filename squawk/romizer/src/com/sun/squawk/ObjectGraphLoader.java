@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-15, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -32,14 +36,9 @@ import com.sun.squawk.util.*;
 import com.sun.squawk.vm.*;
 
 /**
- * This class provides the ability to load an object graph created by an {@link ObjectGraphSerializer}, ie load a Squawk memory into HotSpot VM.
- *
- * NOTES:
- * - Is it possible for an object in a suite to have an association instead of a pointer to its class ?
- *   - Does this mean there is a bug in Isolate migration ?  As how does this association get serialized ?
- *   - It is possible that the romizer ignores this, and that the object serialization that occurs at runtime is not the same
- *
- *
+ * This class provides the ability to load an object graph created by
+ * an {@link ObjectGraphSerializer}, ie load a Squawk memory into
+ * HotSpot VM.
  */
 public class ObjectGraphLoader {
 
@@ -293,9 +292,7 @@ public class ObjectGraphLoader {
                 for (Address block = eachObjectMemory.getStart(); block.lo(end); ) {
                     Address object = GC.blockToOop(block);
 
-                    Address classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
-                    Assert.that(!classOrAssociation.isZero());
-                    Address klassAddress = NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
+                    Address klassAddress = NativeUnsafe.getAddress(object, HDR.klass);
                     Assert.that(!klassAddress.isZero());
                     Klass klass = getKlassAt(klassAddress);
                     if (Klass.STRING.isAssignableFrom(klass)) {

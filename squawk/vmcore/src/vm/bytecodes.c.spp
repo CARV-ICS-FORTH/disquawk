@@ -815,64 +815,16 @@ INLINE Address VM_getClassStateREAL(Address klass) {
 }
 
 /**
- * Gets the Klass or the ObjectAssociation of an object.
- *
- * @param  oop the pointer to the object.
- * @return the Klass ot the ObjectAssociation
- */
-#if ASSUME
-/*MAC*/ Address getClassOrAssociation(Address $oop) {
-	/* Catches an attempt to dereference a forwarding pointer */
-	assume(com_sun_squawk_GC_collecting ||
-	       ((UWord)getObject($oop, HDR_klass) & HDR_headerTagMask) == 0);
-	return getObject($oop, HDR_klass);
-}
-#else
-/*MAC*/ Address getClassOrAssociation(Address $oop) {
-	return getObject($oop, HDR_klass);
-}
-#endif
-/**
- * Given a klass or an association, deerefence the self field
- * to return the actual Klass.
- *
- * @param the Klass or the ObjectAssociation
- * @return the Klass, or the klass refered to by the association
- */
-/*MAC*/ Address associationToKlass(Address $oop) {
-	return com_sun_squawk_Klass_self($oop);
-}
-
-/**
  * Gets the class of an object.
  *
  * @param  oop the pointer to the object.
  * @return the class
  */
 /*MAC*/ Address getClass(Address $oop) {
-	return com_sun_squawk_Klass_self(getClassOrAssociation($oop));
+	return getObject($oop, HDR_klass);
 }
 
 #ifdef __MICROBLAZE__
-/**
- * Gets the Klass or the ObjectAssociation of an object.
- *
- * @param  oop the pointer to the object.
- * @return the Klass ot the ObjectAssociation
- */
-#if ASSUME
-/*MAC*/ Address getLocalClassOrAssociation(Address $oop) {
-	/* Catches an attempt to dereference a forwarding pointer */
-	assume(com_sun_squawk_GC_collecting ||
-	       ((UWord)getLocalObject($oop, HDR_klass) & HDR_headerTagMask) == 0);
-	return getLocalObject($oop, HDR_klass);
-}
-#else
-/*MAC*/ Address getLocalClassOrAssociation(Address $oop) {
-	return getLocalObject($oop, HDR_klass);
-}
-#endif
-
 /**
  * Gets the class of an object.
  *
@@ -880,7 +832,7 @@ INLINE Address VM_getClassStateREAL(Address klass) {
  * @return the class
  */
 /*MAC*/ Address getLocalClass(Address $oop) {
-	return com_sun_squawk_Klass_self_local(getLocalClassOrAssociation($oop));
+	return getLocalObject($oop, HDR_klass);
 }
 #endif /* __MICROBLAZE__ */
 
@@ -3307,7 +3259,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	/* if (((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) != 0)
 	 * 	printf("Invoking %p failed\n", obj); */
 	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
-	cls = getClassOrAssociation(obj);
+	cls = getClass(obj);
 	/* if (!((UWord)cls < 0x08000000))
 	 * 	printf("CLS = %p OBJ = %p OBJ[-1] =\n", cls, obj); */
 	/* if ((UWord)obj == 0x04005784 || (UWord)obj == 0x04005fc4) {
@@ -3320,7 +3272,7 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 	 * 	 * 	          (UWord)obj, i, *(int*)((UWord)obj+i),
 	 * 	 * 	          (UWord)tr_obj, i, *(int*)((UWord)tr_obj+i));
 	 * 	 * } *\/
-	 * 	kt_printf("Get it again %p[%d], %p\n", obj, HDR_klass, getClassOrAssociation(obj));
+	 * 	kt_printf("Get it again %p[%d], %p\n", obj, HDR_klass, getClass(obj));
 	 * } */
 	/* if ((UWord)cls == NULL) {
 	 * 	printf("CLS = %p OBJ = %p\n", cls, obj);

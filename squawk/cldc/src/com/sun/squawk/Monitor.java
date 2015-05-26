@@ -38,7 +38,7 @@ import java.io.PrintStream;
  * @see VMThread
  * @see GC
  */
-final class Monitor {
+public final class Monitor {
 
 	/**
 	 * The thread that owns the monitor.
@@ -83,12 +83,12 @@ final class Monitor {
 	/**
 	 * The object that this is a monitor for. Used for debugging/assertions.
 	 */
-	final Object object;
+	public Object object;
 
 	/*
 	 * Constructor
 	 */
-	Monitor(Object object) {
+	public Monitor(Object object) {
 		this.object = object;
 		this.threshold = MONITOR_THRESHOLD;
 		VMThread.monitorsAllocatedCount++;

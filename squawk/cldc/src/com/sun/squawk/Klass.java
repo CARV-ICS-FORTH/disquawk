@@ -59,12 +59,6 @@ public class Klass<T> {
 	\*---------------------------------------------------------------------------*/
 
 	/**
-	 * The pointer to self. This must be the at the same offset to the
-	 * class pointer in ObjectAssociation.
-	 */
-	private final Klass self = this;
-
-	/**
 	 * The virtual method table (or <i>vtable</i>) for this
 	 * class. Consider the following class definitions:
 	 * <p><blockquote><pre>
@@ -2240,16 +2234,16 @@ public class Klass<T> {
 	private void initializeInstanceFields(ClassFileField[] fields) {
 		Assert.that(!this.isInterface());
 
-		// Special handling for java.lang.Object
-		if (this == Klass.OBJECT) {
-			Assert.that(fields.length == 0); // Object cannot have instance fields.
-			Assert.that(instanceSizeBytes == 0);
-			oopMap = null;
-			oopMapWord = UWord.zero();
-			dataMap = null;
-			dataMapWord = UWord.zero();
-			return;
-		}
+		// // Special handling for java.lang.Object
+		// if (this == Klass.OBJECT) {
+		// 	Assert.that(fields.length == 0); // Object cannot have instance fields.
+		// 	Assert.that(instanceSizeBytes == 0);
+		// 	oopMap = null;
+		// 	oopMapWord = UWord.zero();
+		// 	dataMap = null;
+		// 	dataMapWord = UWord.zero();
+		// 	return;
+		// }
 
 		// Special handling for strings
 		if (this == Klass.STRING || this == Klass.STRING_OF_BYTES ) {

@@ -1,4 +1,8 @@
 /*
+ * Copyright (C) 2013-2015 FORTH-ICS / CARV
+ *                         (Foundation for Research & Technology -- Hellas,
+ *                          Institute of Computer Science,
+ *                          Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -25,6 +29,7 @@
 package java.lang;
 
 import com.sun.squawk.*;
+import com.sun.squawk.util.Assert;
 
 /**
  * Class <code>Object</code> is the root of the class hierarchy.
@@ -266,7 +271,7 @@ public class Object {
      *          runtime class of the object.
      */
     public final Class getClass() {
-        Klass klass = com.sun.squawk.GC.getKlass(this);
+        Klass klass = GC.getKlass(this);
         if (klass == Klass.STRING_OF_BYTES) {
             klass = Klass.STRING;
         }
@@ -509,4 +514,74 @@ public class Object {
      protected Object clone() throws CloneNotSupportedException {
        return VM.shallowCopy(this);
      }
+
+    /***********************************************************************\
+                                    MONITORS
+    \***********************************************************************/
+
+    /**
+     * The monitor for this object
+     */
+    private Monitor monitor;
+
+    /**
+     * The hashcode the object
+     */
+    private int hashCode;
+
+    /**
+     * Set the monitor.
+     *
+     * @param monitor the monitor
+     */
+    public void setMonitor(Monitor monitor) {
+        Assert.that(GC.inRam(this));
+        this.monitor = monitor;
+    }
+
+    /**
+     * Get the monitor.
+     *
+     * @return the monitor
+     */
+    public Monitor getMonitor() {
+        // If the object is in the RAM allocate a monitor for it
+        if (GC.inRam(this)) {
+            // VM.print("It's in RAM\n");
+            if (monitor == null)
+                monitor = new Monitor(this);
+
+            return monitor;
+        }
+        // If it is in the ROM use its klass "global" monitor
+        else {
+            // VM.print("It's in ROM\n");
+            return null;
+            // return GC.getKlass(this).getKlassMonitor();
+        }
+    }
+
+    /**
+     * Get the hashcode.
+     *
+     * @return the hashcode
+     */
+    public int getHashCode() {
+        if (hashCode == 0) {
+            hashCode = (((NativeUnsafe.getIsland() << 3) |
+                         NativeUnsafe.getCore()) << 16) | VM.getNextHashcode();
+        }
+        Assert.that(hashCodeInUse());
+        return hashCode;
+    }
+
+    /**
+     * Test to see if the hash code was used.
+     *
+     * @return true if is was
+     */
+    boolean hashCodeInUse() {
+        return hashCode != 0;
+    }
+
 }

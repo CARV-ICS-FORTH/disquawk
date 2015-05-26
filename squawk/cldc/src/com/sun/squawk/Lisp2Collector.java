@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-15, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle Corporation. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
@@ -322,9 +326,8 @@ public final class Lisp2Collector extends GarbageCollector {
         markingStack = new MarkingStack();
 
         collectionTimings = new Timings();
-/*if[!ENABLE_ISOLATE_MIGRATION]*/
-/*else[ENABLE_ISOLATE_MIGRATION]*/
-//        copyTimings = new Timings();
+/*if[ENABLE_ISOLATE_MIGRATION]*/
+        copyTimings = new Timings();
 /*end[ENABLE_ISOLATE_MIGRATION]*/
     }
 
@@ -1130,20 +1133,16 @@ public final class Lisp2Collector extends GarbageCollector {
         }
 /*end[DEBUG_CODE_ENABLED]*/
 
-        // The class/ObjectAssociation pointer is handled specially
+        // The class pointer is handled specially
         if (visitor == MARK_VISITOR) {
             markOop(object, HDR.klass);
         } else {
             Assert.that(visitor == UPDATE_VISITOR);
-            if (isForwarded(object)) {
 /*if[ENABLE_DYNAMIC_CLASSLOADING]*/
+            if (isForwarded(object)) {
                 updateClassPointerIfClassIsForwarded(object);
-/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
-            } else {
-                // Update the pointer to a forwarded ObjectAssociation
-                // so that it doesn't have to be done in compactObjects
-                updateOAPointerIfOAIsForwarded(object);
             }
+/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
         }
 
         // Visit the rest of the pointers
@@ -1323,34 +1322,22 @@ public final class Lisp2Collector extends GarbageCollector {
     }
 
     /**
-     * Updates the class pointer for a forwarded object if the class is forwarded and
-     * there is no interleaving ObjectAssociation. This is required as objects are always at a
-     * higher address than their class and so in the {@link #compactObjects compact objects}
-     * phase, its class will already have been moved.
+     * Updates the class pointer for a forwarded object if the class
+     * is forwarded. This is required as objects are always at a
+     * higher address than their class and so in the {@link
+     * #compactObjects compact objects} phase, its class will already
+     * have been moved.
      *
-     * @param object  an object whose (encoded) class pointer is to be updated if its class
-     *                is forwarded and there is no interleaving ObjectAssociation
+     * @param object  an object whose (encoded) class pointer is to be
+     *                updated if its class is forwarded
      */
     private void updateClassPointerIfClassIsForwarded(Address object) {
-        Address classOrAssociation = getClassOrAssociationFromForwardedObject(object);
-        if (isClassPointer(object, classOrAssociation)) {
-            if (isForwarded(classOrAssociation)) {
-                Address destination = getForwardedObject(object);
-                NativeUnsafe.setAddress(object, HDR.klass, getForwardedObject(classOrAssociation));
-                forwardObject(object, destination);
-            }
-        }
-    }
-
-    /**
-     * Updates the pointer to an ObjectAssociation for an object that is not forwarded.
-     *
-     * @param object  an object whose class pointer is to be updated if it points to a forwarded ObjectAssociation
-     */
-    private void updateOAPointerIfOAIsForwarded(Address object) {
-        Address classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
-        if (!isClassPointer(object, classOrAssociation)) {
-            updateOop(object, HDR.klass);
+        Address classPointer = getClassFromForwardedObject(object);
+        if (isForwarded(classPointer)) {
+            Address destination = getForwardedObject(object);
+            NativeUnsafe.setAddress(object, HDR.klass,
+                                    getForwardedObject(classPointer));
+            forwardObject(object, destination);
         }
     }
 
@@ -1657,59 +1644,59 @@ public final class Lisp2Collector extends GarbageCollector {
 /*end[DEBUG_CODE_ENABLED]*/
     }
 
-/*if[!FINALIZATION]*/
-/*else[FINALIZATION]*/
-//    /**
-//     * Process the finalizer queue, setting the flag in each finalizer indicating if the associated
-//     * object is referenced by something else besides the finalizer object. This flag will be used
-//     * after the collector has finished to modify the global queue of pending finalizers and the
-//     * per-isolate queue of finalizers.
-//     */
-//    private void processFinalizers() {
-///*if[DEBUG_CODE_ENABLED]*/
-//        if (tracing()) {
-//            VM.println("Lisp2Collector::markFinalizers --------------- Start");
-//        }
-///*end[DEBUG_CODE_ENABLED]*/
-//
-//        Finalizer entry = finalizers;
-//        while (entry != null) {
-///*if[DEBUG_CODE_ENABLED]*/
-//            if (tracing()) {
-//                VM.println("Lisp2Collector::markFinalizers -- processing finalizer ");
-//            }
-///*end[DEBUG_CODE_ENABLED]*/
-//
-//            Address entryAddress = Address.fromObject(entry);
-//            Assert.that(!inCollectionSpace(entryAddress) || !Lisp2Bitmap.testBitFor(entryAddress), "finalizer for object marked prematurely");
-//
-//            Finalizer next = entry.getNext();
-//            Address object = Address.fromObject(entry.getObject());
-//            boolean referenced = !inCollectionSpace(object) || Lisp2Bitmap.testBitFor(object);
-//            entry.setReferenced(referenced);
-//
-///*if[DEBUG_CODE_ENABLED]*/
-//            if (tracing()) {
-//                VM.print("Lisp2Collector::markFinalizers -- finalizer = ");
-//                VM.printAddress(entry);
-//                VM.print(" object = ");
-//                VM.printAddress(object);
-//                VM.print(" class = ");
-//                VM.print(Klass.getInternalName(GC.getKlass(Address.fromObject(entry.getObject()))));
-//                VM.print(" referenced = ");
-//                VM.print(referenced);
-//                VM.println();
-//            }
-///*end[DEBUG_CODE_ENABLED]*/
-//            entry = next;
-//        }
-///*if[DEBUG_CODE_ENABLED]*/
-//        if (tracing()) {
-//            VM.println("Lisp2Collector::markFinalizers --------------- End");
-//            VM.println();
-//        }
-///*end[DEBUG_CODE_ENABLED]*/
-//    }
+/*if[FINALIZATION]*/
+    /**
+     * Process the finalizer queue, setting the flag in each finalizer
+     * indicating if the associated object is referenced by something
+     * else besides the finalizer object. This flag will be used after
+     * the collector has finished to modify the global queue of
+     * pending finalizers and the per-isolate queue of finalizers.
+     */
+    private void processFinalizers() {
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
+            VM.println("Lisp2Collector::markFinalizers --------------- Start");
+        }
+/*end[DEBUG_CODE_ENABLED]*/
+
+        Finalizer entry = finalizers;
+        while (entry != null) {
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
+                VM.println("Lisp2Collector::markFinalizers -- processing finalizer ");
+            }
+/*end[DEBUG_CODE_ENABLED]*/
+
+            Address entryAddress = Address.fromObject(entry);
+            Assert.that(!inCollectionSpace(entryAddress) || !Lisp2Bitmap.testBitFor(entryAddress), "finalizer for object marked prematurely");
+
+            Finalizer next = entry.getNext();
+            Address object = Address.fromObject(entry.getObject());
+            boolean referenced = !inCollectionSpace(object) || Lisp2Bitmap.testBitFor(object);
+            entry.setReferenced(referenced);
+
+/*if[DEBUG_CODE_ENABLED]*/
+            if (tracing()) {
+                VM.print("Lisp2Collector::markFinalizers -- finalizer = ");
+                VM.printAddress(entry);
+                VM.print(" object = ");
+                VM.printAddress(object);
+                VM.print(" class = ");
+                VM.print(Klass.getInternalName(GC.getKlass(Address.fromObject(entry.getObject()))));
+                VM.print(" referenced = ");
+                VM.print(referenced);
+                VM.println();
+            }
+/*end[DEBUG_CODE_ENABLED]*/
+            entry = next;
+        }
+/*if[DEBUG_CODE_ENABLED]*/
+        if (tracing()) {
+            VM.println("Lisp2Collector::markFinalizers --------------- End");
+            VM.println();
+        }
+/*end[DEBUG_CODE_ENABLED]*/
+    }
 /*end[FINALIZATION]*/
 
     /**
@@ -2290,9 +2277,12 @@ public final class Lisp2Collector extends GarbageCollector {
      * @param objectDestination the address to which the object will be moved during compaction
      */
     private void forwardObject(Address object, Address objectDestination) {
-        Address classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
-        UWord encodedClassWord = encodeForwardingPointer(object, objectDestination).or(encodeClassOrAssociationPointer(classOrAssociation));
-        NativeUnsafe.setAddress(object, HDR.klass, Address.zero().or(encodedClassWord));
+        Address classPointer = NativeUnsafe.getAddress(object, HDR.klass);
+        UWord encodedClassWord =
+            encodeForwardingPointer(object, objectDestination).
+            or(encodeClassPointer(classPointer));
+        NativeUnsafe.setAddress(object, HDR.klass,
+                                Address.zero().or(encodedClassWord));
     }
 
     /**
@@ -2336,59 +2326,68 @@ public final class Lisp2Collector extends GarbageCollector {
     }
 
     /**
-     * Encodes a class or association pointer as an offset (in words) within its memory space (i.e. the heap, NVM or ROM).
+     * Encodes a class pointer as an offset (in words) within its
+     * memory space (i.e. the heap, NVM or ROM).
      *
-     * @param classOrAssociation  a pointer to a Klass or ObjectAssociation
-     * @return the pointer as an offset in words from the start of its memory space, left shifted by {@link ClassWordTag#BIT_COUNT}
-     *         and or'ed with {@link ClassWordTag#HEAP}, {@link ClassWordTag#NVM} or {@link ClassWordTag#ROM}
+     * @param classPointer  a pointer to a Klass
+     * @return the pointer as an offset in words from the start of its memory
+     *         space, left shifted by {@link ClassWordTag#BIT_COUNT}
+     *         and or'ed with {@link ClassWordTag#HEAP},
+     *         {@link ClassWordTag#NVM} or {@link ClassWordTag#ROM}
      */
-    private UWord encodeClassOrAssociationPointer(Address classOrAssociation) {
+    private UWord encodeClassPointer(Address classPointer) {
 
-        Offset classOrAssociationOffset;
+        Offset offset;
         int tag;
 
-        if (inHeap(classOrAssociation)) {
-            classOrAssociationOffset = getOffsetInHeap(classOrAssociation);
+        if (inHeap(classPointer)) {
+            offset = getOffsetInHeap(classPointer);
             tag = ClassWordTag.HEAP;
-        } else if (VM.inRom(classOrAssociation)) {
-            classOrAssociationOffset = VM.getOffsetInRom(classOrAssociation);
+        } else if (VM.inRom(classPointer)) {
+            offset = VM.getOffsetInRom(classPointer);
             tag = ClassWordTag.ROM;
         } else {
 /*if[MICROBLAZE_BUILD]*/
             Assert.shouldNotReachHere();
-            classOrAssociationOffset = Offset.zero();
+            offset = Offset.zero();
 /*else[MICROBLAZE_BUILD]*/
-//          Assert.that(GC.inNvm(classOrAssociation));
-//          classOrAssociationOffset = GC.getOffsetInNvm(classOrAssociation);
+//          Assert.that(GC.inNvm(classPointer));
+//          offset = GC.getOffsetInNvm(classPointer);
 /*end[MICROBLAZE_BUILD]*/
             // In microblaze builds this is just to compile, we should
             // never reach here
             tag = ClassWordTag.NVM;
         }
-        classOrAssociationOffset = classOrAssociationOffset.bytesToWords(); // convert to word-base offset
-        Assert.that(classOrAssociationOffset.ge(Offset.zero()) && classOrAssociationOffset.lt(Offset.fromPrimitive(1 << classOffsetBits)),
-                    "encoded class or association pointer does not fit in reserved bits");
+        offset = offset.bytesToWords(); // convert to word-base offset
+        Assert.that(offset.ge(Offset.zero()) &&
+                    offset.lt(Offset.fromPrimitive(1 << classOffsetBits)),
+                    "encoded class pointer does not fit in reserved bits");
 
         // Construct and return the encoded pointer
-        UWord encodedClassOrAssociation = UWord.fromPrimitive(classOrAssociationOffset.toPrimitive() << ClassWordTag.BIT_COUNT);
-        encodedClassOrAssociation = encodedClassOrAssociation.or(UWord.fromPrimitive(tag));
-        return encodedClassOrAssociation;
+        UWord encodedClass = UWord.fromPrimitive(offset.toPrimitive() <<
+                                                 ClassWordTag.BIT_COUNT);
+        encodedClass = encodedClass.or(UWord.fromPrimitive(tag));
+        return encodedClass;
     }
 
     /**
-     * Decodes a class or association pointer that was encoded by {@link #encodeClassOrAssociationPointer}.
+     * Decodes a class pointer that was encoded by
+     * {@link #encodeClassPointer}.
      *
-     * @param encodedClassOrAssociation   an encoded class or association pointer
-     * @return the decoded version of <code>encodedClassOrAssociation</code>
+     * @param encodedClass   an encoded class
+     * @return the decoded version of <code>encodedClass</code>
      */
-    private Address decodeClassOrAssociationPointer(UWord encodedClassOrAssociation) {
-        int tag = (int)encodedClassOrAssociation.toPrimitive() & ClassWordTag.MASK;
-        Offset classOrAssociationOffset = Offset.fromPrimitive((encodedClassOrAssociation.toPrimitive() & classOffsetMask) >>> ClassWordTag.BIT_COUNT).wordsToBytes();
+    private Address decodeClassPointer(UWord encodedClass) {
+        int tag = (int)encodedClass.toPrimitive() & ClassWordTag.MASK;
+        Offset offset =
+	        Offset.fromPrimitive((encodedClass.toPrimitive() &
+	                              classOffsetMask) >>>
+	                             ClassWordTag.BIT_COUNT).wordsToBytes();
         switch (tag) {
-            case ClassWordTag.HEAP: return getObjectInHeap(classOrAssociationOffset);
-            case ClassWordTag.ROM:  return VM.getObjectInRom(classOrAssociationOffset);
+            case ClassWordTag.HEAP: return getObjectInHeap(offset);
+            case ClassWordTag.ROM:  return VM.getObjectInRom(offset);
 /*if[!MICROBLAZE_BUILD]*/
-            case ClassWordTag.NVM:  return GC.getObjectInNvm(classOrAssociationOffset);
+            case ClassWordTag.NVM:  return GC.getObjectInNvm(offset);
 /*end[MICROBLAZE_BUILD]*/
             default:
                 Assert.shouldNotReachHere();
@@ -2431,40 +2430,19 @@ public final class Lisp2Collector extends GarbageCollector {
     }
 
     /**
-     * Decodes and returns the encoded pointer in a forwarded object's header that points to
-     * the object's class or ObjectAssociation. The returned pointer may itself be pointing
-     * to an object that will be moved.
+     * Decodes and returns the encoded pointer in a forwarded object's
+     * header that points to the object's class. The returned pointer
+     * may itself be pointing to an object that will be moved.
      *
      * @param object    address of a object whose header has been modified to encode both the
-     *                  location of its class or ObjectAssociation as well as where it will be
+     *                  location of its class as well as where it will be
      *                  moved to
-     * @return the value of <code>object</code>'s klass or ObjectAssociation
+     * @return the value of <code>object</code>'s klass
      */
-    private Address getClassOrAssociationFromForwardedObject(Address object) {
+    private Address getClassFromForwardedObject(Address object) {
         Assert.that(isForwarded(object));
-        UWord encodedClassOrAssociation = NativeUnsafe.getAddress(object, HDR.klass).toUWord();
-        return decodeClassOrAssociationPointer(encodedClassOrAssociation);
-    }
-
-    /**
-     * Given an object's address and the value of the class pointer word in its header,
-     * determines if the pointer points to the class or to an ObjectAssociation. This
-     * test relies on the fact that an object's class will always be at a lower address
-     * in the heap or not in the heap at all.
-     *
-     * If !ENABLE_DYNAMIC_CLASSLOADING, then classes will never be in heap, so use simpler test
-     *
-     * @param object              an object's address
-     * @param classOrAssociation  the value of the class pointer word in <code>object</code>'s header
-     * @return true if <code>classOrAssociation</code> is a pointer outside of the heap or to a heap address lower than <code>object</code>
-     */
-    private static boolean isClassPointer(Address object, Address classOrAssociation) throws AllowInlinedPragma {
-        Assert.that(classOrAssociation.ne(object));
-/*if[ENABLE_DYNAMIC_CLASSLOADING]*/
-        return !GC.inRam(classOrAssociation) || classOrAssociation.lo(object);
-/*else[ENABLE_DYNAMIC_CLASSLOADING]*/
-//      return !GC.inRam(classOrAssociation);
-/*end[ENABLE_DYNAMIC_CLASSLOADING]*/
+        UWord encodedClass = NativeUnsafe.getAddress(object, HDR.klass).toUWord();
+        return decodeClassPointer(encodedClass);
     }
 
     /**
@@ -2474,26 +2452,15 @@ public final class Lisp2Collector extends GarbageCollector {
      * @return the address of <code>object</code>'s class which may itself be forwarded
      */
     private Address getKlass(Address object) {
-        Address classOrAssociation;
+        Address klass;
         if (isForwarded(object)) {
-            classOrAssociation = getClassOrAssociationFromForwardedObject(object);
+            klass = getClassFromForwardedObject(object);
         } else {
-            classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
+            klass = NativeUnsafe.getAddress(object, HDR.klass);
         }
-        Assert.that(!classOrAssociation.isZero());
-        Assert.that(!classOrAssociation.eq(Address.fromPrimitive(0xDEADBEEF)));
-
-        Address klass = NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
-//        if (!isClassPointer(object, classOrAssociation)) {
-//            klass = NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
-//            // Must be an ObjectAssociation
-//            Assert.that(klass.ne(classOrAssociation));
-//        } else {
-//            klass = classOrAssociation;
-//        }
-
         Assert.that(!klass.isZero());
         Assert.that(!klass.eq(Address.fromPrimitive(0xDEADBEEF)));
+
         return klass;
     }
 
@@ -2748,7 +2715,7 @@ public final class Lisp2Collector extends GarbageCollector {
                 VM.println(klass.getInternalName());
             }
 
-            // Verify the pointer to the class or ObjectAssociation
+            // Verify the pointer to the class
             visitOop(VERIFY_VISITOR, object, HDR.klass);
 
             if (Klass.isSquawkArray(klass)) { // any kind of array
@@ -2870,279 +2837,278 @@ public final class Lisp2Collector extends GarbageCollector {
 /*end[JAVA5SYNTAX]*/
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
-/*if[!ENABLE_ISOLATE_MIGRATION]*/
-/*else[ENABLE_ISOLATE_MIGRATION]*/
-//    Address copyObjectGraphInJava(Address object, ObjectMemorySerializer.ControlBlock cb, Address allocTop) {
-//
-//        // Get the special classes if this is the first time a copy is being performed
-//        if (HashTableKlass == null) {
-//
-//            Isolate isolate = VM.getCurrentIsolate();
-//            Suite bootstrapSuite = isolate.getBootstrapSuite();
-//            HashTableKlass = bootstrapSuite.lookup("com.sun.squawk.util.SquawkHashtable");
-//            ByteArrayKlass = bootstrapSuite.getKlass(CID.BYTE_ARRAY);
-//            IsolateKlass = GC.getKlass(isolate);
-//
-///*if[DEBUG_CODE_ENABLED]*/
-//            ThreadKlass = bootstrapSuite.lookup("com.sun.squawk.VMThread");
-//            ObjectMemoryKlass = bootstrapSuite.lookup("com.sun.squawk.ObjectMemory");
-///*end[DEBUG_CODE_ENABLED]*/
-//        }
-//
-//        long start = now();
-//
-//        copyingObjectGraph = true;
-//        oopMap = cb.oopMap;
-//
-//        if (GC.getKlass(object) == IsolateKlass) {
-//            theIsolate = (Isolate)object.toObject();
-//        }
-//
-//        // Set up the limits of the space to be collected.
-//        collectionStart = heapStart;
-//        collectionEnd = allocTop;
-//
-//        // Sets up the marking stack.
-//        markingStack.setup(heapEnd, Lisp2Bitmap.getStart());
-//
-//        // Reset the marking recursion level.
-//        markingRecursionLevel = MAX_MARKING_RECURSION;
-//
-//        // Output trace information.
-///*if[DEBUG_CODE_ENABLED]*/
-//        if (tracing()) {
-//            VM.print("Lisp2Collector::copyObjectGraph - object = ");
-//            VM.printAddress(object);
-//            VM.println();
-//            traceVariables();
-//        }
-///*end[DEBUG_CODE_ENABLED]*/
-//
-//        // Clears the bitmap corresponding to the collection area. Must clear one past the
-//        // end of the collection area as there can be an object there that has a zero length body.
-//        Lisp2Bitmap.clearBitsFor(collectionStart, collectionEnd.add(HDR.BYTES_PER_WORD));
-//
-//        copyTimings.setup += (now() - start);
-//
-//        // Mark objects in graph
-//        markObjectGraph(object);
-//
-//        copiedObjects = allocTop.add(HDR.arrayHeaderSize);
-//        Address copiedObjectsEnd;
-//
-//        // Compute the address to which the objects will be copied and do the copy
-//        copiedObjectsEnd = computeAddresses();
-//
-//        if (!copiedObjectsEnd.isZero()) {
-//
-//            // Update the pointers in the copied objects
-//            updatePointersInObjectMemory(copiedObjects, copiedObjectsEnd);
-//
-//            // Find out where the root of the object memory is
-//            object = getForwardedObject(object);
-//
-//            // Unforward the class header word of all objects that have been copied
-//            unforwardCopiedObjects(collectionStart, allocTop);
-//
-//            start = now();
-//
-//            // Make the object memory a byte array
-//            int graphSize = copiedObjectsEnd.diff(copiedObjects).toInt();
-//            GC.setHeaderClass(copiedObjects, ByteArrayKlass);
-//            GC.setHeaderLength(copiedObjects, graphSize);
-//
-//            // Finalize the other return values
-//            cb.root = object.diff(copiedObjects).toInt();
-//            cb.start = copiedObjects;
-//
-//            // Adjust the allocation parameters
-//            allocTop = copiedObjectsEnd;
-//            GC.setAllocationParameters(heapStart, allocTop, heapEnd, heapEnd);
-//
-///*if[DEBUG_CODE_ENABLED]*/
-//            if (tracing()) {
-//                VM.println();
-//                VM.print("Lisp2Collector::copyObjectGraph - objectMemory = ");
-//                VM.printAddress(copiedObjects);
-//                VM.print(" objectMemoryEnd = ");
-//                VM.printAddress(copiedObjectsEnd);
-//                VM.print(" size ");
-//                VM.print(graphSize);
-//                VM.println();
-//            }
-///*end[DEBUG_CODE_ENABLED]*/
-//        } else {
-//            // Unforward the class header word of all objects that have been copied
-//            unforwardCopiedObjects(collectionStart, allocTop);
-//
-//            start = now();
-//            copiedObjects = Address.zero();
-//        }
-//
-///*if[DEBUG_CODE_ENABLED]*/
-//        // Output trace information.
-//        if (tracing()) {
-//            traceVariables();
-//        }
-///*end[DEBUG_CODE_ENABLED]*/
-//
-//        // Reset the re-entry guard.
-//        copyingObjectGraph = false;
-//        theIsolate = null;
-//        oopMap = null;
-//
-///*if[DEBUG_CODE_ENABLED]*/
-//        // Verify that the memory looks well formed
-//        verifyObjectMemory(permanentMemoryStart, memoryStart);
-//        verifyObjectMemory(heapStart, allocTop);
-///*end[DEBUG_CODE_ENABLED]*/
-//
-//        copyTimings.finalize += (now() - start);
-//
-//        return copiedObjects;
-//    }
-//
-///*if[DEBUG_CODE_ENABLED]*/
-//    /**
-//     * Determines if a given object address does not break isolation. This is not
-//     * a comprehensive test but should catch most errors.
-//     *
-//     * @param object   the object address to test
-//     * @param klass    the class of the object
-//     */
-//    private void assertIsolation(Address object, Klass klass) {
-//
-//        Address global;
-//
-//        // Ensure that the object does not coincide with the value of a global reference
-//        for (int i = 0 ; i < VM.getGlobalOopCount() ; i++) {
-//            global = Address.fromObject(VM.getGlobalOop(i));
-//            if (global.eq(object)) {
-//                VM.print("cannot copy value shared with global '");
-//                VM.printGlobalOopName(i);
-//                VM.println("' -- most likely caused by a local variable in a method in com.sun.squawk.VMThread pointing to a global");
-//                Assert.shouldNotReachHere();
-//            }
-//        }
-//
-//        Assert.that(klass != ObjectMemoryKlass, "cannot copy an ObjectMemory instance");
-//
-//        if (theIsolate != null) {
-//            if (Klass.isSubtypeOf(klass, ThreadKlass)) {
-//                Assert.that(NativeUnsafe.getObject(object, (int)FieldOffsets.com_sun_squawk_VMThread$isolate) == theIsolate,
-//                            "cannot copy thread from another isolate");
-//            } else if (Klass.isSubtypeOf(klass, IsolateKlass)) {
-//                Assert.that(object.eq(Address.fromObject(theIsolate)), "cannot copy another isolate");
-//            } else if (Klass.getSystemID(klass) == CID.LOCAL_ARRAY) {
-//                Object thread = NativeUnsafe.getObject(object, SC.owner);
-//                Assert.that(thread == null || NativeUnsafe.getObject(thread, (int)FieldOffsets.com_sun_squawk_VMThread$isolate) == theIsolate,
-//                            "cannot copy stack chunk from another isolate");
-//            }
-//        }
-//    }
-///*end[DEBUG_CODE_ENABLED]*/
-//
-//    /**
-//     * Reverts the class header word of all the objects in a given range that have been
-//     * copied to another location and therefore had their class header word modified to
-//     * encode the destination of the copy.
-//     *
-//     * @param start  the start of the first block in the range
-//     * @param end    the end of the range
-//     */
-//    private void unforwardCopiedObjects(Address start, Address end) {
-//
-//        long begin = now();
-//
-//        Address object;
-//        Address classOrAssociation;
-//
-//        // Iterate over all the marked objects in the collection space
-//        Lisp2Bitmap.Iterator.start(start, end, true);
-//        while (!(object = Lisp2Bitmap.Iterator.getNext()).isZero()) {
-//
-//            if (!isForwarded(object)) {
-//                // This means that we ran out of space while copying the graph
-//                Lisp2Bitmap.Iterator.terminate();
-//                break;
-//            }
-//
-//            classOrAssociation = getClassOrAssociationFromForwardedObject(object);
-//            NativeUnsafe.setAddress(object, HDR.klass, classOrAssociation);
-//        }
-//
-//        copyTimings.updatePointers += (now() - begin);
-//    }
-//
-//    /**
-//     * Updates all the pointers within a given object memory that may contain references to
-//     * forwarded objects.
-//     *
-//     * @param start   the address of the first block in the object memory
-//     * @param end     the address of byte one past the last object in the memory
-//     */
-//    private void updatePointersInObjectMemory(Address start, Address end) {
-//
-//        long begin = now();
-//
-//        Address object;
-//        Address klassAddress;
-//
-///*if[DEBUG_CODE_ENABLED]*/
-//        if (tracing()) {
-//            VM.println("Lisp2Collector::updatePointersInObjectMemory --------------- Start");
-//        }
-///*end[DEBUG_CODE_ENABLED]*/
-//
-//        for (Address block = start; block.lo(end); ) {
-//            object = GC.blockToOop(block);
-//            Klass klass = GC.getKlass(object);
-//            klassAddress = Address.fromObject(klass);
-//
-//            // Update the pointer to the class or ObjectAssociation
-//            visitOop(UPDATE_VISITOR, object, HDR.klass);
-//
-//            if (klass.isSquawkArray(klass)) { // any kind of array
-//                traverseOopsInArrayObject(object, klassAddress, UPDATE_VISITOR);
-//            } else {
-//                traverseOopsInNonArrayObject(object, klassAddress, UPDATE_VISITOR);
-//            }
-//
-//            block = object.add(GC.getBodySize(klass, object));
-//        }
-//
-///*if[DEBUG_CODE_ENABLED]*/
-//        if (tracing()) {
-//            VM.println("Lisp2Collector::updatePointersInObjectMemory --------------- End");
-//            VM.println();
-//        }
-///*end[DEBUG_CODE_ENABLED]*/
-//
-//        copyTimings.updatePointers += (now() - begin);
-//    }
-//
-//    /**
-//     * Records the address of a pointer in the graph being copied.
-//     *
-//     * @param pointerAddress the address of a pointer
-//     */
-//    private void recordPointer(Address pointerAddress) {
-//        // Update the oop map
-//        if (inHeap(pointerAddress)) {
-//            int word = (pointerAddress.diff(copiedObjects).toInt() / HDR.BYTES_PER_WORD);
-//            oopMap.set(word);
-///*if[DEBUG_CODE_ENABLED]*/
-//            if (tracing()) {
-//                VM.print("Lisp2Collector::recordPointer - set bit in oop map for pointer at ");
-//                VM.printAddress(pointerAddress);
-//                VM.print(" [");
-//                VM.printAddress(NativeUnsafe.getAddress(pointerAddress, 0));
-//                VM.print("]");
-//                VM.println();
-//            }
-///*end[DEBUG_CODE_ENABLED]*/
-//        }
-//    }
+/*if[ENABLE_ISOLATE_MIGRATION]*/
+   Address copyObjectGraphInJava(Address object, ObjectMemorySerializer.ControlBlock cb, Address allocTop) {
+
+       // Get the special classes if this is the first time a copy is being performed
+       if (HashTableKlass == null) {
+
+           Isolate isolate = VM.getCurrentIsolate();
+           Suite bootstrapSuite = isolate.getBootstrapSuite();
+           HashTableKlass = bootstrapSuite.lookup("com.sun.squawk.util.SquawkHashtable");
+           ByteArrayKlass = bootstrapSuite.getKlass(CID.BYTE_ARRAY);
+           IsolateKlass = GC.getKlass(isolate);
+
+/*if[DEBUG_CODE_ENABLED]*/
+           ThreadKlass = bootstrapSuite.lookup("com.sun.squawk.VMThread");
+           ObjectMemoryKlass = bootstrapSuite.lookup("com.sun.squawk.ObjectMemory");
+/*end[DEBUG_CODE_ENABLED]*/
+       }
+
+       long start = now();
+
+       copyingObjectGraph = true;
+       oopMap = cb.oopMap;
+
+       if (GC.getKlass(object) == IsolateKlass) {
+           theIsolate = (Isolate)object.toObject();
+       }
+
+       // Set up the limits of the space to be collected.
+       collectionStart = heapStart;
+       collectionEnd = allocTop;
+
+       // Sets up the marking stack.
+       markingStack.setup(heapEnd, Lisp2Bitmap.getStart());
+
+       // Reset the marking recursion level.
+       markingRecursionLevel = MAX_MARKING_RECURSION;
+
+       // Output trace information.
+/*if[DEBUG_CODE_ENABLED]*/
+       if (tracing()) {
+           VM.print("Lisp2Collector::copyObjectGraph - object = ");
+           VM.printAddress(object);
+           VM.println();
+           traceVariables();
+       }
+/*end[DEBUG_CODE_ENABLED]*/
+
+       // Clears the bitmap corresponding to the collection area. Must clear one past the
+       // end of the collection area as there can be an object there that has a zero length body.
+       Lisp2Bitmap.clearBitsFor(collectionStart, collectionEnd.add(HDR.BYTES_PER_WORD));
+
+       copyTimings.setup += (now() - start);
+
+       // Mark objects in graph
+       markObjectGraph(object);
+
+       copiedObjects = allocTop.add(HDR.arrayHeaderSize);
+       Address copiedObjectsEnd;
+
+       // Compute the address to which the objects will be copied and do the copy
+       copiedObjectsEnd = computeAddresses();
+
+       if (!copiedObjectsEnd.isZero()) {
+
+           // Update the pointers in the copied objects
+           updatePointersInObjectMemory(copiedObjects, copiedObjectsEnd);
+
+           // Find out where the root of the object memory is
+           object = getForwardedObject(object);
+
+           // Unforward the class header word of all objects that have been copied
+           unforwardCopiedObjects(collectionStart, allocTop);
+
+           start = now();
+
+           // Make the object memory a byte array
+           int graphSize = copiedObjectsEnd.diff(copiedObjects).toInt();
+           GC.setHeaderClass(copiedObjects, ByteArrayKlass);
+           GC.setHeaderLength(copiedObjects, graphSize);
+
+           // Finalize the other return values
+           cb.root = object.diff(copiedObjects).toInt();
+           cb.start = copiedObjects;
+
+           // Adjust the allocation parameters
+           allocTop = copiedObjectsEnd;
+           GC.setAllocationParameters(heapStart, allocTop, heapEnd, heapEnd);
+
+/*if[DEBUG_CODE_ENABLED]*/
+           if (tracing()) {
+               VM.println();
+               VM.print("Lisp2Collector::copyObjectGraph - objectMemory = ");
+               VM.printAddress(copiedObjects);
+               VM.print(" objectMemoryEnd = ");
+               VM.printAddress(copiedObjectsEnd);
+               VM.print(" size ");
+               VM.print(graphSize);
+               VM.println();
+           }
+/*end[DEBUG_CODE_ENABLED]*/
+       } else {
+           // Unforward the class header word of all objects that have been copied
+           unforwardCopiedObjects(collectionStart, allocTop);
+
+           start = now();
+           copiedObjects = Address.zero();
+       }
+
+/*if[DEBUG_CODE_ENABLED]*/
+       // Output trace information.
+       if (tracing()) {
+           traceVariables();
+       }
+/*end[DEBUG_CODE_ENABLED]*/
+
+       // Reset the re-entry guard.
+       copyingObjectGraph = false;
+       theIsolate = null;
+       oopMap = null;
+
+/*if[DEBUG_CODE_ENABLED]*/
+       // Verify that the memory looks well formed
+       verifyObjectMemory(permanentMemoryStart, memoryStart);
+       verifyObjectMemory(heapStart, allocTop);
+/*end[DEBUG_CODE_ENABLED]*/
+
+       copyTimings.finalize += (now() - start);
+
+       return copiedObjects;
+   }
+
+/*if[DEBUG_CODE_ENABLED]*/
+   /**
+    * Determines if a given object address does not break isolation. This is not
+    * a comprehensive test but should catch most errors.
+    *
+    * @param object   the object address to test
+    * @param klass    the class of the object
+    */
+   private void assertIsolation(Address object, Klass klass) {
+
+       Address global;
+
+       // Ensure that the object does not coincide with the value of a global reference
+       for (int i = 0 ; i < VM.getGlobalOopCount() ; i++) {
+           global = Address.fromObject(VM.getGlobalOop(i));
+           if (global.eq(object)) {
+               VM.print("cannot copy value shared with global '");
+               VM.printGlobalOopName(i);
+               VM.println("' -- most likely caused by a local variable in a method in com.sun.squawk.VMThread pointing to a global");
+               Assert.shouldNotReachHere();
+           }
+       }
+
+       Assert.that(klass != ObjectMemoryKlass, "cannot copy an ObjectMemory instance");
+
+       if (theIsolate != null) {
+           if (Klass.isSubtypeOf(klass, ThreadKlass)) {
+               Assert.that(NativeUnsafe.getObject(object, (int)FieldOffsets.com_sun_squawk_VMThread$isolate) == theIsolate,
+                           "cannot copy thread from another isolate");
+           } else if (Klass.isSubtypeOf(klass, IsolateKlass)) {
+               Assert.that(object.eq(Address.fromObject(theIsolate)), "cannot copy another isolate");
+           } else if (Klass.getSystemID(klass) == CID.LOCAL_ARRAY) {
+               Object thread = NativeUnsafe.getObject(object, SC.owner);
+               Assert.that(thread == null || NativeUnsafe.getObject(thread, (int)FieldOffsets.com_sun_squawk_VMThread$isolate) == theIsolate,
+                           "cannot copy stack chunk from another isolate");
+           }
+       }
+   }
+/*end[DEBUG_CODE_ENABLED]*/
+
+   /**
+    * Reverts the class header word of all the objects in a given range that have been
+    * copied to another location and therefore had their class header word modified to
+    * encode the destination of the copy.
+    *
+    * @param start  the start of the first block in the range
+    * @param end    the end of the range
+    */
+   private void unforwardCopiedObjects(Address start, Address end) {
+
+       long begin = now();
+
+       Address object;
+       Address classPointer;
+
+       // Iterate over all the marked objects in the collection space
+       Lisp2Bitmap.Iterator.start(start, end, true);
+       while (!(object = Lisp2Bitmap.Iterator.getNext()).isZero()) {
+
+           if (!isForwarded(object)) {
+               // This means that we ran out of space while copying the graph
+               Lisp2Bitmap.Iterator.terminate();
+               break;
+           }
+
+           classPointer = getClassFromForwardedObject(object);
+           NativeUnsafe.setAddress(object, HDR.klass, classPointer);
+       }
+
+       copyTimings.updatePointers += (now() - begin);
+   }
+
+   /**
+    * Updates all the pointers within a given object memory that may contain references to
+    * forwarded objects.
+    *
+    * @param start   the address of the first block in the object memory
+    * @param end     the address of byte one past the last object in the memory
+    */
+   private void updatePointersInObjectMemory(Address start, Address end) {
+
+       long begin = now();
+
+       Address object;
+       Address klassAddress;
+
+/*if[DEBUG_CODE_ENABLED]*/
+       if (tracing()) {
+           VM.println("Lisp2Collector::updatePointersInObjectMemory --------------- Start");
+       }
+/*end[DEBUG_CODE_ENABLED]*/
+
+       for (Address block = start; block.lo(end); ) {
+           object = GC.blockToOop(block);
+           Klass klass = GC.getKlass(object);
+           klassAddress = Address.fromObject(klass);
+
+           // Update the pointer to the class
+           visitOop(UPDATE_VISITOR, object, HDR.klass);
+
+           if (klass.isSquawkArray(klass)) { // any kind of array
+               traverseOopsInArrayObject(object, klassAddress, UPDATE_VISITOR);
+           } else {
+               traverseOopsInNonArrayObject(object, klassAddress, UPDATE_VISITOR);
+           }
+
+           block = object.add(GC.getBodySize(klass, object));
+       }
+
+/*if[DEBUG_CODE_ENABLED]*/
+       if (tracing()) {
+           VM.println("Lisp2Collector::updatePointersInObjectMemory --------------- End");
+           VM.println();
+       }
+/*end[DEBUG_CODE_ENABLED]*/
+
+       copyTimings.updatePointers += (now() - begin);
+   }
+
+   /**
+    * Records the address of a pointer in the graph being copied.
+    *
+    * @param pointerAddress the address of a pointer
+    */
+   private void recordPointer(Address pointerAddress) {
+       // Update the oop map
+       if (inHeap(pointerAddress)) {
+           int word = (pointerAddress.diff(copiedObjects).toInt() / HDR.BYTES_PER_WORD);
+           oopMap.set(word);
+/*if[DEBUG_CODE_ENABLED]*/
+           if (tracing()) {
+               VM.print("Lisp2Collector::recordPointer - set bit in oop map for pointer at ");
+               VM.printAddress(pointerAddress);
+               VM.print(" [");
+               VM.printAddress(NativeUnsafe.getAddress(pointerAddress, 0));
+               VM.print("]");
+               VM.println();
+           }
+/*end[DEBUG_CODE_ENABLED]*/
+       }
+   }
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
     /*---------------------------------------------------------------------------*\
@@ -3186,27 +3152,8 @@ public final class Lisp2Collector extends GarbageCollector {
 
             // Get a pointer to the object's class.
             Klass klass;
-            Address classOrAssociation = getClassOrAssociationFromForwardedObject(object);
-            if (isClassPointer(object, classOrAssociation)) {
-                // The class of an object is always moved before the object itself so the
-                // value of classOrAssociation is a pointer to a valid class
-                klass = VM.asKlass(classOrAssociation);
-            } else {
-
-                // An object is always moved before its ObjectAssociation
-                Assert.that(isForwarded(classOrAssociation));
-
-                // The 'self' pointer must be dereferenced in the old copy of the ObjectAssociation
-                // as the new copy will be made during a subsequent iteration of this loop
-                klass = VM.asKlass(NativeUnsafe.getAddress(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self));
-
-                // Now get the address to which the ObjectAssociation will be moved
-                classOrAssociation = getForwardedObject(classOrAssociation);
-            }
-
-            // Update the class pointer
-            Assert.that(!classOrAssociation.isZero());
-            NativeUnsafe.setAddress(object, HDR.klass, classOrAssociation);
+            Address classPointer = getClassFromForwardedObject(object);
+            klass = VM.asKlass(classPointer);
 
             int headerSize = object.diff(GC.oopToBlock(klass, object)).toInt();
             int size = GC.getBodySize(klass, object);

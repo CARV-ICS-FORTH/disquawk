@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 FORTH-ICS / CARV
+ * Copyright (C) 2013-2015 FORTH-ICS / CARV
  *                         (Foundation for Research & Technology -- Hellas,
  *                          Institute of Computer Science,
  *                          Computer Architecture & VLSI Systems Laboratory)
@@ -1110,22 +1110,18 @@ public class GC implements GlobalStaticFields {
 /*end[JAVA5SYNTAX]*/
 	public static Klass getKlass(Object object)  throws ForceInlinedPragma {
 		Assert.that(object != null);
-		Address classOrAssociation = NativeUnsafe.getAddress(object, HDR.klass);
+		Object klass = NativeUnsafe.getObject(object, HDR.klass);
 /*if[DEBUG_CODE_ENABLED]*/
-		if (!isPointer(classOrAssociation)) {
+		if (!isPointer(Address.fromObject(klass))) {
 			VM.print("object: ");
 			VM.printAddress(object);
 			VM.println();
 
-			VM.print("classOrAssociation: ");
-			VM.printAddress(classOrAssociation);
+			VM.print("klass: ");
+			VM.printAddress(Address.fromObject(klass));
 			VM.println();
 		}
-		Assert.always(!classOrAssociation.isZero());
 /*end[DEBUG_CODE_ENABLED]*/
-		Assert.that(!classOrAssociation.isZero());
-		Object klass = NativeUnsafe.getObject(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
-		//Assert.that(!klass.isZero());
 		Assert.that(klass != null);
 		return VM.asKlass(klass);
 	}
@@ -1791,125 +1787,10 @@ public class GC implements GlobalStaticFields {
 	 */
 	public static int getHashCode(Object object) {
 		if (GC.inRam(object)) {
-			return getObjectAssociation(object).getHashCode();
+			return object.getHashCode();
 		} else {
 			return VM.hashcode(object);
 		}
-	}
-
-	/**
-	 * Get or allocate the Monitor for an object.
-	 *
-	 * @param object the object the monitor is needed for.
-	 * @return the monitor
-	 */
-	static Monitor getMonitor(Object object) {
-		if (GC.inRam(object)) {
-			/*
-			 * Objects in RAM have their monitors attached to ObjectAssociation
-			 * that sits between the object and its class.
-			 */
-			ObjectAssociation assn = getObjectAssociation(object);
-			Monitor monitor = assn.getMonitor();
-			if (monitor == null) {
-				monitor = new Monitor(object);
-				assn.setMonitor(monitor);
-			}
-			return monitor;
-		} else {
-			/*
-			 * Objects in ROM or NVM have their monitors in a hashtable that is
-			 * maintained by the isolate.
-			 */
-			SquawkHashtable monitorTable = VM.getCurrentIsolate().getMonitorHashtable();
-			Monitor monitor = (Monitor)monitorTable.get(object);
-			if (monitor == null) {
-				monitor = new Monitor(object);
-				monitorTable.put(object, monitor);
-			}
-			return monitor;
-		}
-	}
-
-/*if[SMARTMONITORS]*/
-	/**
-	 * Remove the monitor (and ObjectAssociation) if possible.
-	 *
-	 * @param object the object
-	 */
-	static void removeMonitor(Object object, boolean cond) {
-		monitorExitCount++;
-		if (cond) {
-			if (GC.inRam(object)) {
-				ObjectAssociation assn = lookupObjectAssociation(object);
-				if (!assn.hashCodeInUse()) {
-					NativeUnsafe.setObject(object, HDR.klass, getKlass(object));
-					monitorReleaseCount++;
-				}
-			} else {
-				SquawkHashtable monitorTable = VM.getCurrentIsolate().getMonitorHashtable();
-				monitorTable.remove(object);
-				monitorReleaseCount++;
-			}
-		}
-	}
-
-	/**
-	 * Tests to see if an object has a real monitor object.
-	 *
-	 * @param object the object
-	 * @return true if is does
-	 */
-	static boolean hasRealMonitor(Object object) {
-		Monitor monitor = null;
-		if (GC.inRam(object)) {
-			Object something = NativeUnsafe.getObject(object, HDR.klass);
-			Klass klass = getKlass(object);
-			if (something == klass) {
-				return false;
-			} else {
-				monitor = ((ObjectAssociation)something).getMonitor();
-			}
-		} else {
-			SquawkHashtable monitorTable = VM.getCurrentIsolate().getMonitorHashtable();
-			monitor = (Monitor)monitorTable.get(object);
-		}
-		return monitor != null;
-	}
-/*end[SMARTMONITORS]*/
-
-	/**
-	 * Get or allocate the ObjectAssociation for an object.
-	 *
-	 * @param object the object the ObjectAssociation is needed for.
-	 * @return the ObjectAssociation
-	 */
-	private static ObjectAssociation getObjectAssociation(Object object) throws ForceInlinedPragma {
-		Assert.that(GC.inRam(object));
-		Object classOrAssociation = NativeUnsafe.getObject(object, HDR.klass);
-		Object klass = NativeUnsafe.getObject(classOrAssociation, (int)FieldOffsets.com_sun_squawk_Klass$self);
-		if (classOrAssociation != klass) {
-			return (ObjectAssociation)classOrAssociation;
-		}
-
-		return createObjectAssociation(object, VM.asKlass(klass));
-	}
-
-	private static ObjectAssociation lookupObjectAssociation(Object object) throws ForceInlinedPragma {
-		Assert.that(GC.inRam(object));
-		Object classOrAssociation = NativeUnsafe.getObject(object, HDR.klass);
-		return (ObjectAssociation)classOrAssociation;
-	}
-
-	private static ObjectAssociation createObjectAssociation(Object object, Klass klass) {
-		ObjectAssociation assn = new ObjectAssociation(klass);
-
-		// The Lisp2Collector relies on ObjectAssociations always being at a higher address
-		// than the object with which they are associated
-		Assert.that(VM.isHosted() || Address.fromObject(object).lo(Address.fromObject(assn)));
-
-		NativeUnsafe.setObject(object, HDR.klass, assn);
-		return assn;
 	}
 
 	/**

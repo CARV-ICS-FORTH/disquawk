@@ -201,28 +201,25 @@ write_back(Address from, Address to)
 	/* The object's home node board id */
 	int     to_bid;
 	int     size, length;
-	Address classOrAssociation, klass;
+	Address klass;
 
 	switch ((*(int*)to) & HDR_headerTagMask) {
 
 	case HDR_basicHeaderTag: /* Class Instance */
-		classOrAssociation = (Address) * (int*)from;
-		klass              = com_sun_squawk_Klass_self(classOrAssociation);
+		klass = (Address) * (int*)from;
+		size  = com_sun_squawk_Klass_instanceSizeBytes(klass) +
+		        HDR_basicHeaderSize;
 
-		size               = com_sun_squawk_Klass_instanceSizeBytes(klass) +
-		                     HDR_basicHeaderSize;
-
-		/* printf("coa= %p klass = %p\n", classOrAssociation, klass);
+		/* printf("klass = %p\n", klass);
 		 * printf("Size = %d HDR = %d name = %s\n", size, HDR_basicHeaderSize,
-		 *com_sun_squawk_Klass_name(
+		 * com_sun_squawk_Klass_name(
 		 *            klass)); */
 		assume(size != HDR_basicHeaderSize);
 
 		break;
 
 	case HDR_arrayHeaderTag: /* Array */
-		classOrAssociation = (Address) * (int*)(from + 4);
-		klass              = com_sun_squawk_Klass_self(classOrAssociation);
+		klass = (Address) * (int*)(from + 4);
 
 		/* Check if we brought the whole array or not */
 		length = (*(int*)from) >> 2;
@@ -669,7 +666,7 @@ static inline Address
 block_to_oop(Address obj, Address oop, int cid)
 {
 	int     size, length;
-	Address classOrAssociation, klass;
+	Address klass;
 
 	/* int     start, end; */
 
@@ -677,8 +674,7 @@ block_to_oop(Address obj, Address oop, int cid)
 
 	case HDR_basicHeaderTag: /* Class Instance */
 		/* start              = sysGetTicks(); */
-		classOrAssociation = (Address) * (int*)oop;
-		klass              = com_sun_squawk_Klass_self(classOrAssociation);
+		klass = (Address) * (int*)oop;
 		/* end                = sysGetTicks();
 		 * printf("Find klass took %10u cc \n", end - start); */
 
@@ -710,8 +706,7 @@ block_to_oop(Address obj, Address oop, int cid)
 		break;
 
 	case HDR_arrayHeaderTag: /* Array */
-		classOrAssociation = (Address) * (int*)(oop + 4);
-		klass              = com_sun_squawk_Klass_self(classOrAssociation);
+		klass = (Address) * (int*)(oop + 4);
 
 		/* Check if we brought the whole array or not */
 		length = (*(int*)oop) >> 2;
@@ -863,9 +858,9 @@ sc_get(Address obj, int is_write)
 		 * printf("sc_put takes %10u cc\n", end - start); */
 	}
 
-	/* Address classOrAssociation, klass;
-	 * classOrAssociation = (Address) * (int*)(ret->val & SC_ADDRESS_MASK);
-	 * klass              = com_sun_squawk_Klass_self(classOrAssociation); */
+	/* Address klass;
+	 * klass = (Address) * (int*)(ret->val & SC_ADDRESS_MASK);
+	 */
 
 	/* If it is requested to be written and is not already marked as dirty */
 	if (is_write && !(ret->key & SC_DIRTY_MASK)) {

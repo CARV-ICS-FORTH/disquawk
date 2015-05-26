@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-15, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -279,8 +283,9 @@ public final class CheneyCollector extends GarbageCollector {
     }
 
     /**
-     * Gets the class of an object. This method takes into account that any of the
-     * following may have been moved: the object itself, its class or its association.
+     * Gets the class of an object. This method takes into account
+     * that any of the following may have been moved: the object
+     * itself or its class.
      *
      * @param object the object address
      * @return the klass
@@ -289,7 +294,7 @@ public final class CheneyCollector extends GarbageCollector {
         object = getPossiblyForwardedObject(object);
         Object classWord = NativeUnsafe.getObject(object, HDR.klass);
         Address something = getPossiblyForwardedObject(classWord);
-        Address klass = NativeUnsafe.getAddress(something, (int)FieldOffsets.com_sun_squawk_Klass$self);
+        Address klass = Address.fromObject(classWord);
         return VM.asKlass(getPossiblyForwardedObject(klass));
     }
 
@@ -945,8 +950,7 @@ public final class CheneyCollector extends GarbageCollector {
      * @param object the object in 'to' space
      */
     private void updateOops(Address object) {
-        Address associationOrKlass = updateReference(object, HDR.klass);
-        Klass klass = VM.asKlass(updateReference(associationOrKlass, (int)FieldOffsets.com_sun_squawk_Klass$self));
+        Klass klass = VM.asKlass(updateReference(object, HDR.klass));
 /*if[DEBUG_CODE_ENABLED]*/
         if (tracing()) {
             VM.print("CheneyCollector::updateOops object = ");
