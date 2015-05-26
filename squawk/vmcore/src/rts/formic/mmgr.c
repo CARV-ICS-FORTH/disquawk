@@ -32,7 +32,7 @@
 #include "globals.h"
 #include "arch.h"
 
-#define VERY_VERBOSE 1
+/* #define VERY_VERBOSE 1 */
 
 /******************************************************************************
  * Custom allocator for the Monitor Manager
