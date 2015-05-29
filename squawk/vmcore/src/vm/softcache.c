@@ -943,11 +943,18 @@ void
 sc_write_back(Address object)
 {
 	sc_object_st *entry;
+	Address      cached;
+	UWord        obj = (UWord)object & SC_ADDRESS_MASK;
 
-	entry = dir_lookup((UWord)object);
+	entry  = dir_lookup(obj);
+	assume(entry);
+	cached = entry->val & SC_ADDRESS_MASK;
 
-	kt_printf("to=%p from=%p\n", object, entry->val);
-	write_back((Address)entry->val, object);
+	/* kt_printf("to=%p from=%p\n", obj, cached); */
+	write_back(cached, obj);
+
+	/* Force a hardware cache flush */
+	hwcache_flush();
 
 	wait_pending_wb();
 }
