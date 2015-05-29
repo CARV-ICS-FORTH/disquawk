@@ -1805,7 +1805,7 @@ public class GC implements GlobalStaticFields {
 	 */
 	public static int getHashCode(Object object) {
 		if (GC.inRam(object)) {
-			return object.getHashCode();
+			return object.hashCode();
 		} else {
 			return VM.hashcode(object);
 		}
