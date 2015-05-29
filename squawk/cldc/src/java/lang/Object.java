@@ -42,6 +42,11 @@ import com.sun.squawk.util.Assert;
  */
 public class Object {
 
+    public Object() {
+        hashCode = (((NativeUnsafe.getIsland() << 3) |
+                     NativeUnsafe.getCore()) << 16) | VM.getNextHashcode();
+    }
+
     /**
      * Wakes up a single thread that is waiting on this object's
      * monitor. If any threads are waiting on this object, one of them
@@ -314,7 +319,7 @@ public class Object {
      * @see     java.util.Hashtable
      */
     public int hashCode() {
-        return com.sun.squawk.GC.getHashCode(this);
+        return hashCode;
     }
 
     /**
