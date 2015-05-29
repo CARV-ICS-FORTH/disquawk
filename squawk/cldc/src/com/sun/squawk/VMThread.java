@@ -491,33 +491,6 @@ public final class VMThread implements GlobalStaticFields {
 	}
 
 	/**
-	 * Causes this thread to begin execution; the Java Virtual Machine
-	 * calls the <code>run</code> method of this thread.
-	 * <p>
-	 * The result is that two threads are running concurrently: the
-	 * current thread (which returns from the call to the
-	 * <code>start</code> method) and the other thread (which executes its
-	 * <code>run</code> method).
-	 *
-	 * @exception  IllegalThreadStateException  if the thread was already started.
-	 * @see        java.lang.Thread#run()
-	 */
-	public void start() {
-
-		/*
-		 * Check that the thread has not yet been started.
-		 */
-		if (state != NEW) {
-			throw new IllegalThreadStateException();
-		}
-
-		/*
-		 * Initialize the new thread and add it to the list of runnable threads.
-		 */
-		baptiseThread();
-	}
-
-	/**
 	 * Causes this thread to begin execution LOCALLY; the Java Virtual Machine
 	 * calls the <code>run</code> method of this thread.
 	 * <p>
@@ -582,6 +555,16 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	public final boolean isAlive() {
 		return state == ALIVE;
+	}
+
+	/**
+	 * Tests if this thread is dead.
+	 *
+	 * @return  <code>true</code> if this thread is dead;
+	 *          <code>false</code> otherwise.
+	 */
+	public final boolean isDead() {
+		return state == DEAD;
 	}
 
 	/**
@@ -1476,19 +1459,6 @@ public final class VMThread implements GlobalStaticFields {
 /*end[FINALIZATION]*/
 
 	/**
-	 * Prepare a thread for execution.
-	 */
-	private void baptiseThread() {
-		Assert.that(currentThread != null);
-		Assert.always(state == NEW);
-
-		// Remove monitor before sending
-		this.setMonitor(null);
-		// FIXME: Mark all object references in the stack
-		MMP.spawnThread(this);
-	}
-
-	/**
 	 * End thread execution.
 	 * Never returns unless exception is thrown. Ordinarily switches to another thread.
 	 */
@@ -1541,7 +1511,10 @@ public final class VMThread implements GlobalStaticFields {
 		}
 /*end[MICROBLAZE_BUILD]*/
 
-		state = DEAD;
+		synchronized (this) {
+			this.notifyAll();
+			state = DEAD;
+		}
 
 		// Can't zero stack here - Must zero atomically with other stack-reelated backpointers,
 		// in same method as VM.threadSwitch() call. Otherwise a poorly-timed extendStack could occur
@@ -1797,6 +1770,7 @@ public final class VMThread implements GlobalStaticFields {
 		Object   object;
 		Integer  msg_op;
 		VMThread thread;
+		Thread   javathread;
 
 		/*
 		 * Although msg_op is used to return the msg type we
@@ -1817,8 +1791,14 @@ public final class VMThread implements GlobalStaticFields {
 			case MMP.OPS_TH_SPAWN: {
 				// There is a new thread for us
 				Assert.that(object != null);
-				thread = new VMThread((VMThread) object);
+				javathread = (Thread)object;
+				thread = new VMThread(javathread, javathread.getTName());
+				// VM.print("Incoming thread " + javathread.getTName() + "\n");
+				javathread.setVMThread(thread);
+				// Write-back
+				SoftwareCache.writeBack(javathread);
 				thread.localStart();
+				// VM.print("Incoming Started\n");
 
 				break;
 			}

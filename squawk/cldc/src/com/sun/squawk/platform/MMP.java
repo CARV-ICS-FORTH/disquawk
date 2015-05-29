@@ -74,7 +74,7 @@ public final class MMP {
 	 * message to this core with the thread object's address and the
 	 * core and island of the hardware thread that spawned it.
 	 */
-	public static void spawnThread(VMThread thread) throws NativePragma {
+	public static void spawnThread(Thread thread) throws NativePragma {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 

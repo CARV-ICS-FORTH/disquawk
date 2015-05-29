@@ -25,6 +25,7 @@
 package java.lang;
 
 import com.sun.squawk.*;
+import com.sun.squawk.platform.MMP;
 
 /**
  * A <i>thread</i> is a thread of execution in a program. The Java
@@ -95,12 +96,19 @@ import com.sun.squawk.*;
  */
 public class Thread implements Runnable {
 
-    private final VMThread vmThread;
+    private VMThread vmThread;
 
     /**
      * The target to run (if run() is not overridden).
      */
     private Runnable target;
+
+    /**
+     * The name of the thread;
+     */
+    private String name;
+
+    private boolean spawned;
 
     /**
      * The minimum priority that a thread can have.
@@ -208,6 +216,7 @@ public class Thread implements Runnable {
         vmThread = new VMThread(this, null);
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
+        this.name = null;
     }
 
     /**
@@ -222,6 +231,7 @@ public class Thread implements Runnable {
         vmThread = new VMThread(this, null);
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
+        this.name = null;
     }
 
     /**
@@ -236,6 +246,7 @@ public class Thread implements Runnable {
         vmThread = new VMThread(this, name);
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
+        this.name = name;
     }
 
     /**
@@ -251,6 +262,7 @@ public class Thread implements Runnable {
         vmThread = new VMThread(this, name);
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
+        this.name = name;
     }
 
     /**
@@ -266,8 +278,9 @@ public class Thread implements Runnable {
      *               started.
      * @see        java.lang.Thread#run()
      */
-    public synchronized void start() {
-        vmThread.start();
+    public void start() {
+        // FIXME: Mark all object references in the stack
+        MMP.spawnThread(this);
     }
 
     /**
@@ -306,8 +319,11 @@ public class Thread implements Runnable {
      *
      * @since JDK 1.0, CLDC 1.1
      */
-    public void interrupt() {
-        vmThread.interrupt();
+    public synchronized void interrupt() {
+        if (!spawned)
+            VM.print("This thread is not yet spawned interrupt\n");
+        else
+            vmThread.interrupt();
     }
 
     /**
@@ -318,6 +334,9 @@ public class Thread implements Runnable {
      *          <code>false</code> otherwise.
      */
     public final boolean isAlive() {
+        if (!spawned)
+            return false;
+
         return vmThread.isAlive();
     }
 
@@ -334,7 +353,16 @@ public class Thread implements Runnable {
      * @see        java.lang.Thread#MIN_PRIORITY
      */
     public final void setPriority(int newPriority) {
-        vmThread.setPriority(newPriority);
+        // if (!spawned)
+        //     VM.print("This thread is not yet spawned setPriority\n");
+        // else
+        if (spawned)
+            vmThread.setPriority(newPriority);
+    }
+
+    public final void setVMThread(VMThread vmThread) {
+        this.vmThread = vmThread;
+        this.spawned = true;
     }
 
     /**
@@ -345,6 +373,11 @@ public class Thread implements Runnable {
      * @see     java.lang.Thread#setPriority(int)
      */
     public final int getPriority() {
+        if (!spawned) {
+            // VM.print("This thread is not yet spawned getPriority\n");
+            return NORM_PRIORITY;
+        }
+
         return vmThread.getPriority();
     }
 
@@ -355,7 +388,16 @@ public class Thread implements Runnable {
      * @return  this thread's name.
      */
     public final String getName() {
+        if (!spawned) {
+            // VM.print("This thread is not yet spawned getName\n");
+            return name;
+        }
+
         return vmThread.getName();
+    }
+
+	public final String getTName() {
+        return name;
     }
 
     /**
@@ -376,7 +418,7 @@ public class Thread implements Runnable {
      *             the current thread.  The <i>interrupted status</i> of the
      *             current thread is cleared when this exception is thrown.
      */
-    public final synchronized void join(long millis)
+    public final void join(long millis)
     throws InterruptedException {
         long base = System.currentTimeMillis();
         long now = 0;
@@ -385,17 +427,43 @@ public class Thread implements Runnable {
             throw new IllegalArgumentException("timeout value is negative");
         }
 
+
+        while(true) {
+            // VM.print("Check if not yet spawned join\n");
+            synchronized (this) {
+                if (spawned)
+                    break;
+            }
+            // VM.print("This thread is not yet spawned join\n");
+
+            int tmp = 0;
+            for (int i=0; i<1000; i++) {
+                tmp += i;
+            }
+        }
+
+        // VM.print("This thread is spawned join\n");
+
         if (millis == 0) {
-            while (isAlive()) {
-                wait(0);
+            while (true) {
+                synchronized (vmThread) {
+                    // VM.print("This thread is not yet spawned toString\n");
+                    if (vmThread.isDead()) {
+                        break;
+                    }
+                    // VM.print("WAIT\n");
+                    vmThread.wait(0);
+                }
             }
         } else {
-            while (isAlive()) {
-                long delay = millis - now;
-                if (delay <= 0) {
-                    break;
+            while (true) {
+                synchronized (vmThread) {
+                    long delay = millis - now;
+                    if (delay <= 0 || vmThread.isDead()) {
+                        break;
+                    }
+                    vmThread.wait(delay);
                 }
-                wait(delay);
                 now = System.currentTimeMillis() - base;
             }
         }
@@ -450,6 +518,11 @@ public class Thread implements Runnable {
      * @return  a string representation of this thread.
      */
     public String toString() {
+        if (!spawned) {
+            // VM.print("This thread is not yet spawned toString\n");
+            return name;
+        }
+
         return vmThread.toString();
     }
 }
