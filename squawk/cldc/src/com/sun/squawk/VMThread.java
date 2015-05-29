@@ -1832,7 +1832,7 @@ public final class VMThread implements GlobalStaticFields {
 				// this thread already yielded at least once to wait
 				// for the monitor manager to reply.
 
-				Monitor monitor = object.getMonitor();
+				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeMonitorWait();
 
@@ -1845,7 +1845,7 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 			case MMP.OPS_MNTR_NOTIFICATION: {
-				Monitor monitor = object.getMonitor();
+				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeCondvarWait();
 
@@ -1864,7 +1864,7 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 			case MMP.OPS_MNTR_NOTIFICATION_ALL: {
-				Monitor monitor = object.getMonitor();
+				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeCondvarWait();
 
@@ -2494,27 +2494,24 @@ public final class VMThread implements GlobalStaticFields {
 	 * @param object the object with the monitor we are trying to acquire.
 	 * @return the current Monitor for the object.
 	 */
-	static private Monitor retryMonitor(Object object) {
+	static private void retryMonitor(Object object) {
 		// see if we can get montitor now.
 		currentThread.checkInvarients();
-		VMThread.monitorEnter(object);
+		Monitor monitor = VMThread.monitorEnter(object);
 
 //traceMonitor("retryMonitor: Now has the lock: ", monitor, object);
-		Monitor monitor = object.getMonitor();
 
 		Assert.that(monitor != null);
-		Assert.that(monitor.owner == null);
-		Assert.that(monitor.depth == 0);
+		Assert.that(monitor.owner == currentThread);
+		Assert.that(monitor.depth == 1);
 		/*
-		 * Set the monitor's ownership and nesting depth.
+		 * Set the monitor's nesting depth.
 		 */
-		monitor.owner = currentThread;
 		monitor.depth = currentThread.monitorDepth;
 		Assert.that(currentThread.monitorDepth > 0);
 
 		currentThread.monitor = null;
 		currentThread.monitorDepth = 0;
-		return monitor;
 	}
 
 	/**
@@ -2522,18 +2519,32 @@ public final class VMThread implements GlobalStaticFields {
 	 *
 	 * @param object the object to be synchronized upon
 	 */
-	static void monitorEnter(Object object) {
-		currentThread.checkInvarients();
-		Monitor monitor = object.getMonitor();
+	static Monitor monitorEnter(Object object) {
+		// Address ptr;
 
-		if (monitor == null) {
-			Assert.that(!GC.inRam(object));
-			return;
+		// VM.print("In thread.monitorenter\n");
+		// ptr = Address.fromObject(object);
+		// VM.print("Obj = ");
+		// VM.print(Integer.toHexString(ptr.toUWord().toPrimitive()));
+		// VM.println();
+		// VM.print("ramStart = ");
+		// VM.print(Integer.toHexString(GC.ramStart.toUWord().toPrimitive()));
+		// VM.println();
+		// VM.print("ramEnd = ");
+		// VM.print(Integer.toHexString(GC.ramEnd.toUWord().toPrimitive()));
+		// VM.println();
+		if (!GC.inHeap(object)) {
+			// VM.print("Not in ram\n");
+			return null;
 		}
+
+		currentThread.checkInvarients();
+		Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
+		Assert.that(monitor != null);
 
 		// If we own the lock we only need to increase its depth
 		if (monitor.owner == currentThread) {
-//			traceMonitor("monitorEnter:  nested lock", monitor, object);
+			// traceMonitor("monitorEnter:  nested lock", monitor, object);
 
 			if (monitor.depth == MAXDEPTH) {
 /*if[DEBUG_CODE_ENABLED]*/
@@ -2548,9 +2559,10 @@ public final class VMThread implements GlobalStaticFields {
 			// manager, we just yield to run later and request it
 			// again later
 
-//			traceMonitor("monitorEnter: Must wait for local lock: ", monitor, object);
+			// traceMonitor("monitorEnter: Must wait for local lock: ", monitor, object);
 			do {
-				monitor = object.getMonitor();
+				monitor = VM.getCurrentIsolate().getMonitor(object);
+				Assert.that(monitor != null);
 				Assert.that(monitor.owner != currentThread);
 				VMThread.yield();
 			} while (monitor.owner != null);
@@ -2560,7 +2572,7 @@ public final class VMThread implements GlobalStaticFields {
 			 */
 			VMThread.monitorEnter(object);
 		} else { // request the monitor
-//			traceMonitor("monitorEnter: Must wait for lock: ", monitor, object);
+			// traceMonitor("monitorEnter: Must wait for lock: ", monitor, object);
 			MMGR.monitorEnter(object);
 
 /*
@@ -2590,6 +2602,7 @@ public final class VMThread implements GlobalStaticFields {
 			currentThread.checkInvarients();
 			Assert.that(currentThread.isolate.isExited() || monitor.owner == currentThread);
 		}
+		return monitor;
 	}
 
 	/**
@@ -2598,13 +2611,12 @@ public final class VMThread implements GlobalStaticFields {
 	 * @param object the object to be unsynchronized
 	 */
 	static void monitorExit(Object object) {
-		currentThread.checkInvarients();
-		Monitor monitor = object.getMonitor();
-
-		if (monitor == null) {
-			Assert.that(!GC.inRam(object));
+		if (!GC.inHeap(object))
 			return;
-		}
+
+		currentThread.checkInvarients();
+		Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
+		Assert.that(monitor != null);
 
 		/*
 		 * Throw an exception if things look bad
@@ -2617,7 +2629,9 @@ public final class VMThread implements GlobalStaticFields {
 		 * Safety.
 		 */
 		Assert.that(monitor.depth > 0);
-//traceMonitor("monitorExit: ", monitor, object);
+		// TODO; Check where the nesting happens
+		//traceMonitor("monitorExit: ", monitor, object);
+		// VM.print("Depth = "+ monitor.depth + "\n");
 
 		/*
 		 * Try to restart a thread if the nesting depth is zero
@@ -2652,8 +2666,9 @@ public final class VMThread implements GlobalStaticFields {
 					//            3.2) GC.removeMonitor()
 					//          4) A.retryMonitor() // might re-allocate a monitor object???
 //traceMonitor("monitorExit: GC.removeMonitor: ", monitor, object);
-					// GC.removeMonitor(object, !monitor.hasHadWaiter);
-					object.setMonitor(null);
+					// TODO: consider removing the monitor from the
+					// hashtable to save some space (when GC is
+					// enabled)
 				}
 			}
 /*else[SMARTMONITORS]*/
@@ -2692,14 +2707,13 @@ public final class VMThread implements GlobalStaticFields {
 	 *             current thread is cleared when this exception is thrown.
 	 */
 	public static void monitorWait(Object object, long delta) throws InterruptedException {
+		if (!GC.inHeap(object))
+			return;
+
 		VMThread theCurrentThread = VMThread.currentThread;
 		theCurrentThread.checkInvarients();
-		Monitor monitor = object.getMonitor();
-
-		if (monitor == null) {
-			Assert.that(!GC.inRam(object));
-			return;
-		}
+		Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
+		Assert.that(monitor != null);
 
 		// Throw an exception if things look bad
 		if (monitor.owner != theCurrentThread) {
@@ -2730,14 +2744,17 @@ public final class VMThread implements GlobalStaticFields {
 //traceMonitor("monitorWait: released monitor: ", monitor, object);
 
 		// Wait for a notify or a timeout.
+		Assert.that(monitor.owner == null);
 		Assert.that(monitor.condvarQueue != null);
 		Assert.that(theCurrentThread.monitor == monitor);
+		// VM.print("Lets wait\n");
 		reschedule();
 
 		// OK, wait has been notified or timed out.
 		// Can we actually get the monitor? Try and try again.
 		// Note that the Monitor may have been replaced while we were rescheduled
-		monitor = retryMonitor(object);
+		// VM.print("OK I was notified\n");
+		retryMonitor(object);
 
 //traceMonitor("monitorWait: woke up and re-locked: ", monitor, object);
 
@@ -2757,16 +2774,15 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	public static void monitorNotify(Object object, boolean notifyAll) {
 
+		if (!GC.inHeap(object))
+			return;
+
 		/*
 		 * Signal any waiting threads.
 		 */
-		Monitor  monitor = object.getMonitor();
+		Monitor  monitor = VM.getCurrentIsolate().getMonitor(object);
 		VMThread waiter;
-
-		if (monitor == null) {
-			Assert.that(!GC.inRam(object));
-			return;
-		}
+		Assert.that(monitor != null);
 
 		/*
 		 * Throw an exception if the object is not owned by the current thread.

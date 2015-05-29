@@ -217,7 +217,6 @@ write_back(Address from, Address to)
 		assume(size != HDR_basicHeaderSize);
 
 		break;
-
 	case HDR_arrayHeaderTag: /* Array */
 		klass = (Address) * (int*)(from + 4);
 
@@ -235,7 +234,6 @@ write_back(Address from, Address to)
 		 * understand their usage
 		 */
 		fatalVMError("Method header");
-		break;
 		break;
 	default:
 		fatalVMError("Wrong header tag");

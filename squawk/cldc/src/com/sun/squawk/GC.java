@@ -684,6 +684,24 @@ public class GC implements GlobalStaticFields {
 		return true;
 	}
 
+	/**
+	 * Determines if a given object is in Heap.
+	 *
+	 * @param   object  the object to test
+	 * @return  true if <code>object</code> is an instance in Heap
+	 */
+	public static boolean inHeap(Object object) throws ForceInlinedPragma {
+		if (VM.isHosted()) {
+			return inRamHosted(object);
+		} else {
+			Address ptr = Address.fromObject(object);
+			if (ptr.loeq(ramStart)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private static boolean inRange(Address ptr, Address start, Address end) {
 		if (ptr.loeq(ramStart)) {
 			return false;
