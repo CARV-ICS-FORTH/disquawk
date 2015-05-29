@@ -1932,11 +1932,12 @@ public final class VMThread implements GlobalStaticFields {
 				}
 				addToRunnableThreadsQueue(thread);
 			}
-//VM.println("Break if there is something to do.");
+			// VM.println("Break if there is something to do.");
 			/*
 			 * Break if there is something to do.
 			 */
 			if ((thread = runnableThreads.next()) != null) {
+				// VM.print("Found something to run\n");
 				break;
 			}
 

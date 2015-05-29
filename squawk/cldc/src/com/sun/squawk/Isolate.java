@@ -39,6 +39,7 @@ import com.sun.squawk.platform.Platform;
 import com.sun.squawk.pragma.*;
 import com.sun.squawk.util.*;
 import com.sun.squawk.vm.*;
+//import com.sun.squawk.*;
 
 /************************************ WARNING: THIS CLASS CAN'T REQUIRE A STATIC INITIALIZER! ***********************************************/
 
