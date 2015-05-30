@@ -80,3 +80,6 @@ W/ ObjectAssociations
 
 W/o ObjectAssociations
 50300 -> 37819
+
+W/o ObjectAssociations and join fixed
+50300 -> 34033
