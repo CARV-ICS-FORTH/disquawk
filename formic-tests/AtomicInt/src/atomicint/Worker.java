@@ -193,8 +193,6 @@ public class Worker implements Runnable {
 		// 	                   " myint2= " +
 		// 	                   Integer.toHexString(addr2) );
 
-
-		while(true);
 	}
 
 }

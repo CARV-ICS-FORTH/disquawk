@@ -42,16 +42,16 @@ public class Main {
 
 		System.out.println("It took me " + (end-start) + " ms");
 		System.out.println("myint = " + task.myint.get());
-		System.out.println("I am done");
 
-		// FIXME: join is not ready yet
-		// for (int i = 0; i<t.length; i++) {
-		// 	t[i].join();
-		// }
-
-		while(true) {
-			;
+		start = System.currentTimeMillis();
+		for (int i = 0; i<t.length; i++) {
+			t[i].join();
 		}
+		end = System.currentTimeMillis();
+
+		System.out.println("Join took me " + (end-start) + " ms");
+
+		System.out.println("I am done");
 	}
 
 }
