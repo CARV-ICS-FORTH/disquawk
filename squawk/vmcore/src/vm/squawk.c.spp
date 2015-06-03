@@ -834,7 +834,7 @@ NORETURN void stopVM0(int exitCode, boolean cleanup) {
 */
 
 	// wait for everyone to reach stopVM0 before shutdown
-	sysBarrier();
+	/* sysBarrier(); */
 	// Shutdown master
 	if ((!sysGetIsland()) && (!sysGetCore())) {
 		if (!squawk_inStop_g) {
