@@ -671,9 +671,9 @@ block_to_oop(Address obj, Address oop, int cid)
 	switch ((*(int*)oop) & HDR_headerTagMask) {
 
 	case HDR_basicHeaderTag: /* Class Instance */
-		/* start              = sysGetTicks(); */
+		/* start = sysGetTicks(); */
 		klass = (Address) * (int*)oop;
-		/* end                = sysGetTicks();
+		/* end   = sysGetTicks();
 		 * printf("Find klass took %10u cc \n", end - start); */
 
 		/* Check if we brought the whole instance or not */
@@ -784,8 +784,12 @@ sc_put(Address obj, int cid)
 		ret = challoc(0);
 	}
 
+	/* int start, end; */
 	/* Fetch data */
+	/* start = sysGetTicks(); */
 	fetch(obj, ret, sysGetCachelineSize(), cid);
+	/* end   = sysGetTicks();
+	 * printf("fetch took %10u cc \n", end - start); */
 
 	/*
 	 * The object's Klass is always here and resides in the ROM so

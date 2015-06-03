@@ -58,6 +58,8 @@ typedef enum {
 
 #include <globals.h>
 
+/* FIXME: OPTIMIZE (consider using lists) */
+
 /**
  * hwcnt_next_free detects the next available hardware counter and
  * returns it.
