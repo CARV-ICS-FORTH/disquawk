@@ -434,7 +434,7 @@ $(VM_SRC)/vm2c.c.spp: vm2c/classes.jar cldc/classes.jar \
 run: $(ELF)
 	$(AT)echo $(STR_RUN) $<
 	$(AT)rm -f run.log
-	$(AT)$(MYRMICS_SRC)/../client -pwr_formic -boot formic -elf $(ELF) \
+	$(AT)time $(MYRMICS_SRC)/../client -pwr_formic -boot formic -elf $(ELF) \
 		| tee run.log
 
 tracerun: $(ELF) map
