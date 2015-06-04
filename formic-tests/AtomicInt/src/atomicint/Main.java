@@ -3,7 +3,7 @@ package atomicint;
 import java.lang.Thread;
 
 /**
- * Create 8 new threads and start them. Then from the new threads
+ * Create new threads and start them. Then from the new threads
  * atomically increase a shared int.
  */
 
@@ -24,14 +24,17 @@ public class Main {
 		}
 
 		// Start timer
-		start = System.currentTimeMillis();
-		end = System.currentTimeMillis();
-		System.out.println("currentTimeMillis took me " + (end-start) + " ms");
+		// start = System.currentTimeMillis();
+		// end = System.currentTimeMillis();
+		// System.out.println("currentTimeMillis took me " + (end-start) + " ms");
 
 		start = System.currentTimeMillis();
 
 		for (int i = 0; i<t.length; i++) {
+			// start = System.currentTimeMillis();
 			t[i].start();
+			// end = System.currentTimeMillis();
+			// System.out.println("start took me " + (end-start) + " ms");
 		}
 
 		while((res = task.myint.get()) < tasks*100) {
