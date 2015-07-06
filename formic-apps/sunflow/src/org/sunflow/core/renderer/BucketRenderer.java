@@ -148,11 +148,13 @@ public class BucketRenderer implements ImageSampler {
         // start task
         UI.taskStart("Rendering", 0, bucketCoords.length);
         Timer timer = new Timer();
-        timer.start();
         Thread[] renderThreads = new Thread[scene.getThreads()];
         for (int i = 0; i < renderThreads.length; i++) {
             renderThreads[i] = new BucketThread(i);
             renderThreads[i].setPriority(scene.getThreadPriority());
+        }
+        timer.start();
+        for (int i = 0; i < renderThreads.length; i++) {
             renderThreads[i].start();
         }
         for (int i = 0; i < renderThreads.length; i++) {
@@ -162,8 +164,8 @@ public class BucketRenderer implements ImageSampler {
                 UI.printError(Module.BCKT, "Bucket processing thread %d of %d was interrupted", i + 1, renderThreads.length);
             }
         }
-        UI.taskStop();
         timer.end();
+        UI.taskStop();
         UI.printInfo(Module.BCKT, "Render time: %s", timer.toString());
         display.imageEnd();
     }
@@ -416,7 +418,7 @@ public class BucketRenderer implements ImageSampler {
         final boolean processed() {
             return c != null;
         }
-        
+
         final boolean sampled() {
             return n > 0;
         }

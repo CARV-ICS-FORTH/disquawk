@@ -192,7 +192,6 @@ class LightServer {
         int delta = numEmittedPhotons / photonThreads.length;
         photonCounter = 0;
         Timer photonTimer = new Timer();
-        photonTimer.start();
         for (int i = 0; i < photonThreads.length; i++) {
             final int threadID = i;
             final int start = threadID * delta;
@@ -235,6 +234,9 @@ class LightServer {
                 }
             });
             photonThreads[i].setPriority(scene.getThreadPriority());
+        }
+        photonTimer.start();
+        for (int i = 0; i < photonThreads.length; i++) {
             photonThreads[i].start();
         }
         for (int i = 0; i < photonThreads.length; i++) {
@@ -245,11 +247,11 @@ class LightServer {
                 return false;
             }
         }
+        photonTimer.end();
         if (UI.taskCanceled()) {
             UI.taskStop(); // shut down task cleanly
             return false;
         }
-        photonTimer.end();
         UI.taskStop();
         UI.printInfo(Module.LIGHT, "Tracing time for %s photons: %s", type, photonTimer.toString());
         map.init();

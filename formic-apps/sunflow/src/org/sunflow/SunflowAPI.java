@@ -5,11 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.codehaus.janino.ClassBodyEvaluator;
-import org.codehaus.janino.CompileException;
-import org.codehaus.janino.Scanner;
-import org.codehaus.janino.Parser.ParseException;
-import org.codehaus.janino.Scanner.ScanException;
 import org.sunflow.core.Camera;
 import org.sunflow.core.CameraLens;
 import org.sunflow.core.Display;
@@ -110,7 +105,7 @@ public class SunflowAPI {
      * name is of the form "prefix_n" where n is an integer starting at 1. Only
      * a simple linear search is performed, so this method should be used only
      * when there is no other way to guarentee uniqueness.
-     * 
+     *
      * @param prefix name prefix
      * @return a unique name not used by any rendering object
      */
@@ -128,7 +123,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -139,7 +134,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -150,7 +145,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -161,7 +156,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -172,7 +167,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -183,7 +178,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -195,7 +190,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -207,7 +202,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -218,7 +213,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -229,7 +224,7 @@ public class SunflowAPI {
     /**
      * Declare a parameter with the specified name and value. This parameter
      * will be added to the currently active parameter list.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -243,7 +238,7 @@ public class SunflowAPI {
      * interpolation determines how the parameter is to be interpreted over
      * surface (see {@link InterpolationType}). The data is specified in a
      * flattened float array.
-     * 
+     *
      * @param name parameter name
      * @param type parameter data type
      * @param interpolation parameter interpolation mode
@@ -274,7 +269,7 @@ public class SunflowAPI {
     /**
      * Remove the specified render object. Note that this may cause the removal
      * of other objects which depended on it.
-     * 
+     *
      * @param name name of the object to remove
      */
     public void remove(String name) {
@@ -285,7 +280,7 @@ public class SunflowAPI {
      * Update the specfied object using the currently active parameter list. The
      * object is removed if the update fails to avoid leaving inconsistently set
      * objects in the list.
-     * 
+     *
      * @param name name of the object to update
      * @return <code>true</code> if the update was succesfull, or
      *         <code>false</code> if the update failed
@@ -299,7 +294,7 @@ public class SunflowAPI {
     /**
      * Add the specified path to the list of directories which are searched
      * automatically to resolve scene filenames.
-     * 
+     *
      * @param path
      */
     public final void addIncludeSearchPath(String path) {
@@ -317,7 +312,7 @@ public class SunflowAPI {
     /**
      * Attempts to resolve the specified filename by checking it against the
      * texture search path.
-     * 
+     *
      * @param filename filename
      * @return a path which matches the filename, or filename if no matches are
      *         found
@@ -329,7 +324,7 @@ public class SunflowAPI {
     /**
      * Attempts to resolve the specified filename by checking it against the
      * include search path.
-     * 
+     *
      * @param filename filename
      * @return a path which matches the filename, or filename if no matches are
      *         found
@@ -342,7 +337,7 @@ public class SunflowAPI {
      * Defines a shader with a given name. If the shader object is
      * <code>null</code>, the shader with the given name will be updated (if
      * it exists).
-     * 
+     *
      * @param name a unique name given to the shader
      * @param shader a shader object
      */
@@ -369,7 +364,7 @@ public class SunflowAPI {
      * Defines a modifier with a given name. If the modifier object is
      * <code>null</code>, the modifier with the given name will be updated
      * (if it exists).
-     * 
+     *
      * @param name a unique name given to the modifier
      * @param modifier a modifier object
      */
@@ -397,7 +392,7 @@ public class SunflowAPI {
      * specified {@link PrimitiveList}. If the primitives object is
      * <code>null</code>, the geometry with the given name will be updated
      * (if it exists).
-     * 
+     *
      * @param name a unique name given to the geometry
      * @param primitives primitives to create the geometry from
      */
@@ -423,7 +418,7 @@ public class SunflowAPI {
      * Defines a geometry with a given name. The geometry is built from the
      * specified {@link Tesselatable}. If the object is <code>null</code>,
      * the geometry with the given name will be updated (if it exists).
-     * 
+     *
      * @param name a unique name given to the geometry
      * @param tesselatable the tesselatable object to create the geometry from
      */
@@ -450,7 +445,7 @@ public class SunflowAPI {
      * <code>null</code>, the specified instance object will be updated (if
      * it exists). It is not possible to change the instancing relationship
      * after the instance has been created.
-     * 
+     *
      * @param name instance name
      * @param geoname name of the geometry to instance
      */
@@ -475,7 +470,7 @@ public class SunflowAPI {
 
     /**
      * Adds the specified light to the scene.
-     * 
+     *
      * @param light light source object
      */
     public final void light(String name, LightSource light) {
@@ -501,7 +496,7 @@ public class SunflowAPI {
      * specified {@link CameraLens}. If the lens object is <code>null</code>,
      * the camera with the given name will be updated (if it exists). It isn't
      * possible to change the lens of an existing camera.
-     * 
+     *
      * @param name camera name
      * @param lens camera lens to use
      */
@@ -527,7 +522,7 @@ public class SunflowAPI {
     /**
      * Defines an option object to hold the current parameters. If the object
      * already exists, the values will simply override previous ones.
-     * 
+     *
      * @param name
      */
     public final void options(String name) {
@@ -546,7 +541,7 @@ public class SunflowAPI {
     /**
      * Retrieve a geometry object by its name, or <code>null</code> if no
      * geometry was found, or if the specified object is not a geometry.
-     * 
+     *
      * @param name geometry name
      * @return the geometry object associated with that name
      */
@@ -557,7 +552,7 @@ public class SunflowAPI {
     /**
      * Retrieve an instance object by its name, or <code>null</code> if no
      * instance was found, or if the specified object is not an instance.
-     * 
+     *
      * @param name instance name
      * @return the instance object associated with that name
      */
@@ -568,7 +563,7 @@ public class SunflowAPI {
     /**
      * Retrieve a shader object by its name, or <code>null</code> if no shader
      * was found, or if the specified object is not a shader.
-     * 
+     *
      * @param name camera name
      * @return the camera object associate with that name
      */
@@ -583,7 +578,7 @@ public class SunflowAPI {
     /**
      * Retrieve a shader object by its name, or <code>null</code> if no shader
      * was found, or if the specified object is not a shader.
-     * 
+     *
      * @param name shader name
      * @return the shader object associated with that name
      */
@@ -594,7 +589,7 @@ public class SunflowAPI {
     /**
      * Retrieve a modifier object by its name, or <code>null</code> if no
      * modifier was found, or if the specified object is not a modifier.
-     * 
+     *
      * @param name modifier name
      * @return the modifier object associated with that name
      */
@@ -605,7 +600,7 @@ public class SunflowAPI {
     /**
      * Retrieve a light object by its name, or <code>null</code> if no shader
      * was found, or if the specified object is not a light.
-     * 
+     *
      * @param name light name
      * @return the light object associated with that name
      */
@@ -617,7 +612,7 @@ public class SunflowAPI {
      * Sets a global shader override to the specified shader name. If the shader
      * is not found, the overriding is disabled. The second parameter controls
      * whether the override applies to the photon tracing process.
-     * 
+     *
      * @param name shader name
      * @param photonOverride apply override to photon tracing phase
      */
@@ -628,7 +623,7 @@ public class SunflowAPI {
     /**
      * Render using the specified options and the specified display. If the
      * specified options do not exist - defaults will be used.
-     * 
+     *
      * @param optionsName name of the {@link RenderObject} which contains the
      *            options
      * @param display display object
@@ -674,7 +669,7 @@ public class SunflowAPI {
      * contents of the file are simply added to the active scene. This allows to
      * break up a scene into parts, even across file formats. The appropriate
      * parser is chosen based on file extension.
-     * 
+     *
      * @param filename filename to load
      * @return <code>true</code> upon sucess, <code>false</code> if an error
      *         occured.
@@ -720,100 +715,10 @@ public class SunflowAPI {
     }
 
     /**
-     * Create an API object from the specified file. Java files are read by
-     * Janino and are expected to implement a build method (they implement a
-     * derived class of SunflowAPI. The build method is called if the code
-     * compiles succesfully. Other files types are handled by the parse method.
-     * 
-     * @param filename filename to load
-     * @return a valid SunflowAPI object or <code>null</code> on failure
-     */
-    public static SunflowAPI create(String filename, int frameNumber) {
-        if (filename == null)
-            return new SunflowAPI();
-        SunflowAPI api = null;
-        if (filename.endsWith(".java")) {
-            Timer t = new Timer();
-            UI.printInfo(Module.API, "Compiling \"" + filename + "\" ...");
-            t.start();
-            try {
-                FileInputStream stream = new FileInputStream(filename);
-                api = (SunflowAPI) ClassBodyEvaluator.createFastClassBodyEvaluator(new Scanner(filename, stream), SunflowAPI.class, ClassLoader.getSystemClassLoader());
-                stream.close();
-            } catch (CompileException e) {
-                UI.printError(Module.API, "Could not compile: \"%s\"", filename);
-                UI.printError(Module.API, "%s", e.getMessage());
-                return null;
-            } catch (ParseException e) {
-                UI.printError(Module.API, "Could not compile: \"%s\"", filename);
-                UI.printError(Module.API, "%s", e.getMessage());
-                return null;
-            } catch (ScanException e) {
-                UI.printError(Module.API, "Could not compile: \"%s\"", filename);
-                UI.printError(Module.API, "%s", e.getMessage());
-                return null;
-            } catch (IOException e) {
-                UI.printError(Module.API, "Could not compile: \"%s\"", filename);
-                UI.printError(Module.API, "%s", e.getMessage());
-                return null;
-            }
-            t.end();
-            UI.printInfo(Module.API, "Compile time: " + t.toString());
-            if (api != null) {
-                String currentFolder = new File(filename).getAbsoluteFile().getParentFile().getAbsolutePath();
-                api.includeSearchPath.addSearchPath(currentFolder);
-                api.textureSearchPath.addSearchPath(currentFolder);
-            }
-            UI.printInfo(Module.API, "Build script running ...");
-            t.start();
-            api.setCurrentFrame(frameNumber);
-            api.build();
-            t.end();
-            UI.printInfo(Module.API, "Build script time: %s", t.toString());
-        } else {
-            api = new SunflowAPI();
-            api = api.parse(filename) ? api : null;
-        }
-        return api;
-    }
-
-    /**
-     * Compile the specified code string via Janino. The code must implement a
-     * build method as described above. The build method is not called on the
-     * output, it is up the caller to do so.
-     * 
-     * @param code java code string
-     * @return a valid SunflowAPI object upon succes, <code>null</code>
-     *         otherwise.
-     */
-    public static SunflowAPI compile(String code) {
-        try {
-            Timer t = new Timer();
-            t.start();
-            SunflowAPI api = (SunflowAPI) ClassBodyEvaluator.createFastClassBodyEvaluator(new Scanner(null, new StringReader(code)), SunflowAPI.class, (ClassLoader) null);
-            t.end();
-            UI.printInfo(Module.API, "Compile time: %s", t.toString());
-            return api;
-        } catch (CompileException e) {
-            UI.printError(Module.API, "%s", e.getMessage());
-            return null;
-        } catch (ParseException e) {
-            UI.printError(Module.API, "%s", e.getMessage());
-            return null;
-        } catch (ScanException e) {
-            UI.printError(Module.API, "%s", e.getMessage());
-            return null;
-        } catch (IOException e) {
-            UI.printError(Module.API, "%s", e.getMessage());
-            return null;
-        }
-    }
-
-    /**
      * Read the value of the current frame. This value is intended only for
      * procedural animation creation. It is not used by the Sunflow core in
      * anyway. The default value is 1.
-     * 
+     *
      * @return current frame number
      */
     public int getCurrentFrame() {
@@ -824,7 +729,7 @@ public class SunflowAPI {
      * Set the value of the current frame. This value is intended only for
      * procedural animation creation. It is not used by the Sunflow core in
      * anyway. The default value is 1.
-     * 
+     *
      * @param currentFrame current frame number
      */
     public void setCurrentFrame(int currentFrame) {

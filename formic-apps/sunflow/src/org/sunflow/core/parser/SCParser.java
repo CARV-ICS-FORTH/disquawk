@@ -10,11 +10,6 @@ import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-import org.codehaus.janino.ClassBodyEvaluator;
-import org.codehaus.janino.CompileException;
-import org.codehaus.janino.Scanner;
-import org.codehaus.janino.Parser.ParseException;
-import org.codehaus.janino.Scanner.ScanException;
 import org.sunflow.SunflowAPI;
 import org.sunflow.core.PrimitiveList;
 import org.sunflow.core.SceneParser;
@@ -567,32 +562,6 @@ public class SCParser implements SceneParser {
             p.peekNextToken("color");
             api.parameter("color", parseColor());
             api.shader(name, new ConstantShader());
-        } else if (p.peekNextToken("janino")) {
-            String code = p.getNextCodeBlock();
-            try {
-                Shader shader = (Shader) ClassBodyEvaluator.createFastClassBodyEvaluator(new Scanner(null, new StringReader(code)), Shader.class, ClassLoader.getSystemClassLoader());
-                api.shader(name, shader);
-            } catch (CompileException e) {
-                UI.printDetailed(Module.API, "Compiling: %s", code);
-                UI.printError(Module.API, "%s", e.getMessage());
-                e.printStackTrace();
-                return false;
-            } catch (ParseException e) {
-                UI.printDetailed(Module.API, "Compiling: %s", code);
-                UI.printError(Module.API, "%s", e.getMessage());
-                e.printStackTrace();
-                return false;
-            } catch (ScanException e) {
-                UI.printDetailed(Module.API, "Compiling: %s", code);
-                UI.printError(Module.API, "%s", e.getMessage());
-                e.printStackTrace();
-                return false;
-            } catch (IOException e) {
-                UI.printDetailed(Module.API, "Compiling: %s", code);
-                UI.printError(Module.API, "%s", e.getMessage());
-                e.printStackTrace();
-                return false;
-            }
         } else if (p.peekNextToken("id")) {
             api.shader(name, new IDShader());
         } else if (p.peekNextToken("uber")) {
@@ -854,33 +823,6 @@ public class SCParser implements SceneParser {
             p.checkNextToken("points");
             api.parameter("points", "point", "vertex", parseFloatArray(p.getNextInt()));
             api.geometry(name, new Hair());
-        } else if (type.equals("janino-tesselatable")) {
-            UI.printInfo(Module.API, "Reading procedural primitive: %s ... ", name);
-            String code = p.getNextCodeBlock();
-            try {
-                Tesselatable tess = (Tesselatable) ClassBodyEvaluator.createFastClassBodyEvaluator(new Scanner(null, new StringReader(code)), Tesselatable.class, ClassLoader.getSystemClassLoader());
-                api.geometry(name, tess);
-            } catch (CompileException e) {
-                UI.printDetailed(Module.API, "Compiling: %s", code);
-                UI.printError(Module.API, "%s", e.getMessage());
-                e.printStackTrace();
-                noInstance = true;
-            } catch (ParseException e) {
-                UI.printDetailed(Module.API, "Compiling: %s", code);
-                UI.printError(Module.API, "%s", e.getMessage());
-                e.printStackTrace();
-                noInstance = true;
-            } catch (ScanException e) {
-                UI.printDetailed(Module.API, "Compiling: %s", code);
-                UI.printError(Module.API, "%s", e.getMessage());
-                e.printStackTrace();
-                noInstance = true;
-            } catch (IOException e) {
-                UI.printDetailed(Module.API, "Compiling: %s", code);
-                UI.printError(Module.API, "%s", e.getMessage());
-                e.printStackTrace();
-                noInstance = true;
-            }
         } else if (type.equals("teapot")) {
             UI.printInfo(Module.API, "Reading teapot: %s ... ", name);
             boolean hasTesselationArguments = false;

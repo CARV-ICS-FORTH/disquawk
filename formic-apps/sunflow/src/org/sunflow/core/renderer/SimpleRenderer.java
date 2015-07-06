@@ -35,10 +35,12 @@ public class SimpleRenderer implements ImageSampler {
         bucketCounter = 0;
         // start task
         Timer timer = new Timer();
-        timer.start();
         Thread[] renderThreads = new Thread[scene.getThreads()];
         for (int i = 0; i < renderThreads.length; i++) {
             renderThreads[i] = new BucketThread();
+        }
+        timer.start();
+        for (int i = 0; i < renderThreads.length; i++) {
             renderThreads[i].start();
         }
         for (int i = 0; i < renderThreads.length; i++) {
