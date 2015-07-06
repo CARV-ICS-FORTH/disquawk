@@ -2,7 +2,7 @@ package org.sunflow;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
@@ -57,7 +57,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
                 threads = Integer.parseInt(args[1]);
             if (args.length > 2)
                 resolution = Integer.parseInt(args[2]);
-            Benchmark benchmark = new Benchmark(resolution, false, true, false, threads);
+            Benchmark benchmark = new Benchmark(resolution, true, true, false, threads);
             benchmark.kernelBegin();
             benchmark.kernelMain();
             benchmark.kernelEnd();
@@ -83,12 +83,12 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
         // fetch reference image from resources (jar file or classpath)
         if (saveOutput)
             return;
-        URL imageURL = Benchmark.class.getResource(String.format("/resources/golden_%04X.png", resolution));
-        if (imageURL == null)
+        InputStream imageIS = Benchmark.class.getResourceAsStream(String.format("/resources/golden_%04X.png", resolution));
+        if (imageIS == null)
             UI.printError(Module.BENCH, "Unable to find reference frame!");
-        UI.printInfo(Module.BENCH, "Loading reference image from: %s", imageURL);
+        UI.printInfo(Module.BENCH, "Loading reference image from: %s", imageIS);
         try {
-            BufferedImage bi = ImageIO.read(imageURL);
+            BufferedImage bi = ImageIO.read(imageIS);
             if (bi.getWidth() != resolution || bi.getHeight() != resolution)
                 UI.printError(Module.BENCH, "Reference image has invalid resolution! Expected %dx%d found %dx%d", resolution, resolution, bi.getWidth(), bi.getHeight());
             referenceImage = new int[resolution * resolution];
