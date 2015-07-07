@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jembench"
+         default="preverify"
+         basedir=".">
+
+  <property name="classes.dir"
+            value="${basedir}/classes"/>
+  <property name="src.dir"
+            value="${basedir}/src"/>
+  <property name="squawk.dir"
+            value="${basedir}/../../squawk"/>
+  <property name="cldc.dir"
+            value="${squawk}/cldc/"/>
+  <property name="tools.dir"
+            value="${squawk.dir}/tools"/>
+  <property name="j2me.bin"
+            value="${tools.dir}/linux-x86"/>
+
+  <property name="jdk.level.src" value="1.5"/>
+  <property name="jdk.level.tgt" value="jsr14"/>
+
+  <target name="init">
+    <mkdir dir="${classes.dir}"/>
+  </target>
+
+  <target name="clean" description="Remove build files.">
+    <delete dir="${classes.dir}"/>
+  </target>
+
+  <target name="compile" depends="init"
+          description="Compile the classes to folder ${classes.dir}">
+    <javac srcdir="${src.dir}"
+           destdir="${classes.dir}"
+           source="${jdk.level.src}"
+           target="${jdk.level.tgt}"
+           bootclasspath="${squawk.dir}/cldc/classes"
+           debug="true"
+           includeantruntime="false">
+      <compilerarg line="-Xmaxerrs 5"/>
+    </javac>
+  </target>
+
+  <target name="preverify"
+          depends="compile"
+          description="Preverify classes in ${classes.dir}">
+    <!-- Find class files. -->
+    <fileset dir="${classes.dir}" id="tmp">
+      <patternset>
+        <include name="**/*.class"/>
+        <exclude name="preverified/**/*.class"/>
+      </patternset>
+    </fileset>
+
+    <!-- Convert filenames to valid preverify input. -->
+    <!-- From: /absolute/path/to/package/SomeFile.class -->
+    <!-- To: package.SomeFile -->
+    <pathconvert pathsep=" "
+                 property="unverified"
+                 refid="tmp">
+      <packagemapper from="${classes.dir}/*.class"
+                     to="*"/>
+    </pathconvert>
+
+    <!-- Execute preverify on classes. -->
+    <exec dir="${classes.dir}"
+          executable="${j2me.bin}/preverify"
+          failonerror="true">
+      <arg line="-classpath ${classes.dir}:${squawk.dir}/cldc/j2meclasses"/>
+      <!-- <arg line="-verbose"/> -->
+      <arg line="-d ${classes.dir}/preverified"/>
+      <arg line="${unverified}"/>
+    </exec>
+  </target>
+
+  <target name="run"
+          depends="compile"
+          description="Compile and run on X86">
+    <java classname="jembench.Main" fork="true" classpath="${classes.dir}">
+      <jvmarg value="-Xint"/>
+      <jvmarg value="-XX:+PrintGC"/>
+      <jvmarg value="-Xms1024M"/>
+      <jvmarg value="-Xmx1024M"/>
+      <jvmarg value="-server"/>
+      <!-- <arg value="-micro"/> -->
+      <!-- <arg value="-kernel"/> -->
+      <!-- <arg value="-application"/> -->
+      <!-- <arg value="-parallel"/> -->
+      <!-- <arg value="-stream"/> -->
+    </java>
+  </target>
+
+</project>
