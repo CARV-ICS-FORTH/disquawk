@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 import org.sunflow.core.Display;
 import org.sunflow.core.Tesselatable;
 import org.sunflow.core.camera.PinholeLens;
-import org.sunflow.core.display.FileDisplay;
+// import org.sunflow.core.display.FileDisplay;
 import org.sunflow.core.light.TriangleMeshLight;
 import org.sunflow.core.primitive.Sphere;
 import org.sunflow.core.primitive.TriangleMesh;
@@ -109,7 +109,9 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
     private class BenchmarkScene extends SunflowAPI {
         public BenchmarkScene() {
             build();
-            render(SunflowAPI.DEFAULT_OPTIONS, saveOutput ? new FileDisplay(String.format("resources/golden_%04X.png", resolution)) : Benchmark.this);
+            render(SunflowAPI.DEFAULT_OPTIONS,
+                   // saveOutput ? new FileDisplay(String.format("resources/golden_%04X.png", resolution)) :
+                   Benchmark.this);
         }
 
         public void build() {

@@ -26,7 +26,7 @@ public final class UI {
     /**
      * Sets the active user interface implementation. Passing <code>null</code>
      * silences printing completely.
-     * 
+     *
      * @param ui object to recieve all user interface calls
      */
     public final static void set(UserInterface ui) {
@@ -89,7 +89,7 @@ public final class UI {
 
     /**
      * Check to see if the current task should be aborted.
-     * 
+     *
      * @return <code>true</code> if the current task should be stopped,
      *         <code>false</code> otherwise
      */

@@ -16,8 +16,8 @@ public final class GIEngineFactory {
             return new FakeGIEngine(options);
         else if (type.equals("igi"))
             return new InstantGI(options);
-        else if (type.equals("irr-cache"))
-            return new IrradianceCacheGIEngine(options);
+        // else if (type.equals("irr-cache"))
+        //     return new IrradianceCacheGIEngine(options);
         else if (type.equals("path"))
             return new PathTracingGIEngine(options);
         else {

@@ -1,9 +1,9 @@
 package org.sunflow;
 
-import java.io.File;
-import java.io.FileInputStream;
+// import java.io.File;
+// import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringReader;
+// import java.io.StringReader;
 
 import org.sunflow.core.Camera;
 import org.sunflow.core.CameraLens;
@@ -22,20 +22,20 @@ import org.sunflow.core.SceneParser;
 import org.sunflow.core.Shader;
 import org.sunflow.core.Tesselatable;
 import org.sunflow.core.ParameterList.InterpolationType;
-import org.sunflow.core.parser.RA2Parser;
-import org.sunflow.core.parser.RA3Parser;
-import org.sunflow.core.parser.SCParser;
-import org.sunflow.core.parser.ShaveRibParser;
-import org.sunflow.core.parser.TriParser;
+// import org.sunflow.core.parser.RA2Parser;
+// import org.sunflow.core.parser.RA3Parser;
+// import org.sunflow.core.parser.SCParser;
+// import org.sunflow.core.parser.ShaveRibParser;
+// import org.sunflow.core.parser.TriParser;
 import org.sunflow.core.renderer.BucketRenderer;
-import org.sunflow.core.renderer.ProgressiveRenderer;
-import org.sunflow.core.renderer.SimpleRenderer;
+// import org.sunflow.core.renderer.ProgressiveRenderer;
+// import org.sunflow.core.renderer.SimpleRenderer;
 import org.sunflow.image.Color;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
-import org.sunflow.system.SearchPath;
+// import org.sunflow.system.SearchPath;
 import org.sunflow.system.Timer;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -52,9 +52,9 @@ public class SunflowAPI {
 
     private Scene scene;
     private BucketRenderer bucketRenderer;
-    private ProgressiveRenderer progressiveRenderer;
-    private SearchPath includeSearchPath;
-    private SearchPath textureSearchPath;
+    // private ProgressiveRenderer progressiveRenderer;
+    // private SearchPath includeSearchPath;
+    // private SearchPath textureSearchPath;
     private ParameterList parameterList;
     private RenderObjectMap renderObjects;
     private int currentFrame;
@@ -92,9 +92,9 @@ public class SunflowAPI {
     public final void reset() {
         scene = new Scene();
         bucketRenderer = new BucketRenderer();
-        progressiveRenderer = new ProgressiveRenderer();
-        includeSearchPath = new SearchPath("include");
-        textureSearchPath = new SearchPath("texture");
+        // progressiveRenderer = new ProgressiveRenderer();
+        // includeSearchPath = new SearchPath("include");
+        // textureSearchPath = new SearchPath("texture");
         parameterList = new ParameterList();
         renderObjects = new RenderObjectMap();
         currentFrame = 1;
@@ -291,47 +291,47 @@ public class SunflowAPI {
         return success;
     }
 
-    /**
-     * Add the specified path to the list of directories which are searched
-     * automatically to resolve scene filenames.
-     *
-     * @param path
-     */
-    public final void addIncludeSearchPath(String path) {
-        includeSearchPath.addSearchPath(path);
-    }
+    // /**
+    //  * Add the specified path to the list of directories which are searched
+    //  * automatically to resolve scene filenames.
+    //  *
+    //  * @param path
+    //  */
+    // public final void addIncludeSearchPath(String path) {
+    //     includeSearchPath.addSearchPath(path);
+    // }
 
-    /**
-     * Adds the specified path to the list of directories which are searched
-     * automatically to resolve texture filenames.
-     */
-    public final void addTextureSearchPath(String path) {
-        textureSearchPath.addSearchPath(path);
-    }
+    // /**
+    //  * Adds the specified path to the list of directories which are searched
+    //  * automatically to resolve texture filenames.
+    //  */
+    // public final void addTextureSearchPath(String path) {
+    //     textureSearchPath.addSearchPath(path);
+    // }
 
-    /**
-     * Attempts to resolve the specified filename by checking it against the
-     * texture search path.
-     *
-     * @param filename filename
-     * @return a path which matches the filename, or filename if no matches are
-     *         found
-     */
-    public final String resolveTextureFilename(String filename) {
-        return textureSearchPath.resolvePath(filename);
-    }
+    // /**
+    //  * Attempts to resolve the specified filename by checking it against the
+    //  * texture search path.
+    //  *
+    //  * @param filename filename
+    //  * @return a path which matches the filename, or filename if no matches are
+    //  *         found
+    //  */
+    // public final String resolveTextureFilename(String filename) {
+    //     return textureSearchPath.resolvePath(filename);
+    // }
 
-    /**
-     * Attempts to resolve the specified filename by checking it against the
-     * include search path.
-     *
-     * @param filename filename
-     * @return a path which matches the filename, or filename if no matches are
-     *         found
-     */
-    public final String resolveIncludeFilename(String filename) {
-        return includeSearchPath.resolvePath(filename);
-    }
+    // /**
+    //  * Attempts to resolve the specified filename by checking it against the
+    //  * include search path.
+    //  *
+    //  * @param filename filename
+    //  * @return a path which matches the filename, or filename if no matches are
+    //  *         found
+    //  */
+    // public final String resolveIncludeFilename(String filename) {
+    //     return includeSearchPath.resolvePath(filename);
+    // }
 
     /**
      * Defines a shader with a given name. If the shader object is
@@ -653,10 +653,10 @@ public class SunflowAPI {
             sampler = null;
         else if (samplerName.equals("bucket"))
             sampler = bucketRenderer;
-        else if (samplerName.equals("ipr"))
-            sampler = progressiveRenderer;
-        else if (samplerName.equals("fast"))
-            sampler = new SimpleRenderer();
+        // else if (samplerName.equals("ipr"))
+        //     sampler = progressiveRenderer;
+        // else if (samplerName.equals("fast"))
+        //     sampler = new SimpleRenderer();
         else {
             UI.printError(Module.API, "Unknown sampler type: %s - aborting", samplerName);
             return;
@@ -664,40 +664,40 @@ public class SunflowAPI {
         scene.render(opt, sampler, display);
     }
 
-    /**
-     * Parse the specified filename. The include paths are searched first. The
-     * contents of the file are simply added to the active scene. This allows to
-     * break up a scene into parts, even across file formats. The appropriate
-     * parser is chosen based on file extension.
-     *
-     * @param filename filename to load
-     * @return <code>true</code> upon sucess, <code>false</code> if an error
-     *         occured.
-     */
-    public final boolean parse(String filename) {
-        if (filename == null)
-            return false;
-        filename = includeSearchPath.resolvePath(filename);
-        SceneParser parser = null;
-        if (filename.endsWith(".sc"))
-            parser = new SCParser();
-        else if (filename.endsWith(".ra2"))
-            parser = new RA2Parser();
-        else if (filename.endsWith(".ra3"))
-            parser = new RA3Parser();
-        else if (filename.endsWith(".tri"))
-            parser = new TriParser();
-        else if (filename.endsWith(".rib"))
-            parser = new ShaveRibParser();
-        else {
-            UI.printError(Module.API, "Unable to find a suitable parser for: \"%s\"", filename);
-            return false;
-        }
-        String currentFolder = new File(filename).getAbsoluteFile().getParentFile().getAbsolutePath();
-        includeSearchPath.addSearchPath(currentFolder);
-        textureSearchPath.addSearchPath(currentFolder);
-        return parser.parse(filename, this);
-    }
+    // /**
+    //  * Parse the specified filename. The include paths are searched first. The
+    //  * contents of the file are simply added to the active scene. This allows to
+    //  * break up a scene into parts, even across file formats. The appropriate
+    //  * parser is chosen based on file extension.
+    //  *
+    //  * @param filename filename to load
+    //  * @return <code>true</code> upon sucess, <code>false</code> if an error
+    //  *         occured.
+    //  */
+    // public final boolean parse(String filename) {
+    //     if (filename == null)
+    //         return false;
+    //     filename = includeSearchPath.resolvePath(filename);
+    //     SceneParser parser = null;
+    //     if (filename.endsWith(".sc"))
+    //         parser = new SCParser();
+    //     else if (filename.endsWith(".ra2"))
+    //         parser = new RA2Parser();
+    //     else if (filename.endsWith(".ra3"))
+    //         parser = new RA3Parser();
+    //     else if (filename.endsWith(".tri"))
+    //         parser = new TriParser();
+    //     else if (filename.endsWith(".rib"))
+    //         parser = new ShaveRibParser();
+    //     else {
+    //         UI.printError(Module.API, "Unable to find a suitable parser for: \"%s\"", filename);
+    //         return false;
+    //     }
+    //     String currentFolder = new File(filename).getAbsoluteFile().getParentFile().getAbsolutePath();
+    //     includeSearchPath.addSearchPath(currentFolder);
+    //     textureSearchPath.addSearchPath(currentFolder);
+    //     return parser.parse(filename, this);
+    // }
 
     /**
      * Retrieve the bounding box of the scene. This method will be valid only

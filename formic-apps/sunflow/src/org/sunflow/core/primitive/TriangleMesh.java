@@ -1,6 +1,6 @@
 package org.sunflow.core.primitive;
 
-import java.io.FileWriter;
+// import java.io.FileWriter;
 import java.io.IOException;
 
 import org.sunflow.SunflowAPI;
@@ -45,20 +45,20 @@ public class TriangleMesh implements PrimitiveList {
         faceShaders = null;
     }
 
-    public void writeObj(String filename) {
-        try {
-            FileWriter file = new FileWriter(filename);
-            file.write(String.format("o object\n"));
-            for (int i = 0; i < points.length; i += 3)
-                file.write(String.format("v %g %g %g\n", points[i], points[i + 1], points[i + 2]));
-            file.write("s off\n");
-            for (int i = 0; i < triangles.length; i += 3)
-                file.write(String.format("f %d %d %d\n", triangles[i] + 1, triangles[i + 1] + 1, triangles[i + 2] + 1));
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // public void writeObj(String filename) {
+    //     try {
+    //         FileWriter file = new FileWriter(filename);
+    //         file.write(String.format("o object\n"));
+    //         for (int i = 0; i < points.length; i += 3)
+    //             file.write(String.format("v %g %g %g\n", points[i], points[i + 1], points[i + 2]));
+    //         file.write("s off\n");
+    //         for (int i = 0; i < triangles.length; i += 3)
+    //             file.write(String.format("f %d %d %d\n", triangles[i] + 1, triangles[i + 1] + 1, triangles[i + 2] + 1));
+    //         file.close();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     public boolean update(ParameterList pl, SunflowAPI api) {
         boolean updatedTopology = false;

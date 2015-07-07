@@ -1,6 +1,6 @@
 package org.sunflow.core;
 
-import org.sunflow.core.display.FrameDisplay;
+// import org.sunflow.core.display.FrameDisplay;
 import org.sunflow.image.Color;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.MathUtils;
@@ -63,7 +63,7 @@ public class Scene {
 
     /**
      * Get number of allowed threads for multi-threaded operations.
-     * 
+     *
      * @return number of threads that can be started
      */
     public int getThreads() {
@@ -72,7 +72,7 @@ public class Scene {
 
     /**
      * Get the priority level to assign to multi-threaded operations.
-     * 
+     *
      * @return thread priority
      */
     public int getThreadPriority() {
@@ -81,7 +81,7 @@ public class Scene {
 
     /**
      * Sets the current camera (no support for multiple cameras yet).
-     * 
+     *
      * @param camera camera to be used as the viewpoint for the scene
      */
     public void setCamera(Camera camera) {
@@ -94,7 +94,7 @@ public class Scene {
 
     /**
      * Update the instance lists for this scene.
-     * 
+     *
      * @param instances regular instances
      * @param infinite infinite instances (no bounds)
      */
@@ -106,7 +106,7 @@ public class Scene {
 
     /**
      * Update the light list for this scene.
-     * 
+     *
      * @param lights array of light source objects
      */
     public void setLightList(LightSource[] lights) {
@@ -116,7 +116,7 @@ public class Scene {
     /**
      * Enables shader overiding (set null to disable). The specified shader will
      * be used to shade all surfaces
-     * 
+     *
      * @param shader shader to run over all surfaces, or <code>null</code> to
      *            disable overriding
      * @param photonOverride <code>true</code> to override photon scattering
@@ -131,7 +131,7 @@ public class Scene {
      * The provided instance will be considered for lightmap baking. If the
      * specified instance is <code>null</code>, lightmap baking will be
      * disabled and normal rendering will occur.
-     * 
+     *
      * @param instance instance to bake
      */
     public void setBakingInstance(Instance instance) {
@@ -140,7 +140,7 @@ public class Scene {
 
     /**
      * Get the radiance seen through a particular pixel
-     * 
+     *
      * @param istate intersection state for ray tracing
      * @param rx pixel x coordinate
      * @param ry pixel y coordinate
@@ -181,7 +181,7 @@ public class Scene {
 
     /**
      * Get scene world space bounding box.
-     * 
+     *
      * @return scene bounding box
      */
     public BoundingBox getBounds() {
@@ -214,7 +214,7 @@ public class Scene {
 
     /**
      * Render the scene using the specified options, image sampler and display.
-     * 
+     *
      * @param options rendering options object
      * @param sampler image sampler
      * @param display display to send the final image to, a default display will
@@ -222,7 +222,8 @@ public class Scene {
      */
     public void render(Options options, ImageSampler sampler, Display display) {
         if (display == null)
-            display = new FrameDisplay();
+	        System.err.println("Something went totally wrong!!");
+            // display = new FrameDisplay();
 
         if (bakingInstance != null) {
             UI.printDetailed(Module.SCENE, "Creating primitives for lightmapping ...");
@@ -296,7 +297,7 @@ public class Scene {
 
     /**
      * Create a photon map as prescribed by the given {@link PhotonStore}.
-     * 
+     *
      * @param map object that will recieve shot photons
      * @param type type of photons being shot
      * @param seed QMC seed parameter

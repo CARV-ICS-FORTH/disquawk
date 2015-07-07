@@ -1,6 +1,6 @@
 package org.sunflow.core.accel;
 
-import java.io.FileWriter;
+// import java.io.FileWriter;
 import java.io.IOException;
 
 import org.sunflow.core.AccelerationStructure;
@@ -196,118 +196,118 @@ public class KDTree implements AccelerationStructure {
         UI.printDetailed(Module.ACCEL, "  * Sorting time:   %s", sorting);
         UI.printDetailed(Module.ACCEL, "  * Tree creation:  %s", t);
         UI.printDetailed(Module.ACCEL, "  * Build time:     %s", total);
-        if (dump) {
-            try {
-                UI.printInfo(Module.ACCEL, "Dumping mtls to %s.mtl ...", dumpPrefix);
-                FileWriter mtlFile = new FileWriter(dumpPrefix + ".mtl");
-                int maxN = stats.maxObjects;
-                for (int n = 0; n <= maxN; n++) {
-                    float blend = (float) n / (float) maxN;
-                    Color nc;
-                    if (blend < 0.25)
-                        nc = Color.blend(Color.BLUE, Color.GREEN, blend / 0.25f);
-                    else if (blend < 0.5)
-                        nc = Color.blend(Color.GREEN, Color.YELLOW, (blend - 0.25f) / 0.25f);
-                    else if (blend < 0.75)
-                        nc = Color.blend(Color.YELLOW, Color.RED, (blend - 0.50f) / 0.25f);
-                    else
-                        nc = Color.MAGENTA;
-                    mtlFile.write(String.format("newmtl mtl%d\n", n));
-                    float[] rgb = nc.getRGB();
-                    mtlFile.write("Ka 0.1 0.1 0.1\n");
-                    mtlFile.write(String.format("Kd %.12g %.12g %.12g\n", rgb[0], rgb[1], rgb[2]));
-                    mtlFile.write("illum 1\n\n");
-                }
-                FileWriter objFile = new FileWriter(dumpPrefix + ".obj");
-                UI.printInfo(Module.ACCEL, "Dumping tree to %s.obj ...", dumpPrefix);
-                dumpObj(0, 0, maxN, new BoundingBox(bounds), objFile, mtlFile);
-                objFile.close();
-                mtlFile.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        // if (dump) {
+        //     try {
+        //         UI.printInfo(Module.ACCEL, "Dumping mtls to %s.mtl ...", dumpPrefix);
+        //         FileWriter mtlFile = new FileWriter(dumpPrefix + ".mtl");
+        //         int maxN = stats.maxObjects;
+        //         for (int n = 0; n <= maxN; n++) {
+        //             float blend = (float) n / (float) maxN;
+        //             Color nc;
+        //             if (blend < 0.25)
+        //                 nc = Color.blend(Color.BLUE, Color.GREEN, blend / 0.25f);
+        //             else if (blend < 0.5)
+        //                 nc = Color.blend(Color.GREEN, Color.YELLOW, (blend - 0.25f) / 0.25f);
+        //             else if (blend < 0.75)
+        //                 nc = Color.blend(Color.YELLOW, Color.RED, (blend - 0.50f) / 0.25f);
+        //             else
+        //                 nc = Color.MAGENTA;
+        //             mtlFile.write(String.format("newmtl mtl%d\n", n));
+        //             float[] rgb = nc.getRGB();
+        //             mtlFile.write("Ka 0.1 0.1 0.1\n");
+        //             mtlFile.write(String.format("Kd %.12g %.12g %.12g\n", rgb[0], rgb[1], rgb[2]));
+        //             mtlFile.write("illum 1\n\n");
+        //         }
+        //         FileWriter objFile = new FileWriter(dumpPrefix + ".obj");
+        //         UI.printInfo(Module.ACCEL, "Dumping tree to %s.obj ...", dumpPrefix);
+        //         dumpObj(0, 0, maxN, new BoundingBox(bounds), objFile, mtlFile);
+        //         objFile.close();
+        //         mtlFile.close();
+        //     } catch (IOException e) {
+        //         e.printStackTrace();
+        //     }
+        // }
     }
 
-    private int dumpObj(int offset, int vertOffset, int maxN, BoundingBox bounds, FileWriter file, FileWriter mtlFile) throws IOException {
-        if (offset == 0)
-            file.write(String.format("mtllib %s.mtl\n", dumpPrefix));
-        int nextOffset = tree[offset];
-        if ((nextOffset & (3 << 30)) == (3 << 30)) {
-            // leaf
-            int n = tree[offset + 1];
-            if (n > 0) {
-                // output the current voxel to the file
-                Point3 min = bounds.getMinimum();
-                Point3 max = bounds.getMaximum();
-                file.write(String.format("o node%d\n", offset));
-                file.write(String.format("v %g %g %g\n", max.x, max.y, min.z));
-                file.write(String.format("v %g %g %g\n", max.x, min.y, min.z));
-                file.write(String.format("v %g %g %g\n", min.x, min.y, min.z));
-                file.write(String.format("v %g %g %g\n", min.x, max.y, min.z));
-                file.write(String.format("v %g %g %g\n", max.x, max.y, max.z));
-                file.write(String.format("v %g %g %g\n", max.x, min.y, max.z));
-                file.write(String.format("v %g %g %g\n", min.x, min.y, max.z));
-                file.write(String.format("v %g %g %g\n", min.x, max.y, max.z));
-                int v0 = vertOffset;
-                file.write(String.format("usemtl mtl%d\n", n));
-                file.write("s off\n");
-                file.write(String.format("f %d %d %d %d\n", v0 + 1, v0 + 2, v0 + 3, v0 + 4));
-                file.write(String.format("f %d %d %d %d\n", v0 + 5, v0 + 8, v0 + 7, v0 + 6));
-                file.write(String.format("f %d %d %d %d\n", v0 + 1, v0 + 5, v0 + 6, v0 + 2));
-                file.write(String.format("f %d %d %d %d\n", v0 + 2, v0 + 6, v0 + 7, v0 + 3));
-                file.write(String.format("f %d %d %d %d\n", v0 + 3, v0 + 7, v0 + 8, v0 + 4));
-                file.write(String.format("f %d %d %d %d\n", v0 + 5, v0 + 1, v0 + 4, v0 + 8));
-                vertOffset += 8;
-            }
-            return vertOffset;
-        } else {
-            // node, recurse
-            int axis = nextOffset & (3 << 30), v0;
-            float split = Float.intBitsToFloat(tree[offset + 1]), min, max;
-            nextOffset &= ~(3 << 30);
-            switch (axis) {
-                case 0:
-                    max = bounds.getMaximum().x;
-                    bounds.getMaximum().x = split;
-                    v0 = dumpObj(nextOffset, vertOffset, maxN, bounds, file, mtlFile);
-                    // restore and go to other side
-                    bounds.getMaximum().x = max;
-                    min = bounds.getMinimum().x;
-                    bounds.getMinimum().x = split;
-                    v0 = dumpObj(nextOffset + 2, v0, maxN, bounds, file, mtlFile);
-                    bounds.getMinimum().x = min;
-                    break;
-                case 1 << 30:
-                    max = bounds.getMaximum().y;
-                    bounds.getMaximum().y = split;
-                    v0 = dumpObj(nextOffset, vertOffset, maxN, bounds, file, mtlFile);
-                    // restore and go to other side
-                    bounds.getMaximum().y = max;
-                    min = bounds.getMinimum().y;
-                    bounds.getMinimum().y = split;
-                    v0 = dumpObj(nextOffset + 2, v0, maxN, bounds, file, mtlFile);
-                    bounds.getMinimum().y = min;
-                    break;
-                case 2 << 30:
-                    max = bounds.getMaximum().z;
-                    bounds.getMaximum().z = split;
-                    v0 = dumpObj(nextOffset, vertOffset, maxN, bounds, file, mtlFile);
-                    // restore and go to other side
-                    bounds.getMaximum().z = max;
-                    min = bounds.getMinimum().z;
-                    bounds.getMinimum().z = split;
-                    v0 = dumpObj(nextOffset + 2, v0, maxN, bounds, file, mtlFile);
-                    // restore and go to other side
-                    bounds.getMinimum().z = min;
-                    break;
-                default:
-                    v0 = vertOffset;
-                    break;
-            }
-            return v0;
-        }
-    }
+    // private int dumpObj(int offset, int vertOffset, int maxN, BoundingBox bounds, FileWriter file, FileWriter mtlFile) throws IOException {
+    //     if (offset == 0)
+    //         file.write(String.format("mtllib %s.mtl\n", dumpPrefix));
+    //     int nextOffset = tree[offset];
+    //     if ((nextOffset & (3 << 30)) == (3 << 30)) {
+    //         // leaf
+    //         int n = tree[offset + 1];
+    //         if (n > 0) {
+    //             // output the current voxel to the file
+    //             Point3 min = bounds.getMinimum();
+    //             Point3 max = bounds.getMaximum();
+    //             file.write(String.format("o node%d\n", offset));
+    //             file.write(String.format("v %g %g %g\n", max.x, max.y, min.z));
+    //             file.write(String.format("v %g %g %g\n", max.x, min.y, min.z));
+    //             file.write(String.format("v %g %g %g\n", min.x, min.y, min.z));
+    //             file.write(String.format("v %g %g %g\n", min.x, max.y, min.z));
+    //             file.write(String.format("v %g %g %g\n", max.x, max.y, max.z));
+    //             file.write(String.format("v %g %g %g\n", max.x, min.y, max.z));
+    //             file.write(String.format("v %g %g %g\n", min.x, min.y, max.z));
+    //             file.write(String.format("v %g %g %g\n", min.x, max.y, max.z));
+    //             int v0 = vertOffset;
+    //             file.write(String.format("usemtl mtl%d\n", n));
+    //             file.write("s off\n");
+    //             file.write(String.format("f %d %d %d %d\n", v0 + 1, v0 + 2, v0 + 3, v0 + 4));
+    //             file.write(String.format("f %d %d %d %d\n", v0 + 5, v0 + 8, v0 + 7, v0 + 6));
+    //             file.write(String.format("f %d %d %d %d\n", v0 + 1, v0 + 5, v0 + 6, v0 + 2));
+    //             file.write(String.format("f %d %d %d %d\n", v0 + 2, v0 + 6, v0 + 7, v0 + 3));
+    //             file.write(String.format("f %d %d %d %d\n", v0 + 3, v0 + 7, v0 + 8, v0 + 4));
+    //             file.write(String.format("f %d %d %d %d\n", v0 + 5, v0 + 1, v0 + 4, v0 + 8));
+    //             vertOffset += 8;
+    //         }
+    //         return vertOffset;
+    //     } else {
+    //         // node, recurse
+    //         int axis = nextOffset & (3 << 30), v0;
+    //         float split = Float.intBitsToFloat(tree[offset + 1]), min, max;
+    //         nextOffset &= ~(3 << 30);
+    //         switch (axis) {
+    //             case 0:
+    //                 max = bounds.getMaximum().x;
+    //                 bounds.getMaximum().x = split;
+    //                 v0 = dumpObj(nextOffset, vertOffset, maxN, bounds, file, mtlFile);
+    //                 // restore and go to other side
+    //                 bounds.getMaximum().x = max;
+    //                 min = bounds.getMinimum().x;
+    //                 bounds.getMinimum().x = split;
+    //                 v0 = dumpObj(nextOffset + 2, v0, maxN, bounds, file, mtlFile);
+    //                 bounds.getMinimum().x = min;
+    //                 break;
+    //             case 1 << 30:
+    //                 max = bounds.getMaximum().y;
+    //                 bounds.getMaximum().y = split;
+    //                 v0 = dumpObj(nextOffset, vertOffset, maxN, bounds, file, mtlFile);
+    //                 // restore and go to other side
+    //                 bounds.getMaximum().y = max;
+    //                 min = bounds.getMinimum().y;
+    //                 bounds.getMinimum().y = split;
+    //                 v0 = dumpObj(nextOffset + 2, v0, maxN, bounds, file, mtlFile);
+    //                 bounds.getMinimum().y = min;
+    //                 break;
+    //             case 2 << 30:
+    //                 max = bounds.getMaximum().z;
+    //                 bounds.getMaximum().z = split;
+    //                 v0 = dumpObj(nextOffset, vertOffset, maxN, bounds, file, mtlFile);
+    //                 // restore and go to other side
+    //                 bounds.getMaximum().z = max;
+    //                 min = bounds.getMinimum().z;
+    //                 bounds.getMinimum().z = split;
+    //                 v0 = dumpObj(nextOffset + 2, v0, maxN, bounds, file, mtlFile);
+    //                 // restore and go to other side
+    //                 bounds.getMinimum().z = min;
+    //                 break;
+    //             default:
+    //                 v0 = vertOffset;
+    //                 break;
+    //         }
+    //         return v0;
+    //     }
+    // }
 
     // type is encoded as 2 shifted bits
     private static final long CLOSED = 0L << 30;

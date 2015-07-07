@@ -13,7 +13,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.core.bucket.BucketOrderFactory;
 import org.sunflow.core.filter.BoxFilter;
 import org.sunflow.core.filter.FilterFactory;
-import org.sunflow.image.Bitmap;
+// import org.sunflow.image.Bitmap;
 import org.sunflow.image.Color;
 import org.sunflow.math.MathUtils;
 import org.sunflow.math.QMC;
@@ -244,14 +244,14 @@ public class BucketRenderer implements ImageSampler {
         for (int x = 0; x < sbw - 1; x += maxStepSize)
             for (int y = 0; y < sbh - 1; y += maxStepSize)
                 refineSamples(samples, sbw, x, y, maxStepSize, thresh, istate);
-        if (dumpBuckets) {
-            UI.printInfo(Module.BCKT, "Dumping bucket [%d, %d] to file ...", bx, by);
-            Bitmap bitmap = new Bitmap(sbw, sbh, true);
-            for (int y = sbh - 1, index = 0; y >= 0; y--)
-                for (int x = 0; x < sbw; x++, index++)
-                    bitmap.setPixel(x, y, samples[index].c.copy().toNonLinear());
-            bitmap.save(String.format("bucket_%04d_%04d.png", bx, by));
-        }
+        // if (dumpBuckets) {
+        //     UI.printInfo(Module.BCKT, "Dumping bucket [%d, %d] to file ...", bx, by);
+        //     Bitmap bitmap = new Bitmap(sbw, sbh, true);
+        //     for (int y = sbh - 1, index = 0; y >= 0; y--)
+        //         for (int x = 0; x < sbw; x++, index++)
+        //             bitmap.setPixel(x, y, samples[index].c.copy().toNonLinear());
+        //     bitmap.save(String.format("bucket_%04d_%04d.png", bx, by));
+        // }
         if (displayAA) {
             // color coded image of what is visible
             float invArea = invSubPixelSize * invSubPixelSize;
