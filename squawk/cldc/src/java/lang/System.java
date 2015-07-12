@@ -1,22 +1,26 @@
 /*
+ * Copyright 2013-15, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -119,6 +123,35 @@ public final class System {
      */
     public static long currentTimeMillis() {
         return VM.getTimeMillis();
+    }
+
+    /**
+     * Returns the current value of the most precise available system
+     * timer, in nanoseconds.
+     *
+     * <p>This method can only be used to measure elapsed time and is
+     * not related to any other notion of system or wall-clock time.
+     * The value returned represents nanoseconds since some fixed but
+     * arbitrary time (perhaps in the future, so values may be
+     * negative).  This method provides nanosecond precision, but not
+     * necessarily nanosecond accuracy. No guarantees are made about
+     * how frequently values change. Differences in successive calls
+     * that span greater than approximately 292 years (2<sup>63</sup>
+     * nanoseconds) will not accurately compute elapsed time due to
+     * numerical overflow.
+     *
+     * <p> For example, to measure how long some code takes to execute:
+     * <pre>
+     *   long startTime = System.nanoTime();
+     *   // ... the code being measured ...
+     *   long estimatedTime = System.nanoTime() - startTime;
+     * </pre>
+     *
+     * @return The current value of the system timer, in nanoseconds.
+     * @since 1.5
+     */
+    public static long nanoTime() {
+        return VM.getTimeMicros()/1000;
     }
 
     /**
