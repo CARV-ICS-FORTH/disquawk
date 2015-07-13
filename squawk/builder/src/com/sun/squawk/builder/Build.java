@@ -227,8 +227,6 @@ public class Build {
 
 	protected boolean isInitialized;
 
-	protected boolean isJava5SyntaxSupported;
-
 	/**
 	 * Gets the name of the build.override file specified by the -override: or -override arg. Or null if no
 	 * -override: arg was specified.
@@ -2289,10 +2287,6 @@ public class Build {
 		macroizer = new Macroizer();
 		installBuiltinCommands();
 		javaCompiler = new JavaCompiler(this);
-		isJava5SyntaxSupported = false;
-		if (getProperty("JAVA5SYNTAX") != null) {
-			isJava5SyntaxSupported = getBooleanProperty("JAVA5SYNTAX");
-		}
 	}
 
 	/**
@@ -3117,6 +3111,25 @@ public class Build {
 		}
 	}
 
+	// /**
+	//  * Compiles a set of Java sources into class files with a Java source compiler. The sources
+	//  * are initially {@link Preprocessor preprocessed} if <code>preprocess == true</code> and
+	//  * the output is written into the "preprocessed" directory. The sources are then compiled
+	//  * with the Java compiler into the "classes" directory. If <code>j2me == true</code> then
+	//  * the class files in "classes" are preverified and written to "j2meclasses".
+	//  *
+	//  * @param   compileClassPath the class path to compile against
+	//  * @param   preverifyClassPath the class path to preverify against
+	//  * @param   baseDir    the base directory for generated directories (i.e. "preprocessed", "classes" and "j2meclasses")
+	//  * @param   srcDirs    the set of directories that are searched recursively for the Java source files to be compiled
+	//  * @param   j2me       specifies if the classes being compiled are to be deployed on a J2ME platform
+	//  * @param   extraArgs  extra javac arguments
+	//  * @param   preprocess runs the {@link Preprocessor} over the sources if true
+	//  */
+	// public void javac(String compileClassPath, String preverifyClassPath, File baseDir, File[] srcDirs, boolean j2me, List<String> extraArgs, boolean preprocess) {
+	// 	this.javac(compileClassPath, preverifyClassPath, baseDir, srcDirs, j2me, extraArgs, preprocess, false);
+	// }
+
 	/**
 	 * Compiles a set of Java sources into class files with a Java source compiler. The sources
 	 * are initially {@link Preprocessor preprocessed} if <code>preprocess == true</code> and
@@ -3133,27 +3146,6 @@ public class Build {
 	 * @param   preprocess runs the {@link Preprocessor} over the sources if true
 	 */
 	public void javac(String compileClassPath, String preverifyClassPath, File baseDir, File[] srcDirs, boolean j2me, List<String> extraArgs, boolean preprocess) {
-		this.javac(compileClassPath, preverifyClassPath, baseDir, srcDirs, j2me, extraArgs, preprocess, false);
-	}
-
-	/**
-	 * Compiles a set of Java sources into class files with a Java source compiler. The sources
-	 * are initially {@link Preprocessor preprocessed} if <code>preprocess == true</code> and
-	 * the output is written into the "preprocessed" directory. The sources are then compiled
-	 * with the Java compiler into the "classes" directory. If <code>j2me == true</code> then
-	 * the class files in "classes" are preverified and written to "j2meclasses".
-	 *
-	 * @param   compileClassPath the class path to compile against
-	 * @param   preverifyClassPath the class path to preverify against
-	 * @param   baseDir    the base directory for generated directories (i.e. "preprocessed", "classes" and "j2meclasses")
-	 * @param   srcDirs    the set of directories that are searched recursively for the Java source files to be compiled
-	 * @param   j2me       specifies if the classes being compiled are to be deployed on a J2ME platform
-	 * @param   extraArgs  extra javac arguments
-	 * @param   preprocess runs the {@link Preprocessor} over the sources if true
-	 * @param   noJava5    do not allow Java 5 syntax
-	 */
-	public void javac(String compileClassPath, String preverifyClassPath, File baseDir, File[] srcDirs, boolean j2me, List<String> extraArgs, boolean preprocess, boolean noJava5) {
-		boolean doJava5 = isJava5SyntaxSupported() && !noJava5;
 
 		// Preprocess the sources if required
 		if (preprocess) {
@@ -3165,11 +3157,6 @@ public class Build {
 
 		// Prepare and run the Java compiler
 		javaCompiler.reset();
-		// if (!doJava5 && j2me) {
-		//     // This is required to make the preverifier happy
-		//     javaCompiler.arg("-target", "jsr14");
-		//     javaCompiler.arg("-source", "1.5");
-		// }
 		if (extraArgs != null) {
 			for (String arg: extraArgs) {
 				javaCompiler.arg(arg);
@@ -3181,7 +3168,7 @@ public class Build {
 		javaCompiler.arg("-g").args(javacOptions);
 		javaCompiler.compile(compileClassPath, classesDir, srcDirs, j2me);
 
-		if (doJava5 && j2me) {
+		if (j2me) {
 			classesDir = retrotranslate(baseDir, classesDir);
 		}
 
@@ -3192,7 +3179,6 @@ public class Build {
 
 		// Run the preverifier for a J2ME compilation
 		if (j2me) {
-			//classesDir = isJava5SyntaxSupported()?new File(baseDir, "weaved"):new File(baseDir, "classes");
 			File j2meclassesDir = mkdir(baseDir, "j2meclasses");
 			preverify(preverifyClassPath, classesDir, j2meclassesDir);
 		}
@@ -3242,13 +3228,9 @@ public class Build {
 	public File preprocess(File baseDir, File[] srcDirs, boolean j2me, boolean vm2c) {
 		// Get the preprocessor output directory
 		final File preprocessedDir;
-		boolean resetJava5Syntax = false;
-		if (vm2c && !isJava5SyntaxSupported()) {
-			log(brief, "[preprocessing with forced JAVA5SYNTAX for vm2c]");
+		if (vm2c) {
+			log(brief, "[preprocessing for vm2c]");
 			preprocessedDir = mkdir(baseDir, RomCommand.PREPROCESSED_FOR_VM2C_DIR_NAME);
-			updateProperty("JAVA5SYNTAX", "true");
-			isJava5SyntaxSupported = true;
-			resetJava5Syntax = true;
 		} else {
 			preprocessedDir = mkdir(baseDir, "preprocessed");
 		}
@@ -3283,11 +3265,6 @@ public class Build {
 
 		}
 
-		if (resetJava5Syntax) {
-			updateProperty("JAVA5SYNTAX", "false");
-			isJava5SyntaxSupported = false;
-		}
-
 		return preprocessedDir;
 	}
 
@@ -3311,7 +3288,9 @@ public class Build {
 		// File j2meclassesDir = mkdir(baseDir, "j2meclasses");
 
 		// See if any of the classes actually need re-preverifying
-		FileSet.Selector outOfDate = new FileSet.DependSelector(new FileSet.SourceDestDirMapper(classesDir, j2meclassesDir));
+		FileSet.Selector outOfDate =
+			new FileSet.DependSelector(new FileSet.SourceDestDirMapper(classesDir,
+			                                                           j2meclassesDir));
 		if (!new FileSet(classesDir, outOfDate).list().iterator().hasNext()) {
 			return;
 		}
@@ -3533,15 +3512,6 @@ public class Build {
 				process = null;
 			}
 		}
-	}
-
-	/**
-	 * Return true if Java5 syntax should be supported.
-	 *
-	 * @return
-	 */
-	public boolean isJava5SyntaxSupported() {
-		return isJava5SyntaxSupported;
 	}
 
 	public boolean isWantingPpcCompilerOnMac() {

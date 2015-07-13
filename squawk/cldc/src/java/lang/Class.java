@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -50,18 +50,10 @@ import com.sun.squawk.util.*;
  * @version 1.106, 12/04/99 (CLDC 1.0, Spring 2000)
  * @since   JDK1.0, CLDC 1.0
  */
-/*if[JAVA5SYNTAX]*/
 @Java5Marker("Added <T>")
 public final class Class<T> {
-/*else[JAVA5SYNTAX]*/
-//public final class Class {
-/*end[JAVA5SYNTAX]*/
 
-/*if[JAVA5SYNTAX]*/
     private Klass<T> klass;
-/*else[JAVA5SYNTAX]*/
-//    private Klass klass;
-/*end[JAVA5SYNTAX]*/
 
     private Class() {}
 
@@ -119,13 +111,7 @@ public final class Class<T> {
      *               instantiation fails for some other reason.
      * @since     JDK1.0
      */
-    public 
-/*if[JAVA5SYNTAX]*/
-    T
-/*else[JAVA5SYNTAX]*/
-//    Object
-/*end[JAVA5SYNTAX]*/
-    newInstance() throws InstantiationException, IllegalAccessException {
+    public T newInstance() throws InstantiationException, IllegalAccessException {
         /*
          * Check for a sensible object type.
          */
@@ -136,11 +122,7 @@ public final class Class<T> {
         if (!klass.isPublic() || !Modifier.isPublic(klass.getDefaultConstructorModifiers())) { // do accessibility check...
             ExecutionPoint[] trace = VM.reifyCurrentStack(2);
             if (trace.length == 2) { // this is false during bootstrapping
-/*if[JAVA5SYNTAX]*/
                 Klass<?> callersClass;
-/*else[JAVA5SYNTAX]*/
-//              Klass callersClass;
-/*end[JAVA5SYNTAX]*/
                 callersClass = trace[1].getKlass();
                 /*
                  * Check that the calling method can access this klass and the constructor
@@ -151,13 +133,13 @@ public final class Class<T> {
                          * callersKlass is a subclass of this class). Protected constructors
                          * can only be accessed from within the constructor of a direct
                          * subclass of a class. They cannot be accessed via reflection.
-                         */ 
+                         */
                         !Klass.isAccessibleFrom(klass, klass.getDefaultConstructorModifiers() & ~Modifier.PROTECTED, callersClass)) {
                     throw new IllegalAccessException();
                 }
             }
         }
-        
+
         return klass.newInstance();
     }
 
@@ -221,11 +203,7 @@ public final class Class<T> {
      *            null.
      * @since JDK1.1
      */
-/*if[JAVA5SYNTAX]*/
     public boolean isAssignableFrom(Class<?> cls) {
-/*else[JAVA5SYNTAX]*/
-//    public boolean isAssignableFrom(Class cls) {
-/*end[JAVA5SYNTAX]*/
         if (cls == null) {
             throw new NullPointerException();
         }
@@ -312,8 +290,7 @@ public final class Class<T> {
     public java.io.InputStream getResourceAsStream(String name) {
         return klass.getResourceAsStream(name);
     }
-    
-/*if[JAVA5SYNTAX]*/
+
     /**
      * Returns the <code>Class</code> representing the component type of an
      * array.  If this class does not represent an array class this method
@@ -326,10 +303,8 @@ public final class Class<T> {
     public Class<?> getComponentType() {
         return Klass.asClass(klass.getComponentType());
     }
-/*end[JAVA5SYNTAX]*/
 
 
-/*if[JAVA5SYNTAX]*/
     /**
      * Returns the assertion status that would be assigned to this
      * class if it were to be initialized at the time this method is invoked.
@@ -354,8 +329,5 @@ public final class Class<T> {
     public boolean desiredAssertionStatus() {
         return false;
     }
-/*end[JAVA5SYNTAX]*/
-    
+
 }
-
-

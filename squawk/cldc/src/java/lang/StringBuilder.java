@@ -1,4 +1,3 @@
-//if[JAVA5SYNTAX]*/
 package java.lang;
 
 import com.sun.squawk.Java5Marker;
@@ -11,41 +10,41 @@ import com.sun.squawk.Java5Marker;
  * used by a single thread (as is generally the case).   Where possible,
  * it is recommended that this class be used in preference to
  * <code>StringBuffer</code> as it will be faster under most implementations.
- * 
- * <p>The principal operations on a <code>StringBuilder</code> are the 
- * <code>append</code> and <code>insert</code> methods, which are 
- * overloaded so as to accept data of any type. Each effectively 
- * converts a given datum to a string and then appends or inserts the 
- * characters of that string to the string builder. The 
- * <code>append</code> method always adds these characters at the end 
- * of the builder; the <code>insert</code> method adds the characters at 
- * a specified point. 
+ *
+ * <p>The principal operations on a <code>StringBuilder</code> are the
+ * <code>append</code> and <code>insert</code> methods, which are
+ * overloaded so as to accept data of any type. Each effectively
+ * converts a given datum to a string and then appends or inserts the
+ * characters of that string to the string builder. The
+ * <code>append</code> method always adds these characters at the end
+ * of the builder; the <code>insert</code> method adds the characters at
+ * a specified point.
  * <p>
- * For example, if <code>z</code> refers to a string builder object 
- * whose current contents are "<code>start</code>", then 
- * the method call <code>z.append("le")</code> would cause the string 
- * builder to contain "<code>startle</code>", whereas 
- * <code>z.insert(4, "le")</code> would alter the string builder to 
- * contain "<code>starlet</code>". 
+ * For example, if <code>z</code> refers to a string builder object
+ * whose current contents are "<code>start</code>", then
+ * the method call <code>z.append("le")</code> would cause the string
+ * builder to contain "<code>startle</code>", whereas
+ * <code>z.insert(4, "le")</code> would alter the string builder to
+ * contain "<code>starlet</code>".
  * <p>
- * In general, if sb refers to an instance of a <code>StringBuilder</code>, 
- * then <code>sb.append(x)</code> has the same effect as 
+ * In general, if sb refers to an instance of a <code>StringBuilder</code>,
+ * then <code>sb.append(x)</code> has the same effect as
  * <code>sb.insert(sb.length(),&nbsp;x)</code>.
  *
- * Every string builder has a capacity. As long as the length of the 
- * character sequence contained in the string builder does not exceed 
- * the capacity, it is not necessary to allocate a new internal 
+ * Every string builder has a capacity. As long as the length of the
+ * character sequence contained in the string builder does not exceed
+ * the capacity, it is not necessary to allocate a new internal
  * buffer. If the internal buffer overflows, it is automatically made larger.
  *
  * <p>Instances of <code>StringBuilder</code> are not safe for
  * use by multiple threads. If such synchronization is required then it is
- * recommended that {@link java.lang.StringBuffer} be used. 
+ * recommended that {@link java.lang.StringBuffer} be used.
  * <p>
  * This Java Card class is a subset of the JDK 1.5 StringBuilder class. Some
  * interfaces, methods and/or variables have been pruned, and/or other methods
  * simplified, in an effort to reduce the size of this class and/or eliminate
  * dependencies on unsupported features.
- * 
+ *
  * @author  Michael McCloskey
  * @version     1.9, 07/16/04
  * @see         java.lang.StringBuffer
@@ -59,22 +58,22 @@ public final class StringBuilder {
      */
     char value[];
 
-    /** 
+    /**
      * The count is the number of characters used.
      */
     int count;
 
     /**
-     * Constructs a string builder with no characters in it and an 
-     * initial capacity of 16 characters. 
+     * Constructs a string builder with no characters in it and an
+     * initial capacity of 16 characters.
      */
     public StringBuilder() {
         this(16);
     }
 
     /**
-     * Constructs a string builder with no characters in it and an 
-     * initial capacity specified by the <code>capacity</code> argument. 
+     * Constructs a string builder with no characters in it and an
+     * initial capacity specified by the <code>capacity</code> argument.
      *
      * @param      capacity  the initial capacity.
      * @throws     NegativeArraySizeException  if the <code>capacity</code>
@@ -85,9 +84,9 @@ public final class StringBuilder {
     }
 
     /**
-     * Constructs a string builder initialized to the contents of the 
-     * specified string. The initial capacity of the string builder is 
-     * <code>16</code> plus the length of the string argument.  
+     * Constructs a string builder initialized to the contents of the
+     * specified string. The initial capacity of the string builder is
+     * <code>16</code> plus the length of the string argument.
      *
      * @param   str   the initial contents of the buffer.
      * @throws    NullPointerException if <code>str</code> is <code>null</code>
@@ -100,7 +99,7 @@ public final class StringBuilder {
     /**
      * Returns the length (character count).
      *
-     * @return  the length of the sequence of characters currently 
+     * @return  the length of the sequence of characters currently
      *          represented by this object
      */
     public int length() {
@@ -108,8 +107,8 @@ public final class StringBuilder {
     }
 
     /**
-     * Returns the current capacity. The capacity is the amount of storage 
-     * available for newly inserted characters, beyond which an allocation 
+     * Returns the current capacity. The capacity is the amount of storage
+     * available for newly inserted characters, beyond which an allocation
      * will occur.
      *
      * @return  the current capacity
@@ -121,11 +120,11 @@ public final class StringBuilder {
     /**
      * Ensures that the capacity is at least equal to the specified minimum.
      * If the current capacity is less than the argument, then a new internal
-     * array is allocated with greater capacity. The new capacity is the 
-     * larger of: 
+     * array is allocated with greater capacity. The new capacity is the
+     * larger of:
      * <ul>
-     * <li>The <code>minimumCapacity</code> argument. 
-     * <li>Twice the old capacity, plus <code>2</code>. 
+     * <li>The <code>minimumCapacity</code> argument.
+     * <li>Twice the old capacity, plus <code>2</code>.
      * </ul>
      * If the <code>minimumCapacity</code> argument is nonpositive, this
      * method takes no action and simply returns.
@@ -156,12 +155,12 @@ public final class StringBuilder {
 
     /**
      * Attempts to reduce storage used for the character sequence.
-     * If the buffer is larger than necessary to hold its current sequence of 
-     * characters, then it may be resized to become more space efficient. 
-     * Calling this method may, but is not required to, affect the value 
+     * If the buffer is larger than necessary to hold its current sequence of
+     * characters, then it may be resized to become more space efficient.
+     * Calling this method may, but is not required to, affect the value
      * returned by a subsequent call to the {@link #capacity()} method.
      */
-    public void trimToSize() { 
+    public void trimToSize() {
         if (count < value.length) {
             char[] newValue = new char[count];
             System.arraycopy(value, 0, newValue, 0, count);
@@ -171,24 +170,24 @@ public final class StringBuilder {
 
     /**
      * Sets the length of the character sequence.
-     * The sequence is changed to a new character sequence 
-     * whose length is specified by the argument. For every nonnegative 
-     * index <i>k</i> less than <code>newLength</code>, the character at 
-     * index <i>k</i> in the new character sequence is the same as the 
-     * character at index <i>k</i> in the old sequence if <i>k</i> is less 
-     * than the length of the old character sequence; otherwise, it is the 
-     * null character <code>'&#92;u0000'</code>. 
-     *  
-     * In other words, if the <code>newLength</code> argument is less than 
+     * The sequence is changed to a new character sequence
+     * whose length is specified by the argument. For every nonnegative
+     * index <i>k</i> less than <code>newLength</code>, the character at
+     * index <i>k</i> in the new character sequence is the same as the
+     * character at index <i>k</i> in the old sequence if <i>k</i> is less
+     * than the length of the old character sequence; otherwise, it is the
+     * null character <code>'&#92;u0000'</code>.
+     *
+     * In other words, if the <code>newLength</code> argument is less than
      * the current length, the length is changed to the specified length.
      * <p>
-     * If the <code>newLength</code> argument is greater than or equal 
-     * to the current length, sufficient null characters 
-     * (<code>'&#92;u0000'</code>) are appended so that 
-     * length becomes the <code>newLength</code> argument. 
+     * If the <code>newLength</code> argument is greater than or equal
+     * to the current length, sufficient null characters
+     * (<code>'&#92;u0000'</code>) are appended so that
+     * length becomes the <code>newLength</code> argument.
      * <p>
-     * The <code>newLength</code> argument must be greater than or equal 
-     * to <code>0</code>. 
+     * The <code>newLength</code> argument must be greater than or equal
+     * to <code>0</code>.
      *
      * @param      newLength   the new length
      * @throws     IndexOutOfBoundsException  if the
@@ -218,7 +217,7 @@ public final class StringBuilder {
      *
      * @param      index   the index of the desired <code>char</code> value.
      * @return     the <code>char</code> value at the specified index.
-     * @throws     IndexOutOfBoundsException  if <code>index</code> is 
+     * @throws     IndexOutOfBoundsException  if <code>index</code> is
      *             negative or greater than or equal to <code>length()</code>.
      */
     public char charAt(int index) {
@@ -228,12 +227,12 @@ public final class StringBuilder {
     }
 
     /**
-     * Characters are copied from this sequence into the 
-     * destination character array <code>dst</code>. The first character to 
-     * be copied is at index <code>srcBegin</code>; the last character to 
-     * be copied is at index <code>srcEnd-1</code>. The total number of 
-     * characters to be copied is <code>srcEnd-srcBegin</code>. The 
-     * characters are copied into the subarray of <code>dst</code> starting 
+     * Characters are copied from this sequence into the
+     * destination character array <code>dst</code>. The first character to
+     * be copied is at index <code>srcBegin</code>; the last character to
+     * be copied is at index <code>srcEnd-1</code>. The total number of
+     * characters to be copied is <code>srcEnd-srcBegin</code>. The
+     * characters are copied into the subarray of <code>dst</code> starting
      * at index <code>dstBegin</code> and ending at index:
      * <p><blockquote><pre>
      * dstbegin + (srcEnd-srcBegin) - 1
@@ -243,17 +242,17 @@ public final class StringBuilder {
      * @param      srcEnd     stop copying at this offset.
      * @param      dst        the array to copy the data into.
      * @param      dstBegin   offset into <code>dst</code>.
-     * @throws     NullPointerException if <code>dst</code> is 
+     * @throws     NullPointerException if <code>dst</code> is
      *             <code>null</code>.
      * @throws     IndexOutOfBoundsException  if any of the following is true:
      *             <ul>
      *             <li><code>srcBegin</code> is negative
      *             <li><code>dstBegin</code> is negative
-     *             <li>the <code>srcBegin</code> argument is greater than 
+     *             <li>the <code>srcBegin</code> argument is greater than
      *             the <code>srcEnd</code> argument.
-     *             <li><code>srcEnd</code> is greater than 
+     *             <li><code>srcEnd</code> is greater than
      *             <code>this.length()</code>.
-     *             <li><code>dstBegin+srcEnd-srcBegin</code> is greater than 
+     *             <li><code>dstBegin+srcEnd-srcBegin</code> is greater than
      *             <code>dst.length</code>
      *             </ul>
      */
@@ -268,17 +267,17 @@ public final class StringBuilder {
     }
 
     /**
-     * The character at the specified index is set to <code>ch</code>. This 
-     * sequence is altered to represent a new character sequence that is 
-     * identical to the old character sequence, except that it contains the 
-     * character <code>ch</code> at position <code>index</code>. 
+     * The character at the specified index is set to <code>ch</code>. This
+     * sequence is altered to represent a new character sequence that is
+     * identical to the old character sequence, except that it contains the
+     * character <code>ch</code> at position <code>index</code>.
      * <p>
-     * The index argument must be greater than or equal to 
-     * <code>0</code>, and less than the length of this sequence. 
+     * The index argument must be greater than or equal to
+     * <code>0</code>, and less than the length of this sequence.
      *
      * @param      index   the index of the character to modify.
      * @param      ch      the new character.
-     * @throws     IndexOutOfBoundsException  if <code>index</code> is 
+     * @throws     IndexOutOfBoundsException  if <code>index</code> is
      *             negative or greater than or equal to <code>length()</code>.
      */
     public void setCharAt(int index, char ch) {
@@ -298,16 +297,16 @@ public final class StringBuilder {
     /**
      * Appends the specified string to this character sequence.
      * <p>
-     * The characters of the <code>String</code> argument are appended, in 
-     * order, increasing the length of this sequence by the length of the 
-     * argument. If <code>str</code> is <code>null</code>, then the four 
+     * The characters of the <code>String</code> argument are appended, in
+     * order, increasing the length of this sequence by the length of the
+     * argument. If <code>str</code> is <code>null</code>, then the four
      * characters <code>"null"</code> are appended.
      * <p>
-     * Let <i>n</i> be the length of this character sequence just prior to 
-     * execution of the <code>append</code> method. Then the character at 
-     * index <i>k</i> in the new character sequence is equal to the character 
-     * at index <i>k</i> in the old character sequence, if <i>k</i> is less 
-     * than <i>n</i>; otherwise, it is equal to the character at index 
+     * Let <i>n</i> be the length of this character sequence just prior to
+     * execution of the <code>append</code> method. Then the character at
+     * index <i>k</i> in the new character sequence is equal to the character
+     * at index <i>k</i> in the old character sequence, if <i>k</i> is less
+     * than <i>n</i>; otherwise, it is equal to the character at index
      * <i>k-n</i> in the argument <code>str</code>.
      *
      * @param   str   a string.
@@ -330,23 +329,23 @@ public final class StringBuilder {
     /**
      * Appends the specified <tt>StringBuffer</tt> to this sequence.
      * <p>
-     * The characters of the <tt>StringBuffer</tt> argument are appended, 
-     * in order, to this sequence, increasing the 
-     * length of this sequence by the length of the argument. 
-     * If <tt>sb</tt> is <tt>null</tt>, then the four characters 
+     * The characters of the <tt>StringBuffer</tt> argument are appended,
+     * in order, to this sequence, increasing the
+     * length of this sequence by the length of the argument.
+     * If <tt>sb</tt> is <tt>null</tt>, then the four characters
      * <tt>"null"</tt> are appended to this sequence.
      * <p>
-     * Let <i>n</i> be the length of this character sequence just prior to 
-     * execution of the <tt>append</tt> method. Then the character at index 
-     * <i>k</i> in the new character sequence is equal to the character at 
-     * index <i>k</i> in the old character sequence, if <i>k</i> is less than 
-     * <i>n</i>; otherwise, it is equal to the character at index <i>k-n</i> 
+     * Let <i>n</i> be the length of this character sequence just prior to
+     * execution of the <tt>append</tt> method. Then the character at index
+     * <i>k</i> in the new character sequence is equal to the character at
+     * index <i>k</i> in the old character sequence, if <i>k</i> is less than
+     * <i>n</i>; otherwise, it is equal to the character at index <i>k-n</i>
      * in the argument <code>sb</code>.
      *
      * @param   sb   the <tt>StringBuffer</tt> to append.
      * @return  a reference to this object.
      */
-    public StringBuilder append(StringBuffer sb) { 
+    public StringBuilder append(StringBuffer sb) {
         if (sb == null)
             return append("null");
         int len = sb.length();
@@ -359,16 +358,16 @@ public final class StringBuilder {
     }
 
     /**
-     * Appends the string representation of the <code>char</code> array 
-     * argument to this sequence. 
+     * Appends the string representation of the <code>char</code> array
+     * argument to this sequence.
      * <p>
-     * The characters of the array argument are appended, in order, to 
+     * The characters of the array argument are appended, in order, to
      * the contents of this sequence. The length of this sequence
-     * increases by the length of the argument. 
+     * increases by the length of the argument.
      * <p>
-     * The overall effect is exactly as if the argument were converted to 
-     * a string by the method {@link String#valueOf(char[])} and the 
-     * characters of that string were then {@link #append(String) appended} 
+     * The overall effect is exactly as if the argument were converted to
+     * a string by the method {@link String#valueOf(char[])} and the
+     * characters of that string were then {@link #append(String) appended}
      * to this character sequence.
      *
      * @param   str   the characters to be appended.
@@ -412,12 +411,12 @@ public final class StringBuilder {
     }
 
     /**
-     * Appends the string representation of the <code>boolean</code> 
+     * Appends the string representation of the <code>boolean</code>
      * argument to the sequence.
      * <p>
-     * The argument is converted to a string as if by the method 
-     * <code>String.valueOf</code>, and the characters of that 
-     * string are then appended to this sequence. 
+     * The argument is converted to a string as if by the method
+     * <code>String.valueOf</code>, and the characters of that
+     * string are then appended to this sequence.
      *
      * @param   b   a <code>boolean</code>.
      * @return  a reference to this object.
@@ -445,15 +444,15 @@ public final class StringBuilder {
     }
 
     /**
-     * Appends the string representation of the <code>char</code> 
-     * argument to this sequence. 
+     * Appends the string representation of the <code>char</code>
+     * argument to this sequence.
      * <p>
-     * The argument is appended to the contents of this sequence. 
-     * The length of this sequence increases by <code>1</code>. 
+     * The argument is appended to the contents of this sequence.
+     * The length of this sequence increases by <code>1</code>.
      * <p>
-     * The overall effect is exactly as if the argument were converted to 
-     * a string by the method {@link String#valueOf(char)} and the character 
-     * in that string were then {@link #append(String) appended} to this 
+     * The overall effect is exactly as if the argument were converted to
+     * a string by the method {@link String#valueOf(char)} and the character
+     * in that string were then {@link #append(String) appended} to this
      * character sequence.
      *
      * @param   c   a <code>char</code>.
@@ -468,12 +467,12 @@ public final class StringBuilder {
     }
 
     /**
-     * Appends the string representation of the <code>int</code> 
-     * argument to this sequence. 
+     * Appends the string representation of the <code>int</code>
+     * argument to this sequence.
      * <p>
-     * The argument is converted to a string as if by the method 
-     * <code>String.valueOf</code>, and the characters of that 
-     * string are then appended to this sequence. 
+     * The argument is converted to a string as if by the method
+     * <code>String.valueOf</code>, and the characters of that
+     * string are then appended to this sequence.
      *
      * @param   i   an <code>int</code>.
      * @return  a reference to this object.
@@ -504,11 +503,11 @@ public final class StringBuilder {
     }
 
     /**
-     * Appends the string representation of the <code>long</code> 
+     * Appends the string representation of the <code>long</code>
      * argument to this sequence.
      * <p>
-     * The argument is converted to a string as if by the method 
-     * <code>String.valueOf</code>, and the characters of that 
+     * The argument is converted to a string as if by the method
+     * <code>String.valueOf</code>, and the characters of that
      * string are then appended to this sequence.
      *
      * @param   l   a <code>long</code>.
@@ -602,10 +601,10 @@ public final class StringBuilder {
      * at index <code>end - 1</code> or to the end of the
      * sequence if no such character exists. First the
      * characters in the substring are removed and then the specified
-     * <code>String</code> is inserted at <code>start</code>. (This 
+     * <code>String</code> is inserted at <code>start</code>. (This
      * sequence will be lengthened to accommodate the
      * specified String if necessary.)
-     * 
+     *
      * @param      start    The beginning index, inclusive.
      * @param      end      The ending index, exclusive.
      * @param      str   String that will replace previous contents.
@@ -614,7 +613,7 @@ public final class StringBuilder {
      *             is negative, greater than <code>length()</code>, or
      *         greater than <code>end</code>.
      */
-    public StringBuilder replace(int start, int end, String str) { 
+    public StringBuilder replace(int start, int end, String str) {
         if (start < 0)
             throw new StringIndexOutOfBoundsException(start);
         if (start > count)
@@ -660,7 +659,7 @@ public final class StringBuilder {
      *             <code>(offset+len)</code> is greater than
      *             <code>str.length</code>.
      */
-    public StringBuilder insert(int index, char str[], int offset, int len) { 
+    public StringBuilder insert(int index, char str[], int offset, int len) {
         if ((index < 0) || (index > length()))
             throw new StringIndexOutOfBoundsException(index);
         if ((offset < 0) || (len < 0) || (offset > str.length - len))
@@ -676,16 +675,16 @@ public final class StringBuilder {
     }
 
     /**
-     * Inserts the string representation of the <code>Object</code> 
+     * Inserts the string representation of the <code>Object</code>
      * argument into this character sequence.
      * <p>
-     * The second argument is converted to a string as if by the method 
-     * <code>String.valueOf</code>, and the characters of that 
-     * string are then inserted into this sequence at the indicated 
-     * offset. 
+     * The second argument is converted to a string as if by the method
+     * <code>String.valueOf</code>, and the characters of that
+     * string are then inserted into this sequence at the indicated
+     * offset.
      * <p>
-     * The offset argument must be greater than or equal to 
-     * <code>0</code>, and less than or equal to the length of this 
+     * The offset argument must be greater than or equal to
+     * <code>0</code>, and less than or equal to the length of this
      * sequence.
      *
      * @param      offset   the offset.
@@ -700,27 +699,27 @@ public final class StringBuilder {
     /**
      * Inserts the string into this character sequence.
      * <p>
-     * The characters of the <code>String</code> argument are inserted, in 
-     * order, into this sequence at the indicated offset, moving up any 
-     * characters originally above that position and increasing the length 
-     * of this sequence by the length of the argument. If 
-     * <code>str</code> is <code>null</code>, then the four characters 
+     * The characters of the <code>String</code> argument are inserted, in
+     * order, into this sequence at the indicated offset, moving up any
+     * characters originally above that position and increasing the length
+     * of this sequence by the length of the argument. If
+     * <code>str</code> is <code>null</code>, then the four characters
      * <code>"null"</code> are inserted into this sequence.
      * <p>
-     * The character at index <i>k</i> in the new character sequence is 
+     * The character at index <i>k</i> in the new character sequence is
      * equal to:
      * <ul>
-     * <li>the character at index <i>k</i> in the old character sequence, if 
-     * <i>k</i> is less than <code>offset</code> 
-     * <li>the character at index <i>k</i><code>-offset</code> in the 
-     * argument <code>str</code>, if <i>k</i> is not less than 
-     * <code>offset</code> but is less than <code>offset+str.length()</code> 
-     * <li>the character at index <i>k</i><code>-str.length()</code> in the 
-     * old character sequence, if <i>k</i> is not less than 
+     * <li>the character at index <i>k</i> in the old character sequence, if
+     * <i>k</i> is less than <code>offset</code>
+     * <li>the character at index <i>k</i><code>-offset</code> in the
+     * argument <code>str</code>, if <i>k</i> is not less than
+     * <code>offset</code> but is less than <code>offset+str.length()</code>
+     * <li>the character at index <i>k</i><code>-str.length()</code> in the
+     * old character sequence, if <i>k</i> is not less than
      * <code>offset+str.length()</code>
      * </ul><p>
-     * The offset argument must be greater than or equal to 
-     * <code>0</code>, and less than or equal to the length of this 
+     * The offset argument must be greater than or equal to
+     * <code>0</code>, and less than or equal to the length of this
      * sequence.
      *
      * @param      offset   the offset.
@@ -746,18 +745,18 @@ public final class StringBuilder {
     }
 
     /**
-     * Inserts the string representation of the <code>char</code> array 
+     * Inserts the string representation of the <code>char</code> array
      * argument into this sequence.
      * <p>
-     * The characters of the array argument are inserted into the 
-     * contents of this sequence at the position indicated by 
-     * <code>offset</code>. The length of this sequence increases by 
-     * the length of the argument. 
+     * The characters of the array argument are inserted into the
+     * contents of this sequence at the position indicated by
+     * <code>offset</code>. The length of this sequence increases by
+     * the length of the argument.
      * <p>
-     * The overall effect is exactly as if the argument were converted to 
-     * a string by the method {@link String#valueOf(char[])} and the 
-     * characters of that string were then 
-     * {@link #insert(int,String) inserted} into this 
+     * The overall effect is exactly as if the argument were converted to
+     * a string by the method {@link String#valueOf(char[])} and the
+     * characters of that string were then
+     * {@link #insert(int,String) inserted} into this
      * character sequence at the position indicated by
      * <code>offset</code>.
      *
@@ -780,17 +779,17 @@ public final class StringBuilder {
     }
 
     /**
-     * Inserts the string representation of the <code>boolean</code> 
-     * argument into this sequence. 
+     * Inserts the string representation of the <code>boolean</code>
+     * argument into this sequence.
      * <p>
-     * The second argument is converted to a string as if by the method 
-     * <code>String.valueOf</code>, and the characters of that 
-     * string are then inserted into this sequence at the indicated 
-     * offset. 
+     * The second argument is converted to a string as if by the method
+     * <code>String.valueOf</code>, and the characters of that
+     * string are then inserted into this sequence at the indicated
+     * offset.
      * <p>
-     * The offset argument must be greater than or equal to 
-     * <code>0</code>, and less than or equal to the length of this 
-     * sequence. 
+     * The offset argument must be greater than or equal to
+     * <code>0</code>, and less than or equal to the length of this
+     * sequence.
      *
      * @param      offset   the offset.
      * @param      b        a <code>boolean</code>.
@@ -802,22 +801,22 @@ public final class StringBuilder {
     }
 
     /**
-     * Inserts the string representation of the <code>char</code> 
-     * argument into this sequence. 
+     * Inserts the string representation of the <code>char</code>
+     * argument into this sequence.
      * <p>
      * The second argument is inserted into the contents of this sequence
-     * at the position indicated by <code>offset</code>. The length 
-     * of this sequence increases by one. 
+     * at the position indicated by <code>offset</code>. The length
+     * of this sequence increases by one.
      * <p>
-     * The overall effect is exactly as if the argument were converted to 
-     * a string by the method {@link String#valueOf(char)} and the character 
-     * in that string were then {@link #insert(int, String) inserted} into 
+     * The overall effect is exactly as if the argument were converted to
+     * a string by the method {@link String#valueOf(char)} and the character
+     * in that string were then {@link #insert(int, String) inserted} into
      * this character sequence at the position indicated by
      * <code>offset</code>.
      * <p>
-     * The offset argument must be greater than or equal to 
-     * <code>0</code>, and less than or equal to the length of this 
-     * sequence. 
+     * The offset argument must be greater than or equal to
+     * <code>0</code>, and less than or equal to the length of this
+     * sequence.
      *
      * @param      offset   the offset.
      * @param      c        a <code>char</code>.
@@ -835,17 +834,17 @@ public final class StringBuilder {
     }
 
     /**
-     * Inserts the string representation of the second <code>int</code> 
-     * argument into this sequence. 
+     * Inserts the string representation of the second <code>int</code>
+     * argument into this sequence.
      * <p>
-     * The second argument is converted to a string as if by the method 
-     * <code>String.valueOf</code>, and the characters of that 
-     * string are then inserted into this sequence at the indicated 
-     * offset. 
+     * The second argument is converted to a string as if by the method
+     * <code>String.valueOf</code>, and the characters of that
+     * string are then inserted into this sequence at the indicated
+     * offset.
      * <p>
-     * The offset argument must be greater than or equal to 
-     * <code>0</code>, and less than or equal to the length of this 
-     * sequence. 
+     * The offset argument must be greater than or equal to
+     * <code>0</code>, and less than or equal to the length of this
+     * sequence.
      *
      * @param      offset   the offset.
      * @param      i        an <code>int</code>.
@@ -857,17 +856,17 @@ public final class StringBuilder {
     }
 
     /**
-     * Inserts the string representation of the <code>long</code> 
-     * argument into this sequence. 
+     * Inserts the string representation of the <code>long</code>
+     * argument into this sequence.
      * <p>
-     * The second argument is converted to a string as if by the method 
-     * <code>String.valueOf</code>, and the characters of that 
-     * string are then inserted into this sequence at the position 
-     * indicated by <code>offset</code>. 
+     * The second argument is converted to a string as if by the method
+     * <code>String.valueOf</code>, and the characters of that
+     * string are then inserted into this sequence at the position
+     * indicated by <code>offset</code>.
      * <p>
-     * The offset argument must be greater than or equal to 
-     * <code>0</code>, and less than or equal to the length of this 
-     * sequence. 
+     * The offset argument must be greater than or equal to
+     * <code>0</code>, and less than or equal to the length of this
+     * sequence.
      *
      * @param      offset   the offset.
      * @param      l        a <code>long</code>.
@@ -904,10 +903,10 @@ public final class StringBuilder {
 
     /**
      * Returns a string representing the data in this sequence.
-     * A new <code>String</code> object is allocated and initialized to 
-     * contain the character sequence currently represented by this 
-     * object. This <code>String</code> is then returned. Subsequent 
-     * changes to this sequence do not affect the contents of the 
+     * A new <code>String</code> object is allocated and initialized to
+     * contain the character sequence currently represented by this
+     * object. This <code>String</code> is then returned. Subsequent
+     * changes to this sequence do not affect the contents of the
      * <code>String</code>.
      *
      * @return  a string representation of this sequence of characters.

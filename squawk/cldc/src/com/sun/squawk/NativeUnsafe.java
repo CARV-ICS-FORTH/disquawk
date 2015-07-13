@@ -51,9 +51,7 @@ public final class NativeUnsafe {
 	 *                            Compare and swap                           *
 	\*-----------------------------------------------------------------------*/
 
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static boolean compareAndSwapInt0(Object base, int expect,
 	                                         int value) throws NativePragma {
 		return true;
@@ -71,9 +69,7 @@ public final class NativeUnsafe {
 	}
 
 /*if[MICROBLAZE_BUILD]*/
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static boolean globalMemoryProtection() throws NativePragma {
 		return true;
 	}
@@ -86,9 +82,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setByte
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static void setByte(Object base, int offset, int value) throws NativePragma {
 		int index = ((Address)base).add(offset).asIndex();
 		checkAddress(index);
@@ -99,9 +93,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setShort
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static void setShort(Object base, int offset, int value) throws NativePragma {
 		setChar(base, offset, value);
 	}
@@ -109,9 +101,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setChar
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static void setChar(Object base, int offset, int value) throws NativePragma {
 		int index = ((Address)base).add(offset * 2).asIndex();
 		checkAddress(index + 1);
@@ -128,9 +118,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setInt
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static void setInt(Object base, int offset, int value) throws NativePragma {
 		int index = ((Address)base).add(offset * 4).asIndex();
 		checkAddress(index + 3);
@@ -152,9 +140,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setUWord
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static void setUWord(Object base, int offset, UWord value) throws NativePragma {
 		setInt/*S64*/(base, offset, value.toPrimitive());
 		int index = ((Address)base).add(offset * HDR.BYTES_PER_WORD).asIndex();
@@ -164,9 +150,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setLong
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static void setLong(Object base, int offset, long value) throws NativePragma {
 		int index = ((Address)base).add(offset * 8).asIndex();
 		checkAddress(index + 7);
@@ -195,9 +179,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setLongAtWord
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static void setLongAtWord(Object base, int offset, long value) throws NativePragma {
 		Address ea = ((Address)base).add(offset * HDR.BYTES_PER_WORD);
 		setLong(ea, 0, value);
@@ -207,9 +189,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setAddress
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="setObject")
-/*end[JAVA5SYNTAX]*/
 	public static void setAddress(Object base, int offset, Object value) throws NativePragma {
 		Address ea = ((Address)base).add(offset * HDR.BYTES_PER_WORD);
 		if (value instanceof Klass) {
@@ -231,9 +211,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#setObject
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="setObjectAndUpdateWriteBarrier")
-/*end[JAVA5SYNTAX]*/
 	public static void setObject(Object base, int offset, Object value) throws NativePragma {
 		setAddress(base, offset, value);
 	}
@@ -287,9 +265,7 @@ public final class NativeUnsafe {
 	 * @param ea   the address to query
 	 * @return the type of the value at <code>ea</code>
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static byte getType(Address ea) throws NativePragma {
 /*if[TYPEMAP]*/
 		return typeMap[ea.asIndex()];
@@ -305,9 +281,7 @@ public final class NativeUnsafe {
 	 * @param dst    the start address of the destination range
 	 * @param length the length (in bytes) of the range
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static void copyTypes(Address src, Address dst, int length) throws NativePragma {
 /*if[TYPEMAP]*/
 		System.arraycopy(typeMap, src.asIndex(), typeMap, dst.asIndex(), length);
@@ -317,9 +291,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getByte
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static int getByte(Object base, int offset) throws NativePragma {
 		int index = ((Address)base).add(offset).asIndex();
 		checkAddress(index);
@@ -331,9 +303,7 @@ public final class NativeUnsafe {
 	 *
 	 * @todo Could add real native for better performance
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static int getUByte(Object base, int offset) {
 		return getByte(base, offset) & 0xFF;
 	}
@@ -341,9 +311,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getShort
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static int getShort(Object base, int offset) throws NativePragma {
 		return (short)getChar(base, offset);
 	}
@@ -351,9 +319,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getChar
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="getUShort")
-/*end[JAVA5SYNTAX]*/
 	public static int getChar(Object base, int offset) throws NativePragma {
 		int index = ((Address)base).add(offset * 2).asIndex();
 		checkAddress(index + 1);
@@ -370,9 +336,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getInt
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static int getInt(Object base, int offset) throws NativePragma {
 		int index = ((Address)base).add(offset * 4).asIndex();
 		checkAddress(index + 3);
@@ -390,9 +354,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getUWord
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static UWord getUWord(Object base, int offset) throws NativePragma {
 		return UWord.fromPrimitive(getInt/*S64*/(base, offset));
 	}
@@ -400,9 +362,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getLong
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static long getLong(Object base, int offset) throws NativePragma {
 		int index = ((Address)base).add(offset * 8).asIndex();
 		checkAddress(index + 7);
@@ -424,9 +384,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getLongAtWord
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static long getLongAtWord(Object base, int offset) throws NativePragma {
 		return getLong(((Address)base).add(offset * HDR.BYTES_PER_WORD), 0);
 	}
@@ -434,9 +392,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getObject
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public static Object getObject(Object base, int offset) throws NativePragma {
 		return Address.get(getUWord(base, offset).toPrimitive());
 	}
@@ -444,9 +400,7 @@ public final class NativeUnsafe {
 	/**
 	 * @see Unsafe#getAddress
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="getObject")
-/*end[JAVA5SYNTAX]*/
 	public static Address getAddress(Object base, int offset) throws NativePragma {
 		return Address.fromObject(getObject(base, offset));
 	}
@@ -460,9 +414,7 @@ public final class NativeUnsafe {
 	 * @param offset the offset (in words) from <code>base</code> from which to load
 	 * @return the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="return getUWordTyped(base, offset, AddressType_ANY);")
-/*end[JAVA5SYNTAX]*/
 		public static UWord getAsUWord(Object base, int offset) throws NativePragma {
 		return getUWord(base, offset);
 	}
@@ -476,9 +428,7 @@ public final class NativeUnsafe {
 	 * @param offset the offset (in 8 bit words) from <code>base</code> from which to load
 	 * @return the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="return getByteTyped(base, offset, AddressType_ANY);")
-/*end[JAVA5SYNTAX]*/
 		public static int getAsByte(Object base, int offset) throws NativePragma {
 		return getByte(base, offset);
 	}
@@ -492,9 +442,7 @@ public final class NativeUnsafe {
 	 * @param offset the offset (in 16 bit words) from <code>base</code> from which to load
 	 * @return the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="return getShortTyped(base, offset, AddressType_ANY);")
-/*end[JAVA5SYNTAX]*/
 		public static int getAsShort(Object base, int offset) throws NativePragma {
 		return getShort(base, offset);
 	}
@@ -508,9 +456,7 @@ public final class NativeUnsafe {
 	 * @param offset the offset (in 32 bit words) from <code>base</code> from which to load
 	 * @return the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="return getIntTyped(base, offset, AddressType_ANY);")
-/*end[JAVA5SYNTAX]*/
 		public static int getAsInt(Object base, int offset) throws NativePragma {
 		return getInt(base, offset);
 	}
@@ -522,9 +468,7 @@ public final class NativeUnsafe {
 	 * @param index the index to the character
 	 * @return the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="Address cls = getObject(str, HDR_klass); if (com_sun_squawk_Klass_id_local(cls) == com_sun_squawk_StringOfBytes) { return getUByte(str, index); } else { return getUShort(str, index); }")
-/*end[JAVA5SYNTAX]*/
 		public static char charAt(String str, int index) throws NativePragma {
 		return str.charAt(index);
 	}
@@ -928,11 +872,7 @@ public final class NativeUnsafe {
 		}
 		if (unresolvedLeft.size() > 0) {
 			keys = unresolvedLeft.keys();
-/*if[JAVA5SYNTAX]*/
 			StringBuilder builder = new StringBuilder();
-/*else[JAVA5SYNTAX]*/
-//            StringBuffer builder = new StringBuffer();
-/*end[JAVA5SYNTAX]*/
 			builder.append("The following Klasses were not serialized:");
 			while (keys.hasMoreElements()) {
 				builder.append("\n");

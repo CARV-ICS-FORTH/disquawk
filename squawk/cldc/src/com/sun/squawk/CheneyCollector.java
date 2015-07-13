@@ -250,9 +250,7 @@ public final class CheneyCollector extends GarbageCollector {
      * @param start   the start of the memory region to be protected
      * @param end     the end of the memory region to be protected
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(code="cheneyEndMemoryProtect = end; cheneyStartMemoryProtect = start;")
-/*end[JAVA5SYNTAX]*/
     private static native void memoryProtect(Address start, Address end);
 
     /**
@@ -1234,9 +1232,7 @@ public final class CheneyCollector extends GarbageCollector {
     }
 /*end[DEBUG_CODE_ENABLED]*/
 
-/*if[JAVA5SYNTAX]*/
     @Vm2c(root="collectGarbage")
-/*end[JAVA5SYNTAX]*/
     boolean collectGarbageInJava(Address allocTop, boolean forceFullGC) {
 
         long start = now();
@@ -1343,9 +1339,7 @@ public final class CheneyCollector extends GarbageCollector {
      *                          Object graph copying                             *
     \*---------------------------------------------------------------------------*/
 
-/*if[JAVA5SYNTAX]*/
     @Vm2c(root="copyObjectGraph")
-/*end[JAVA5SYNTAX]*/
     Address copyObjectGraphInJava(Address object, ObjectMemorySerializer.ControlBlock cb, Address allocTop) {
 
         // Get the special classes if this is the first time a copy is being performed

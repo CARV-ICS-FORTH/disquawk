@@ -25,9 +25,7 @@
  */
 
 package java.lang;
-/*if[JAVA5SYNTAX]*/
 import com.sun.squawk.Java5Marker;
-/*end[JAVA5SYNTAX]*/
 
 /**
  * The Character class wraps a value of the primitive type <code>char</code>
@@ -327,9 +325,7 @@ public final class Character extends Object {
         return (value < radix) ? value : -1;
     }
 
-/*if[JAVA5SYNTAX]*/
     @Java5Marker
-/*end[JAVA5SYNTAX]*/
     public static Character valueOf(final char val) {
         return new Character(val);
     }

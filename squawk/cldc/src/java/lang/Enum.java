@@ -1,4 +1,3 @@
-//if[JAVA5SYNTAX]*/
 package java.lang;
 
 import java.util.Hashtable;

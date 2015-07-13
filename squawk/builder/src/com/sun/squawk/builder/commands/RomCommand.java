@@ -167,11 +167,11 @@ public class RomCommand extends Command {
     // The remaining args are the modules making up one or more suites
     boolean isBootstrapSuite = parentSuite == null;
     List<Target.FilePair> allClassesLocations = new ArrayList<Target.FilePair>();
-    List<Target.FilePair> allJava5ClassesLocations = new ArrayList<Target.FilePair>();
+    // List<Target.FilePair> allJava5ClassesLocations = new ArrayList<Target.FilePair>();
     while (argc != args.length) {
 
       List<Target.FilePair> classesLocations = new ArrayList<Target.FilePair>();
-      List<Target.FilePair> java5ClassesLocations = new ArrayList<Target.FilePair>();
+      // List<Target.FilePair> java5ClassesLocations = new ArrayList<Target.FilePair>();
       String suiteName = null;
       boolean createJars = true;
 
@@ -229,12 +229,12 @@ public class RomCommand extends Command {
               if (target.j2me) {
                 dirs = new ArrayList<Target.FilePair>();
                 target.addDependencyDirectories(target.getCompiledDirectoryName(), dirs, parentSuiteMetadata.getTargetsIncluded());
-                for (Target.FilePair file : dirs) {
-                  if (!allJava5ClassesLocations.contains(file) && file.getCanonicalFile().exists()) {
-                    java5ClassesLocations.add(file);
-                    allJava5ClassesLocations.add(file);
-                  }
-                }
+                // for (Target.FilePair file : dirs) {
+                //   if (!allJava5ClassesLocations.contains(file) && file.getCanonicalFile().exists()) {
+                //     java5ClassesLocations.add(file);
+                //     allJava5ClassesLocations.add(file);
+                //   }
+                // }
               }
             }
           } else {
@@ -268,16 +268,16 @@ public class RomCommand extends Command {
         cp.append(File.pathSeparatorChar);
       }
       romizerArgs.add(cp.toString());
-      if (!java5ClassesLocations.isEmpty()) {
-        StringBuilder java5Cp = new StringBuilder();
-        java5Cp.append("-java5cp:");
-        for (Target.FilePair fp: java5ClassesLocations) {
-          File file = fp.getFile();
-          java5Cp.append(file.getPath());
-          java5Cp.append(File.pathSeparatorChar);
-        }
-        romizerArgs.add(java5Cp.toString());
-      }
+      // if (!java5ClassesLocations.isEmpty()) {
+      //   StringBuilder java5Cp = new StringBuilder();
+      //   java5Cp.append("-java5cp:");
+      //   for (Target.FilePair fp: java5ClassesLocations) {
+      //     File file = fp.getFile();
+      //     java5Cp.append(file.getPath());
+      //     java5Cp.append(File.pathSeparatorChar);
+      //   }
+      //   romizerArgs.add(java5Cp.toString());
+      // }
       if (createMetadatas) {
         romizerArgs.add("-metadata");
       }
@@ -374,12 +374,12 @@ public class RomCommand extends Command {
       return;
     }
     File preDir;
-    if (env.isJava5SyntaxSupported()) {
+    // if (env.isJava5SyntaxSupported()) {
       preDir = new File("cldc", "preprocessed");
-    } else {
-      Target cldcTarget = (Target) env.getCommandForced("cldc");
-      preDir = env.preprocess(new File("cldc"), cldcTarget.srcDirs, true, true);
-    }
+    // } else {
+    //   Target cldcTarget = (Target) env.getCommandForced("cldc");
+    //   preDir = env.preprocess(new File("cldc"), cldcTarget.srcDirs, true, true);
+    // }
 
     // Rebuilds the generated file if any of the *.java files in cldc/src or cldc/preprocessed have
     // a later modification date than the generated file.
@@ -587,8 +587,8 @@ public class RomCommand extends Command {
       Build.delete(preprocessedFile);
     }
     Build.delete(VM2C_SRC_FILE);
-    if (!env.isJava5SyntaxSupported()) {
-      Build.clear(new File("cldc", PREPROCESSED_FOR_VM2C_DIR_NAME), true);
-    }
+    // if (!env.isJava5SyntaxSupported()) {
+    //   Build.clear(new File("cldc", PREPROCESSED_FOR_VM2C_DIR_NAME), true);
+    // }
   }
 }

@@ -716,9 +716,7 @@ public class VM implements GlobalStaticFields {
 	 * @param klass the class (not null)
 	 * @return true if is can
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="VM_instanceof")  // ONLY C-VERSION IS CALLED - NOT CALLED BY JAVA CODE
-/*end[JAVA5SYNTAX]*/
 	static boolean _instanceof(Object obj, Klass klass) throws AllowInlinedPragma, HostedPragma  {
 		Assert.that(obj != null && klass != null);
 		return klass.isAssignableFrom(GC.getKlass(obj));
@@ -732,9 +730,7 @@ public class VM implements GlobalStaticFields {
 	 * @param islot   the virtual slot of the interface method
 	 * @return the virtual slot of the receiver
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="VM_findSlot")  // ONLY C-VERSION IS CALLED - NOT CALLED BY JAVA CODE
-/*end[JAVA5SYNTAX]*/
 	static int findSlot(Object obj, Klass iklass, int islot) throws AllowInlinedPragma, HostedPragma {
 		Klass klass = GC.getKlass(obj);
 		int result = klass.findSlot(iklass, islot);
@@ -748,9 +744,7 @@ public class VM implements GlobalStaticFields {
 	 * @param value the value to be stored into the array
 	 * @return 1 if error occurred. Caller will arrange to throw exception
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="VM_arrayOopStoreCheck")  // ONLY C-VERSION IS CALLED - NOT CALLED BY JAVA CODE
-/*end[JAVA5SYNTAX]*/
 	static int arrayOopStoreCheck(Object array, int index, Object value) throws AllowInlinedPragma, HostedPragma {
 		Klass arrayKlass = GC.getKlass(array);
 		Assert.that(arrayKlass.isArray());
@@ -777,16 +771,12 @@ public class VM implements GlobalStaticFields {
 	 * @param offset the offset (in words) to the variable
 	 * @return the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="VM_getClassState")  // ONLY C-VERSION IS CALLED - NOT CALLED BY JAVA CODE
-/*end[JAVA5SYNTAX]*/
 	static Object getClassState(Klass klass) throws AllowInlinedPragma, HostedPragma {
 		return currentIsolate.getClassStateForInterpreter(klass);
 	}
 
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="VM_lookup_b")  // ONLY C-VERSION IS CALLED - NOT CALLED BY JAVA CODE
-/*end[JAVA5SYNTAX]*/
 	/**
 	 * Lookup the position of a value in a sorted array of numbers.
 	 *
@@ -811,9 +801,7 @@ public class VM implements GlobalStaticFields {
 		return -1;
 	}
 
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="VM_lookup_s")  // ONLY C-VERSION IS CALLED - NOT CALLED BY JAVA CODE
-/*end[JAVA5SYNTAX]*/
 	/**
 	 * Lookup the position of a value in a sorted array of numbers.
 	 *
@@ -838,9 +826,7 @@ public class VM implements GlobalStaticFields {
 		return -1;
 	}
 
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="VM_lookup_i")  // ONLY C-VERSION IS CALLED - NOT CALLED BY JAVA CODE
-/*end[JAVA5SYNTAX]*/
 	/**
 	 * Lookup the position of a value in a sorted array of numbers.
 	 *
@@ -865,9 +851,7 @@ public class VM implements GlobalStaticFields {
 		return -1;
 	}
 
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="VM_inRam")
-/*end[JAVA5SYNTAX]*/
 	static boolean inRam(Object object) throws AllowInlinedPragma {
 		return GC.inRam(object);
 	}
@@ -1475,9 +1459,7 @@ public class VM implements GlobalStaticFields {
 	 * @param fp   a frame pointer
 	 * @return the pointer to the frame that is the calling context for <code>fp</code>
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="return getObject(fp, FP_returnFP);")
-/*end[JAVA5SYNTAX]*/
 		native static Address getPreviousFP(Address fp) throws AllowInlinedPragma;
 
 	/**
@@ -1486,9 +1468,7 @@ public class VM implements GlobalStaticFields {
 	 * @param fp the frame pointer
 	 * @return the previous instruction pointer
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="return getObject(fp, FP_returnIP);")
-/*end[JAVA5SYNTAX]*/
 		native static Address getPreviousIP(Address fp) throws AllowInlinedPragma;
 
 	/**
@@ -1497,9 +1477,7 @@ public class VM implements GlobalStaticFields {
 	 * @param fp the frame pointer
 	 * @param pfp the previous frame pointer
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="setObject(fp, FP_returnFP, pfp);")
-/*end[JAVA5SYNTAX]*/
 		native static void setPreviousFP(Address fp, Address pfp);
 
 	/**
@@ -1508,9 +1486,7 @@ public class VM implements GlobalStaticFields {
 	 * @param fp the frame pointer
 	 * @param pip the previous instruction pointer
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="setObject(fp, FP_returnIP, pip);")
-/*end[JAVA5SYNTAX]*/
 		native static void setPreviousIP(Address fp, Address pip);
 
 	/**
@@ -1538,9 +1514,7 @@ public class VM implements GlobalStaticFields {
 	 * @param object the object to be cast
 	 * @return the object cast to be a Klass
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(macro="((Address)object)")
-/*end[JAVA5SYNTAX]*/
 	native static Klass asKlass(Object object);
 
 	/**
@@ -1557,9 +1531,7 @@ public class VM implements GlobalStaticFields {
 	 * @param   klass the class
 	 * @param   state the class state
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="addClassState")
-/*end[JAVA5SYNTAX]*/
 	native static void addToClassStateCache(Klass klass, Object state);
 
 	/**
@@ -1586,9 +1558,7 @@ public class VM implements GlobalStaticFields {
 	 * @param object the object to be cast
 	 * @return the object cast to be a Klass
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(macro="(object)")
-/*end[JAVA5SYNTAX]*/
 	static Klass asKlass(Address object) {
 		return VM.asKlass(object.toObject());
 	}
@@ -1625,9 +1595,7 @@ public class VM implements GlobalStaticFields {
 //     *
 //     * @return  the number of global integer variables
 //     */
-///*if[JAVA5SYNTAX]*/
 //    @Vm2c\(macro="GLOBAL_INT_COUNT")
-///*end[JAVA5SYNTAX]*/
 //    native static int getGlobalIntCount();
 
 	/**
@@ -1636,9 +1604,7 @@ public class VM implements GlobalStaticFields {
 	 * @param  index   index of the entry in the global integer table
 	 * @return the value of entry <code>index</code> in the global integer table
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(macro="Ints_g[index]")
-/*end[JAVA5SYNTAX]*/
 	native static int getGlobalInt(int index);
 
 	/**
@@ -1647,9 +1613,7 @@ public class VM implements GlobalStaticFields {
 	 * @param  value   the value to set
 	 * @param  index   index of the entry to update in the global integer table
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="Ints_g[index] = value;")
-/*end[JAVA5SYNTAX]*/
 		native static void setGlobalInt(int value, int index);
 
 //    /**
@@ -1657,9 +1621,7 @@ public class VM implements GlobalStaticFields {
 //     *
 //     * @return  the number of global pointer variables
 //     */
-///*if[JAVA5SYNTAX]*/
 //    @Vm2c(macro="GLOBAL_ADDR_COUNT")
-///*end[JAVA5SYNTAX]*/
 //    native static int getGlobalAddrCount();
 
 	/**
@@ -1668,9 +1630,7 @@ public class VM implements GlobalStaticFields {
 	 * @param  index   index of the entry in the global pointer table
 	 * @return the value of entry <code>index</code> in the global pointer table
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(macro="Addrs_g[index]")
-/*end[JAVA5SYNTAX]*/
 	native static Address getGlobalAddr(int index);
 
 	/**
@@ -1679,9 +1639,7 @@ public class VM implements GlobalStaticFields {
 	 * @param  value   the value to set
 	 * @param  index   index of the entry to update in the global pointer table
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="Addrs_g[index] = value;")
-/*end[JAVA5SYNTAX]*/
 		native static void setGlobalAddr(Address value, int index);
 
 	/**
@@ -1689,9 +1647,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @return  the number of global object pointer variables
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(macro="GLOBAL_OOP_COUNT")
-/*end[JAVA5SYNTAX]*/
 	native static int getGlobalOopCount();
 
 	/**
@@ -1700,9 +1656,7 @@ public class VM implements GlobalStaticFields {
 	 * @param  index   index of the entry in the global object pointer table
 	 * @return the value of entry <code>index</code> in the global object pointer table
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(macro="Oops_g[index]")
-/*end[JAVA5SYNTAX]*/
 	native static Object getGlobalOop(int index);
 
 	/**
@@ -1711,9 +1665,7 @@ public class VM implements GlobalStaticFields {
 	 * @param  value   the value to set
 	 * @param  index   index of the entry to update in the global object pointer table
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="Oops_g[index] = value;")
-/*end[JAVA5SYNTAX]*/
 		native static void setGlobalOop(Object value, int index);
 
 	/**
@@ -1721,9 +1673,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @return  the address of the global object pointer table
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="return Oops_g;")
-/*end[JAVA5SYNTAX]*/
 		native static Address getGlobalOopTable();
 
 
@@ -1775,9 +1725,7 @@ public class VM implements GlobalStaticFields {
 	 * @param stream  the stream to use for the print... methods
 	 * @return the current stream used for VM printing
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="setStream")
-/*end[JAVA5SYNTAX]*/
 	private static int setStream0(int stream) {
 		return execSyncIO(ChannelConstants.INTERNAL_SETSTREAM, stream);
 	}
@@ -1788,9 +1736,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param val     the word to print
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fprintf(streams[currentStream], format(\"%A\"), val); fflush(streams[currentStream]);")
-/*end[JAVA5SYNTAX]*/
 		public static void printUWord(UWord val) {
 /*if[!SQUAWK_64]*/
 		final int i1 = 0;
@@ -1807,9 +1753,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param val     the offset to print
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fprintf(streams[currentStream], format(\"%O\"), val); fflush(streams[currentStream]);")
-/*end[JAVA5SYNTAX]*/
 		public static void printOffset(Offset val) {
 /*if[!SQUAWK_64]*/
 		final int i1 = 0;
@@ -1826,9 +1770,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param val     the address to print
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fprintf(streams[currentStream], format(\"%A\"), val); fflush(streams[currentStream]);")
-/*end[JAVA5SYNTAX]*/
 		public static void printAddress(Object val) {
 		executeCIO(-1, ChannelConstants.INTERNAL_PRINTADDRESS, -1, 0, 0, 0, 0, 0, 0, val, null);
 	}
@@ -1839,9 +1781,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param val     the address to print
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fprintf(streams[currentStream], format(\"%A\"), val); fflush(streams[currentStream]);")
-/*end[JAVA5SYNTAX]*/
 		public static void printAddress(Address val) {
 		printAddress(val.toObject());
 	}
@@ -1870,9 +1810,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param index   the index of the variable to print
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fprintf(streams[currentStream], \"Global oop:%d\", index); fflush(streams[currentStream]);")
-/*end[JAVA5SYNTAX]*/
 		static void printGlobalOopName(int index) {
 		execSyncIO(ChannelConstants.INTERNAL_PRINTGLOBALOOPNAME, index);
 	}
@@ -1908,9 +1846,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param x the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fprintf(streams[currentStream], \"%c\", x); fflush(streams[currentStream]);")
-/*end[JAVA5SYNTAX]*/
 		public static void print(char x) {
 		execSyncIO(ChannelConstants.INTERNAL_PRINTCHAR, x);
 	}
@@ -1920,13 +1856,11 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param x the string
 	 */
-/*if[JAVA5SYNTAX]*/
 /*if[MICROBLAZE_BUILD]*/
 	@Vm2c(code="printJavaString(x);")
 /*else[MICROBLAZE_BUILD]*/
 //  @Vm2c(code="printJavaString(x, streams[currentStream]);")
 /*end[MICROBLAZE_BUILD]*/
-/*end[JAVA5SYNTAX]*/
 		public static void print(String x) {
 		executeCIO(-1, ChannelConstants.INTERNAL_PRINTSTRING, -1, 0, 0, 0, 0, 0, 0, x, null);
 	}
@@ -1936,9 +1870,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param x the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fprintf(streams[currentStream], \"%i\", x); fflush(streams[currentStream]);")
-/*end[JAVA5SYNTAX]*/
 		public static void print(int x) {
 		execSyncIO(ChannelConstants.INTERNAL_PRINTINT, x);
 	}
@@ -1948,9 +1880,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @param x the value
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fprintf(streams[currentStream], format(\"%L\"), x); fflush(streams[currentStream]);")
-/*end[JAVA5SYNTAX]*/
 		public static void print(long x) {
 		int i1 = (int)(x >>> 32);
 		int i2 = (int)x;
@@ -2222,9 +2152,7 @@ public class VM implements GlobalStaticFields {
 	/**
 	 * Halts the VM because of a fatal condition.
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="fatalVMError(\"\");")
-/*end[JAVA5SYNTAX]*/
 		public native static void fatalVMError();
 
 	/**
@@ -2263,9 +2191,7 @@ public class VM implements GlobalStaticFields {
 	 * @return the number of backward branch instructions the VM has executed or -1 if instruction
 	 *         profiling is disabled
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public native static long getBranchCount();
 
 	/**
@@ -2420,9 +2346,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @return the time in milliseconds
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="sysTimeMillis")
-/*end[JAVA5SYNTAX]*/
 	public static long getTimeMillisRaw() {
 /*if[!FLASH_MEMORY]*/
 		// Must get high word first as it causes the value to be setup that will be accessed via the INTERNAL_LOW_RESULT call
@@ -2464,9 +2388,7 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @return the time in microseconds
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="sysTimeMicros")
-/*end[JAVA5SYNTAX]*/
 	public static long getTimeMicros() {
 		// Must get high word first as it causes the value to be setup that will be accessed via the INTERNAL_LOW_RESULT call
 		int high = execSyncIO(ChannelConstants.INTERNAL_GETTIMEMICROS_HIGH, 0);
@@ -2480,9 +2402,7 @@ public class VM implements GlobalStaticFields {
 	 * @return the time in milliseconds
 	 */
 /*if[!DEBUG_CODE_ENABLED]*/
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="sysTimeMillis")
-/*end[JAVA5SYNTAX]*/
 	public static long getTimeMillis() {
 /*if[!FLASH_MEMORY]*/
 		// Must get high word first as it causes the value to be setup that will be accessed via the INTERNAL_LOW_RESULT call
@@ -2928,9 +2848,7 @@ public class VM implements GlobalStaticFields {
 	 * @param      nvmDst       the destination buffer is in NVM
 	 */
 
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
 	public native static void copyBytes(Address src, int srcPos, Address dst, int dstPos, int length, boolean nvmDst);
 
 	/**
@@ -3256,9 +3174,7 @@ public class VM implements GlobalStaticFields {
 	 * @param      start        the start address of the memory area
 	 * @param      end          the end address of the memory area
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="if (ASSUME || TYPEMAP) { while (start < end) { if (ASSUME) { *((UWord *)start) = DEADBEEF; } setType(start, AddressType_UNDEFINED, HDR_BYTES_PER_WORD); start = (UWord *)start + 1; } }")
-/*end[JAVA5SYNTAX]*/
 	native static void deadbeef(Address start, Address end);
 /*end[DEBUG_CODE_ENABLED]*/
 
@@ -3621,9 +3537,7 @@ public class VM implements GlobalStaticFields {
 	/**
 	 * Gets the result of the last service operation.
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="int res = com_sun_squawk_ServiceOperation_result; com_sun_squawk_ServiceOperation_result = 0xDEADBEEF; return res;")
-/*end[JAVA5SYNTAX]*/
 		private native static int serviceResult();
 
 	/**

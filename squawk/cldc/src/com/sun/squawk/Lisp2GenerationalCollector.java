@@ -784,9 +784,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	private final Timer fullCollectionTimer;
 	private final Timer partialCollectionTimer;
 
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="collectGarbage")
-/*end[JAVA5SYNTAX]*/
 	boolean collectGarbageInJava (Address allocTop, boolean forceFullGC) {
 
 		// Set up the limits of the space to be collected.
@@ -3732,9 +3730,7 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
 /*if[ENABLE_ISOLATE_MIGRATION]*/   // weird way to deal with no nesting in else clause
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(root="copyObjectGraph")
-/*end[JAVA5SYNTAX]*/
 /*end[ENABLE_ISOLATE_MIGRATION]*/
 
 /*if[ENABLE_ISOLATE_MIGRATION]*/

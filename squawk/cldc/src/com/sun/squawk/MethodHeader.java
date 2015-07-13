@@ -134,9 +134,7 @@ public class MethodHeader {
      * @param oop the pointer to the method
      * @return the number of parameters
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="getParmCount")
-/*end[JAVA5SYNTAX]*/
     static int decodeParameterCount(Object oop) throws AllowInlinedPragma {
         int b0 = NativeUnsafe.getUByte(oop, HDR.methodInfoStart);
         if (b0 < 128) {
@@ -152,9 +150,7 @@ public class MethodHeader {
      * @param oop the pointer to the method
      * @return the number of locals
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="getLocalCount")
-/*end[JAVA5SYNTAX]*/
     static int decodeLocalCount(Object oop) throws AllowInlinedPragma {
         int b0 = NativeUnsafe.getUByte(oop, HDR.methodInfoStart);
         if (b0 < 128) {
@@ -171,9 +167,7 @@ public class MethodHeader {
      * @param oop the pointer to the method
      * @return the number of stack words
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="getStackCount")
-/*end[JAVA5SYNTAX]*/
     static int decodeStackCount(Object oop) throws AllowInlinedPragma {
         int b0 = NativeUnsafe.getUByte(oop, HDR.methodInfoStart);
         if (b0 < 128) {
@@ -255,9 +249,7 @@ public class MethodHeader {
         return val;
     }
 
-/*if[JAVA5SYNTAX]*/
     @Vm2c(root="MethodHeader_minfoValue1_L")
-/*end[JAVA5SYNTAX]*/
     private static int minfoValue1(Object oop) throws NotInlinedPragma {
         int p = HDR.methodInfoStart - 1;
         int val;
@@ -272,9 +264,7 @@ public class MethodHeader {
         return val;
     }
 
-/*if[JAVA5SYNTAX]*/
     @Vm2c(root="MethodHeader_minfoValue2_L")
-/*end[JAVA5SYNTAX]*/
     private static int minfoValue2(Object oop) throws NotInlinedPragma {
         int p = HDR.methodInfoStart - 1;
         int val;
@@ -292,9 +282,7 @@ public class MethodHeader {
         return val;
     }
 
-/*if[JAVA5SYNTAX]*/
     @Vm2c(root="MethodHeader_minfoValue3_L")
-/*end[JAVA5SYNTAX]*/
     private static int minfoValue3(Object oop) throws NotInlinedPragma {
         int p = HDR.methodInfoStart - 1;
         int val;
@@ -360,9 +348,7 @@ public class MethodHeader {
      * @param oop the pointer to the method
      * @return the length in bytes
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(root="MethodHeader_getOffsetToLastMinfoByte0_LII")
-/*end[JAVA5SYNTAX]*/
     private static int getOffsetToLastMinfoByte0(Object oop, int p, int b0) throws NotInlinedPragma {
             int offset = 3;
             if ((b0 & FMT_E) != 0) {

@@ -1,22 +1,22 @@
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -34,7 +34,7 @@ import com.sun.squawk.pragma.*;
  *
  */
 public final class Lisp2Bitmap implements GlobalStaticFields {
-    
+
     /**
      * Purely static class should not be instantiated.
      */
@@ -118,9 +118,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      * @param start   the start of the memory range for which the bits are to be cleared
      * @param end     the end of the memory range for which the bits are to be cleared
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
     static native void clearBitsFor(Address start, Address end);
 
     /**
@@ -129,9 +127,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      * @param ea   the address for which the corresponding bitmap word is required
      * @return     the address of the bitmap word that contains the bit for <code>ea</code>
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
     static native Address getAddressOfBitmapWordFor(Address ea);
 
     /**
@@ -140,9 +136,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      * @param bitmapWordAddress  the address of a word in the bitmap
      * @return the address corresponding to the first bit in the word at <code>bitmapWordAddress</code>
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
     static native Address getAddressForBitmapWord(Address bitmapWordAddress);
 
     /**
@@ -150,9 +144,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      *
      * @param ea      the effective address for which the corresponding bit is to be set
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
     static native void setBitFor(Address ea);
 
     /**
@@ -161,9 +153,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      * @param start   the start of the memory range for which the bits are to be set
      * @param end     the end of the memory range for which the bits are to be set
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
     static native void setBitsFor(Address start, Address end);
 
     /**
@@ -171,9 +161,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      *
      * @param ea      the effective address for which the corresponding bit is to be set
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
     static native void clearBitFor(Address ea);
 
     /**
@@ -182,9 +170,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      * @param ea      the effective address for which the corresponding bit to be tested
      * @return true if the bit for <code>ea</code> is set
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
     static native boolean testBitFor(Address ea);
 
     /**
@@ -193,9 +179,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      * @param ea      the effective address for which the corresponding bit to be tested
      * @return true if the bit for <code>ea</code> was set before this call
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="")
-/*end[JAVA5SYNTAX]*/
     static native boolean testAndSetBitFor(Address ea);
 
 /*if[WRITE_BARRIER]*/
@@ -229,7 +213,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      * Operations for iterating over words in an address range whose corresponding bits in the bitmap are set.
      */
     static class Iterator {
-        
+
         /**
          * Purely static class should not be instantiated.
          */
@@ -289,9 +273,7 @@ public final class Lisp2Bitmap implements GlobalStaticFields {
      *
      * @return   the next value in the iteration or {@link Address#zero()} if the iteration is complete
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(proxy="bitmapIterate")
-/*end[JAVA5SYNTAX]*/
     static native Address iterate();
 
 }

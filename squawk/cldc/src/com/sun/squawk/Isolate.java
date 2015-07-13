@@ -656,9 +656,7 @@ public final class Isolate implements Runnable {
      *
      * @return the name
      */
-/*if[JAVA5SYNTAX]*/
     @Vm2c(code="return com_sun_squawk_Isolate_mainClassName(this);")
-/*end[JAVA5SYNTAX]*/
     public String getMainClassName() {
         return copyIfCurrentThreadIsExternal(mainClassName);
     }

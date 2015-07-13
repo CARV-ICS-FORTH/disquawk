@@ -7,9 +7,7 @@
 
 package java.util;
 
-/*if[JAVA5SYNTAX]*/
 import com.sun.squawk.Java5Marker;
-/*end[JAVA5SYNTAX]*/
 
 /**
  * An iterator over a collection.  Iterator takes the place of Enumeration in
@@ -32,12 +30,8 @@ import com.sun.squawk.Java5Marker;
  * @see Enumeration
  * @since 1.2
  */
-/*if[JAVA5SYNTAX]*/
 @Java5Marker
 public interface Iterator<E> {
-/*else[JAVA5SYNTAX]*/
-//public interface Iterator {
-/*end[JAVA5SYNTAX]*/
     /**
      * Returns <tt>true</tt> if the iteration has more elements. (In other
      * words, returns <tt>true</tt> if <tt>next</tt> would return an element
@@ -53,11 +47,7 @@ public interface Iterator<E> {
      * @return the next element in the iteration.
      * @exception NoSuchElementException iteration has no more elements.
      */
-/*if[JAVA5SYNTAX]*/
     E next();
-/*else[JAVA5SYNTAX]*/
-//  Object next();
-/*end[JAVA5SYNTAX]*/
 
     /**
      *

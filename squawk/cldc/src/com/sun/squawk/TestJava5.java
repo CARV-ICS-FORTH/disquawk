@@ -1,23 +1,22 @@
-//if[JAVA5SYNTAX]*/
 /*
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -44,14 +43,14 @@ public class TestJava5 {
             System.out.println("runTests() returned!");
         }
     }
-    
+
     public static void runTests() {
         testStringConcat();
         testForLoop();
         testAutoUnboxing();
         testEnums();
     }
-    
+
     public static void testAutoUnboxing() {
         testAutoUnboxingBoolean(true, true);
         testAutoUnboxingByte((byte) 10, (byte) 10);
@@ -62,7 +61,7 @@ public class TestJava5 {
         testAutoUnboxingLong(10L, 10L);
         testAutoUnboxingShort((short) 10, (short) 10);
     }
-    
+
     public static void testAutoUnboxingShort(Short i, short j) {
         System.out.print("Short = short: ");
         System.out.println(i = j);
@@ -118,7 +117,7 @@ public class TestJava5 {
         System.out.print("Integer == int: ");
         System.out.println(i == j);
     }
-    
+
     public static void testEnums() {
         System.out.print("Enum: ");
         System.out.println(ElementType.class.getName());
@@ -129,7 +128,7 @@ public class TestJava5 {
         System.out.print("ElementType.CONSTRUCTOR == ElementType.valueOf(\"CONSTRUCTOR\"): ");
         System.out.println(ElementType.CONSTRUCTOR == ElementType.valueOf("CONSTRUCTOR"));
     }
-    
+
     public static void testForLoop() {
         int[] ints = new int[10];
         for (int i = 0; i < ints.length; i++) {
@@ -146,5 +145,5 @@ public class TestJava5 {
         int a = 10;
         System.out.println("Should be 10: " + a);
     }
-    
+
 }

@@ -1,11 +1,10 @@
-//if[JAVA5SYNTAX]*/
 package java.lang.annotation;
 
 import com.sun.squawk.Java5Marker;
 
 /**
  * A mirror of java.lang.Annotation.
- * 
+ *
  * @author Toby Reyelts
  */
 @Java5Marker

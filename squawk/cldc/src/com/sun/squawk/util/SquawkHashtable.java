@@ -79,11 +79,7 @@ import java.util.NoSuchElementException;
  * @see #rehash()
  * @since JDK1.0, CLDC 1.0
  */
-/*if[JAVA5SYNTAX]*/
 public class SquawkHashtable<K, V> implements Cloneable {
-/*else[JAVA5SYNTAX]*/
-//public class SquawkHashtable implements Cloneable {
-/*end[JAVA5SYNTAX]*/
 
     public static interface Rehasher {
         public void rehash();
@@ -93,20 +89,12 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * The hash table data. This field is zeroed when object de-serialization
      * occurs and is reformed from backupTable.
      */
-/*if[JAVA5SYNTAX]*/
     private transient HashtableEntry<K, V>[] entryTable;
-/*else[JAVA5SYNTAX]*/
-//    private transient HashtableEntry[] entryTable;
-/*end[JAVA5SYNTAX]*/
 
     /**
      * The backup hash table data.
      */
-/*if[JAVA5SYNTAX]*/
     private HashtableEntry<K, V>[] backupTable;
-/*else[JAVA5SYNTAX]*/
-//    private HashtableEntry[] backupTable;
-/*end[JAVA5SYNTAX]*/
 
     /**
      * The total number of entries in the hash table.
@@ -137,9 +125,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @exception  IllegalArgumentException  if the initial capacity is less
      *             than zero
      */
-/*if[JAVA5SYNTAX]*/
     @SuppressWarnings("unchecked")
-/*end[JAVA5SYNTAX]*/
     public SquawkHashtable(int initialCapacity) {
         if (initialCapacity < 0) {
             throw new IllegalArgumentException();
@@ -160,11 +146,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
      *
      * @param table the new array of hash table entries
      */
-/*if[JAVA5SYNTAX]*/
     private void setTable(HashtableEntry<K, V>[] table) {
-/*else[JAVA5SYNTAX]*/
-//    private void setTable(HashtableEntry[] table) {
-/*end[JAVA5SYNTAX]*/
         entryTable  = table;
         backupTable = table;
     }
@@ -174,11 +156,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
      *
      * @return the array of hash table entries
      */
-/*if[JAVA5SYNTAX]*/
     private HashtableEntry<K, V>[] getTable() {
-/*else[JAVA5SYNTAX]*/
-//        private HashtableEntry[] getTable() {
-/*end[JAVA5SYNTAX]*/
         if (entryTable == null) {
             rehash(backupTable, backupTable.length);
         }
@@ -201,18 +179,10 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @return  a clone of the hashtable
      */
     public synchronized Object clone() {
-/*if[JAVA5SYNTAX]*/
         SquawkHashtable<K,V> t = new SquawkHashtable(entryTable.length);
-/*else[JAVA5SYNTAX]*/
-//      SquawkHashtable t = new SquawkHashtable(entryTable.length);
-/*end[JAVA5SYNTAX]*/
         for (int i = entryTable.length ; i-- > 0 ; ) {
           t.entryTable[i] = (entryTable[i] != null)
-/*if[JAVA5SYNTAX]*/
             ? (HashtableEntry<K,V>) entryTable[i].clone() : null;
-/*else[JAVA5SYNTAX]*/
-//          ? (HashtableEntry) entryTable[i].clone() : null;
-/*end[JAVA5SYNTAX]*/
         }
         return t;
       }
@@ -243,13 +213,8 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @see java.util.Enumeration
      * @see #elements()
      */
-/*if[JAVA5SYNTAX]*/
     public Enumeration<K> keys() {
         return new HashtableEnumerator<K>(getTable(), true);
-/*else[JAVA5SYNTAX]*/
-//    public Enumeration keys() {
-//        return new HashtableEnumerator(getTable(), true);
-/*end[JAVA5SYNTAX]*/
     }
 
     /**
@@ -261,13 +226,8 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @see java.util.Enumeration
      * @see #keys()
      */
-/*if[JAVA5SYNTAX]*/
     public Enumeration<V> elements() {
         return new HashtableEnumerator<V>(getTable(), false);
-/*else[JAVA5SYNTAX]*/
-//    public Enumeration elements() {
-//        return new HashtableEnumerator(getTable(), false);
-/*end[JAVA5SYNTAX]*/
     }
 
     /**
@@ -287,21 +247,13 @@ public class SquawkHashtable<K, V> implements Cloneable {
             throw new NullPointerException();
         }
 
-/*if[JAVA5SYNTAX]*/
         HashtableEntry<K, V> tab[] = getTable();
-/*else[JAVA5SYNTAX]*/
-//        HashtableEntry tab[] = getTable();
-/*end[JAVA5SYNTAX]*/
         for (int i = tab.length ; i-- > 0 ;) {
-/*if[JAVA5SYNTAX]*/
             for (HashtableEntry<K, V> e = tab[i] ; e != null ; e = e.next) {
-/*else[JAVA5SYNTAX]*/
-//        	for (HashtableEntry e = tab[i] ; e != null ; e = e.next) {
-/*end[JAVA5SYNTAX]*/
-	            if (e.value.equals(value)) {
-	                return true;
-	            }
-        	}
+                if (e.value.equals(value)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -331,18 +283,10 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @see #put(java.lang.Object, java.lang.Object)
      */
     public Object get(Object key) {
-/*if[JAVA5SYNTAX]*/
         HashtableEntry<K, V> tab[] = getTable();
-/*else[JAVA5SYNTAX]*/
-//        HashtableEntry tab[] = getTable();
-/*end[JAVA5SYNTAX]*/
         int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % tab.length;
-/*if[JAVA5SYNTAX]*/
         for (HashtableEntry<K, V> e = tab[index] ; e != null ; e = e.next) {
-/*else[JAVA5SYNTAX]*/
-//        for (HashtableEntry e = tab[index] ; e != null ; e = e.next) {
-/*end[JAVA5SYNTAX]*/
             if ((e.hash == hash) && e.key.equals(key)) {
                 return e.value;
             }
@@ -360,11 +304,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
      *
      */
     public void rehash() {
-/*if[JAVA5SYNTAX]*/
         HashtableEntry<K, V>[] oldTable = getTable();
-/*else[JAVA5SYNTAX]*/
-//        HashtableEntry[] oldTable = getTable();
-/*end[JAVA5SYNTAX]*/
         rehash(oldTable, oldTable.length * 2 + 1);
     }
 
@@ -374,28 +314,15 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @param oldTable the HashtableEntry to be rehashed
      * @param newCapacity the size of the new table
      */
-/*if[JAVA5SYNTAX]*/
     @SuppressWarnings("unchecked")
     private void rehash(HashtableEntry<K, V>[] oldTable, int newCapacity) {
-/*else[JAVA5SYNTAX]*/
-//    private void rehash(HashtableEntry[] oldTable, int newCapacity) {
-/*end[JAVA5SYNTAX]*/
         setTable(null); // safety
         int oldCapacity = oldTable.length;
-/*if[JAVA5SYNTAX]*/
         HashtableEntry<K, V>[] newTable = new HashtableEntry[newCapacity];
-/*else[JAVA5SYNTAX]*/
-//        HashtableEntry[] newTable = new HashtableEntry[newCapacity];
-/*end[JAVA5SYNTAX]*/
         threshold = ((newCapacity * loadFactorPercent) / 100);
         for (int i = oldCapacity ; i-- > 0 ;) {
-/*if[JAVA5SYNTAX]*/
             for (HashtableEntry<K, V> old = oldTable[i] ; old != null ; ) {
                 HashtableEntry<K, V> e = old;
-/*else[JAVA5SYNTAX]*/
-//            for (HashtableEntry old = oldTable[i] ; old != null ; ) {
-//                HashtableEntry e = old;
-/*end[JAVA5SYNTAX]*/
                 old = old.next;
                 int index = (e.hash & 0x7FFFFFFF) % newCapacity;
                 e.next = newTable[index];
@@ -422,38 +349,22 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @see java.lang.Object#equals(java.lang.Object)
      * @see #get(java.lang.Object)
      */
-/*if[JAVA5SYNTAX]*/
     @SuppressWarnings("unchecked")
     public V put(K key, V value) {
-/*else[JAVA5SYNTAX]*/
-//    public Object put(Object key, Object value) {
-/*end[JAVA5SYNTAX]*/
         // Make sure the value is not null
         if (value == null) {
             throw new NullPointerException();
         }
 
         // Makes sure the key is not already in the hashtable.
-/*if[JAVA5SYNTAX]*/
         HashtableEntry<K, V> tab[] = getTable();
-/*else[JAVA5SYNTAX]*/
-//        HashtableEntry tab[] = getTable();
-/*end[JAVA5SYNTAX]*/
         int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % tab.length;
-/*if[JAVA5SYNTAX]*/
         for (HashtableEntry<K, V> e = tab[index] ; e != null ; e = e.next) {
-/*else[JAVA5SYNTAX]*/
-//        for (HashtableEntry e = tab[index] ; e != null ; e = e.next) {
-/*end[JAVA5SYNTAX]*/
             if ((e.hash == hash) && e.key.equals(key)) {
                 Object old = e.value;
                 e.value = value;
-/*if[JAVA5SYNTAX]*/
                 return (V) old;
-/*else[JAVA5SYNTAX]*/
-//                return old;
-/*end[JAVA5SYNTAX]*/
             }
         }
 
@@ -469,11 +380,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
         }
 
         // Creates the new entry.
-/*if[JAVA5SYNTAX]*/
         HashtableEntry<K, V> e = new HashtableEntry<K, V>();
-/*else[JAVA5SYNTAX]*/
-//        HashtableEntry e = new HashtableEntry();
-/*end[JAVA5SYNTAX]*/
         e.hash = hash;
         e.key = key;
         e.value = value;
@@ -491,20 +398,11 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @return  the value to which the key had been mapped in this hashtable,
      *          or <code>null</code> if the key did not have a mapping.
      */
-/*if[JAVA5SYNTAX]*/
     public V remove(K key) {
         HashtableEntry<K, V> tab[] = getTable();
-/*else[JAVA5SYNTAX]*/
-//        public Object remove(Object key) {
-//            HashtableEntry tab[] = getTable();
-/*end[JAVA5SYNTAX]*/
         int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % tab.length;
-/*if[JAVA5SYNTAX]*/
         for (HashtableEntry<K, V> e = tab[index], prev = null ; e != null ; prev = e, e = e.next) {
-/*else[JAVA5SYNTAX]*/
-//        for (HashtableEntry e = tab[index], prev = null ; e != null ; prev = e, e = e.next) {
-/*end[JAVA5SYNTAX]*/
             if ((e.hash == hash) && e.key.equals(key)) {
                 if (prev != null) {
                     prev.next = e.next;
@@ -522,11 +420,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * Clears this hashtable so that it contains no keys.
      */
     public void clear() {
-/*if[JAVA5SYNTAX]*/
         HashtableEntry<K, V> tab[] = getTable();
-/*else[JAVA5SYNTAX]*/
-//        HashtableEntry tab[] = getTable();
-/*end[JAVA5SYNTAX]*/
         for (int index = tab.length; --index >= 0; ) {
             tab[index] = null;
         }
@@ -557,11 +451,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
      *
      * @return the internal table
      */
-/*if[JAVA5SYNTAX]*/
     public final HashtableEntry<K, V>[] getEntryTable() {
-/*else[JAVA5SYNTAX]*/
-//    public final HashtableEntry[] getEntryTable() {
-/*end[JAVA5SYNTAX]*/
         return entryTable;
     }
 
@@ -573,11 +463,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * @param size
      * @return  a string representation of this hashtable.
      */
-/*if[JAVA5SYNTAX]*/
     public static String enumerationsToString(Enumeration<?> keys, Enumeration<?> elements, int size) {
-/*else[JAVA5SYNTAX]*/
-//    public static String enumerationsToString(Enumeration keys, Enumeration elements, int size) {
-/*end[JAVA5SYNTAX]*/
         int max = size - 1;
         StringBuffer buf = new StringBuffer();
         buf.append('{');
@@ -598,24 +484,14 @@ public class SquawkHashtable<K, V> implements Cloneable {
      * A hashtable enumerator class.  This class should remain opaque
      * to the client. It will use the Enumeration interface.
      */
-/*if[JAVA5SYNTAX]*/
     class HashtableEnumerator<E> implements Enumeration<E> {
         HashtableEntry<K, V>[] table;
         HashtableEntry<K, V> entry;
-/*else[JAVA5SYNTAX]*/
-//  class HashtableEnumerator implements Enumeration {
-//      HashtableEntry[] table;
-//      HashtableEntry entry;
-/*end[JAVA5SYNTAX]*/
 
         boolean keys;
         int index;
 
-/*if[JAVA5SYNTAX]*/
         HashtableEnumerator(HashtableEntry<K, V>[] table, boolean keys) {
-/*else[JAVA5SYNTAX]*/
-//      HashtableEnumerator(HashtableEntry[] table, boolean keys) {
-/*end[JAVA5SYNTAX]*/
             this.table = table;
             this.keys = keys;
             this.index = table.length;
@@ -633,27 +509,17 @@ public class SquawkHashtable<K, V> implements Cloneable {
             return false;
         }
 
-/*if[JAVA5SYNTAX]*/
         @SuppressWarnings("unchecked")
         public E nextElement() {
-/*else[JAVA5SYNTAX]*/
-//        public Object nextElement() {
-/*end[JAVA5SYNTAX]*/
             if (entry == null) {
                 while ((index-- > 0) && ((entry = table[index]) == null)) {
                     // skip empty
                 }
             }
             if (entry != null) {
-/*if[JAVA5SYNTAX]*/
                 HashtableEntry<K, V> e = entry;
                 entry = e.next;
                 return (E) (keys ? e.key : e.value);
-/*else[JAVA5SYNTAX]*/
-//                HashtableEntry e = entry;
-//                entry = e.next;
-//                return keys ? e.key : e.value;
-/*end[JAVA5SYNTAX]*/
             }
             throw new NoSuchElementException();
         }
@@ -684,7 +550,6 @@ public class SquawkHashtable<K, V> implements Cloneable {
 /**
  * SquawkHashtable collision list.
  */
-/*if[JAVA5SYNTAX]*/
 class HashtableEntry<K, V> implements Cloneable {
     int hash;
     K key;
@@ -706,26 +571,4 @@ class HashtableEntry<K, V> implements Cloneable {
         e.next = next;
         return e;
     }
-/*else[JAVA5SYNTAX]*/
-//class HashtableEntry implements Cloneable {
-//    int hash;
-//    Object key;
-//    Object value;
-//    HashtableEntry next;
-//     /**
-//      * Creates a shallow copy of this hashtable. All the structure of the
-//      * hashtable itself is copied, but the keys and values are not cloned.
-//      * This is a relatively expensive operation.
-//      *
-//      * @return  a clone of the hashtable
-//      */
-//     public synchronized Object clone() {
-//           HashtableEntry e = new HashtableEntry();
-//           e.hash = hash;
-//           e.key = key;
-//           e.value = value;
-//           e.next = next;
-//           return e;
-//     }
-/*end[JAVA5SYNTAX]*/
 }

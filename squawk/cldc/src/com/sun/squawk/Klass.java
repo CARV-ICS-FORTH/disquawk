@@ -48,11 +48,7 @@ import java.io.PrintStream;
  * @version 1.0
  * @see     com.sun.squawk.KlassMetadata
  */
-/*if[JAVA5SYNTAX]*/
 public class Klass<T> {
-/*else[JAVA5SYNTAX]*/
-//public class Klass {
-/*end[JAVA5SYNTAX]*/
 
 	/*---------------------------------------------------------------------------*\
 	 *      Fields of Klass, some of which may be accessed directly by the VM    *
@@ -492,19 +488,10 @@ public class Klass<T> {
 	 * @return new object
 	 */
 	public final
-/*if[JAVA5SYNTAX]*/
-		T
-/*else[JAVA5SYNTAX]*/
-//Object
-/*end[JAVA5SYNTAX]*/
-		newInstance() /* throws InstantiationException, IllegalAccessException */ {
+		T newInstance() /* throws InstantiationException, IllegalAccessException */ {
 		int constructorIndex = getDefaultConstructorIndex();
 		Assert.always(constructorIndex >= 0);
-/*if[JAVA5SYNTAX]*/
 		T res = (T) GC.newInstance(this);
-/*else[JAVA5SYNTAX]*/
-//        Object res = GC.newInstance(this);
-/*end[JAVA5SYNTAX]*/
 		VM.callStaticOneParm(this, constructorIndex, res);
 		return res;
 	}
@@ -802,10 +789,8 @@ public class Klass<T> {
 	 * @return
 	 * @throws HostedPragma
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(macro="(false)")
-/*end[JAVA5SYNTAX]*/
-		public final boolean isAssignableFrom0(Klass klass) {
+	public final boolean isAssignableFrom0(Klass klass) {
 		/*
 		 * Quick check for assigning to -T-.
 		 */
@@ -1214,10 +1199,8 @@ public class Klass<T> {
 	 * Static version of {@link #getComponentType()} so that garbage collector can
 	 * invoke this method on a possibly forwarded Klass object.
 	 */
-/*if[JAVA5SYNTAX]*/
 	@Vm2c(code="return com_sun_squawk_Klass_componentType_local(klass);")
-/*end[JAVA5SYNTAX]*/
-		static Klass getComponentType(Klass klass) throws AllowInlinedPragma {
+	static Klass getComponentType(Klass klass) throws AllowInlinedPragma {
 		return klass.componentType;
 	}
 
