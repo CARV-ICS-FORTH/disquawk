@@ -1,4 +1,8 @@
 /*
+ * Copyright 2013-15, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -110,6 +114,71 @@ public class Thread implements Runnable {
 
     private boolean spawned;
 
+
+    /**
+     * The argument supplied to the current call to
+     * java.util.concurrent.locks.LockSupport.park.
+     * Set by (private) java.util.concurrent.locks.LockSupport.setBlocker
+     * Accessed using java.util.concurrent.locks.LockSupport.getBlocker
+     */
+    private Object parkBlocker;
+    private boolean permit;
+
+    // /* The object in which this thread is blocked in an interruptible I/O
+    //  * operation, if any.  The blocker's interrupt method should be invoked
+    //  * after setting this thread's interrupt status.
+    //  */
+    // private volatile Interruptible blocker;
+    // private Object blockerLock = new Object();
+
+    public void setBlocker(Object arg) {
+        // Even though volatile, hotspot doesn't need a write barrier here.
+        // unsafe.putObject(t, parkBlockerOffset, arg);
+        parkBlocker = arg;
+    }
+
+    /**
+     * Returns the blocker object supplied to the most recent
+     * invocation of a park method that has not yet unblocked, or null
+     * if not blocked.  The value returned is just a momentary
+     * snapshot -- the thread may have since unblocked or blocked on a
+     * different blocker object.
+     *
+     * @return the blocker
+     * @since 1.6
+     */
+    public Object getBlocker() {
+        // return unsafe.getObjectVolatile(t, parkBlockerOffset);
+        return parkBlocker;
+    }
+
+    // HACK: Emulate park and unpark (not supporting spurious exits)
+    // using wait/notify
+    public synchronized void unpark() {
+        if (!permit) {          // This if is not necessary
+            // Make permit available
+            permit = true;
+            // Notify any potential waiter
+            this.notify();
+        }
+    }
+
+    public static void park(long millis) {
+        Thread thread = Thread.currentThread();
+        synchronized (thread) {
+            // If the permit is not available wait to be notified or interrupted
+            if (!thread.permit) {
+                try {
+                    thread.wait(millis);
+                } catch (InterruptedException e) {
+                    thread.interrupt();
+                }
+            }
+            // Consume the permit since you got notified
+            thread.permit = false;
+        }
+    }
+
     /**
      * The minimum priority that a thread can have.
      */
@@ -217,6 +286,8 @@ public class Thread implements Runnable {
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
         this.name = null;
+        this.parkBlocker = null;
+        this.permit = false;
     }
 
     /**
@@ -232,6 +303,8 @@ public class Thread implements Runnable {
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
         this.name = null;
+        this.parkBlocker = null;
+        this.permit = false;
     }
 
     /**
@@ -247,6 +320,8 @@ public class Thread implements Runnable {
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
         this.name = name;
+        this.parkBlocker = null;
+        this.permit = false;
     }
 
     /**
@@ -263,6 +338,8 @@ public class Thread implements Runnable {
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
         this.name = name;
+        this.parkBlocker = null;
+        this.permit = false;
     }
 
     /**
@@ -324,6 +401,28 @@ public class Thread implements Runnable {
             VM.print("This thread is not yet spawned interrupt\n");
         else
             vmThread.interrupt();
+    }
+
+    /**
+     * Tests whether the current thread has been interrupted.  The
+     * <i>interrupted status</i> of the thread is cleared by this method.  In
+     * other words, if this method were to be called twice in succession, the
+     * second call would return false (unless the current thread were
+     * interrupted again, after the first call had cleared its interrupted
+     * status and before the second call had examined it).
+     *
+     * <p>A thread interruption ignored because a thread was not alive
+     * at the time of the interrupt will be reflected by this method
+     * returning false.
+     *
+     * @return  <code>true</code> if the current thread has been interrupted;
+     *          <code>false</code> otherwise.
+     * @see #isInterrupted()
+     * @revised 6.0
+     */
+    public static boolean interrupted() {
+        // return currentThread().isInterrupted(true);
+        return false;           // HACK FIXME
     }
 
     /**
