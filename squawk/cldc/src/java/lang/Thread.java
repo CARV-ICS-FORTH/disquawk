@@ -121,8 +121,8 @@ public class Thread implements Runnable {
      * Set by (private) java.util.concurrent.locks.LockSupport.setBlocker
      * Accessed using java.util.concurrent.locks.LockSupport.getBlocker
      */
-    public volatile Object parkBlocker = null;
-    public boolean permit = false;
+    private Object parkBlocker;
+    private boolean permit;
 
     // /* The object in which this thread is blocked in an interruptible I/O
     //  * operation, if any.  The blocker's interrupt method should be invoked
@@ -286,6 +286,8 @@ public class Thread implements Runnable {
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
         this.name = null;
+        this.parkBlocker = null;
+        this.permit = false;
     }
 
     /**
@@ -301,6 +303,8 @@ public class Thread implements Runnable {
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
         this.name = null;
+        this.parkBlocker = null;
+        this.permit = false;
     }
 
     /**
@@ -316,6 +320,8 @@ public class Thread implements Runnable {
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
         this.name = name;
+        this.parkBlocker = null;
+        this.permit = false;
     }
 
     /**
@@ -332,6 +338,8 @@ public class Thread implements Runnable {
         this.threadLocals = null;
         this.inheritableThreadLocals = null;
         this.name = name;
+        this.parkBlocker = null;
+        this.permit = false;
     }
 
     /**
