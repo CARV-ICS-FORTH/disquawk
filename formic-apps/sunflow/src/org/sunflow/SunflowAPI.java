@@ -59,24 +59,24 @@ public class SunflowAPI {
     private RenderObjectMap renderObjects;
     private int currentFrame;
 
-    /**
-     * This is a quick system test which verifies that the user has launched
-     * Java properly.
-     */
-    public static void runSystemCheck() {
-        final long RECOMMENDED_MAX_SIZE = 800;
-        long maxMb = Runtime.getRuntime().maxMemory() / 1048576;
-        if (maxMb < RECOMMENDED_MAX_SIZE)
-            UI.printError(Module.API, "JVM available memory is below %d MB (found %d MB only).\nPlease make sure you launched the program with the -Xmx command line options.", RECOMMENDED_MAX_SIZE, maxMb);
-        String compiler = System.getProperty("java.vm.name");
-        if (compiler == null || !(compiler.contains("HotSpot") && compiler.contains("Server")))
-            UI.printError(Module.API, "You do not appear to be running Sun's server JVM\nPerformance may suffer");
-        UI.printDetailed(Module.API, "Java environment settings:");
-        UI.printDetailed(Module.API, "  * Max memory available : %d MB", maxMb);
-        UI.printDetailed(Module.API, "  * Virtual machine name : %s", compiler == null ? "<unknown" : compiler);
-        UI.printDetailed(Module.API, "  * Operating system     : %s", System.getProperty("os.name"));
-        UI.printDetailed(Module.API, "  * CPU architecture     : %s", System.getProperty("os.arch"));
-    }
+    // /**
+    //  * This is a quick system test which verifies that the user has launched
+    //  * Java properly.
+    //  */
+    // public static void runSystemCheck() {
+    //     final long RECOMMENDED_MAX_SIZE = 800;
+    //     long maxMb = Runtime.getRuntime().maxMemory() / 1048576;
+    //     if (maxMb < RECOMMENDED_MAX_SIZE)
+    //         UI.printError(Module.API, "JVM available memory is below %d MB (found %d MB only).\nPlease make sure you launched the program with the -Xmx command line options.", RECOMMENDED_MAX_SIZE, maxMb);
+    //     String compiler = System.getProperty("java.vm.name");
+    //     if (compiler == null || !(compiler.contains("HotSpot") && compiler.contains("Server")))
+    //         UI.printError(Module.API, "You do not appear to be running Sun's server JVM\nPerformance may suffer");
+    //     UI.printDetailed(Module.API, "Java environment settings:");
+    //     UI.printDetailed(Module.API, "  * Max memory available : %d MB", maxMb);
+    //     UI.printDetailed(Module.API, "  * Virtual machine name : %s", compiler == null ? "<unknown" : compiler);
+    //     UI.printDetailed(Module.API, "  * Operating system     : %s", System.getProperty("os.name"));
+    //     UI.printDetailed(Module.API, "  * CPU architecture     : %s", System.getProperty("os.arch"));
+    // }
 
     /**
      * Creates an empty scene.
@@ -114,7 +114,8 @@ public class SunflowAPI {
         int counter = 1;
         String name;
         do {
-            name = String.format("%s_%d", prefix, counter);
+            // name = String.format("%s_%d", prefix, counter);
+	        name = prefix + "_" + counter;
             counter++;
         } while (renderObjects.has(name));
         return name;

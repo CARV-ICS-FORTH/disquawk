@@ -166,19 +166,19 @@ public final class RGBSpace {
 
     public final String toString() {
         String info = "Gamma function parameters:\n";
-        info += String.format("  * Gamma:          %7.4f\n", gamma);
-        info += String.format("  * Breakpoint:     %7.4f\n", breakPoint);
-        info += String.format("  * Slope:          %7.4f\n", slope);
-        info += String.format("  * Slope Match:    %7.4f\n", slopeMatch);
-        info += String.format("  * Segment Offset: %7.4f\n", segmentOffset);
-        info += "XYZ -> RGB Matrix:\n";
-        info += String.format("| %7.4f %7.4f %7.4f|\n", rx, ry, rz);
-        info += String.format("| %7.4f %7.4f %7.4f|\n", gx, gy, gz);
-        info += String.format("| %7.4f %7.4f %7.4f|\n", bx, by, bz);
-        info += "RGB -> XYZ Matrix:\n";
-        info += String.format("| %7.4f %7.4f %7.4f|\n", xr, xg, xb);
-        info += String.format("| %7.4f %7.4f %7.4f|\n", yr, yg, yb);
-        info += String.format("| %7.4f %7.4f %7.4f|\n", zr, zg, zb);
+        info += "  * Gamma:          "+gamma+"\n";
+        info += "  * Breakpoint:     "+breakPoint+"\n";
+        info += "  * Slope:          "+slope+"\n";
+        info += "  * Slope Match:    "+slopeMatch+"\n";
+        info += "  * Segment Offset: "+segmentOffset+"\n";
+        // info += "XYZ -> RGB Matrix:\n";
+        // info += String.format("| %7.4f %7.4f %7.4f|\n", rx, ry, rz);
+        // info += String.format("| %7.4f %7.4f %7.4f|\n", gx, gy, gz);
+        // info += String.format("| %7.4f %7.4f %7.4f|\n", bx, by, bz);
+        // info += "RGB -> XYZ Matrix:\n";
+        // info += String.format("| %7.4f %7.4f %7.4f|\n", xr, xg, xb);
+        // info += String.format("| %7.4f %7.4f %7.4f|\n", yr, yg, yb);
+        // info += String.format("| %7.4f %7.4f %7.4f|\n", zr, zg, zb);
         return info;
     }
 

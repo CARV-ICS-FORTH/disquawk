@@ -1,6 +1,8 @@
 /*
- *
- *
+ * Copyright     2015, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -325,6 +327,30 @@ public final class Long {
     }
 
     /**
+     * Returns the value of this {@code Long} as a
+     * {@code byte}.
+     */
+    public byte byteValue() {
+        return (byte)value;
+    }
+
+    /**
+     * Returns the value of this {@code Long} as a
+     * {@code short}.
+     */
+    public short shortValue() {
+        return (short)value;
+    }
+
+    /**
+     * Returns the value of this {@code Long} as an
+     * {@code int}.
+     */
+    public int intValue() {
+        return (int)value;
+    }
+
+    /**
      * Returns the value of this Long as a long value.
      *
      * @return  the <code>long</code> value represented by this object.
@@ -373,6 +399,73 @@ public final class Long {
     }
 
     /**
+     * Places characters representing the integer i into the
+     * character array buf. The characters are placed into
+     * the buffer backwards starting with the least significant
+     * digit at the specified index (exclusive), and working
+     * backwards from there.
+     *
+     * Will fail if i == Long.MIN_VALUE
+     */
+    static void getChars(long i, int index, char[] buf) {
+        long q;
+        int r;
+        int charPos = index;
+        char sign = 0;
+
+        if (i < 0) {
+            sign = '-';
+            i = -i;
+        }
+
+        // Get 2 digits/iteration using longs until quotient fits into an int
+        while (i > Integer.MAX_VALUE) {
+            q = i / 100;
+            // really: r = i - (q * 100);
+            r = (int)(i - ((q << 6) + (q << 5) + (q << 2)));
+            i = q;
+            buf[--charPos] = Integer.DigitOnes[r];
+            buf[--charPos] = Integer.DigitTens[r];
+        }
+
+        // Get 2 digits/iteration using ints
+        int q2;
+        int i2 = (int)i;
+        while (i2 >= 65536) {
+            q2 = i2 / 100;
+            // really: r = i2 - (q * 100);
+            r = i2 - ((q2 << 6) + (q2 << 5) + (q2 << 2));
+            i2 = q2;
+            buf[--charPos] = Integer.DigitOnes[r];
+            buf[--charPos] = Integer.DigitTens[r];
+        }
+
+        // Fall thru to fast mode for smaller numbers
+        // assert(i2 <= 65536, i2);
+        for (;;) {
+            q2 = (i2 * 52429) >>> (16+3);
+            r = i2 - ((q2 << 3) + (q2 << 1));  // r = i2-(q2*10) ...
+            buf[--charPos] = Integer.digits[r];
+            i2 = q2;
+            if (i2 == 0) break;
+        }
+        if (sign != 0) {
+            buf[--charPos] = sign;
+        }
+    }
+
+    // Requires positive x
+    static int stringSize(long x) {
+        long p = 10;
+        for (int i=1; i<19; i++) {
+            if (x < p)
+                return i;
+            p = 10*p;
+        }
+        return 19;
+    }
+
+    /**
      * Computes a hashcode for this Long. The result is the exclusive
      * OR of the two halves of the primitive <code>long</code> value
      * represented by this <code>Long</code> object. That is, the hashcode
@@ -407,6 +500,229 @@ public final class Long {
     @Java5Marker
     public static Long valueOf(final long val) {
         return new Long(val);
+    }
+
+
+    // Bit Twiddling
+
+    /**
+     * The number of bits used to represent a {@code long} value in two's
+     * complement binary form.
+     *
+     * @since 1.5
+     */
+    public static final int SIZE = 64;
+
+    /**
+     * Returns a {@code long} value with at most a single one-bit, in the
+     * position of the highest-order ("leftmost") one-bit in the specified
+     * {@code long} value.  Returns zero if the specified value has no
+     * one-bits in its two's complement binary representation, that is, if it
+     * is equal to zero.
+     *
+     * @return a {@code long} value with a single one-bit, in the position
+     *     of the highest-order one-bit in the specified value, or zero if
+     *     the specified value is itself equal to zero.
+     * @since 1.5
+     */
+    public static long highestOneBit(long i) {
+        // HD, Figure 3-1
+        i |= (i >>  1);
+        i |= (i >>  2);
+        i |= (i >>  4);
+        i |= (i >>  8);
+        i |= (i >> 16);
+        i |= (i >> 32);
+        return i - (i >>> 1);
+    }
+
+    /**
+     * Returns a {@code long} value with at most a single one-bit, in the
+     * position of the lowest-order ("rightmost") one-bit in the specified
+     * {@code long} value.  Returns zero if the specified value has no
+     * one-bits in its two's complement binary representation, that is, if it
+     * is equal to zero.
+     *
+     * @return a {@code long} value with a single one-bit, in the position
+     *     of the lowest-order one-bit in the specified value, or zero if
+     *     the specified value is itself equal to zero.
+     * @since 1.5
+     */
+    public static long lowestOneBit(long i) {
+        // HD, Section 2-1
+        return i & -i;
+    }
+
+    /**
+     * Returns the number of zero bits preceding the highest-order
+     * ("leftmost") one-bit in the two's complement binary representation
+     * of the specified {@code long} value.  Returns 64 if the
+     * specified value has no one-bits in its two's complement representation,
+     * in other words if it is equal to zero.
+     *
+     * <p>Note that this method is closely related to the logarithm base 2.
+     * For all positive {@code long} values x:
+     * <ul>
+     * <li>floor(log<sub>2</sub>(x)) = {@code 63 - numberOfLeadingZeros(x)}
+     * <li>ceil(log<sub>2</sub>(x)) = {@code 64 - numberOfLeadingZeros(x - 1)}
+     * </ul>
+     *
+     * @return the number of zero bits preceding the highest-order
+     *     ("leftmost") one-bit in the two's complement binary representation
+     *     of the specified {@code long} value, or 64 if the value
+     *     is equal to zero.
+     * @since 1.5
+     */
+    public static int numberOfLeadingZeros(long i) {
+        // HD, Figure 5-6
+         if (i == 0)
+            return 64;
+        int n = 1;
+        int x = (int)(i >>> 32);
+        if (x == 0) { n += 32; x = (int)i; }
+        if (x >>> 16 == 0) { n += 16; x <<= 16; }
+        if (x >>> 24 == 0) { n +=  8; x <<=  8; }
+        if (x >>> 28 == 0) { n +=  4; x <<=  4; }
+        if (x >>> 30 == 0) { n +=  2; x <<=  2; }
+        n -= x >>> 31;
+        return n;
+    }
+
+    /**
+     * Returns the number of zero bits following the lowest-order ("rightmost")
+     * one-bit in the two's complement binary representation of the specified
+     * {@code long} value.  Returns 64 if the specified value has no
+     * one-bits in its two's complement representation, in other words if it is
+     * equal to zero.
+     *
+     * @return the number of zero bits following the lowest-order ("rightmost")
+     *     one-bit in the two's complement binary representation of the
+     *     specified {@code long} value, or 64 if the value is equal
+     *     to zero.
+     * @since 1.5
+     */
+    public static int numberOfTrailingZeros(long i) {
+        // HD, Figure 5-14
+        int x, y;
+        if (i == 0) return 64;
+        int n = 63;
+        y = (int)i; if (y != 0) { n = n -32; x = y; } else x = (int)(i>>>32);
+        y = x <<16; if (y != 0) { n = n -16; x = y; }
+        y = x << 8; if (y != 0) { n = n - 8; x = y; }
+        y = x << 4; if (y != 0) { n = n - 4; x = y; }
+        y = x << 2; if (y != 0) { n = n - 2; x = y; }
+        return n - ((x << 1) >>> 31);
+    }
+
+    /**
+     * Returns the number of one-bits in the two's complement binary
+     * representation of the specified {@code long} value.  This function is
+     * sometimes referred to as the <i>population count</i>.
+     *
+     * @return the number of one-bits in the two's complement binary
+     *     representation of the specified {@code long} value.
+     * @since 1.5
+     */
+     public static int bitCount(long i) {
+        // HD, Figure 5-14
+        i = i - ((i >>> 1) & 0x5555555555555555L);
+        i = (i & 0x3333333333333333L) + ((i >>> 2) & 0x3333333333333333L);
+        i = (i + (i >>> 4)) & 0x0f0f0f0f0f0f0f0fL;
+        i = i + (i >>> 8);
+        i = i + (i >>> 16);
+        i = i + (i >>> 32);
+        return (int)i & 0x7f;
+     }
+
+    /**
+     * Returns the value obtained by rotating the two's complement binary
+     * representation of the specified {@code long} value left by the
+     * specified number of bits.  (Bits shifted out of the left hand, or
+     * high-order, side reenter on the right, or low-order.)
+     *
+     * <p>Note that left rotation with a negative distance is equivalent to
+     * right rotation: {@code rotateLeft(val, -distance) == rotateRight(val,
+     * distance)}.  Note also that rotation by any multiple of 64 is a
+     * no-op, so all but the last six bits of the rotation distance can be
+     * ignored, even if the distance is negative: {@code rotateLeft(val,
+     * distance) == rotateLeft(val, distance & 0x3F)}.
+     *
+     * @return the value obtained by rotating the two's complement binary
+     *     representation of the specified {@code long} value left by the
+     *     specified number of bits.
+     * @since 1.5
+     */
+    public static long rotateLeft(long i, int distance) {
+        return (i << distance) | (i >>> -distance);
+    }
+
+    /**
+     * Returns the value obtained by rotating the two's complement binary
+     * representation of the specified {@code long} value right by the
+     * specified number of bits.  (Bits shifted out of the right hand, or
+     * low-order, side reenter on the left, or high-order.)
+     *
+     * <p>Note that right rotation with a negative distance is equivalent to
+     * left rotation: {@code rotateRight(val, -distance) == rotateLeft(val,
+     * distance)}.  Note also that rotation by any multiple of 64 is a
+     * no-op, so all but the last six bits of the rotation distance can be
+     * ignored, even if the distance is negative: {@code rotateRight(val,
+     * distance) == rotateRight(val, distance & 0x3F)}.
+     *
+     * @return the value obtained by rotating the two's complement binary
+     *     representation of the specified {@code long} value right by the
+     *     specified number of bits.
+     * @since 1.5
+     */
+    public static long rotateRight(long i, int distance) {
+        return (i >>> distance) | (i << -distance);
+    }
+
+    /**
+     * Returns the value obtained by reversing the order of the bits in the
+     * two's complement binary representation of the specified {@code long}
+     * value.
+     *
+     * @return the value obtained by reversing order of the bits in the
+     *     specified {@code long} value.
+     * @since 1.5
+     */
+    public static long reverse(long i) {
+        // HD, Figure 7-1
+        i = (i & 0x5555555555555555L) << 1 | (i >>> 1) & 0x5555555555555555L;
+        i = (i & 0x3333333333333333L) << 2 | (i >>> 2) & 0x3333333333333333L;
+        i = (i & 0x0f0f0f0f0f0f0f0fL) << 4 | (i >>> 4) & 0x0f0f0f0f0f0f0f0fL;
+        i = (i & 0x00ff00ff00ff00ffL) << 8 | (i >>> 8) & 0x00ff00ff00ff00ffL;
+        i = (i << 48) | ((i & 0xffff0000L) << 16) |
+            ((i >>> 16) & 0xffff0000L) | (i >>> 48);
+        return i;
+    }
+
+    /**
+     * Returns the signum function of the specified {@code long} value.  (The
+     * return value is -1 if the specified value is negative; 0 if the
+     * specified value is zero; and 1 if the specified value is positive.)
+     *
+     * @return the signum function of the specified {@code long} value.
+     * @since 1.5
+     */
+    public static int signum(long i) {
+        // HD, Section 2-7
+        return (int) ((i >> 63) | (-i >>> 63));
+    }
+
+    /**
+     * Returns the value obtained by reversing the order of the bytes in the
+     * two's complement representation of the specified {@code long} value.
+     *
+     * @return the value obtained by reversing the bytes in the specified
+     *     {@code long} value.
+     * @since 1.5
+     */
+    public static long reverseBytes(long i) {
+        i = (i & 0x00ff00ff00ff00ffL) << 8 | (i >>> 8) & 0x00ff00ff00ff00ffL;
+        return (i << 48) | ((i & 0xffff0000L) << 16) |
+            ((i >>> 16) & 0xffff0000L) | (i >>> 48);
     }
 
 }

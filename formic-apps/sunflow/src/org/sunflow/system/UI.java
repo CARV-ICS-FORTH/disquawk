@@ -40,27 +40,60 @@ public final class UI {
     }
 
     public final static String formatOutput(Module m, PrintLevel level, String s) {
-        return String.format("%-5s  %-6s: %s", m.name(), level.name().toLowerCase(), s);
+        // return String.format("%-5s  %-6s: %s", m.name(), level.name().toLowerCase(), s);
+        return m.name() + " " + level.name().toLowerCase() + " " + s;
     }
 
     public final static synchronized void printDetailed(Module m, String s, Object... args) {
-        if (verbosity > 3)
-            ui.print(m, PrintLevel.DETAIL, String.format(s, args));
+        if (verbosity > 3) {
+            StringBuffer buf = new StringBuffer();
+            buf.append(s);
+            for (Object o : args) {
+                buf.append(o);
+                buf.append(" ");
+            }
+            // ui.print(m, PrintLevel.DETAIL, String.format(s, args));
+            ui.print(m, PrintLevel.DETAIL, buf.toString());
+        }
     }
 
     public final static synchronized void printInfo(Module m, String s, Object... args) {
-        if (verbosity > 2)
-            ui.print(m, PrintLevel.INFO, String.format(s, args));
+        if (verbosity > 2) {
+            StringBuffer buf = new StringBuffer();
+            buf.append(s);
+            for (Object o : args) {
+                buf.append(o);
+                buf.append(" ");
+            }
+            // ui.print(m, PrintLevel.INFO, String.format(s, args));
+            ui.print(m, PrintLevel.INFO, buf.toString());
+        }
     }
 
     public final static synchronized void printWarning(Module m, String s, Object... args) {
-        if (verbosity > 1)
-            ui.print(m, PrintLevel.WARN, String.format(s, args));
+        if (verbosity > 1) {
+            StringBuffer buf = new StringBuffer();
+            buf.append(s);
+            for (Object o : args) {
+                buf.append(o);
+                buf.append(" ");
+            }
+            // ui.print(m, PrintLevel.WARN, String.format(s, args));
+            ui.print(m, PrintLevel.WARN, buf.toString());
+        }
     }
 
     public final static synchronized void printError(Module m, String s, Object... args) {
-        if (verbosity > 0)
-            ui.print(m, PrintLevel.ERROR, String.format(s, args));
+        if (verbosity > 0) {
+            StringBuffer buf = new StringBuffer();
+            buf.append(s);
+            for (Object o : args) {
+                buf.append(o);
+                buf.append(" ");
+            }
+            // ui.print(m, PrintLevel.ERROR, String.format(s, args));
+            ui.print(m, PrintLevel.ERROR, buf.toString());
+        }
     }
 
     public final static synchronized void taskStart(String s, int min, int max) {

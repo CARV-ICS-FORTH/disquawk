@@ -350,7 +350,7 @@ public final class Color {
         return false;
     }
 
-    public String toString() {
-        return String.format("(%.3f, %.3f, %.3f)", r, g, b);
-    }
+    // public String toString() {
+    //     return String.format("(%.3f, %.3f, %.3f)", r, g, b);
+    // }
 }

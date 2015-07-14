@@ -7,13 +7,13 @@ import org.sunflow.system.UI.Module;
 public class BucketOrderFactory {
     public static BucketOrder create(String order) {
         boolean flip = false;
-        if (order.startsWith("inverse") || order.startsWith("invert") || order.startsWith("reverse")) {
-            String[] tokens = order.split("\\s+");
-            if (tokens.length == 2) {
-                order = tokens[1];
-                flip = true;
-            }
-        }
+        // if (order.startsWith("inverse") || order.startsWith("invert") || order.startsWith("reverse")) {
+        //     String[] tokens = order.split("\\s+");
+        //     if (tokens.length == 2) {
+        //         order = tokens[1];
+        //         flip = true;
+        //     }
+        // }
         BucketOrder o = null;
         if (order.equals("row"))
             o = new RowBucketOrder();

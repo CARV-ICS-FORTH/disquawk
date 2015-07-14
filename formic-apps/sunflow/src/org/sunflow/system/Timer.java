@@ -39,13 +39,14 @@ public class Timer {
     public String toString() {
         long millis = nanos() / (1000 * 1000);
         if (millis < 10000)
-            return String.format("%dms", millis);
+            return millis+"ms";
         long hours = millis / (60 * 60 * 1000);
         millis -= hours * 60 * 60 * 1000;
         long minutes = millis / (60 * 1000);
         millis -= minutes * 60 * 1000;
         long seconds = millis / 1000;
         millis -= seconds * 1000;
-        return String.format("%d:%02d:%02d.%1d", hours, minutes, seconds, millis / 100);
+        // return String.format("%d:%02d:%02d.%1d", hours, minutes, seconds, millis / 100);
+        return hours+":"+minutes+":"+seconds+"."+(millis / 100);
     }
 }

@@ -117,9 +117,9 @@ public final class Point3 {
         dest.z = edge1x * edge2y - edge1y * edge2x;
         return dest;
     }
-    
-    @Override
-    public final String toString() {
-        return String.format("(%.2f, %.2f, %.2f)", x, y, z);
-    }
+
+    // @Override
+    // public final String toString() {
+    //     return String.format("(%.2f, %.2f, %.2f)", x, y, z);
+    // }
 }

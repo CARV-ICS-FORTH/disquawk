@@ -28,8 +28,8 @@ public final class Point2 {
         return this;
     }
 
-    @Override
-    public final String toString() {
-        return String.format("(%.2f, %.2f)", x, y);
-    }
+    // @Override
+    // public final String toString() {
+    //     return String.format("(%.2f, %.2f)", x, y);
+    // }
 }

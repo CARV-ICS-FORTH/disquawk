@@ -137,7 +137,8 @@ public class BucketRenderer implements ImageSampler {
 
     private String aaDepthToString(int depth) {
         int pixelAA = (depth) < 0 ? -(1 << (-depth)) : (1 << depth);
-        return String.format("%s%d sample%s", depth < 0 ? "1/" : "", pixelAA * pixelAA, depth == 0 ? "" : "s");
+        // return String.format("%s%d sample%s", depth < 0 ? "1/" : "", pixelAA * pixelAA, depth == 0 ? "" : "s");
+        return (depth < 0 ? "1/" : "") + (pixelAA * pixelAA) + " sample" + (depth == 0 ? "" : "s");
     }
 
     public void render(Display display) {

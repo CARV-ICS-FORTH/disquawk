@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 1997, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,21 +25,33 @@
 
 package java.lang;
 
-import java.util.Iterator;
-
-import com.sun.squawk.Java5Marker;
-
-/** Implementing this interface allows an object to be the target of
- *  the "foreach" statement.
- * @since 1.5
+/**
+ * Thrown if an application tries to access or modify a specified
+ * field of an object, and that object no longer has that field.
+ * <p>
+ * Normally, this error is caught by the compiler; this error can
+ * only occur at run time if the definition of a class has
+ * incompatibly changed.
+ *
+ * @author  unascribed
+ * @since   JDK1.0
  */
-@Java5Marker
-public interface Iterable<E> {
+public
+class NoSuchFieldError extends IncompatibleClassChangeError {
+    /**
+     * Constructs a <code>NoSuchFieldException</code> with no detail  message.
+     */
+    public NoSuchFieldError() {
+        super();
+    }
 
     /**
-     * Returns an iterator over a set of elements of type T.
+     * Constructs a <code>NoSuchFieldException</code> with the specified
+     * detail message.
      *
-     * @return an Iterator.
+     * @param   s   the detail message.
      */
-    Iterator<E> iterator();
+    public NoSuchFieldError(String s) {
+        super(s);
+    }
 }

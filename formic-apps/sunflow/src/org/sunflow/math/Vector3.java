@@ -188,8 +188,8 @@ public final class Vector3 {
         return dest;
     }
 
-    @Override
-    public final String toString() {
-        return String.format("(%.2f, %.2f, %.2f)", x, y, z);
-    }
+    // @Override
+    // public final String toString() {
+    //     return String.format("(%.2f, %.2f, %.2f)", x, y, z);
+    // }
 }

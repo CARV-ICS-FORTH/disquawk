@@ -7,7 +7,7 @@ public abstract class SpectralCurve {
     /**
      * This function determines the actual spectral curve data. Note that the
      * lambda parameter is assumed to be in nanometers.
-     * 
+     *
      * @param lambda wavelength to sample in nanometers
      * @return the value of the spectral curve at this point
      */
@@ -95,7 +95,9 @@ public abstract class SpectralCurve {
 
     static {
         if (WAVELENGTH_STEP * (CIE_xbar.length - 1) != WAVELENGTH_MAX - WAVELENGTH_MIN) {
-            String err = String.format("Internal error - spectrum static data is inconsistent!\n  * min = %d\n  * max = %d\n  * step = %d\n  * num = %d", WAVELENGTH_MIN, WAVELENGTH_MAX, WAVELENGTH_STEP, CIE_xbar.length);
+            String err = "Internal error - spectrum static data is inconsistent!\n  * min = "+
+                WAVELENGTH_MIN+"\n  * max = "+WAVELENGTH_MAX+"\n  * step = "+WAVELENGTH_STEP+
+                "\n  * num = "+CIE_xbar.length;
             throw new RuntimeException(err);
         }
     }
@@ -103,7 +105,7 @@ public abstract class SpectralCurve {
     /**
      * Convert this curve to a tristimulus CIE XYZ color by integrating against
      * the CIE color matching functions.
-     * 
+     *
      * @return XYZColor that represents this spectra
      */
     public final XYZColor toXYZ() {

@@ -39,7 +39,7 @@ final class RenderObjectMap {
     final void remove(String name) {
         RenderObjectHandle obj = renderObjects.get(name);
         if (obj == null) {
-            UI.printWarning(Module.API, "Unable to remove \"%s\" - object was not defined yet");
+            UI.printWarning(Module.API, "Unable to remove \"%s\" - object was not defined yet", name);
             return;
         }
         UI.printDetailed(Module.API, "Removing object \"%s\"", name);

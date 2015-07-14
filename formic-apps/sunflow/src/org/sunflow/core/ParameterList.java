@@ -52,7 +52,7 @@ public class ParameterList {
     /**
      * Setup how many faces should be used to check member count on "face"
      * interpolated parameters.
-     * 
+     *
      * @param numFaces number of faces
      */
     public void setFaceCount(int numFaces) {
@@ -62,7 +62,7 @@ public class ParameterList {
     /**
      * Setup how many vertices should be used to check member count of "vertex"
      * interpolated parameters.
-     * 
+     *
      * @param numVerts number of vertices
      */
     public void setVertexCount(int numVerts) {
@@ -73,7 +73,7 @@ public class ParameterList {
      * Setup how many "face-vertices" should be used to check member count of
      * "facevarying" interpolated parameters. This should be equal to the sum of
      * the number of vertices on each face.
-     * 
+     *
      * @param numFaceVerts number of "face-vertices"
      */
     public void setFaceVertexCount(int numFaceVerts) {
@@ -83,7 +83,7 @@ public class ParameterList {
     /**
      * Add the specified string as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -94,7 +94,7 @@ public class ParameterList {
     /**
      * Add the specified integer as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -105,7 +105,7 @@ public class ParameterList {
     /**
      * Add the specified boolean as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -116,7 +116,7 @@ public class ParameterList {
     /**
      * Add the specified float as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -127,7 +127,7 @@ public class ParameterList {
     /**
      * Add the specified color as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      */
@@ -140,7 +140,7 @@ public class ParameterList {
     /**
      * Add the specified array of integers as a parameter. <code>null</code>
      * values are not permitted.
-     * 
+     *
      * @param name parameter name
      * @param array parameter value
      */
@@ -153,7 +153,7 @@ public class ParameterList {
     /**
      * Add the specified array of integers as a parameter. <code>null</code>
      * values are not permitted.
-     * 
+     *
      * @param name parameter name
      * @param array parameter value
      */
@@ -166,7 +166,7 @@ public class ParameterList {
     /**
      * Add the specified floats as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -182,7 +182,7 @@ public class ParameterList {
     /**
      * Add the specified points as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -198,7 +198,7 @@ public class ParameterList {
     /**
      * Add the specified vectors as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -215,7 +215,7 @@ public class ParameterList {
     /**
      * Add the specified texture coordinates as a parameter. <code>null</code>
      * values are not permitted.
-     * 
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -231,7 +231,7 @@ public class ParameterList {
     /**
      * Add the specified matrices as a parameter. <code>null</code> values are
      * not permitted.
-     * 
+     *
      * @param name parameter name
      * @param interp interpolation type
      * @param data parameter value
@@ -253,7 +253,7 @@ public class ParameterList {
 
     /**
      * Get the specified string parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -268,7 +268,7 @@ public class ParameterList {
 
     /**
      * Get the specified string array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -283,7 +283,7 @@ public class ParameterList {
 
     /**
      * Get the specified integer parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -298,7 +298,7 @@ public class ParameterList {
 
     /**
      * Get the specified integer array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @return the value of the parameter specified or <code>null</code> if
      *         not found
@@ -312,7 +312,7 @@ public class ParameterList {
 
     /**
      * Get the specified boolean parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -327,7 +327,7 @@ public class ParameterList {
 
     /**
      * Get the specified float parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -342,7 +342,7 @@ public class ParameterList {
 
     /**
      * Get the specified color parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -357,7 +357,7 @@ public class ParameterList {
 
     /**
      * Get the specified point parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -372,7 +372,7 @@ public class ParameterList {
 
     /**
      * Get the specified vector parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -387,7 +387,7 @@ public class ParameterList {
 
     /**
      * Get the specified texture coordinate parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -402,7 +402,7 @@ public class ParameterList {
 
     /**
      * Get the specified matrix parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @param defaultValue value to return if not found
      * @return the value of the parameter specified or default value if not
@@ -417,7 +417,7 @@ public class ParameterList {
 
     /**
      * Get the specified float array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @return the value of the parameter specified or <code>null</code> if
      *         not found
@@ -428,7 +428,7 @@ public class ParameterList {
 
     /**
      * Get the specified point array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @return the value of the parameter specified or <code>null</code> if
      *         not found
@@ -439,7 +439,7 @@ public class ParameterList {
 
     /**
      * Get the specified vector array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @return the value of the parameter specified or <code>null</code> if
      *         not found
@@ -450,7 +450,7 @@ public class ParameterList {
 
     /**
      * Get the specified texture coordinate array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @return the value of the parameter specified or <code>null</code> if
      *         not found
@@ -461,7 +461,7 @@ public class ParameterList {
 
     /**
      * Get the specified matrix array parameter from this list.
-     * 
+     *
      * @param name name of the parameter
      * @return the value of the parameter specified or <code>null</code> if
      *         not found
@@ -631,9 +631,9 @@ public class ParameterList {
             checked = true;
         }
 
-        public String toString() {
-            return String.format("%s%s[%d]", interp == InterpolationType.NONE ? "" : interp.name().toLowerCase() + " ", type.name().toLowerCase(), size());
-        }
+        // public String toString() {
+        //     return String.format("%s%s[%d]", interp == InterpolationType.NONE ? "" : interp.name().toLowerCase() + " ", type.name().toLowerCase(), size());
+        // }
 
         private String getStringValue() {
             return ((String[]) obj)[0];

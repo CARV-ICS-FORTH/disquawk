@@ -36,7 +36,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader {
         api.instance(name + ".instance", name);
         for (int i = 0, j = 0; i < triangles.length; i += 3, j++) {
             TriangleLight t = new TriangleLight(j);
-            String lname = String.format("%s.light[%d]", name, j);
+            String lname = name+".light["+j+"]";
             api.light(lname, t);
         }
     }

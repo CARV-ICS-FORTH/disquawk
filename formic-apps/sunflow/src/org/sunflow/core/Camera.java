@@ -53,15 +53,15 @@ public class Camera implements RenderObject {
     }
 
     private boolean updateCameraMatrix(int index, ParameterList pl) {
-        String offset = index < 0 ? "" : String.format("[%d]", index);
+        String offset = index < 0 ? "" : ("["+index+"]");
         if (index < 0)
             index = 0;
-        Matrix4 transform = pl.getMatrix(String.format("transform%s", offset), null);
+        Matrix4 transform = pl.getMatrix("transform"+offset, null);
         if (transform == null) {
             // no transform was specified, check eye/target/up
-            Point3 eye = pl.getPoint(String.format("eye%s", offset), null);
-            Point3 target = pl.getPoint(String.format("target%s", offset), null);
-            Vector3 up = pl.getVector(String.format("up%s", offset), null);
+            Point3 eye = pl.getPoint("eye"+offset, null);
+            Point3 target = pl.getPoint("target"+ offset, null);
+            Vector3 up = pl.getVector("up"+ offset, null);
             if (eye != null && target != null && up != null) {
                 c2w[index] = Matrix4.fromBasis(OrthoNormalBasis.makeFromWV(Point3.sub(eye, target, new Vector3()), up));
                 c2w[index] = Matrix4.translation(eye.x, eye.y, eye.z).multiply(c2w[index]);
@@ -81,7 +81,7 @@ public class Camera implements RenderObject {
      * compute depth-of-field or motion blur effects. Note that the camera may
      * return <code>null</code> for invalid arguments or for pixels which
      * don't project to anything.
-     * 
+     *
      * @param x x pixel coordinate
      * @param y y pixel coordinate
      * @param imageWidth width of the image in pixels
@@ -114,7 +114,7 @@ public class Camera implements RenderObject {
     /**
      * Generate a ray from the origin of camera space toward the specified
      * point.
-     * 
+     *
      * @param p point in world space
      * @return ray from the origin of camera space to the specified point
      */
@@ -124,7 +124,7 @@ public class Camera implements RenderObject {
 
     /**
      * Returns a transformation matrix mapping camera space to world space.
-     * 
+     *
      * @return a transformation matrix
      */
     Matrix4 getCameraToWorld() {
@@ -133,7 +133,7 @@ public class Camera implements RenderObject {
 
     /**
      * Returns a transformation matrix mapping world space to camera space.
-     * 
+     *
      * @return a transformation matrix
      */
     Matrix4 getWorldToCamera() {

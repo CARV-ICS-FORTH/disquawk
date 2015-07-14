@@ -30,7 +30,7 @@ public final class XYZColor {
         Z *= s;
         return this;
     }
-    
+
     public final void normalize() {
         float XYZ = X + Y + Z;
         if (XYZ < 1e-6f)
@@ -41,7 +41,7 @@ public final class XYZColor {
         Z *= s;
     }
 
-    public final String toString() {
-        return String.format("(%.3f, %.3f, %.3f)", X, Y, Z);
-    }
+    // public final String toString() {
+    //     return String.format("(%.3f, %.3f, %.3f)", X, Y, Z);
+    // }
 }

@@ -1,6 +1,8 @@
 /*
- *
- *
+ * Copyright 2013-15, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -75,6 +77,20 @@ class Boolean {
      */
     public boolean booleanValue() {
         return value;
+    }
+
+    /**
+     * Returns a {@code String} object representing the specified
+     * boolean.  If the specified boolean is {@code true}, then
+     * the string {@code "true"} will be returned, otherwise the
+     * string {@code "false"} will be returned.
+     *
+     * @param b the boolean to be converted
+     * @return the string representation of the specified {@code boolean}
+     * @since 1.4
+     */
+    public static String toString(boolean b) {
+        return b ? "true" : "false";
     }
 
     /**

@@ -1,6 +1,8 @@
 /*
- *
- *
+ * Copyright 2013-15, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -110,6 +112,11 @@ public final class Integer {
 
         if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX)
             radix = 10;
+
+        /* Use the faster version */
+        if (radix == 10) {
+            return toString(i);
+        }
 
         char buf[] = new char[33];
         boolean negative = (i < 0);
@@ -270,6 +277,53 @@ public final class Integer {
         return new String(buf, charPos, (32 - charPos));
     }
 
+
+
+    final static char [] DigitTens = {
+        '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+        '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+        '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
+        '3', '3', '3', '3', '3', '3', '3', '3', '3', '3',
+        '4', '4', '4', '4', '4', '4', '4', '4', '4', '4',
+        '5', '5', '5', '5', '5', '5', '5', '5', '5', '5',
+        '6', '6', '6', '6', '6', '6', '6', '6', '6', '6',
+        '7', '7', '7', '7', '7', '7', '7', '7', '7', '7',
+        '8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
+        '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
+        } ;
+
+    final static char [] DigitOnes = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        } ;
+
+        // I use the "invariant division by multiplication" trick to
+        // accelerate Integer.toString.  In particular we want to
+        // avoid division by 10.
+        //
+        // The "trick" has roughly the same performance characteristics
+        // as the "classic" Integer.toString code on a non-JIT VM.
+        // The trick avoids .rem and .div calls but has a longer code
+        // path and is thus dominated by dispatch overhead.  In the
+        // JIT case the dispatch overhead doesn't exist and the
+        // "trick" is considerably faster than the classic code.
+        //
+        // TODO-FIXME: convert (x * 52429) into the equiv shift-add
+        // sequence.
+        //
+        // RE:  Division by Invariant Integers using Multiplication
+        //      T Gralund, P Montgomery
+        //      ACM PLDI 1994
+        //
+
     /**
      * Returns a new String object representing the specified integer. The
      * argument is converted to signed decimal representation and returned
@@ -280,7 +334,65 @@ public final class Integer {
      * @return  a string representation of the argument in base&nbsp;10.
      */
     public static String toString(int i) {
-        return toString(i, 10);
+        if (i == Integer.MIN_VALUE)
+            return "-2147483648";
+        int size = (i < 0) ? stringSize(-i) + 1 : stringSize(i);
+        char[] buf = new char[size];
+        getChars(i, size, buf);
+        return new String(buf, 0, size);
+    }
+
+    /**
+     * Places characters representing the integer i into the
+     * character array buf. The characters are placed into
+     * the buffer backwards starting with the least significant
+     * digit at the specified index (exclusive), and working
+     * backwards from there.
+     *
+     * Will fail if i == Integer.MIN_VALUE
+     */
+    static void getChars(int i, int index, char[] buf) {
+        int q, r;
+        int charPos = index;
+        char sign = 0;
+
+        if (i < 0) {
+            sign = '-';
+            i = -i;
+        }
+
+        // Generate two digits per iteration
+        while (i >= 65536) {
+            q = i / 100;
+        // really: r = i - (q * 100);
+            r = i - ((q << 6) + (q << 5) + (q << 2));
+            i = q;
+            buf [--charPos] = DigitOnes[r];
+            buf [--charPos] = DigitTens[r];
+        }
+
+        // Fall thru to fast mode for smaller numbers
+        // assert(i <= 65536, i);
+        for (;;) {
+            q = (i * 52429) >>> (16+3);
+            r = i - ((q << 3) + (q << 1));  // r = i-(q*10) ...
+            buf [--charPos] = digits [r];
+            i = q;
+            if (i == 0) break;
+        }
+        if (sign != 0) {
+            buf [--charPos] = sign;
+        }
+    }
+
+    final static int [] sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999,
+                                      99999999, 999999999, Integer.MAX_VALUE };
+
+    // Requires positive x
+    static int stringSize(int x) {
+        for (int i=0; ; i++)
+            if (x <= sizeTable[i])
+                return i+1;
     }
 
     /**
@@ -359,33 +471,34 @@ public final class Integer {
 
         int result = 0;
         boolean negative = false;
-        int i = 0, max = s.length();
-        int limit;
+        int i = 0, len = s.length();
+        int limit = -Integer.MAX_VALUE;
         int multmin;
         int digit;
 
-        if (max > 0) {
-            if (s.charAt(0) == '-') {
-                negative = true;
-                limit = Integer.MIN_VALUE;
-                i++;
-            } else {
-                limit = -Integer.MAX_VALUE;
-            }
-            multmin = limit / radix;
-            if (i < max) {
-                digit = Character.digit(s.charAt(i++),radix);
-                if (digit < 0) {
+        if (len > 0) {
+            char firstChar = s.charAt(0);
+            if (firstChar < '0') { // Possible leading "-"
+                if (firstChar == '-') {
+                    negative = true;
+                    limit = Integer.MIN_VALUE;
+                } else
                     throw new NumberFormatException(
 /* #ifdef VERBOSE_EXCEPTIONS */
 /// skipped                               s
 /* #endif */
                     );
-                } else {
-                    result = -digit;
-                }
+
+                if (len == 1) // Cannot have lone "-"
+                    throw new NumberFormatException(
+/* #ifdef VERBOSE_EXCEPTIONS */
+/// skipped                               s
+/* #endif */
+                    );
+                i++;
             }
-            while (i < max) {
+            multmin = limit / radix;
+            while (i < len) {
                 // Accumulating negatively avoids surprises near MAX_VALUE
                 digit = Character.digit(s.charAt(i++),radix);
                 if (digit < 0) {
@@ -505,12 +618,43 @@ public final class Integer {
         return new Integer(parseInt(s, 10));
     }
 
+    private static class IntegerCache {
+        private IntegerCache(){}
+
+        static final Integer cache[] = new Integer[-(-128) + 127 + 1];
+
+        static {
+            for(int i = 0; i < cache.length; i++)
+                cache[i] = new Integer(i - 128);
+        }
+    }
+
+    /**
+     * Returns an {@code Integer} instance representing the specified
+     * {@code int} value.  If a new {@code Integer} instance is not
+     * required, this method should generally be used in preference to
+     * the constructor {@link #Integer(int)}, as this method is likely
+     * to yield significantly better space and time performance by
+     * caching frequently requested values.
+     *
+     * @param  i an {@code int} value.
+     * @return an {@code Integer} instance representing {@code i}.
+     * @since  1.5
+     */
+    public static Integer valueOf(int i) {
+        final int offset = 128;
+        if (i >= -128 && i <= 127) { // must cache
+            return IntegerCache.cache[i + offset];
+        }
+        return new Integer(i);
+    }
+
     /**
      * The value of the Integer.
      *
      * @serial
      */
-    private int value;
+    private final int value;
 
     /**
      * Constructs a newly allocated <code>Integer</code> object that
@@ -648,9 +792,458 @@ public final class Integer {
         return false;
     }
 
-    @Java5Marker
-    public static Integer valueOf(int i) {
-        return new Integer(i);
+    /**
+     * Determines the integer value of the system property with the
+     * specified name.
+     *
+     * <p>The first argument is treated as the name of a system property.
+     * System properties are accessible through the
+     * {@link java.lang.System#getProperty(java.lang.String)} method. The
+     * string value of this property is then interpreted as an integer
+     * value and an {@code Integer} object representing this value is
+     * returned. Details of possible numeric formats can be found with
+     * the definition of {@code getProperty}.
+     *
+     * <p>If there is no property with the specified name, if the specified name
+     * is empty or {@code null}, or if the property does not have
+     * the correct numeric format, then {@code null} is returned.
+     *
+     * <p>In other words, this method returns an {@code Integer}
+     * object equal to the value of:
+     *
+     * <blockquote>
+     *  {@code getInteger(nm, null)}
+     * </blockquote>
+     *
+     * @param   nm   property name.
+     * @return  the {@code Integer} value of the property.
+     * @see     java.lang.System#getProperty(java.lang.String)
+     * @see     java.lang.System#getProperty(java.lang.String, java.lang.String)
+     */
+    public static Integer getInteger(String nm) {
+        return getInteger(nm, null);
+    }
+
+    /**
+     * Determines the integer value of the system property with the
+     * specified name.
+     *
+     * <p>The first argument is treated as the name of a system property.
+     * System properties are accessible through the {@link
+     * java.lang.System#getProperty(java.lang.String)} method. The
+     * string value of this property is then interpreted as an integer
+     * value and an {@code Integer} object representing this value is
+     * returned. Details of possible numeric formats can be found with
+     * the definition of {@code getProperty}.
+     *
+     * <p>The second argument is the default value. An {@code Integer} object
+     * that represents the value of the second argument is returned if there
+     * is no property of the specified name, if the property does not have
+     * the correct numeric format, or if the specified name is empty or
+     * {@code null}.
+     *
+     * <p>In other words, this method returns an {@code Integer} object
+     * equal to the value of:
+     *
+     * <blockquote>
+     *  {@code getInteger(nm, new Integer(val))}
+     * </blockquote>
+     *
+     * but in practice it may be implemented in a manner such as:
+     *
+     * <blockquote><pre>
+     * Integer result = getInteger(nm, null);
+     * return (result == null) ? new Integer(val) : result;
+     * </pre></blockquote>
+     *
+     * to avoid the unnecessary allocation of an {@code Integer}
+     * object when the default value is not needed.
+     *
+     * @param   nm   property name.
+     * @param   val   default value.
+     * @return  the {@code Integer} value of the property.
+     * @see     java.lang.System#getProperty(java.lang.String)
+     * @see     java.lang.System#getProperty(java.lang.String, java.lang.String)
+     */
+    public static Integer getInteger(String nm, int val) {
+        Integer result = getInteger(nm, null);
+        return (result == null) ? new Integer(val) : result;
+    }
+
+    /**
+     * Returns the integer value of the system property with the
+     * specified name.  The first argument is treated as the name of a
+     * system property.  System properties are accessible through the
+     * {@link java.lang.System#getProperty(java.lang.String)} method.
+     * The string value of this property is then interpreted as an
+     * integer value, as per the {@code Integer.decode} method,
+     * and an {@code Integer} object representing this value is
+     * returned.
+     *
+     * <ul><li>If the property value begins with the two ASCII characters
+     *         {@code 0x} or the ASCII character {@code #}, not
+     *      followed by a minus sign, then the rest of it is parsed as a
+     *      hexadecimal integer exactly as by the method
+     *      {@link #valueOf(java.lang.String, int)} with radix 16.
+     * <li>If the property value begins with the ASCII character
+     *     {@code 0} followed by another character, it is parsed as an
+     *     octal integer exactly as by the method
+     *     {@link #valueOf(java.lang.String, int)} with radix 8.
+     * <li>Otherwise, the property value is parsed as a decimal integer
+     * exactly as by the method {@link #valueOf(java.lang.String, int)}
+     * with radix 10.
+     * </ul>
+     *
+     * <p>The second argument is the default value. The default value is
+     * returned if there is no property of the specified name, if the
+     * property does not have the correct numeric format, or if the
+     * specified name is empty or {@code null}.
+     *
+     * @param   nm   property name.
+     * @param   val   default value.
+     * @return  the {@code Integer} value of the property.
+     * @see     java.lang.System#getProperty(java.lang.String)
+     * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
+     * @see java.lang.Integer#decode
+     */
+    public static Integer getInteger(String nm, Integer val) {
+        String v = null;
+        try {
+            v = System.getProperty(nm);
+        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
+        }
+        if (v != null) {
+            try {
+                return Integer.decode(v);
+            } catch (NumberFormatException e) {
+            }
+        }
+        return val;
+    }
+
+    /**
+     * Decodes a {@code String} into an {@code Integer}.
+     * Accepts decimal, hexadecimal, and octal numbers given
+     * by the following grammar:
+     *
+     * <blockquote>
+     * <dl>
+     * <dt><i>DecodableString:</i>
+     * <dd><i>Sign<sub>opt</sub> DecimalNumeral</i>
+     * <dd><i>Sign<sub>opt</sub></i> {@code 0x} <i>HexDigits</i>
+     * <dd><i>Sign<sub>opt</sub></i> {@code 0X} <i>HexDigits</i>
+     * <dd><i>Sign<sub>opt</sub></i> {@code #} <i>HexDigits</i>
+     * <dd><i>Sign<sub>opt</sub></i> {@code 0} <i>OctalDigits</i>
+     * <p>
+     * <dt><i>Sign:</i>
+     * <dd>{@code -}
+     * </dl>
+     * </blockquote>
+     *
+     * <i>DecimalNumeral</i>, <i>HexDigits</i>, and <i>OctalDigits</i>
+     * are defined in <a href="http://java.sun.com/docs/books/jls/second_edition/html/lexical.doc.html#48282">&sect;3.10.1</a>
+     * of the <a href="http://java.sun.com/docs/books/jls/html/">Java
+     * Language Specification</a>.
+     *
+     * <p>The sequence of characters following an (optional) negative
+     * sign and/or radix specifier ("{@code 0x}", "{@code 0X}",
+     * "{@code #}", or leading zero) is parsed as by the {@code
+     * Integer.parseInt} method with the indicated radix (10, 16, or
+     * 8).  This sequence of characters must represent a positive
+     * value or a {@link NumberFormatException} will be thrown.  The
+     * result is negated if first character of the specified {@code
+     * String} is the minus sign.  No whitespace characters are
+     * permitted in the {@code String}.
+     *
+     * @param     nm the {@code String} to decode.
+     * @return    an {@code Integer} object holding the {@code int}
+     *             value represented by {@code nm}
+     * @exception NumberFormatException  if the {@code String} does not
+     *            contain a parsable integer.
+     * @see java.lang.Integer#parseInt(java.lang.String, int)
+     */
+    public static Integer decode(String nm) throws NumberFormatException {
+        int radix = 10;
+        int index = 0;
+        boolean negative = false;
+        Integer result;
+
+        if (nm.length() == 0)
+            throw new NumberFormatException("Zero length string");
+        char firstChar = nm.charAt(0);
+        // Handle sign, if present
+        if (firstChar == '-') {
+            negative = true;
+            index++;
+        }
+
+        // Handle radix specifier, if present
+        if (nm.startsWith("0x", index) || nm.startsWith("0X", index)) {
+            index += 2;
+            radix = 16;
+        }
+        else if (nm.startsWith("#", index)) {
+            index ++;
+            radix = 16;
+        }
+        else if (nm.startsWith("0", index) && nm.length() > 1 + index) {
+            index ++;
+            radix = 8;
+        }
+
+        if (nm.startsWith("-", index))
+            throw new NumberFormatException("Sign character in wrong position");
+
+        try {
+            result = Integer.valueOf(nm.substring(index), radix);
+            result = negative ? new Integer(-result.intValue()) : result;
+        } catch (NumberFormatException e) {
+            // If number is Integer.MIN_VALUE, we'll end up here. The next line
+            // handles this case, and causes any genuine format error to be
+            // rethrown.
+            String constant = negative ? ("-" + nm.substring(index))
+                                       : nm.substring(index);
+            result = Integer.valueOf(constant, radix);
+        }
+        return result;
+    }
+
+    /**
+     * Compares two {@code Integer} objects numerically.
+     *
+     * @param   anotherInteger   the {@code Integer} to be compared.
+     * @return  the value {@code 0} if this {@code Integer} is
+     *          equal to the argument {@code Integer}; a value less than
+     *          {@code 0} if this {@code Integer} is numerically less
+     *          than the argument {@code Integer}; and a value greater
+     *          than {@code 0} if this {@code Integer} is numerically
+     *           greater than the argument {@code Integer} (signed
+     *           comparison).
+     * @since   1.2
+     */
+    public int compareTo(Integer anotherInteger) {
+        int thisVal = this.value;
+        int anotherVal = anotherInteger.value;
+        return (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
+    }
+
+
+    // Bit twiddling
+
+    /**
+     * The number of bits used to represent an {@code int} value in two's
+     * complement binary form.
+     *
+     * @since 1.5
+     */
+    public static final int SIZE = 32;
+
+    /**
+     * Returns an {@code int} value with at most a single one-bit, in the
+     * position of the highest-order ("leftmost") one-bit in the specified
+     * {@code int} value.  Returns zero if the specified value has no
+     * one-bits in its two's complement binary representation, that is, if it
+     * is equal to zero.
+     *
+     * @return an {@code int} value with a single one-bit, in the position
+     *     of the highest-order one-bit in the specified value, or zero if
+     *     the specified value is itself equal to zero.
+     * @since 1.5
+     */
+    public static int highestOneBit(int i) {
+        // HD, Figure 3-1
+        i |= (i >>  1);
+        i |= (i >>  2);
+        i |= (i >>  4);
+        i |= (i >>  8);
+        i |= (i >> 16);
+        return i - (i >>> 1);
+    }
+
+    /**
+     * Returns an {@code int} value with at most a single one-bit, in the
+     * position of the lowest-order ("rightmost") one-bit in the specified
+     * {@code int} value.  Returns zero if the specified value has no
+     * one-bits in its two's complement binary representation, that is, if it
+     * is equal to zero.
+     *
+     * @return an {@code int} value with a single one-bit, in the position
+     *     of the lowest-order one-bit in the specified value, or zero if
+     *     the specified value is itself equal to zero.
+     * @since 1.5
+     */
+    public static int lowestOneBit(int i) {
+        // HD, Section 2-1
+        return i & -i;
+    }
+
+    /**
+     * Returns the number of zero bits preceding the highest-order
+     * ("leftmost") one-bit in the two's complement binary representation
+     * of the specified {@code int} value.  Returns 32 if the
+     * specified value has no one-bits in its two's complement representation,
+     * in other words if it is equal to zero.
+     *
+     * <p>Note that this method is closely related to the logarithm base 2.
+     * For all positive {@code int} values x:
+     * <ul>
+     * <li>floor(log<sub>2</sub>(x)) = {@code 31 - numberOfLeadingZeros(x)}
+     * <li>ceil(log<sub>2</sub>(x)) = {@code 32 - numberOfLeadingZeros(x - 1)}
+     * </ul>
+     *
+     * @return the number of zero bits preceding the highest-order
+     *     ("leftmost") one-bit in the two's complement binary representation
+     *     of the specified {@code int} value, or 32 if the value
+     *     is equal to zero.
+     * @since 1.5
+     */
+    public static int numberOfLeadingZeros(int i) {
+        // HD, Figure 5-6
+        if (i == 0)
+            return 32;
+        int n = 1;
+        if (i >>> 16 == 0) { n += 16; i <<= 16; }
+        if (i >>> 24 == 0) { n +=  8; i <<=  8; }
+        if (i >>> 28 == 0) { n +=  4; i <<=  4; }
+        if (i >>> 30 == 0) { n +=  2; i <<=  2; }
+        n -= i >>> 31;
+        return n;
+    }
+
+    /**
+     * Returns the number of zero bits following the lowest-order ("rightmost")
+     * one-bit in the two's complement binary representation of the specified
+     * {@code int} value.  Returns 32 if the specified value has no
+     * one-bits in its two's complement representation, in other words if it is
+     * equal to zero.
+     *
+     * @return the number of zero bits following the lowest-order ("rightmost")
+     *     one-bit in the two's complement binary representation of the
+     *     specified {@code int} value, or 32 if the value is equal
+     *     to zero.
+     * @since 1.5
+     */
+    public static int numberOfTrailingZeros(int i) {
+        // HD, Figure 5-14
+        int y;
+        if (i == 0) return 32;
+        int n = 31;
+        y = i <<16; if (y != 0) { n = n -16; i = y; }
+        y = i << 8; if (y != 0) { n = n - 8; i = y; }
+        y = i << 4; if (y != 0) { n = n - 4; i = y; }
+        y = i << 2; if (y != 0) { n = n - 2; i = y; }
+        return n - ((i << 1) >>> 31);
+    }
+
+    /**
+     * Returns the number of one-bits in the two's complement binary
+     * representation of the specified {@code int} value.  This function is
+     * sometimes referred to as the <i>population count</i>.
+     *
+     * @return the number of one-bits in the two's complement binary
+     *     representation of the specified {@code int} value.
+     * @since 1.5
+     */
+    public static int bitCount(int i) {
+        // HD, Figure 5-2
+        i = i - ((i >>> 1) & 0x55555555);
+        i = (i & 0x33333333) + ((i >>> 2) & 0x33333333);
+        i = (i + (i >>> 4)) & 0x0f0f0f0f;
+        i = i + (i >>> 8);
+        i = i + (i >>> 16);
+        return i & 0x3f;
+    }
+
+    /**
+     * Returns the value obtained by rotating the two's complement binary
+     * representation of the specified {@code int} value left by the
+     * specified number of bits.  (Bits shifted out of the left hand, or
+     * high-order, side reenter on the right, or low-order.)
+     *
+     * <p>Note that left rotation with a negative distance is equivalent to
+     * right rotation: {@code rotateLeft(val, -distance) == rotateRight(val,
+     * distance)}.  Note also that rotation by any multiple of 32 is a
+     * no-op, so all but the last five bits of the rotation distance can be
+     * ignored, even if the distance is negative: {@code rotateLeft(val,
+     * distance) == rotateLeft(val, distance & 0x1F)}.
+     *
+     * @return the value obtained by rotating the two's complement binary
+     *     representation of the specified {@code int} value left by the
+     *     specified number of bits.
+     * @since 1.5
+     */
+    public static int rotateLeft(int i, int distance) {
+        return (i << distance) | (i >>> -distance);
+    }
+
+    /**
+     * Returns the value obtained by rotating the two's complement binary
+     * representation of the specified {@code int} value right by the
+     * specified number of bits.  (Bits shifted out of the right hand, or
+     * low-order, side reenter on the left, or high-order.)
+     *
+     * <p>Note that right rotation with a negative distance is equivalent to
+     * left rotation: {@code rotateRight(val, -distance) == rotateLeft(val,
+     * distance)}.  Note also that rotation by any multiple of 32 is a
+     * no-op, so all but the last five bits of the rotation distance can be
+     * ignored, even if the distance is negative: {@code rotateRight(val,
+     * distance) == rotateRight(val, distance & 0x1F)}.
+     *
+     * @return the value obtained by rotating the two's complement binary
+     *     representation of the specified {@code int} value right by the
+     *     specified number of bits.
+     * @since 1.5
+     */
+    public static int rotateRight(int i, int distance) {
+        return (i >>> distance) | (i << -distance);
+    }
+
+    /**
+     * Returns the value obtained by reversing the order of the bits in the
+     * two's complement binary representation of the specified {@code int}
+     * value.
+     *
+     * @return the value obtained by reversing order of the bits in the
+     *     specified {@code int} value.
+     * @since 1.5
+     */
+    public static int reverse(int i) {
+        // HD, Figure 7-1
+        i = (i & 0x55555555) << 1 | (i >>> 1) & 0x55555555;
+        i = (i & 0x33333333) << 2 | (i >>> 2) & 0x33333333;
+        i = (i & 0x0f0f0f0f) << 4 | (i >>> 4) & 0x0f0f0f0f;
+        i = (i << 24) | ((i & 0xff00) << 8) |
+            ((i >>> 8) & 0xff00) | (i >>> 24);
+        return i;
+    }
+
+    /**
+     * Returns the signum function of the specified {@code int} value.  (The
+     * return value is -1 if the specified value is negative; 0 if the
+     * specified value is zero; and 1 if the specified value is positive.)
+     *
+     * @return the signum function of the specified {@code int} value.
+     * @since 1.5
+     */
+    public static int signum(int i) {
+        // HD, Section 2-7
+        return (i >> 31) | (-i >>> 31);
+    }
+
+    /**
+     * Returns the value obtained by reversing the order of the bytes in the
+     * two's complement representation of the specified {@code int} value.
+     *
+     * @return the value obtained by reversing the bytes in the specified
+     *     {@code int} value.
+     * @since 1.5
+     */
+    public static int reverseBytes(int i) {
+        return ((i >>> 24)           ) |
+               ((i >>   8) &   0xFF00) |
+               ((i <<   8) & 0xFF0000) |
+               ((i << 24));
     }
 
 }

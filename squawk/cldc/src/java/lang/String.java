@@ -1,4 +1,8 @@
 /*
+ * Copyright     2015, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  *
@@ -25,6 +29,7 @@
 package java.lang;
 
 import java.io.UnsupportedEncodingException;
+// import java.util.Formatter;
 
 import com.sun.cldc.i18n.*;
 import com.sun.squawk.GC;
@@ -90,7 +95,7 @@ import com.sun.squawk.util.Assert;
  * @see     java.lang.StringBuffer#append(java.lang.String)
  * @since   JDK1.0, CLDC 1.0
  */
-public final class String {
+public final class String implements CharSequence {
 
     /*
      * stringcopy - Must only be called from String(), see the code there.
@@ -251,6 +256,76 @@ public final class String {
     static String _init_(String self, char value[], int offset, int count) throws ReplacementConstructorPragma {
         return init(value, offset, count);
     }
+
+    // /**
+    //  * Allocates a new {@code String} that contains characters from a subarray
+    //  * of the <a href="Character.html#unicode">Unicode code point</a> array
+    //  * argument.  The {@code offset} argument is the index of the first code
+    //  * point of the subarray and the {@code count} argument specifies the
+    //  * length of the subarray.  The contents of the subarray are converted to
+    //  * {@code char}s; subsequent modification of the {@code int} array does not
+    //  * affect the newly created string.
+    //  *
+    //  * @param  codePoints
+    //  *         Array that is the source of Unicode code points
+    //  *
+    //  * @param  offset
+    //  *         The initial offset
+    //  *
+    //  * @param  count
+    //  *         The length
+    //  *
+    //  * @throws  IllegalArgumentException
+    //  *          If any invalid Unicode code point is found in {@code
+    //  *          codePoints}
+    //  *
+    //  * @throws  IndexOutOfBoundsException
+    //  *          If the {@code offset} and {@code count} arguments index
+    //  *          characters outside the bounds of the {@code codePoints} array
+    //  *
+    //  * @since  1.5
+    //  */
+    // public String(int[] codePoints, int offset, int count) {
+    //     if (offset < 0) {
+    //         throw new StringIndexOutOfBoundsException(offset);
+    //     }
+    //     if (count < 0) {
+    //         throw new StringIndexOutOfBoundsException(count);
+    //     }
+    //     // Note: offset or count might be near -1>>>1.
+    //     if (offset > codePoints.length - count) {
+    //         throw new StringIndexOutOfBoundsException(offset + count);
+    //     }
+
+    //     // Pass 1: Compute precise size of char[]
+    //     int n = 0;
+    //     for (int i = offset; i < offset + count; i++) {
+    //         int c = codePoints[i];
+    //         if (c >= Character.MIN_CODE_POINT &&
+    //             c <  Character.MIN_SUPPLEMENTARY_CODE_POINT)
+    //             n += 1;
+    //         else if (Character.isSupplementaryCodePoint(c))
+    //             n += 2;
+    //         else throw new IllegalArgumentException(Integer.toString(c));
+    //     }
+
+    //     // Pass 2: Allocate and fill in char[]
+    //     char[] v = new char[n];
+    //     for (int i = offset, j = 0; i < offset + count; i++) {
+    //         int c = codePoints[i];
+    //         if (c < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
+    //             v[j++] = (char) c;
+    //         } else {
+    //             Character.toSurrogates(c, v, j);
+    //             j += 2;
+    //         }
+    //     }
+
+    //     // this.value  = v;
+    //     // this.count  = v.length;
+    //     // this.offset = 0;
+    //     init(v, 0, v.length);
+    // }
 
     /**
      * Allocates a new <code>String</code> that contains characters from
@@ -451,6 +526,14 @@ public final class String {
         }
         return NativeUnsafe.getByte(this, index);
 //        return Character.codePointAtImpl(value, index, length());
+    }
+
+    /**
+     * Copy characters from this string into dst starting at dstBegin.
+     * This method doesn't perform any range checking.
+     */
+    void getChars(char dst[], int dstBegin) {
+        stringcopy(this, 0, dst, dstBegin, length());
     }
 
     /**
@@ -665,6 +748,59 @@ public final class String {
         }
         return len1 - len2;
     }
+
+    // /**
+    //  * Tests if two string regions are equal.
+    //  * <p>
+    //  * A substring of this <tt>String</tt> object is compared to a substring
+    //  * of the argument other. The result is true if these substrings
+    //  * represent identical character sequences. The substring of this
+    //  * <tt>String</tt> object to be compared begins at index <tt>toffset</tt>
+    //  * and has length <tt>len</tt>. The substring of other to be compared
+    //  * begins at index <tt>ooffset</tt> and has length <tt>len</tt>. The
+    //  * result is <tt>false</tt> if and only if at least one of the following
+    //  * is true:
+    //  * <ul><li><tt>toffset</tt> is negative.
+    //  * <li><tt>ooffset</tt> is negative.
+    //  * <li><tt>toffset+len</tt> is greater than the length of this
+    //  * <tt>String</tt> object.
+    //  * <li><tt>ooffset+len</tt> is greater than the length of the other
+    //  * argument.
+    //  * <li>There is some nonnegative integer <i>k</i> less than <tt>len</tt>
+    //  * such that:
+    //  * <tt>this.charAt(toffset+<i>k</i>)&nbsp;!=&nbsp;other.charAt(ooffset+<i>k</i>)</tt>
+    //  * </ul>
+    //  *
+    //  * @param   toffset   the starting offset of the subregion in this string.
+    //  * @param   other     the string argument.
+    //  * @param   ooffset   the starting offset of the subregion in the string
+    //  *                    argument.
+    //  * @param   len       the number of characters to compare.
+    //  * @return  <code>true</code> if the specified subregion of this string
+    //  *          exactly matches the specified subregion of the string argument;
+    //  *          <code>false</code> otherwise.
+    //  */
+    // public boolean regionMatches(int toffset, String other, int ooffset,
+    //                              int len) {
+    //     int to   = toffset;
+    //     int po   = ooffset;
+
+    //     /*
+    //      * Note: toffset, ooffset, or len might be near -1>>>1.
+    //      */
+    //     if ((ooffset < 0) || (toffset < 0) || (toffset > (long)length() - len)
+    //         || (ooffset > (long)other.length() - len)) {
+    //         return false;
+    //     }
+    //     while (len-- > 0) {
+    //         char c1 = NativeUnsafe.charAt(this, to++);
+    //         char c2 = NativeUnsafe.charAt(other, po++);
+    //         if (c1 != c2) {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
     /**
      * Tests if two string regions are equal.
@@ -1067,6 +1203,155 @@ public final class String {
     }
 
     /**
+     * Code shared by String and StringBuffer to do searches. The
+     * source is the character array being searched, and the target
+     * is the string being searched for.
+     *
+     * @param   source       the characters being searched.
+     * @param   sourceOffset offset of the source string.
+     * @param   sourceCount  count of the source string.
+     * @param   target       the characters being searched for.
+     * @param   targetOffset offset of the target string.
+     * @param   targetCount  count of the target string.
+     * @param   fromIndex    the index to begin searching from.
+     */
+    static int indexOf(char[] source, int sourceOffset, int sourceCount,
+                       char[] target, int targetOffset, int targetCount,
+                       int fromIndex) {
+        if (fromIndex >= sourceCount) {
+            return (targetCount == 0 ? sourceCount : -1);
+        }
+        if (fromIndex < 0) {
+            fromIndex = 0;
+        }
+        if (targetCount == 0) {
+            return fromIndex;
+        }
+
+        char first  = target[targetOffset];
+        int max = sourceOffset + (sourceCount - targetCount);
+
+        for (int i = sourceOffset + fromIndex; i <= max; i++) {
+            /* Look for first character. */
+            if (source[i] != first) {
+                while (++i <= max && source[i] != first);
+            }
+
+            /* Found first character, now look at the rest of v2 */
+            if (i <= max) {
+                int j = i + 1;
+                int end = j + targetCount - 1;
+                for (int k = targetOffset + 1; j < end && source[j] ==
+                         target[k]; j++, k++);
+
+                if (j == end) {
+                    /* Found whole string. */
+                    return i - sourceOffset;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the index within this string of the rightmost occurrence
+     * of the specified substring.  The rightmost empty string "" is
+     * considered to occur at the index value <code>this.length()</code>.
+     * The returned index is the largest value <i>k</i> such that
+     * <blockquote><pre>
+     * this.startsWith(str, k)
+     * </pre></blockquote>
+     * is true.
+     *
+     * @param   str   the substring to search for.
+     * @return  if the string argument occurs one or more times as a substring
+     *          within this object, then the index of the first character of
+     *          the last such substring is returned. If it does not occur as
+     *          a substring, <code>-1</code> is returned.
+     */
+    public int lastIndexOf(String str) {
+        return lastIndexOf(str, length());
+    }
+
+    /**
+     * Returns the index within this string of the last occurrence of the
+     * specified substring, searching backward starting at the specified index.
+     * The integer returned is the largest value <i>k</i> such that:
+     * <blockquote><pre>
+     *     k &lt;= Math.min(fromIndex, this.length()) && this.startsWith(str, k)
+     * </pre></blockquote>
+     * If no such value of <i>k</i> exists, then -1 is returned.
+     *
+     * @param   str         the substring to search for.
+     * @param   fromIndex   the index to start the search from.
+     * @return  the index within this string of the last occurrence of the
+     *          specified substring.
+     */
+    public int lastIndexOf(String str, int fromIndex) {
+        return lastIndexOf(toCharArray(), 0, length(),
+                           str.toCharArray(), 0, str.length(), fromIndex);
+    }
+
+    /**
+     * Code shared by String and StringBuffer to do searches. The
+     * source is the character array being searched, and the target
+     * is the string being searched for.
+     *
+     * @param   source       the characters being searched.
+     * @param   sourceOffset offset of the source string.
+     * @param   sourceCount  count of the source string.
+     * @param   target       the characters being searched for.
+     * @param   targetOffset offset of the target string.
+     * @param   targetCount  count of the target string.
+     * @param   fromIndex    the index to begin searching from.
+     */
+    static int lastIndexOf(char[] source, int sourceOffset, int sourceCount,
+                           char[] target, int targetOffset, int targetCount,
+                           int fromIndex) {
+        /*
+         * Check arguments; return immediately where possible. For
+         * consistency, don't check for null str.
+         */
+        int rightIndex = sourceCount - targetCount;
+        if (fromIndex < 0) {
+            return -1;
+        }
+        if (fromIndex > rightIndex) {
+            fromIndex = rightIndex;
+        }
+        /* Empty string always matches. */
+        if (targetCount == 0) {
+            return fromIndex;
+        }
+
+        int strLastIndex = targetOffset + targetCount - 1;
+        char strLastChar = target[strLastIndex];
+        int min = sourceOffset + targetCount - 1;
+        int i = min + fromIndex;
+
+    startSearchForLastChar:
+        while (true) {
+            while (i >= min && source[i] != strLastChar) {
+                i--;
+            }
+            if (i < min) {
+                return -1;
+            }
+            int j = i - 1;
+            int start = j - (targetCount - 1);
+            int k = strLastIndex - 1;
+
+            while (j > start) {
+                if (source[j--] != target[k--]) {
+                    i--;
+                    continue startSearchForLastChar;
+                }
+            }
+            return start - sourceOffset + 1;
+        }
+    }
+
+    /**
      * Returns a new string that is a substring of this string. The
      * substring begins with the character at the specified index and
      * extends to the end of this string. <p>
@@ -1125,6 +1410,38 @@ public final class String {
         } else {
             return new String(this, beginIndex, endIndex - beginIndex);
         }
+    }
+
+    /**
+     * Returns a new character sequence that is a subsequence of this sequence.
+     *
+     * <p> An invocation of this method of the form
+     *
+     * <blockquote><pre>
+     * str.subSequence(begin,&nbsp;end)</pre></blockquote>
+     *
+     * behaves in exactly the same way as the invocation
+     *
+     * <blockquote><pre>
+     * str.substring(begin,&nbsp;end)</pre></blockquote>
+     *
+     * This method is defined so that the <tt>String</tt> class can implement
+     * the {@link CharSequence} interface. </p>
+     *
+     * @param      beginIndex   the begin index, inclusive.
+     * @param      endIndex     the end index, exclusive.
+     * @return     the specified subsequence.
+     *
+     * @throws  IndexOutOfBoundsException
+     *          if <tt>beginIndex</tt> or <tt>endIndex</tt> are negative,
+     *          if <tt>endIndex</tt> is greater than <tt>length()</tt>,
+     *          or if <tt>beginIndex</tt> is greater than <tt>startIndex</tt>
+     *
+     * @since 1.4
+     * @spec JSR-51
+     */
+    public CharSequence subSequence(int beginIndex, int endIndex) {
+        return this.substring(beginIndex, endIndex);
     }
 
     /**
@@ -1314,6 +1631,48 @@ public final class String {
         return result;
     }
 
+    // /**
+    //  * Returns a formatted string using the specified format string and
+    //  * arguments.
+    //  *
+    //  * <p> The locale always used is the one returned by {@link
+    //  * java.util.Locale#getDefault() Locale.getDefault()}.
+    //  *
+    //  * @param  format
+    //  *         A <a href="../util/Formatter.html#syntax">format string</a>
+    //  *
+    //  * @param  args
+    //  *         Arguments referenced by the format specifiers in the format
+    //  *         string.  If there are more arguments than format specifiers, the
+    //  *         extra arguments are ignored.  The number of arguments is
+    //  *         variable and may be zero.  The maximum number of arguments is
+    //  *         limited by the maximum dimension of a Java array as defined by
+    //  *         the <a href="http://java.sun.com/docs/books/vmspec/">Java
+    //  *         Virtual Machine Specification</a>.  The behaviour on a
+    //  *         <tt>null</tt> argument depends on the <a
+    //  *         href="../util/Formatter.html#syntax">conversion</a>.
+    //  *
+    //  * @throws  IllegalFormatException
+    //  *          If a format string contains an illegal syntax, a format
+    //  *          specifier that is incompatible with the given arguments,
+    //  *          insufficient arguments given the format string, or other
+    //  *          illegal conditions.  For specification of all possible
+    //  *          formatting errors, see the <a
+    //  *          href="../util/Formatter.html#detail">Details</a> section of the
+    //  *          formatter class specification.
+    //  *
+    //  * @throws  NullPointerException
+    //  *          If the <tt>format</tt> is <tt>null</tt>
+    //  *
+    //  * @return  A formatted string
+    //  *
+    //  * @see  java.util.Formatter
+    //  * @since  1.5
+    //  */
+    // public static String format(String format, Object ... args) {
+    //     return new Formatter().format(format, args).toString();
+    // }
+
     /**
      * Returns the string representation of the <code>Object</code> argument.
      *
@@ -1367,6 +1726,33 @@ public final class String {
      */
     public static String valueOf(char data[], int offset, int count) {
         return new String(data, offset, count);
+    }
+
+    /**
+     * Returns a String that represents the character sequence in the
+     * array specified.
+     *
+     * @param   data     the character array.
+     * @param   offset   initial offset of the subarray.
+     * @param   count    length of the subarray.
+     * @return  a <code>String</code> that contains the characters of the
+     *          specified subarray of the character array.
+     */
+    public static String copyValueOf(char data[], int offset, int count) {
+        // All public String constructors now copy the data.
+        return new String(data, offset, count);
+    }
+
+    /**
+     * Returns a String that represents the character sequence in the
+     * array specified.
+     *
+     * @param   data   the character array.
+     * @return  a <code>String</code> that contains the characters of the
+     *          character array.
+     */
+    public static String copyValueOf(char data[]) {
+        return copyValueOf(data, 0, data.length);
     }
 
     /**

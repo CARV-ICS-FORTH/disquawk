@@ -17,7 +17,7 @@ public class IrregularSpectralCurve extends SpectralCurve {
      * Define an irregular spectral curve from the provided (sorted) wavelengths
      * and amplitude data. The wavelength array is assumed to contain values in
      * nanometers. Array lengths must match.
-     * 
+     *
      * @param wavelengths sampled wavelengths in nm
      * @param amplitudes amplitude of the curve at the sampled points
      */
@@ -25,10 +25,10 @@ public class IrregularSpectralCurve extends SpectralCurve {
         this.wavelengths = wavelengths;
         this.amplitudes = amplitudes;
         if (wavelengths.length != amplitudes.length)
-            throw new RuntimeException(String.format("Error creating irregular spectral curve: %d wavelengths and %d amplitudes", wavelengths.length, amplitudes.length));
+            throw new RuntimeException("Error creating irregular spectral curve: "+wavelengths.length+" wavelengths and "+amplitudes.length+" amplitudes");
         for (int i = 1; i < wavelengths.length; i++)
             if (wavelengths[i - 1] >= wavelengths[i])
-                throw new RuntimeException(String.format("Error creating irregular spectral curve: values are not sorted - error at index %d", i));
+                throw new RuntimeException("Error creating irregular spectral curve: values are not sorted - error at index "+ i);
     }
 
     public float sample(float lambda) {

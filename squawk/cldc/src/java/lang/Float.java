@@ -222,9 +222,52 @@ class Float /*extends Number*/ {
     }
 
     /**
-     * Returns the bit represention of a single-float value
+     * Returns a representation of the specified floating-point value
+     * according to the IEEE 754 floating-point "single format" bit
+     * layout.
+     *
+     * <p>Bit 31 (the bit that is selected by the mask
+     * {@code 0x80000000}) represents the sign of the floating-point
+     * number.
+     * Bits 30-23 (the bits that are selected by the mask
+     * {@code 0x7f800000}) represent the exponent.
+     * Bits 22-0 (the bits that are selected by the mask
+     * {@code 0x007fffff}) represent the significand (sometimes called
+     * the mantissa) of the floating-point number.
+     *
+     * <p>If the argument is positive infinity, the result is
+     * {@code 0x7f800000}.
+     *
+     * <p>If the argument is negative infinity, the result is
+     * {@code 0xff800000}.
+     *
+     * <p>If the argument is NaN, the result is {@code 0x7fc00000}.
+     *
+     * <p>In all cases, the result is an integer that, when given to the
+     * {@link #intBitsToFloat(int)} method, will produce a floating-point
+     * value the same as the argument to {@code floatToIntBits}
+     * (except all NaN values are collapsed to a single
+     * "canonical" NaN value).
+     *
+     * @param   value   a floating-point number.
+     * @return the bits that represent the floating-point number.
      */
     public static int floatToIntBits(float value) {
+        int result = floatToRawIntBits(value);
+        // FIXME
+        // // Check for NaN based on values of bit fields, maximum
+        // // exponent and nonzero significand.
+        // if ( ((result & FloatConsts.EXP_BIT_MASK) ==
+        //       FloatConsts.EXP_BIT_MASK) &&
+        //      (result & FloatConsts.SIGNIF_BIT_MASK) != 0)
+        //     result = 0x7fc00000;
+        return result;
+    }
+
+    /**
+     * Returns the bit represention of a single-float value
+     */
+    public static int floatToRawIntBits(float value) {
         return VM.floatToIntBits(value);
     }
 

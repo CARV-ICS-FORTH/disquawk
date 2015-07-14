@@ -67,7 +67,11 @@ public class Scene {
      * @return number of threads that can be started
      */
     public int getThreads() {
-        return threads <= 0 ? Runtime.getRuntime().availableProcessors() : threads;
+        if (threads <= 0) {
+            System.out.println("Please specify the number of threads.  Running with one thread.");
+            return 1;
+        }
+        return threads;
     }
 
     /**

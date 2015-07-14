@@ -2,14 +2,19 @@ package org.sunflow.util;
 
 import java.util.Iterator;
 
+/*if[JAVA5SYNTAX]*/
+import com.sun.squawk.Java5Marker;
+/*end[JAVA5SYNTAX]*/
+
 /**
  * Fast hash map implementation which uses array storage along with quadratic
  * probing to resolve collisions. The capacity is doubled when the load goes
  * beyond 50% and is halved when the load drops below 20%.
- * 
+ *
  * @param <K>
  * @param <V>
  */
+@Java5Marker
 public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
     private static final int MIN_SIZE = 4;
 
@@ -127,7 +132,7 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
     /**
      * Resize internal storage to the specified capacity. The capacity must be a
      * power of two.
-     * 
+     *
      * @param capacity new capacity for the internal array
      */
     private void resize(int capacity) {
@@ -155,7 +160,7 @@ public class FastHashMap<K, V> implements Iterable<FastHashMap.Entry<K, V>> {
     /**
      * Wrap the entry array allocation because it requires silencing some
      * generics warnings.
-     * 
+     *
      * @param size number of elements to allocate
      * @return
      */

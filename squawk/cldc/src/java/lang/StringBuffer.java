@@ -1,22 +1,22 @@
 /*
  * Copyright 1994-2008 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * only, as published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included in the LICENSE file that accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 16 Network Circle, Menlo
  * Park, CA 94025 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -87,7 +87,10 @@ import com.sun.squawk.pragma.*;
  * @since   JDK1.0
  */
 
-public final class StringBuffer {
+public final class StringBuffer
+    extends AbstractStringBuilder
+    implements CharSequence
+{
 
     /**
      * The value is used for character storage.
@@ -107,7 +110,7 @@ public final class StringBuffer {
      * Track if we are certain that the buffer only contains 8-bit characters.
      */
     private byte encoding; // = IS_EIGHT_BIT == default field value
-    
+
     /** This are bit encodings that may be ORd together */
     private final static int IS_EIGHT_BIT = 0;
     private final static int IS_NOT_EIGHT_BIT = 1;
@@ -188,26 +191,6 @@ public final class StringBuffer {
         if (minimumCapacity > value.length) {
             expandCapacity(minimumCapacity);
         }
-    }
-
-    /**
-     * This implements the expansion semantics of ensureCapacity but is
-     * unsynchronized for use internally by methods which are already
-     * synchronized.
-     *
-     * @see java.lang.StringBuffer#ensureCapacity(int)
-     */
-    private void expandCapacity(int minimumCapacity) {
-        int newCapacity = (value.length + 1) * 2;
-        if (newCapacity < 0) {
-            newCapacity = Integer.MAX_VALUE;
-        } else if (minimumCapacity > newCapacity) {
-            newCapacity = minimumCapacity;
-        }
-
-        char newValue[] = new char[newCapacity];
-        System.arraycopy(value, 0, newValue, 0, count);
-        value = newValue;
     }
 
     /**
@@ -963,7 +946,7 @@ public final class StringBuffer {
         if (encoding == IS_EIGHT_BIT) {
             return true;
         } else if (encoding == IS_NOT_EIGHT_BIT) {
-			return false;
+            return false;
         }
 
         // remove uncertainty
@@ -978,9 +961,5 @@ public final class StringBuffer {
             }
         }
     }
-    
-    final char[] getValue() { return value; }
 
 }
-
-
