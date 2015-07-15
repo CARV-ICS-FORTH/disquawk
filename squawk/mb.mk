@@ -432,16 +432,18 @@ $(VM_SRC)/vm2c.c.spp: vm2c/classes.jar cldc/classes.jar \
 
 
 run: $(ELF)
+	$(eval LOGFILE := $(shell basename $(APP))$(shell date +'%Y%m%d%H%M').log)
 	$(AT)echo $(STR_RUN) $<
-	$(AT)rm -f run.log
+	$(AT)rm -f $(LOGFILE)
 	$(AT)time $(MYRMICS_SRC)/../client -pwr_formic -boot formic -elf $(ELF) \
-		| tee run.log
+		| tee $(LOGFILE)
 
 tracerun: $(ELF) map
+	$(eval LOGFILE := $(shell basename $(APP))$(shell date +'%Y%m%d%H%M').log)
 	$(AT)echo $(STR_RUN) $<
-	$(AT)rm -f run.log
+	$(AT)rm -f $(LOGFILE)
 	$(AT)$(MYRMICS_SRC)/../client -pwr_formic -boot formic -elf $(ELF) \
-		| ./traceviewer.rb | tee run.log
+		| ./traceviewer.rb | tee $(LOGFILE)
 
 # Create the bootstrap suite
 squawk.suite: romizer/classes.jar cldc/classes.jar build.jar
@@ -452,8 +454,8 @@ squawk.suite: romizer/classes.jar cldc/classes.jar build.jar
 		-cp:./cldc/j2meclasses/:./cldc/resources/: -java5cp:./cldc/classes: \
 		./cldc/j2meclasses ./cldc/resources
 
-trace: all_suites.sym run.log
-	$(AT)$(BUILDER) traceviewer -sp: -map:$^
+# trace: all_suites.sym run.log
+# 	$(AT)$(BUILDER) traceviewer -sp: -map:$^
 
 ################################################################################
 # Create the suite maps (useful to translate the traces)
@@ -575,8 +577,7 @@ clean:
 			../formic-tests/*/classes\
 			../formic-apps/*/classes\
 			$(RTS_SRC)/*.c.spp.preprocessed\
-			$(APP)/classes\
-			run.log
+			$(APP)/classes
 
 distclean: clean
 	$(AT)echo $(STR_CLN) DIST
