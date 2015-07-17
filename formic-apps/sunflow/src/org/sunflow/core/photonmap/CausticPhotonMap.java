@@ -265,14 +265,14 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
             dist2[0] = maxDist2;
         }
 
-        void reset(Point3 p, float maxDist2) {
-            found = 0;
-            gotHeap = false;
-            px = p.x;
-            py = p.y;
-            pz = p.z;
-            dist2[0] = maxDist2;
-        }
+        // void reset(Point3 p, float maxDist2) {
+        //     found = 0;
+        //     gotHeap = false;
+        //     px = p.x;
+        //     py = p.y;
+        //     pz = p.z;
+        //     dist2[0] = maxDist2;
+        // }
 
         void checkAddNearest(Photon p) {
             float fdist2 = p.getDist2(px, py, pz);

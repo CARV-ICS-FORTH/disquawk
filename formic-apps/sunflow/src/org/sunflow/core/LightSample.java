@@ -23,14 +23,14 @@ public class LightSample {
         next = null;
     }
 
-    boolean isValid() {
-        return ldiff != null && lspec != null && shadowRay != null;
-    }
+    // boolean isValid() {
+    //     return ldiff != null && lspec != null && shadowRay != null;
+    // }
 
     /**
      * Set the current shadow ray. The ray's direction is used as the sample's
      * orientation.
-     * 
+     *
      * @param shadowRay shadow ray from the point being shaded towards the light
      */
     public void setShadowRay(Ray shadowRay) {
@@ -40,7 +40,7 @@ public class LightSample {
     /**
      * Trace the shadow ray, attenuating the sample's color by the opacity of
      * intersected objects.
-     * 
+     *
      * @param state shading state representing the point to be shaded
      */
     public final void traceShadow(ShadingState state) {
@@ -51,7 +51,7 @@ public class LightSample {
 
     /**
      * Get the sample's shadow ray.
-     * 
+     *
      * @return shadow ray
      */
     public Ray getShadowRay() {
@@ -60,7 +60,7 @@ public class LightSample {
 
     /**
      * Get diffuse radiance.
-     * 
+     *
      * @return diffuse radiance
      */
     public Color getDiffuseRadiance() {
@@ -69,7 +69,7 @@ public class LightSample {
 
     /**
      * Get specular radiance.
-     * 
+     *
      * @return specular radiance
      */
     public Color getSpecularRadiance() {
@@ -81,7 +81,7 @@ public class LightSample {
      * source. These should usually be the same, but are distinguished to allow
      * for non-physical light setups or light source types which compute diffuse
      * and specular responses seperately.
-     * 
+     *
      * @param d diffuse radiance
      * @param s specular radiance
      */
@@ -93,7 +93,7 @@ public class LightSample {
     /**
      * Compute a dot product between the current shadow ray direction and the
      * specified vector.
-     * 
+     *
      * @param v direction vector
      * @return dot product of the vector with the shadow ray direction
      */
