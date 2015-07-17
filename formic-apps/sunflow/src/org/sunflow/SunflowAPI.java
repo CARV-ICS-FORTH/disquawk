@@ -242,17 +242,18 @@ public class SunflowAPI {
      *
      * @param name parameter name
      * @param type parameter data type
-     * @param interpolation parameter interpolation mode
+     * @param interp parameter interpolation mode
      * @param data raw floating point data
      */
-    public final void parameter(String name, String type, String interpolation, float[] data) {
-        InterpolationType interp;
-        try {
-            interp = InterpolationType.valueOf(interpolation.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            UI.printError(Module.API, "Unknown interpolation type: %s -- ignoring parameter \"%s\"", interpolation, name);
-            return;
-        }
+    public final void parameter(String name, String type, InterpolationType interp, float[] data) {
+        // InterpolationType interp;
+        // try {
+        //     interp = InterpolationType.valueOf(interpolation.toUpperCase());
+        // } catch (IllegalArgumentException e) {
+        //     UI.printError(Module.API, "Unknown interpolation type: %s -- ignoring parameter \"%s\"",
+        //                   interpolation.toUpperCase(), name);
+        //     return;
+        // }
         if (type.equals("float"))
             parameterList.addFloats(name, interp, data);
         else if (type.equals("point"))

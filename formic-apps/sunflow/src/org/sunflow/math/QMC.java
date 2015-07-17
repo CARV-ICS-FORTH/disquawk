@@ -9,7 +9,7 @@ public final class QMC {
     private static final int[] PRIMES = new int[NUM];
 
     static {
-        UI.printInfo(Module.QMC, "Initializing Faure scrambling tables ...");
+        // UI.printInfo(Module.QMC, "Initializing Faure scrambling tables ...");
         // build table of first primes
         PRIMES[0] = 2;
         for (int i = 1; i < PRIMES.length; i++)

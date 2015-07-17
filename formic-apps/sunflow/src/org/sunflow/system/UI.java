@@ -49,8 +49,8 @@ public final class UI {
             StringBuffer buf = new StringBuffer();
             buf.append(s);
             for (Object o : args) {
-                buf.append(o);
                 buf.append(" ");
+                buf.append(o);
             }
             // ui.print(m, PrintLevel.DETAIL, String.format(s, args));
             ui.print(m, PrintLevel.DETAIL, buf.toString());
@@ -62,8 +62,8 @@ public final class UI {
             StringBuffer buf = new StringBuffer();
             buf.append(s);
             for (Object o : args) {
-                buf.append(o);
                 buf.append(" ");
+                buf.append(o);
             }
             // ui.print(m, PrintLevel.INFO, String.format(s, args));
             ui.print(m, PrintLevel.INFO, buf.toString());
@@ -75,8 +75,8 @@ public final class UI {
             StringBuffer buf = new StringBuffer();
             buf.append(s);
             for (Object o : args) {
-                buf.append(o);
                 buf.append(" ");
+                buf.append(o);
             }
             // ui.print(m, PrintLevel.WARN, String.format(s, args));
             ui.print(m, PrintLevel.WARN, buf.toString());
@@ -88,8 +88,8 @@ public final class UI {
             StringBuffer buf = new StringBuffer();
             buf.append(s);
             for (Object o : args) {
-                buf.append(o);
                 buf.append(" ");
+                buf.append(o);
             }
             // ui.print(m, PrintLevel.ERROR, String.format(s, args));
             ui.print(m, PrintLevel.ERROR, buf.toString());

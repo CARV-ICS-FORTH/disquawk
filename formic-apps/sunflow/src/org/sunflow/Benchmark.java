@@ -10,6 +10,7 @@ import org.sunflow.core.Display;
 import org.sunflow.core.Tesselatable;
 import org.sunflow.core.camera.PinholeLens;
 // import org.sunflow.core.display.FileDisplay;
+import org.sunflow.core.ParameterList.InterpolationType;
 import org.sunflow.core.light.TriangleMeshLight;
 import org.sunflow.core.primitive.Sphere;
 import org.sunflow.core.primitive.TriangleMesh;
@@ -176,7 +177,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
 
             // build walls
             parameter("triangles", indices);
-            parameter("points", "point", "vertex", verts);
+            parameter("points", "point", InterpolationType.VERTEX, verts);
             parameter("faceshaders", new int[] { 0, 0, 0, 0, 1, 1, 0, 0, 2, 2 });
             geometry("walls", new TriangleMesh());
 
@@ -186,7 +187,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
             instance("walls.instance", "walls");
 
             // create mesh light
-            parameter("points", "point", "vertex", new float[] { -50, maxY - 1,
+            parameter("points", "point", InterpolationType.VERTEX, new float[] { -50, maxY - 1,
                     -50, 50, maxY - 1, -50, 50, maxY - 1, 50, -50, maxY - 1, 50 });
             parameter("triangles", new int[] { 0, 1, 2, 2, 3, 0 });
             parameter("radiance", emit);
