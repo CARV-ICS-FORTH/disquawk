@@ -468,12 +468,12 @@ all_suites.sym: squawk.suite.map FormicApp.suite.map
 FormicApp.suite.map: FormicApp.suite mapper/classes.jar build.jar
 	$(AT)echo $(STR_BLD) $@
 	$(AT)$(BUILDER) map -nofielddefs -notypemap \
-		-cp:$(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ $<
+		-cp:$(APP)/preverified/:./cldc/classes:./cldc/j2meclasses/ $<
 
 squawk.suite.map: squawk.suite mapper/classes.jar build.jar
 	$(AT)echo $(STR_BLD) $@
 	$(AT)$(BUILDER) map -nofielddefs -notypemap \
-		-cp:$(APP)/classes/:./cldc/classes:./cldc/j2meclasses/ $<
+		-cp:$(APP)/preverified/:./cldc/classes:./cldc/j2meclasses/ $<
 ################################################################################
 
 
@@ -577,6 +577,8 @@ clean:
 			../formic-tests/*/classes\
 			../formic-apps/*/classes\
 			$(RTS_SRC)/*.c.spp.preprocessed\
+			$(APP)/retro\
+			$(APP)/preverified\
 			$(APP)/classes
 
 distclean: clean

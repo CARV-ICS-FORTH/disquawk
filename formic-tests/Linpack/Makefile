@@ -6,4 +6,4 @@ MAIN=Linpack
 FormicApp.suite:
 	$(AT)echo $(STR_ROM) $@
 	$(AT)cd $(APP); ant
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -arch:formic -endian:little -o:FormicApp -cp:$(APP)/classes/preverified -parent:squawk $(MAIN)
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -arch:formic -endian:little -o:FormicApp -cp:$(APP)/preverified -parent:squawk $(MAIN)

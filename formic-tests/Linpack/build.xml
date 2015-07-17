@@ -5,6 +5,10 @@
 
   <property name="classes.dir"
             value="${basedir}/classes"/>
+  <property name="retro.dir"
+            value="${basedir}/retro"/>
+  <property name="preverify.dir"
+            value="${basedir}/preverified"/>
   <property name="src.dir"
             value="${basedir}/src"/>
   <property name="debug"
@@ -21,12 +25,18 @@
   <property name="jdk.level.src" value="1.4"/>
   <property name="jdk.level.tgt" value="1.4"/>
 
+  <!-- Basic targets -->
   <target name="init">
+    <available file="${resources.dir}" type="dir" property="resources.present" />
     <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${retro.dir}"/>
+    <mkdir dir="${preverify.dir}"/>
   </target>
 
-  <target name="clean" description="Remove build files.">
-    <delete dir="${classes.dir}"/>
+  <target name="clean" description="Remove build files">
+    <delete dir="${classes.dir}" />
+    <delete dir="${retro.dir}" />
+    <delete dir="${preverify.dir}" />
   </target>
 
   <target name="compile" depends="init"
@@ -35,8 +45,7 @@
            destdir="${classes.dir}"
            includes="**/*.java"
            source="${jdk.level.src}"
-           target="${jdk.level.tgt}"
-           bootclasspath="${squawk.dir}/cldc/j2meclasses"
+           bootclasspath="${squawk.dir}/cldc/classes:${squawk.dir}/cldc/j2meclasses"
            debug="true"
            includeantruntime="false">
       <compilerarg value="-Xlint:unchecked"/>
@@ -44,19 +53,36 @@
     </javac>
   </target>
 
-  <target name="build" depends="compile"
-          description="Build in ${build.dir}/release">
-    <echo message="Compiling done..."/>
+  <target name="retrotranslate"
+          depends="compile"
+          description="Retrotranslate classes in ${classes.dir}">
+    <!-- Execute preverify on classes. -->
+    <java jar="${retro.jar}"
+          fork="true"
+          failonerror="true">
+      <arg line="-target 1.4"/>
+      <arg line="-destdir ${retro.dir}"/>
+      <arg line="-srcdir ${classes.dir}"/>
+      <arg line="-smart"/>
+      <arg line="-syncvolatile"/>
+      <arg line="-retainapi"/>
+      <arg line="-stripsign"/>
+      <arg line="-stripannot"/>
+      <arg line="-reflection safe"/>
+      <arg line="-verify"/>
+      <arg line="-uptodatecheck"/>
+      <arg line="-classpath ${classes.dir}:${squawk.dir}/cldc/j2meclasses"/>
+    </java>
   </target>
 
   <target name="preverify"
-          depends="build"
-          description="Preverify classes in ${classes.dir}">
+          depends="retrotranslate"
+          description="Preverify classes in ${retro.dir}">
     <!-- Find class files. -->
-    <fileset dir="${classes.dir}" id="tmp">
+    <fileset dir="${retro.dir}" id="tmp">
       <patternset>
         <include name="**/*.class"/>
-        <exclude name="preverified/**/*.class"/>
+        <!-- <exclude name="preverified/**/*.class"/> -->
       </patternset>
     </fileset>
 
@@ -66,7 +92,7 @@
     <pathconvert pathsep=" "
                  property="unverified"
                  refid="tmp">
-      <packagemapper from="${classes.dir}/*.class"
+      <packagemapper from="${retro.dir}/*.class"
                      to="*"/>
     </pathconvert>
 
@@ -74,19 +100,17 @@
     <exec dir="${classes.dir}"
           executable="${j2me.bin}/preverify"
           failonerror="true">
-      <arg line="-classpath ${classes.dir}:${squawk.dir}/cldc/j2meclasses"/>
+      <arg line="-classpath ${retro.dir}:${squawk.dir}/cldc/j2meclasses"/>
       <!-- <arg line="-verbose"/> -->
-      <arg line="-d ${classes.dir}/preverified"/>
+      <arg line="-d ${preverify.dir}"/>
       <arg line="${unverified}"/>
     </exec>
-
-    <echo message="Preverifying done..."/>
   </target>
 
   <target name="run"
-          depends="init, compile"
+          depends="preverify"
           description="Run the benchmark">
-    <java classpath="${classes.dir}"
+    <java classpath="${preverify.dir}"
           classname="Linpack"
           fork="true"/>
   </target>

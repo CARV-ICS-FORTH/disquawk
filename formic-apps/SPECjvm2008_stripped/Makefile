@@ -6,4 +6,4 @@ MAIN=spec.harness.Launch
 FormicApp.suite:
 	$(AT)ant
 	$(AT)echo $(STR_ROM) $@
-	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -arch:$(ARCH) -endian:little -o:FormicApp -cp:$(APP)/classes/preverified -parent:squawk $(MAIN)
+	$(AT)$(BUILDER) $(BUILDER_FLAGS) romize -arch:$(ARCH) -endian:little -o:FormicApp -cp:$(APP)/preverified -parent:squawk $(MAIN)
