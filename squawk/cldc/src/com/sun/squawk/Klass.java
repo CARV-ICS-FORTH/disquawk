@@ -1806,6 +1806,10 @@ public class Klass<T> {
 						}
 						if (!isAbstract()) {
 							if (virtualMethods[i] == null && !isSquawkPrimitive()) {
+								// VM.print("method ");
+								// VM.print(i);
+								// VM.print(" not defined in: ");
+								// VM.println(getInternalName());
 								virtualMethods[i] = OBJECT.virtualMethods[MethodOffsets.virtual$java_lang_Object$abstractMethodError];
 								Assert.always(virtualMethods[i] != null);
 							}

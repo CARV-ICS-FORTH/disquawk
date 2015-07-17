@@ -736,6 +736,7 @@ public final class Isolate implements Runnable {
         // VM.print("This is " + Integer.toHexString(objaddr) + "\n");
         // objaddr = Address.fromObject(monitorHashtable).toUWord().toPrimitive();
         // VM.print("Hashtable is " + Integer.toHexString(objaddr) + "\n");
+        Assert.that(obj != null);
         Assert.that(monitorHashtable != null);
         monitor = (Monitor)monitorHashtable.get(obj);
 
