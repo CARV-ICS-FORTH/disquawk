@@ -92,19 +92,19 @@ public final class StringBuffer
     implements CharSequence
 {
 
-    /**
-     * The value is used for character storage.
-     *
-     * @serial
-     */
-    private char value[];
+    // /**
+    //  * The value is used for character storage.
+    //  *
+    //  * @serial
+    //  */
+    // private char value[];
 
-    /**
-     * The count is the number of characters in the buffer.
-     *
-     * @serial
-     */
-    private int count;
+    // /**
+    //  * The count is the number of characters in the buffer.
+    //  *
+    //  * @serial
+    //  */
+    // private int count;
 
     /**
      * Track if we are certain that the buffer only contains 8-bit characters.
@@ -121,7 +121,8 @@ public final class StringBuffer
      * initial capacity of 16 characters.
      */
     public StringBuffer() {
-        this(16);
+        // this(16);
+        super(16);
     }
 
     /**
@@ -133,8 +134,9 @@ public final class StringBuffer
      *               argument is less than <code>0</code>.
      */
     public StringBuffer(int length) {
+        super(length);
         Assert.that(encoding == IS_EIGHT_BIT); // the null char is 8-bit
-        value = new char[length];
+        // value = new char[length];
     }
 
     /**
@@ -147,7 +149,7 @@ public final class StringBuffer
      * @param   str   the initial contents of the buffer.
      */
     public StringBuffer(String str) {
-        this(str.length() + 16);
+        super(str.length() + 16);
         append(str); // append will update isEightBit as needed.
     }
 
