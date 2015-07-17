@@ -151,9 +151,9 @@
   </target>
 
   <target name="run"
-          depends="compile"
+          depends="preverify"
           description="Compile and run on X86">
-    <java classname="jembench.Main" fork="true" classpath="${classes.dir}:${resources.dir}">
+    <java classname="org.sunflow.Benchmark" fork="true" classpath="${preverify.dir}:${resources.dir}">
       <jvmarg value="-Xint"/>
       <jvmarg value="-XX:+PrintGC"/>
       <jvmarg value="-Xms1024M"/>
