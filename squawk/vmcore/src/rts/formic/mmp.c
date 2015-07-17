@@ -83,8 +83,19 @@ mmpCheckMailbox(Address type)
 	Address      result;
 	Address      object;
 
+#ifdef VERY_VERBOSE
+	if (sysGetCore() == 0 && sysGetIsland() == 0) {
+		kt_printf("IN mmpCheckMailbox\n");
+		ar_uart_flush();
+	}
+#endif /* ifdef VERY_VERBOSE */
+
 	/* First check to see if there are any messages (non blocking) */
 	if ((ar_mbox_status_get(sysGetCore()) & 0xFFFF) == 0) {
+		/* Set message type (OP) to NOP */
+		if (type != NULL)
+			set_java_lang_Integer_value(type, MMP_OPS_NOP);
+
 		return NULL;
 	}
 
@@ -97,6 +108,14 @@ mmpCheckMailbox(Address type)
 	cid      = (msg0 >> 16) & 0x7;
 	bid      = (msg0 >> 19) & 0x3F;
 
+#ifdef VERY_VERBOSE
+	if (sysGetCore() == 0 && sysGetIsland() == 0) {
+		kt_printf("IN mmpCheckMailbox msg_type=%d\n", msg_type);
+		ar_uart_flush();
+	}
+#endif /* ifdef VERY_VERBOSE */
+
+	/* Set message type (OP) */
 	if (type != NULL)
 		set_java_lang_Integer_value(type, msg_type);
 
@@ -133,6 +152,8 @@ mmpCheckMailbox(Address type)
 		 * the monitor
 		 */
 		object = (Address)ar_mbox_get(sysGetCore());
+		/* kt_printf("IN mmpCheckMailbox object=%p\n", object);
+		 * ar_uart_flush(); */
 
 #  ifdef MMGR_QUEUE
 		/* Since we added queues at the lock manager we should always

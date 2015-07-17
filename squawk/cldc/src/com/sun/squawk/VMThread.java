@@ -1776,17 +1776,33 @@ public final class VMThread implements GlobalStaticFields {
 		 * Although msg_op is used to return the msg type we
 		 * initialize it to get rid of warnings
 		 */
-		msg_op = 0;
+		msg_op = MMP.OPS_NOP;
 
 		/*
 		 * Loop until there is something to do.
 		 */
 		while (true) {
 
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("msg_op (before)=");
+			// 	VM.print(msg_op);
+			// 	VM.print("\n");
+			// }
 			/*
 			 * Always Query the mailbox for new messages.
 			 */
 			object = MMP.checkMailbox(msg_op);
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("object=");
+			// 	if (object!=null)
+			// 		VM.print("notnull");
+			// 	else
+			// 		VM.print("null");
+			// 	VM.print("\n");
+			// 	VM.print("msg_op=");
+			// 	VM.print(msg_op);
+			// 	VM.print("\n");
+			// }
 			switch(msg_op) {
 			case MMP.OPS_TH_SPAWN: {
 				// There is a new thread for us
@@ -1812,9 +1828,13 @@ public final class VMThread implements GlobalStaticFields {
 				// this thread already yielded at least once to wait
 				// for the monitor manager to reply.
 
+				Assert.that(object != null);
+				// VM.print("MMP.OPS_MNTR_ACK\n");
 				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
+				// VM.print("got monitor\n");
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeMonitorWait();
+				// VM.print("removed monitor\n");
 
 				Assert.that(waiter != null);
 				Assert.that(monitor.owner == null);
@@ -1828,6 +1848,7 @@ public final class VMThread implements GlobalStaticFields {
 				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeCondvarWait();
+				// VM.print("MMP.OPS_MNTR_NOTIFICATION\n");
 
 				if (waiter == null) {
 					/*
@@ -1847,6 +1868,7 @@ public final class VMThread implements GlobalStaticFields {
 				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeCondvarWait();
+				// VM.print("MMP.OPS_MNTR_NOTIFICATION_ALL\n");
 
 				while (waiter != null) {
 					addToRunnableThreadsQueue(waiter);
@@ -1860,6 +1882,7 @@ public final class VMThread implements GlobalStaticFields {
 				thread = events.findEvent(GC.getHashCode(object));
 				Assert.that(thread != null);
 				thread.setResult(object);
+				// VM.print("MMP.OPS_*_ACK\n");
 				addToRunnableThreadsQueue(thread);
 				break;
 			}
@@ -1869,10 +1892,14 @@ public final class VMThread implements GlobalStaticFields {
 				thread = events.findEvent(GC.getHashCode(object));
 				Assert.that(thread != null);
 				thread.setResult(null);
+				// VM.print("MMP.OPS_*_NACK\n");
 				addToRunnableThreadsQueue(thread);
 				break;
 			}
+			case MMP.OPS_NOP:
+				break;
 			default:
+				VM.print("WARNING: msg_op="+msg_op+" is not supported\n");
 				break;
 			}
 
@@ -1910,6 +1937,7 @@ public final class VMThread implements GlobalStaticFields {
 					 */
 					thread.setNotInQueue(Q_TIMER);
 				}
+				// VM.print("Time is up\n");
 				addToRunnableThreadsQueue(thread);
 			}
 			// VM.println("Break if there is something to do.");
@@ -1917,6 +1945,7 @@ public final class VMThread implements GlobalStaticFields {
 			 * Break if there is something to do.
 			 */
 			if ((thread = runnableThreads.next()) != null) {
+				// VM.print("check mbox done\n");
 				// VM.print("Found something to run\n");
 				break;
 			}
@@ -2120,6 +2149,7 @@ public final class VMThread implements GlobalStaticFields {
 		}
 /*end[DEBUG_CODE_ENABLED]*/
 
+		// VM.print("rescheduleNext\n");
 		rescheduleNext();        // Select the next thread
 		VM.threadSwitch();       // and switch
 
@@ -2222,6 +2252,7 @@ public final class VMThread implements GlobalStaticFields {
 	private static void signalEvent(int event) {
 		VMThread thread = events.findEvent(event);
 		if (thread != null) {
+			// VM.print("signalEvent\n");
 			addToRunnableThreadsQueue(thread);
 		}
 	}
@@ -2285,6 +2316,7 @@ public final class VMThread implements GlobalStaticFields {
 
 		VMThread thread = osevents.findEvent(event);
 		if (thread != null) {
+			// VM.print("signalOSEvent\n");
 			addToRunnableThreadsQueue(thread);
 		} else {
 			VM.print("!!! no thread found waiting on event");
@@ -2379,6 +2411,7 @@ public final class VMThread implements GlobalStaticFields {
 				/* assign the monitor to the waiter, but do not set
 				 * the depth to 1 to avoid double locking */
 				monitor.owner = waiter;
+				// VM.print("releaseMonitor\n");
 				addFirstToRunnableThreadsQueue(waiter);
 
 				// NOTE: The unblocked thread is still not guaranteed
@@ -2436,6 +2469,7 @@ public final class VMThread implements GlobalStaticFields {
 				 * this thread already yielded at least once to wait
 				 * for the monitor manager to reply.
 				 */
+				// VM.print("waitReleasemonitor\n");
 				addFirstToRunnableThreadsQueue(waiter);
 				/*
 				 * NOTE: The unblocked thread is still not guaranteed
@@ -2478,6 +2512,7 @@ public final class VMThread implements GlobalStaticFields {
 	static private void retryMonitor(Object object) {
 		// see if we can get montitor now.
 		currentThread.checkInvarients();
+		// VM.print("RETRY monitorenter\n");
 		Monitor monitor = VMThread.monitorEnter(object);
 
 //traceMonitor("retryMonitor: Now has the lock: ", monitor, object);
@@ -2545,6 +2580,7 @@ public final class VMThread implements GlobalStaticFields {
 				monitor = VM.getCurrentIsolate().getMonitor(object);
 				Assert.that(monitor != null);
 				Assert.that(monitor.owner != currentThread);
+				// VM.println("Yield for monitor\n");
 				VMThread.yield();
 			} while (monitor.owner != null);
 			/*
@@ -2567,6 +2603,7 @@ public final class VMThread implements GlobalStaticFields {
 //    }
 */
 
+			// VM.print("monitorEnter:\n");
 			/*
 			 * Add to the wait queue
 			 */
@@ -2784,6 +2821,7 @@ public final class VMThread implements GlobalStaticFields {
 			timerQueue.remove(waiter);
 			// allow waiter to be runnable,
 			// the waiter will have to contend for the lock.
+			// VM.print("monitorNotify\n");
 			addToRunnableThreadsQueue(waiter);
 		}
 		else {
@@ -2808,6 +2846,7 @@ public final class VMThread implements GlobalStaticFields {
 				waiter = monitor.removeCondvarWait();
 				// allow waiter to be runnable,
 				// the waiter will have to contend for the lock.
+				// VM.print("monitorNotify 2\n");
 				addToRunnableThreadsQueue(waiter);
 			}
 		}
@@ -2849,11 +2888,11 @@ public final class VMThread implements GlobalStaticFields {
 	 * Declare the thread to be in a queue.
 	 */
 	final void setInQueue(byte name) {
-//VM.print(this.name);
-//VM.print("::setInQueue: inqueue=");
-//VM.print(inqueue);
-//VM.print(" name=");
-//VM.println(name);
+// VM.print(this.name);
+// VM.print("::setInQueue: inqueue=");
+// VM.print(inqueue);
+// VM.print(" name=");
+// VM.println(name);
 		Assert.that(isServiceThread() ? name == Q_NONE : true); // service thread waits for no-one?
 
 		Assert.that(monitor == null); // monitor should only be set after setInQueue(Q_CONDVAR)
@@ -2867,11 +2906,11 @@ public final class VMThread implements GlobalStaticFields {
 	 * Declare the thread to be not in a queue.
 	 */
 	final void setNotInQueue(byte name) {
-//VM.print(this.name);
-//VM.print("::setNotInQueue: inqueue=");
-//VM.print(inqueue);
-//VM.print(" name=");
-//VM.println(name);
+// VM.print(this.name);
+// VM.print("::setNotInQueue: inqueue=");
+// VM.print(inqueue);
+// VM.print(" name=");
+// VM.println(name);
 		Assert.that(inqueue == name);
 
 		// **** NEVER try to single step with the debugger past the next statement ****
@@ -2915,6 +2954,7 @@ public final class VMThread implements GlobalStaticFields {
 				// Move this thread to the runnable thread queue
 				waitingToJoin = null;
 				this.setNotInQueue(Q_JOIN);
+				// VM.print("interrupt 1\n");
 				addToRunnableThreadsQueue(this);
 			}
 
@@ -2930,11 +2970,13 @@ public final class VMThread implements GlobalStaticFields {
 
 				// allow waiter to be runnable,
 				// the waiter will have to contend for the lock.
+				// VM.print("interrupt 2\n");
 				addToRunnableThreadsQueue(this);
 			} else {
 				if (inQueue(Q_TIMER)) {
 					timerQueue.remove(this);
 					this.setNotInQueue(Q_TIMER);
+					// VM.print("interrupt 3\n");
 					addToRunnableThreadsQueue(this);
 				}
 			}
