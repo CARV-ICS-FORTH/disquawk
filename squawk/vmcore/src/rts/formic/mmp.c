@@ -59,6 +59,7 @@ mmpSpawnThread(Address thread)
 	msg0 = (sysGetIsland() << 19) | (sysGetCore() << 16) | MMP_OPS_TH_SPAWN;
 
 	schdlrNext(&target_bid, &target_cid);
+	/* Write back all dirty data (this is a release action) */
 	sc_flush(SC_BLOCKING);
 
 	mmpSend2(target_bid, target_cid, msg0, (unsigned int)thread);
@@ -136,12 +137,6 @@ mmpCheckMailbox(Address type)
 		 * from the proper cache.
 		 */
 		sc_put(object, cid);
-		/*
-		 * TODO: After fetching it we should create an exact local copy!
-		 * FIXME: Now in case it gets out of our software cache it might
-		 * get refetched from the other board's main memory where it might
-		 * be outdated.
-		 */
 		/* kt_printf("Our new thread %p is in cache\n", object); */
 		result = object;
 		break;

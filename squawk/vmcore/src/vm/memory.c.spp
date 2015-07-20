@@ -1157,8 +1157,6 @@ void setInt(Address base, Offset offset, int value) {
  * @param base   the base address
  * @param offset the offset to a field in the object
  */
-/* FIXME: Mark the object pointed by $value as "shared", since it can
- * escape at anytime. */
 /*MAC*/ void setObjectAndUpdateWriteBarrier(Address $base, Offset $offset, Address $value) {
 	Address ea;
 	setObject($base, $offset, $value);
@@ -1186,6 +1184,12 @@ void setInt(Address base, Offset offset, int value) {
 		setBitFor(ea);
 	}
 /*end[WRITE_BARRIER]*/
+
+	/* TODO-FIXME: Mark $value as shared since it can now escape
+	   anytime.  Possible optimization: Only mark as shared when it
+	   gets written in cacheable memory and check when we "ship"
+	   objects to remote cores to do the same. */
+	/* printf("%p marked as shared\n", $base, ea); */
 }
 
 /**
