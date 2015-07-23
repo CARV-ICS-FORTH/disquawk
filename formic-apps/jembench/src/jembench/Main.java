@@ -141,7 +141,7 @@ public final class Main {
 
 	private static void runParallelBenchmarks() {
 		System.out.println("Parallel Benchmarks:");
-		execute(new jembench.EnumeratedParallelBenchmark());
+		// execute(new jembench.EnumeratedParallelBenchmark());
 		execute(new jembench.parallel.MatrixMul());
 		execute(new jembench.parallel.NQueens());
 		if (USE_FLOAT)
