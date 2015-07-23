@@ -100,7 +100,8 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 	/**
 	 * The default size of the young generation as a percent of the heap size.
 	 */
-	private final static int DEFAULT_YOUNG_GENERATION_PERCENT = 20;
+	// HACK make the whole memory be the young generation
+	private final static int DEFAULT_YOUNG_GENERATION_PERCENT = 100;
 
 	/**
 	 * The marking stack.
