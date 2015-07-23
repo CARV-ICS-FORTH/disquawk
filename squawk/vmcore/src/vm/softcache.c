@@ -678,7 +678,8 @@ block_to_oop(Address obj, Address oop, int cid)
 
 		/* Check if we brought the whole instance or not */
 		/* start = sysGetTicks(); */
-		size = com_sun_squawk_Klass_instanceSizeBytes(klass);
+		size = com_sun_squawk_Klass_instanceSizeBytes(klass) +
+		       HDR_basicHeaderSize;
 		/* end   = sysGetTicks();
 		 * printf("Find size took %10u cc \n", end - start); */
 		/* printf("Klass size = %d\n", size); */
@@ -690,7 +691,7 @@ block_to_oop(Address obj, Address oop, int cid)
 		if (unlikely(size > sysGetCachelineSize())) {
 			/* start            = sysGetTicks(); */
 			cacheAllocTemp_g = oop;
-			oop              = challoc(size + HDR_basicHeaderSize);
+			oop              = challoc(size);
 			/* Fetch data */
 			/* printf("Fetch again = %d (%p -- %p) Name=%s\n", size, (Address) *
 			 *        (int*)cacheAllocTemp_g, obj,
@@ -709,20 +710,21 @@ block_to_oop(Address obj, Address oop, int cid)
 		/* Check if we brought the whole array or not */
 		length = (*(int*)oop) >> 2;
 		size   = length *
-		         getDataSize(com_sun_squawk_Klass_componentType(klass));
+		         getDataSize(com_sun_squawk_Klass_componentType(klass)) +
+		         HDR_arrayHeaderSize;
 		/* printf("Array [%d] size = %d\n", length, size); */
 
 		/*
 		 * If the instance size times the array elements is larger
 		 * than the cache-line we need to fetch the rest
 		 */
-		if (unlikely(size > sysGetCachelineSize())) {
+		if (likely(size > sysGetCachelineSize())) {
 			/*
 			 * TODO: Do something smarter for arrays (don't bring the
 			 * whole array if we don't need it)
 			 */
 			cacheAllocTemp_g = oop;
-			oop              = challoc(size + HDR_arrayHeaderSize);
+			oop              = challoc(size);
 			/* Fetch data */
 			fetch(obj, oop, size, cid);
 		}
