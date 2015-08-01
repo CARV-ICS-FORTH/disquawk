@@ -25,3 +25,7 @@ extern char* dma_buffer_address;
 
 #endif	/* IO_METAL_H */
 
+ * Copyright     2015, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)

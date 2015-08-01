@@ -15,6 +15,10 @@
   *
   * The Initial Developer of the Original Code is
   * Paul Kocher of Cryptography Research.
+ * Copyright     2015, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
   * Portions created by the Initial Developer are Copyright (C) 1995-9
   * the Initial Developer. All Rights Reserved.
   *

@@ -1,5 +1,9 @@
 /**** Created by Squawk builder from "vmcore/src/vm/platform.h.spp.preprocessed"
  * ****/ /*
+ * Copyright     2015, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright 2004-2010 Sun Microsystems, Inc. All Rights Reserved.
  * Copyright 2011 Oracle Corporation. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
