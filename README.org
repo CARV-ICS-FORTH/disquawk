@@ -1,0 +1,29 @@
+* DiSquawk 
+
+Distributed Squawk (DiSquawk) is a Java Virtual Machine (JVM) that
+implements the Java Memory Model on non cache coherent architectures.
+
+DiSquawk is being developed and tested on a 520-core prototype built
+using the [[https://github.com/CARV-ICS-FORTH/formic][Formic Board]].  DiSquawk is originally based on the [[https://java.net/projects/squawk/pages/SquawkDevelopment][Squawk]]
+JVM and the core libraries of [[https://github.com/CARV-ICS-FORTH/myrmics][Myrmics]].
+
+** Limitations
+
+- There is no Garbage Collection.
+- There is no filesystem support.
+- Sockets are not implemented.
+- A few classes from the Java library are missing (CLDC and J2ME
+  based).
+
+** Contact
+
+If you are interested in this work and would like to get access to
+more information please contact me at zakkak@ics.forth.gr
+
+** Acknowledgements
+
+This work was supported by the /GreenVM/ project on Energy-Efficient
+Runtimes for Scalable Multicore Architectures (project #1643), which
+is being implemented under the /ARISTEIA/ Action of the "Operational
+Programme on Education and Lifelong Learning", co-funded by the
+European Social Fund (ESF) and Greek National Resources.
