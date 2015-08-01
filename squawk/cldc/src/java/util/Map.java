@@ -1,4 +1,8 @@
 /*
+ * Copyright     2015, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright (c) 1997, 2006, Oracle and/or its affiliates. All rights reserved.
  * @(#)Map.java	1.39 03/01/23
  *

@@ -1,4 +1,8 @@
 /*
+ * Copyright     2015, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright (c) 2009 Sun Microsystems, Inc.
  * All rights reserved.
  * Use is subject to license terms.
