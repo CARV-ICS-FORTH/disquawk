@@ -1,4 +1,8 @@
 /*
+ * Copyright     2015, FORTH-ICS / CARV
+ *                    (Foundation for Research & Technology -- Hellas,
+ *                     Institute of Computer Science,
+ *                     Computer Architecture & VLSI Systems Laboratory)
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -462,7 +466,3 @@ public interface Condition {
      */
     void signalAll();
 }
- * Copyright     2015, FORTH-ICS / CARV
- *                    (Foundation for Research & Technology -- Hellas,
- *                     Institute of Computer Science,
- *                     Computer Architecture & VLSI Systems Laboratory)

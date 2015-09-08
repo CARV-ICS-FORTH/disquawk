@@ -1,7 +1,2 @@
 Manifest-Version: 1.0
 X-COMMENT: Main-Class will be added automatically by build
-
- * Copyright     2015, FORTH-ICS / CARV
- *                    (Foundation for Research & Technology -- Hellas,
- *                     Institute of Computer Science,
- *                     Computer Architecture & VLSI Systems Laboratory)
