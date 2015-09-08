@@ -2219,8 +2219,11 @@ public final class VMThread implements GlobalStaticFields {
 //      startFinalizers();
 /*end[FINALIZATION]*/
 		VMThread t = currentThread;
+		Object ret;
 		t.setInQueue(VMThread.Q_EVENT);
-		events.put(event, t);
+		ret = events.put(event, t);
+		// We do not want to have double events for the same thing
+		Assert.that(ret == null);
 		Assert.that(t.nextThread == null);
 	}
 
