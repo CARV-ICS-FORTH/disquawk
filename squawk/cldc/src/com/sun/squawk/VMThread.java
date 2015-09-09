@@ -1772,11 +1772,16 @@ public final class VMThread implements GlobalStaticFields {
 		VMThread thread;
 		Thread   javathread;
 
+		// if (VM.getCore() == 0 && VM.getIsland() == 0)
+		// 	VM.print("IN rescheduleNext\n");
 		/*
 		 * Although msg_op is used to return the msg type we
 		 * initialize it to get rid of warnings
 		 */
 		msg_op = MMP.OPS_NOP;
+
+		// if (VM.getCore() == 0 && VM.getIsland() == 0)
+		// 	VM.print("msg_op set\n");
 
 		/*
 		 * Loop until there is something to do.
@@ -1903,6 +1908,8 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 
+			// if (VM.getCore() == 0 && VM.getIsland() == 0)
+			// 	VM.print("After switch\n");
 			/* TODO: Check pending DMAs and retry if they failed */
 
 			/*
@@ -1913,6 +1920,8 @@ public final class VMThread implements GlobalStaticFields {
 				signalEvent(event);
 			}
 
+			// if (VM.getCore() == 0 && VM.getIsland() == 0)
+			// 	VM.print("After event\n");
 			/*
 			 * Add any threads waiting for a certain time that are now due.
 			 */
@@ -1940,7 +1949,8 @@ public final class VMThread implements GlobalStaticFields {
 				// VM.print("Time is up\n");
 				addToRunnableThreadsQueue(thread);
 			}
-			// VM.println("Break if there is something to do.");
+			// if (VM.getCore() == 0 && VM.getIsland() == 0)
+			// 	VM.print("After event\n");
 			/*
 			 * Break if there is something to do.
 			 */
@@ -1949,6 +1959,8 @@ public final class VMThread implements GlobalStaticFields {
 				// VM.print("Found something to run\n");
 				break;
 			}
+			// if (VM.getCore() == 0 && VM.getIsland() == 0)
+			// 	VM.print("Runnable\n");
 
 // 			/*
 // 			 * Wait for an event or until timeout.
