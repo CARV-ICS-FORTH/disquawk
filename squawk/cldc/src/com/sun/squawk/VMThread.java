@@ -2552,10 +2552,11 @@ public final class VMThread implements GlobalStaticFields {
 		// VM.print("ramEnd = ");
 		// VM.print(Integer.toHexString(GC.ramEnd.toUWord().toPrimitive()));
 		// VM.println();
-		if (!GC.inHeap(object)) {
+		if (!SoftwareCache.inHeap(object)) {
 			// VM.print("Not in ram\n");
 			return null;
 		}
+		// VM.print("In ram\n");
 
 		currentThread.checkInvarients();
 		Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
@@ -2632,7 +2633,7 @@ public final class VMThread implements GlobalStaticFields {
 	 * @param object the object to be unsynchronized
 	 */
 	static void monitorExit(Object object) {
-		if (!GC.inHeap(object))
+		if (!SoftwareCache.inHeap(object))
 			return;
 
 		currentThread.checkInvarients();
@@ -2728,7 +2729,7 @@ public final class VMThread implements GlobalStaticFields {
 	 *             current thread is cleared when this exception is thrown.
 	 */
 	public static void monitorWait(Object object, long delta) throws InterruptedException {
-		if (!GC.inHeap(object))
+		if (!SoftwareCache.inHeap(object))
 			return;
 
 		VMThread theCurrentThread = VMThread.currentThread;
@@ -2795,7 +2796,7 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	public static void monitorNotify(Object object, boolean notifyAll) {
 
-		if (!GC.inHeap(object))
+		if (!SoftwareCache.inHeap(object))
 			return;
 
 		/*
