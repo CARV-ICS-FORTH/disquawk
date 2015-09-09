@@ -3539,6 +3539,12 @@ public class Klass<T> {
 	final Object initializeInternal() {
 		boolean nosync = (this.onlyFinalStatics == 1);
 
+		// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+		// 	VM.print("Initialize klass ");
+		// 	if (name != null)
+		// 		VM.print(name);
+		// 	VM.print("\n");
+		// }
 		/*
 		 * Allow initialization of:
 		 *
@@ -3565,6 +3571,9 @@ public class Klass<T> {
 		}
 
 		if (nosync) {
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("Step 2\n");
+			// }
 			/*
 			 * Step 2
 			 *
@@ -3577,6 +3586,9 @@ public class Klass<T> {
 						VMThread.yield();
 					} while (getInitializationState() == INITSTATE_INITIALIZING);
 				} else {
+					// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+					// 	VM.print("Step 3\n");
+					// }
 					/*
 					 * Step 3
 					 *
@@ -3588,6 +3600,9 @@ public class Klass<T> {
 					return getInitializationClassState();
 				}
 			}
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("Step 4\n");
+			// }
 			/*
 			 * Step 4
 			 *
@@ -3598,6 +3613,9 @@ public class Klass<T> {
 			if (getInitializationState() == INITSTATE_INITIALIZED) {
 				return getClassState();
 			}
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("Step 5\n");
+			// }
 			/*
 			 * Step 5
 			 *
@@ -3608,6 +3626,9 @@ public class Klass<T> {
 			if (getInitializationState() == INITSTATE_FAILED) {
 				throw new NoClassDefFoundError(name);
 			}
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("Step 6\n");
+			// }
 			/*
 			 * Step 6
 			 *
@@ -3623,6 +3644,9 @@ public class Klass<T> {
 			setInitializationState(VMThread.currentThread()); // state = INITIALIZING);
 		}
 		else {
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("Step 1\n");
+			// }
 			/*
 			 * For each class or interface C , there is a unique
 			 * initialization lock LC . The mapping from C to LC is left
@@ -3636,6 +3660,9 @@ public class Klass<T> {
 			 * involves waiting until the current thread can acquire LC .
 			 */
 			synchronized(this) {
+				// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+				// 	VM.print("Step 2\n");
+				// }
 				/*
 				 * Step 2
 				 *
@@ -3654,6 +3681,9 @@ public class Klass<T> {
 							} catch (InterruptedException e) {}
 						} while (getInitializationState() == INITSTATE_INITIALIZING);
 					} else {
+						// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+						// 	VM.print("Step 3\n");
+						// }
 						/*
 						 * Step 3
 						 *
@@ -3666,6 +3696,9 @@ public class Klass<T> {
 						return getInitializationClassState();
 					}
 				}
+				// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+				// 	VM.print("Step 4\n");
+				// }
 				/*
 				 * Step 4
 				 *
@@ -3676,6 +3709,9 @@ public class Klass<T> {
 				if (getInitializationState() == INITSTATE_INITIALIZED) {
 					return getClassState();
 				}
+				// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+				// 	VM.print("Step 5\n");
+				// }
 				/*
 				 * Step 5
 				 *
@@ -3686,6 +3722,9 @@ public class Klass<T> {
 				if (getInitializationState() == INITSTATE_FAILED) {
 					throw new NoClassDefFoundError(name);
 				}
+				// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+				// 	VM.print("Step 6\n");
+				// }
 				/*
 				 * Step 6
 				 *
@@ -3701,6 +3740,9 @@ public class Klass<T> {
 				setInitializationState(VMThread.currentThread()); // state = INITIALIZING);
 			}
 		}
+		// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+		// 	VM.print("Step 7\n");
+		// }
 		/*
 		 * Step 7
 		 *
@@ -3718,6 +3760,9 @@ public class Klass<T> {
 			if (superType != null &&
 			    superType.mustClinit() &&
 			    superType.getInitializationState() != INITSTATE_INITIALIZED) {
+				// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+				// 	VM.print("Super init\n");
+				// }
 				try {
 					superType.initializeInternal();
 				} catch(Error ex) {
@@ -3735,7 +3780,13 @@ public class Klass<T> {
 					VM.fatalVMError();
 				}
 			}
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("NO Super init\n");
+			// }
 		}
+		// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+		// 	VM.print("Step 8\n");
+		// }
 		/*
 		 * Step 8
 		 *
@@ -3745,6 +3796,10 @@ public class Klass<T> {
 		 */
 		try {
 
+
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("Step 9\n");
+			// }
 			/*
 			 * Step 9
 			 *
@@ -3761,6 +3816,9 @@ public class Klass<T> {
 
 			clinit();
 
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("Step 10\n");
+			// }
 			/*
 			 * Step 10
 			 *
@@ -3773,6 +3831,8 @@ public class Klass<T> {
 				Object cs = getInitializationClassState();
 				Assert.that(NativeUnsafe.getObject(cs, CS.klass) == this);
 				VM.getCurrentIsolate().addClassState(cs);
+				// if (VM.getCore() == 0 && VM.getIsland() == 0)
+				// 	VM.print("Add class state to cache\n");
 				removeInitializationState(); // state = INITIALIZED;
 				return cs;
 			}
@@ -3780,6 +3840,8 @@ public class Klass<T> {
 				synchronized(this) {
 					Object cs = getInitializationClassState();
 					Assert.that(NativeUnsafe.getObject(cs, CS.klass) == this);
+					// if (VM.getCore() == 0 && VM.getIsland() == 0)
+					// 	VM.print("Add class state to cache\n");
 					VM.getCurrentIsolate().addClassState(cs);
 					removeInitializationState(); // state = INITIALIZED;
 					notifyAll();
@@ -3869,6 +3931,9 @@ public class Klass<T> {
 	final void clinit() {
 		int index = getClinitIndex();
 		if (index >= 0) {
+			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
+			// 	VM.print("Run init method\n");
+			// }
 			// Verbose trace.
 			if (VM.isVeryVerbose()) {
 				VM.print("[initializing ");
