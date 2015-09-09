@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MonitorBench"
+         default="preverify"
+         basedir=".">
+
+  <property name="classes.dir"
+            value="${basedir}/classes"/>
+  <property name="retro.dir"
+            value="${basedir}/retro"/>
+  <property name="preverify.dir"
+            value="${basedir}/preverified"/>
+  <property name="src.dir"
+            value="${basedir}/src"/>
+  <property name="squawk.dir"
+            value="${basedir}/../../squawk"/>
+  <property name="cldc.dir"
+            value="${squawk}/cldc/"/>
+  <property name="tools.dir"
+            value="${squawk.dir}/tools"/>
+  <property name="j2me.bin"
+            value="${tools.dir}/linux-x86"/>
+  <property name="retro.jar"
+            value="${tools.dir}/Retrotranslator-1.2.9-bin/retrotranslator-transformer-1.2.9.jar"/>
+
+  <property name="jdk.level.src" value="1.5"/>
+  <property name="jdk.level.tgt" value="jsr14"/>
+
+  <!-- Basic targets -->
+  <target name="init">
+    <available file="${resources.dir}" type="dir" property="resources.present" />
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${retro.dir}"/>
+    <mkdir dir="${preverify.dir}"/>
+  </target>
+
+  <target name="clean" description="Remove build files">
+    <delete dir="${classes.dir}" />
+    <delete dir="${retro.dir}" />
+    <delete dir="${preverify.dir}" />
+  </target>
+
+
+  <!-- build directory targets -->
+  <target name="compile" depends="init"
+          description="Compile the classes to folder ${classes.dir}">
+    <javac srcdir="${src.dir}"
+           destdir="${classes.dir}"
+           source="${jdk.level.src}"
+           bootclasspath="${squawk.dir}/cldc/classes:${squawk.dir}/cldc/j2meclasses"
+           debug="true"
+           includeantruntime="false">
+      <compilerarg line="-Xmaxerrs 10"/>
+    </javac>
+  </target>
+
+  <target name="retrotranslate"
+          depends="compile"
+          description="Retrotranslate classes in ${classes.dir}">
+    <!-- Execute preverify on classes. -->
+    <java jar="${retro.jar}"
+          fork="true"
+          failonerror="true">
+      <arg line="-target 1.4"/>
+      <arg line="-destdir ${retro.dir}"/>
+      <arg line="-srcdir ${classes.dir}"/>
+      <arg line="-smart"/>
+      <arg line="-syncvolatile"/>
+      <arg line="-retainapi"/>
+      <arg line="-stripsign"/>
+      <arg line="-stripannot"/>
+      <arg line="-reflection safe"/>
+      <arg line="-verify"/>
+      <arg line="-uptodatecheck"/>
+      <arg line="-classpath ${classes.dir}:${squawk.dir}/cldc/j2meclasses"/>
+    </java>
+  </target>
+
+  <target name="preverify"
+          depends="retrotranslate"
+          description="Preverify classes in ${retro.dir}">
+    <!-- Find class files. -->
+    <fileset dir="${retro.dir}" id="tmp">
+      <patternset>
+        <include name="**/*.class"/>
+        <!-- <exclude name="preverified/**/*.class"/> -->
+      </patternset>
+    </fileset>
+
+    <!-- Convert filenames to valid preverify input. -->
+    <!-- From: /absolute/path/to/package/SomeFile.class -->
+    <!-- To: package.SomeFile -->
+    <pathconvert pathsep=" "
+                 property="unverified"
+                 refid="tmp">
+      <packagemapper from="${retro.dir}/*.class"
+                     to="*"/>
+    </pathconvert>
+
+    <!-- Execute preverify on classes. -->
+    <exec dir="${classes.dir}"
+          executable="${j2me.bin}/preverify"
+          failonerror="true">
+      <arg line="-classpath ${retro.dir}:${squawk.dir}/cldc/j2meclasses"/>
+      <!-- <arg line="-verbose"/> -->
+      <arg line="-d ${preverify.dir}"/>
+      <arg line="${unverified}"/>
+    </exec>
+  </target>
+
+</project>
