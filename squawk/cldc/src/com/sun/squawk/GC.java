@@ -499,22 +499,22 @@ public class GC implements GlobalStaticFields {
 	private static boolean gcEnabled;
 
 	/**
-	 * Start of RAM.
+	 * Start of LOCAL RAM.
 	 */
 	private static Address ramStart;
 
 	/**
-	 * End of RAM.
+	 * End of LOCAL RAM.
 	 */
 	private static Address ramEnd;
 
 	/**
-	 * The start of object heap managed by the collector.
+	 * The start of object heap managed by the LOCAL collector.
 	 */
 	private static Address heapStart;
 
 	/**
-	 * The end of object heap managed by the collector.
+	 * The end of object heap managed by the LOCAL collector.
 	 */
 	private static Address heapEnd;
 
@@ -643,16 +643,16 @@ public class GC implements GlobalStaticFields {
 		return count;
 	}
 
-	/**
-	 * Gets the offset (in bytes) of an object in RAM from the start of RAM
-	 *
-	 * @param object  the object to test
-	 * @return the offset (in bytes) of <code>object</code> in RAM from the start of RAM
-	 */
-	static Offset getOffsetInRam(Address object) {
-		Assert.that(inRam(object));
-		return object.diff(ramStart);
-	}
+	// /**
+	//  * Gets the offset (in bytes) of an object in RAM from the start of RAM
+	//  *
+	//  * @param object  the object to test
+	//  * @return the offset (in bytes) of <code>object</code> in RAM from the start of RAM
+	//  */
+	// static Offset getOffsetInRam(Address object) {
+	// 	Assert.that(inRam(object));
+	// 	return object.diff(ramStart);
+	// }
 
 	/**
 	 * Determines if a given object is in RAM.
