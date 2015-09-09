@@ -538,7 +538,7 @@ q_peek(wait_queue_t *queue)
 }
 
 /******************************************************************************
- * Interface Implementation
+ * Interface Implementation (Client side)
  ******************************************************************************/
 
 /**
@@ -769,23 +769,31 @@ mmgrGetMonitor(Address object)
 	/* If not found create a new one and associate it with this object */
 	if (res == NULL) {
 
-		res               = monitor_alloc();
+		res                  = monitor_alloc();
 		assume(res != NULL);
-		res->owner        = -1;
-		res->waiters.head = NULL;
-		res->waiters.tail = NULL;
+		res->owner           = -1;
+		res->waiters.head    = NULL;
+		res->waiters.tail    = NULL;
 #ifdef MMGR_QUEUE
-		res->pending.head = NULL;
-		res->pending.tail = NULL;
+		res->pending.head    = NULL;
+		res->pending.tail    = NULL;
 #endif /* ifdef MMGR_QUEUE */
-		res->lchild       = NULL;
-		res->rchild       = NULL;
-		res->object       = object;
+		res->lchild          = NULL;
+		res->rchild          = NULL;
+#ifdef MMGR_STATS
+		res->times_acquired  = 0;
+		res->times_requested = 0;
+#endif /* ifdef MMGR_STATS */
+		res->object          = object;
 		ht_insert(res);
 	}
 
 	return res;
 }
+
+/******************************************************************************
+ * Interface Implementation (Server side)
+ ******************************************************************************/
 
 /**
  * Handle a monitor enter request.
@@ -801,6 +809,10 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 
 	monitor = mmgrGetMonitor(object);
 
+#ifdef MMGR_STATS
+	monitor->times_requested++;
+#endif /* ifdef MMGR_STATS */
+
 	/* If the monitor is available acquire it */
 	if (monitor->owner == -1) {
 		monitor->owner = (bid << 3) | cid;
@@ -809,6 +821,16 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 		mmpSend2(bid, cid,
 		         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
 		         (unsigned int)object);
+
+#ifdef MMGR_STATS
+		monitor->times_acquired++;
+		// Periodically print stats
+		/* if (monitor->times_acquired & 63 == 0) { */
+			/* printf("Monitor: %p Manager: %d Requested: %u Acquired: %u\n",
+			 *        monitor->object, sysGetCore(),
+			 *        monitor->times_requested, monitor->times_acquired); */
+		/* } */
+#endif /* ifdef MMGR_STATS */
 	}
 	else {
 #ifdef MMGR_QUEUE

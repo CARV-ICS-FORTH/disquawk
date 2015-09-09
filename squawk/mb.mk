@@ -91,6 +91,8 @@ NATIVE_VERIFIER_JAVA=translator/src/com/sun/squawk/translator/ir/verifier/Native
 	-DLISP2_BITMAP \
 	-DHIER_BARRIER \
 	-DMMGR_ON_ARM \
+	-DMMGR_QUEUE \
+	-DMMGR_STATS \
 	-DWAITER_REUSE \
 # What we use
 # THESE MUST AGREE WITH build-mb.properties file

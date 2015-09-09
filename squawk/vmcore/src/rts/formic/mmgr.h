@@ -77,6 +77,10 @@ struct monitor {
 	monitor_t *rchild;    /**< Pointer to the right child in the
 	                       * Monitor Manager's monitor binary
 	                       * search tree */
+#ifdef MMGR_STATS
+	unsigned int times_acquired;  /**< Measuring the times this monitor was acquired */
+	unsigned int times_requested; /**< Measuring the times this monitor was acquired */
+#endif /* ifdef MMGR_STATS */
 };
 
 typedef struct mmgrGlobalsStruct {
