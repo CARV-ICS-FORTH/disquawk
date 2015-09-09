@@ -618,6 +618,7 @@ public final class Integer {
         return new Integer(parseInt(s, 10));
     }
 
+/*if[INTEGER_CACHE_ENABLED]*/
     private static class IntegerCache {
         private IntegerCache(){}
 
@@ -628,6 +629,7 @@ public final class Integer {
                 cache[i] = new Integer(i - 128);
         }
     }
+/*end[INTEGER_CACHE_ENABLED]*/
 
     /**
      * Returns an {@code Integer} instance representing the specified
@@ -642,10 +644,12 @@ public final class Integer {
      * @since  1.5
      */
     public static Integer valueOf(int i) {
+/*if[INTEGER_CACHE_ENABLED]*/
         final int offset = 128;
         if (i >= -128 && i <= 127) { // must cache
             return IntegerCache.cache[i + offset];
         }
+/*end[INTEGER_CACHE_ENABLED]*/
         return new Integer(i);
     }
 
