@@ -112,6 +112,9 @@ public class Thread implements Runnable {
      */
     private String name;
 
+    /**
+     * Boolean holding the thread status
+     */
     private boolean spawned;
 
 
@@ -432,7 +435,7 @@ public class Thread implements Runnable {
      * @return  <code>true</code> if this thread is alive;
      *          <code>false</code> otherwise.
      */
-    public final boolean isAlive() {
+    public final synchronized boolean isAlive() {
         if (!spawned)
             return false;
 
@@ -451,7 +454,7 @@ public class Thread implements Runnable {
      * @see        java.lang.Thread#MAX_PRIORITY
      * @see        java.lang.Thread#MIN_PRIORITY
      */
-    public final void setPriority(int newPriority) {
+    public final synchronized void setPriority(int newPriority) {
         // if (!spawned)
         //     VM.print("This thread is not yet spawned setPriority\n");
         // else
@@ -459,6 +462,8 @@ public class Thread implements Runnable {
             vmThread.setPriority(newPriority);
     }
 
+    // Do not synchronize here! We force a write back at task spawn on
+    // the other end
     public final void setVMThread(VMThread vmThread) {
         this.vmThread = vmThread;
         this.spawned = true;
@@ -471,7 +476,7 @@ public class Thread implements Runnable {
      * @see     #setPriority
      * @see     java.lang.Thread#setPriority(int)
      */
-    public final int getPriority() {
+    public final synchronized int getPriority() {
         if (!spawned) {
             // VM.print("This thread is not yet spawned getPriority\n");
             return NORM_PRIORITY;
@@ -486,7 +491,7 @@ public class Thread implements Runnable {
      *
      * @return  this thread's name.
      */
-    public final String getName() {
+    public final synchronized String getName() {
         if (!spawned) {
             // VM.print("This thread is not yet spawned getName\n");
             return name;
@@ -495,7 +500,7 @@ public class Thread implements Runnable {
         return vmThread.getName();
     }
 
-	public final String getTName() {
+    public final String getTName() {
         return name;
     }
 
@@ -528,7 +533,6 @@ public class Thread implements Runnable {
 
 
         while(true) {
-            // VM.print("Check if not yet spawned join\n");
             synchronized (this) {
                 if (spawned)
                     break;
@@ -546,7 +550,6 @@ public class Thread implements Runnable {
         if (millis == 0) {
             while (true) {
                 synchronized (vmThread) {
-                    // VM.print("This thread is not yet spawned toString\n");
                     if (vmThread.isDead()) {
                         break;
                     }
@@ -580,7 +583,7 @@ public class Thread implements Runnable {
      *             the current thread.  The <i>interrupted status</i> of the
      *             current thread is cleared when this exception is thrown.
      */
-    public final synchronized void join(long millis, int nanos)
+    public final void join(long millis, int nanos)
     throws InterruptedException {
 
         if (millis < 0) {
@@ -616,7 +619,7 @@ public class Thread implements Runnable {
      *
      * @return  a string representation of this thread.
      */
-    public String toString() {
+    public synchronized String toString() {
         if (!spawned) {
             // VM.print("This thread is not yet spawned toString\n");
             return name;
