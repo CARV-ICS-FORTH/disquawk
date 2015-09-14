@@ -185,22 +185,8 @@ MYRMICS_OBJS =\
 	kt/list.mb.o \
 	kt/kalloc.mb.o \
 	kt/ascii85.mb.o \
-	dbg/trace.mb.o \
-	dbg/stats.mb.o \
-	noc/message.mb.o \
-	noc/dma.mb.o \
 	mm/slab.mb.o \
-	mm/region.mb.o \
-	mm/distr.mb.o \
-	mm/mm.mb.o \
-	pr/event.mb.o \
 	pr/init.mb.o \
-	pr/task.mb.o \
-	pr/schedule.mb.o \
-	pr/dependency.mb.o \
-	sys/alloc.mb.o \
-	sys/task.mb.o \
-	sys/misc.mb.o \
 	java_main.mb.o
 MYRMICS_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(MYRMICS_SRC)/,$(MYRMICS_OBJS))
 MYRMICS_LINK_OBJS:=\

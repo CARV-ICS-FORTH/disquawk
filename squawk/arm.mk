@@ -92,22 +92,8 @@ MYRMICS_OBJS =\
 	kt/list.arm.o \
 	kt/kalloc.arm.o \
 	kt/ascii85.arm.o \
-	dbg/trace.arm.o \
-	dbg/stats.arm.o \
-	noc/message.arm.o \
-	noc/dma.arm.o \
 	mm/slab.arm.o \
-	mm/region.arm.o \
-	mm/distr.arm.o \
-	mm/mm.arm.o \
-	pr/event.arm.o \
 	pr/init.arm.o \
-	pr/task.arm.o \
-	pr/schedule.arm.o \
-	pr/dependency.arm.o \
-	sys/alloc.arm.o \
-	sys/task.arm.o \
-	sys/misc.arm.o \
 	java_main.arm.o
 MYRMICS_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(MYRMICS_SRC)/,$(MYRMICS_OBJS))
 MYRMICS_LINK_OBJS:=\
