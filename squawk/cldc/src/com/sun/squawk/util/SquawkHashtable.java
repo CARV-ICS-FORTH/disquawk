@@ -291,7 +291,27 @@ public class SquawkHashtable<K, V> implements Cloneable {
         int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % tab.length;
         for (HashtableEntry<K, V> e = tab[index] ; e != null ; e = e.next) {
-            if ((e.hash == hash) && e.key.equals(key)) {
+            if ((e.hash == hash)) { // && e.key.equals(key)) {
+                return e.value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the value to which the specified key is mapped in this hashtable.
+     *
+     * @param hash   the hash of a key in the hashtable.
+     * @return the value to which the key is mapped in this hashtable;
+     *          <code>null</code> if the key is not mapped to any value in
+     *          this hashtable.
+     * @see #put(java.lang.Object, java.lang.Object)
+     */
+    public Object get(int hash) {
+        HashtableEntry<K, V> tab[] = getTable();
+        int index = (hash & 0x7FFFFFFF) % tab.length;
+        for (HashtableEntry<K, V> e = tab[index] ; e != null ; e = e.next) {
+            if ((e.hash == hash)) { // && e.key.equals(key)) {
                 return e.value;
             }
         }
@@ -365,7 +385,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
         int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % tab.length;
         for (HashtableEntry<K, V> e = tab[index] ; e != null ; e = e.next) {
-            if ((e.hash == hash) && e.key.equals(key)) {
+            if ((e.hash == hash)) { // && e.key.equals(key)) {
                 Object old = e.value;
                 e.value = value;
                 return (V) old;
@@ -407,7 +427,7 @@ public class SquawkHashtable<K, V> implements Cloneable {
         int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % tab.length;
         for (HashtableEntry<K, V> e = tab[index], prev = null ; e != null ; prev = e, e = e.next) {
-            if ((e.hash == hash) && e.key.equals(key)) {
+            if ((e.hash == hash)) { // && e.key.equals(key)) {
                 if (prev != null) {
                     prev.next = e.next;
                 } else {
