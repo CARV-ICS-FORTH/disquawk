@@ -186,7 +186,6 @@ MYRMICS_OBJS =\
 	kt/kalloc.mb.o \
 	kt/ascii85.mb.o \
 	mm/slab.mb.o \
-	pr/init.mb.o \
 	java_main.mb.o
 MYRMICS_OBJS:=$(addprefix $(BUILD_DIR)/obj/$(MYRMICS_SRC)/,$(MYRMICS_OBJS))
 MYRMICS_LINK_OBJS:=\
