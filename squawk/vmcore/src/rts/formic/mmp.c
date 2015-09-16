@@ -73,7 +73,7 @@ mmpSpawnThread(Address thread)
  *         a thread to this core or NULL otherwise
  */
 Address
-mmpCheckMailbox(Address type)
+mmpCheckMailbox(Address type, Address hash)
 {
 	unsigned int msg0;
 	int          bid;
@@ -302,6 +302,9 @@ mmpCheckMailbox(Address type)
 		ar_abort();
 		break;
 	}              /* switch */
+
+	if (hash != NULL)
+		set_java_lang_Integer_value(hash, result);
 
 	return result;
 }                  /* mmpCheckMailbox */

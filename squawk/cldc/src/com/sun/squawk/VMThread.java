@@ -1768,7 +1768,7 @@ public final class VMThread implements GlobalStaticFields {
 	final static void rescheduleNext() {
 		Assert.that(GC.isSafeToSwitchThreads());
 		Object   object;
-		Integer  msg_op;
+		Integer  msg_op, hash;
 		VMThread thread;
 		Thread   javathread;
 
@@ -1779,6 +1779,7 @@ public final class VMThread implements GlobalStaticFields {
 		 * initialize it to get rid of warnings
 		 */
 		msg_op = MMP.OPS_NOP;
+		hash   = 0;
 
 		// if (VM.getCore() == 0 && VM.getIsland() == 0)
 		// 	VM.print("msg_op set\n");
@@ -1796,7 +1797,11 @@ public final class VMThread implements GlobalStaticFields {
 			/*
 			 * Always Query the mailbox for new messages.
 			 */
-			object = MMP.checkMailbox(msg_op);
+			// if (VM.getCore() == 1 && VM.getIsland() == 0)
+			// 	VM.print("VMTHREAD check mbox " + System.currentTimeMillis() + " ms\n");
+			object = MMP.checkMailbox(msg_op, hash);
+			// if (VM.getCore() == 1 && VM.getIsland() == 0)
+			// 	VM.print("VMTHREAD checked mbox " + System.currentTimeMillis() + " ms\n");
 			// if (VM.getCore() == 0 && VM.getIsland() == 0) {
 			// 	VM.print("object=");
 			// 	if (object!=null)
@@ -1835,7 +1840,7 @@ public final class VMThread implements GlobalStaticFields {
 
 				Assert.that(object != null);
 				// VM.print("MMP.OPS_MNTR_ACK\n");
-				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
+				Monitor monitor = VM.getCurrentIsolate().getMonitor(hash);
 				// VM.print("got monitor\n");
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeMonitorWait();
@@ -1850,7 +1855,7 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 			case MMP.OPS_MNTR_NOTIFICATION: {
-				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
+				Monitor monitor = VM.getCurrentIsolate().getMonitor(hash);
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeCondvarWait();
 				// VM.print("MMP.OPS_MNTR_NOTIFICATION\n");
@@ -1870,7 +1875,7 @@ public final class VMThread implements GlobalStaticFields {
 				break;
 			}
 			case MMP.OPS_MNTR_NOTIFICATION_ALL: {
-				Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
+				Monitor monitor = VM.getCurrentIsolate().getMonitor(hash);
 				Assert.that(monitor != null);
 				VMThread waiter = monitor.removeCondvarWait();
 				// VM.print("MMP.OPS_MNTR_NOTIFICATION_ALL\n");
@@ -1884,7 +1889,7 @@ public final class VMThread implements GlobalStaticFields {
 			case MMP.OPS_AT_CAS_ACK:
 			case MMP.OPS_RW_WRITE_ACK:
 			case MMP.OPS_RW_READ_ACK: {
-				thread = events.findEvent(GC.getHashCode(object));
+				thread = events.findEvent(hash);
 				Assert.that(thread != null);
 				thread.setResult(object);
 				// VM.print("MMP.OPS_*_ACK\n");
@@ -1894,7 +1899,7 @@ public final class VMThread implements GlobalStaticFields {
 			case MMP.OPS_AT_CAS_NACK:
 			case MMP.OPS_RW_WRITE_NACK:
 			case MMP.OPS_RW_READ_NACK: {
-				thread = events.findEvent(GC.getHashCode(object));
+				thread = events.findEvent(hash);
 				Assert.that(thread != null);
 				thread.setResult(null);
 				// VM.print("MMP.OPS_*_NACK\n");
@@ -2831,7 +2836,7 @@ public final class VMThread implements GlobalStaticFields {
 		 */
 		waiter = monitor.removeCondvarWait();
 		if (waiter == null) {
-			MMGR.notify(monitor.object, notifyAll);
+			MMGR.notify(object, notifyAll);
 		}
 		else if (notifyAll == false) {
 			timerQueue.remove(waiter);
@@ -2842,7 +2847,7 @@ public final class VMThread implements GlobalStaticFields {
 		}
 		else {
 
-			MMGR.notify(monitor.object, notifyAll);
+			MMGR.notify(object, notifyAll);
 			/*
 			 * Loop if this is a notifyAll operation.
 			 */

@@ -35,7 +35,7 @@
 #include "hwcnt.h"
 
 void    mmpSpawnThread(Address thread);
-Address mmpCheckMailbox(Address type);
+Address mmpCheckMailbox(Address type, Address hash);
 
 /**
  * Send a single word mailbox message to the given core.

@@ -4923,8 +4923,9 @@ static int collectGarbage(Address, Address, int);
 	}
 
 	case Native_com_sun_squawk_platform_MMP_checkMailbox: {
+		Address hash = popAddress();
 		Address type = popAddress();
-		pushAddress(mmpCheckMailbox(type));
+		pushAddress(mmpCheckMailbox(type, hash));
 		break;
 	}
 

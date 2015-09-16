@@ -65,7 +65,7 @@ public final class MMP {
 	 *         an object if one of the messages was a reply to a lock request
 	 *         NULL otherwise
 	 */
-	public static Object checkMailbox(Integer type) throws NativePragma {
+	public static Object checkMailbox(Integer type, Integer hash) throws NativePragma {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 

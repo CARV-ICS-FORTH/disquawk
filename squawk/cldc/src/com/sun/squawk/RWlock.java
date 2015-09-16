@@ -40,7 +40,7 @@ public final class RWlock {
     public boolean tryWriteLock() {
         VMThread thread;
         writeLock0(true);
-        VMThread.waitForEvent(GC.getHashCode(this));
+        VMThread.waitForEvent(this.hashCode());
         thread = VMThread.currentThread();
         // TODO: On success synchronize?
         return thread.getResult() != null;
@@ -48,7 +48,7 @@ public final class RWlock {
 
     public void writeLock() {
         writeLock0(false);
-        VMThread.waitForEvent(GC.getHashCode(this));
+        VMThread.waitForEvent(this.hashCode());
         // TODO: On success synchronize?
         return;
     }
@@ -60,7 +60,7 @@ public final class RWlock {
     public boolean tryReadLock() {
         VMThread thread;
         readLock0(true);
-        VMThread.waitForEvent(GC.getHashCode(this));
+        VMThread.waitForEvent(this.hashCode());
         thread = VMThread.currentThread();
         // TODO: On success synchronize?
         return thread.getResult() != null;
@@ -68,7 +68,7 @@ public final class RWlock {
 
     public void readLock() {
         readLock0(false);
-        VMThread.waitForEvent(GC.getHashCode(this));
+        VMThread.waitForEvent(this.hashCode());
         // TODO: On success synchronize?
         return;
     }

@@ -567,12 +567,12 @@ mmgrInitialize(mmgrGlobals *globals)
 /**
  * Find the manager responsible for the given object.
  *
- * @param object The object
+ * @param hash   The object's hash
  * @param bid    The manager's bid (return)
  * @param cid    The manager's cid (return)
  */
 static inline void
-mmgrGetManager(Address object, int *bid, int *cid)
+mmgrGetManager(unsigned int hash, int *bid, int *cid)
 {
 	/* We need only 3 bits since we have 2^3 monitor managers */
 	unsigned int id3;
@@ -582,7 +582,7 @@ mmgrGetManager(Address object, int *bid, int *cid)
 	 * Then skip the next 3 bits so that neighbor objects don't end at the same
 	 * monitor manager
 	 */
-	id3 = (((unsigned int)object) >> 9) & 0x7;
+	id3 = (hash >> 9) & 0x7;
 
 #ifdef MMGR_ON_ARM
 
@@ -613,6 +613,9 @@ mmgrRequest(mmpMsgOp_t msg_op, Address object)
 	unsigned int msg0;
 	int          target_cid;
 	int          target_bid;
+	unsigned int hash;
+
+	hash = java_lang_Object_hashCode(object);
 
 	/*
 	 * Pass your bid and cid with the opcode so that the other end
@@ -620,9 +623,9 @@ mmgrRequest(mmpMsgOp_t msg_op, Address object)
 	 */
 	msg0 = (sysGetIsland() << 19) | (sysGetCore() << 16) | msg_op;
 
-	mmgrGetManager(object, &target_bid, &target_cid);
+	mmgrGetManager(hash, &target_bid, &target_cid);
 
-	mmpSend2(target_bid, target_cid, msg0, (unsigned int)object);
+	mmpSend2(target_bid, target_cid, msg0, hash);
 }
 
 /**
@@ -634,13 +637,12 @@ mmgrRequest(mmpMsgOp_t msg_op, Address object)
 void
 mmgrMonitorEnter(Address object)
 {
-	/* TODO: Do not lock objects that are not in the heap? */
 #  ifdef VERY_VERBOSE
 	kt_printf("I sent an enter request for %p\n", object);
 	ar_uart_flush();
 #  endif /* ifdef VERY_VERBOSE */
 
-/*	assume(sc_in_heap(object)); */
+	assume(sc_in_heap(object));
 	mmgrRequest(MMP_OPS_MNTR_ENTER, object);
 
 	/* Empty our software cache.  There is no need to for writing back any
@@ -744,7 +746,7 @@ mmgrNotify(Address object, int all)
 	ar_uart_flush();
 #  endif /* ifdef VERY_VERBOSE */
 
-/*	assume(sc_in_heap(object)); */
+	assume(sc_in_heap(object));
 	mmgrRequest(all ? MMP_OPS_MNTR_NOTIFY_ALL : MMP_OPS_MNTR_NOTIFY, object);
 }
 
