@@ -716,24 +716,13 @@ public final class Isolate implements Runnable {
     }
 
     /**
-     * Gets the monitor hash table for the isolate
-     *
-     * The monitorHashtable holds the monitors for objects that are in ROM.
-     *
-     * @return the hash table
-     */
-    SquawkHashtable getMonitorHashtable() {
-        return monitorHashtable;
-    }
-
-    /**
      * Get the monitor.
      *
      * @return the monitor
      */
     Monitor getMonitor(Object obj) {
         Monitor monitor;
-        int objaddr  = Address.fromObject(obj).toUWord().toPrimitive();
+        // int objaddr  = Address.fromObject(obj).toUWord().toPrimitive();
 
         // VM.print("get monitor for " + Integer.toHexString(objaddr) + "\n");
         // objaddr = Address.fromObject(this).toUWord().toPrimitive();
@@ -748,7 +737,7 @@ public final class Isolate implements Runnable {
             monitor = new Monitor(obj);
             monitorHashtable.put(obj, monitor);
         }
-        int monaddr  = Address.fromObject(monitor).toUWord().toPrimitive();
+        // int monaddr  = Address.fromObject(monitor).toUWord().toPrimitive();
         // VM.print("monitor is " + Integer.toHexString(monaddr) + "\n");
 
         return monitor;
