@@ -516,13 +516,16 @@ public final class VMThread implements GlobalStaticFields {
 		 */
 		Assert.that(currentThread != null);
 
+		// VM.print("VMTHREAD in localstart " + System.currentTimeMillis() + " ms\n");
 		// Now allocate a new stack for it and mark it ALIVE
 		stack = newStack(stackSize, this, true);
+		// VM.print("VMTHREAD newStack " + System.currentTimeMillis() + " ms\n");
 		if (stack == null) {
 			VM.println("creating stack:");
 			throw VM.getOutOfMemoryError();
 		}
 
+		// TODO: Empty our cache?
 //VM.print("Thread::baptiseThread - stack size = ");
 //VM.println(stackSize);
 		state = ALIVE;
@@ -533,8 +536,11 @@ public final class VMThread implements GlobalStaticFields {
 //VM.printAddress(NativeUnsafe.getObject(stack, SC.owner));
 //VM.println();
 
+		// VM.print("VMTHREAD add it " + System.currentTimeMillis() + " ms\n");
 		isolate.addThread(this);
+		// VM.print("VMTHREAD addThread " + System.currentTimeMillis() + " ms\n");
 		addToRunnableThreadsQueue(this);
+		// VM.print("VMTHREAD runnable " + System.currentTimeMillis() + " ms\n");
 
 /*if[ENABLE_SDA_DEBUGGER]*/
 		if (VM.isThreadingInitialized()) {
@@ -637,36 +643,36 @@ public final class VMThread implements GlobalStaticFields {
 		return runnableThreads.size() + 1;
 	}
 
-	/**
-	 * Waits for this thread to die.
-	 *
-	 * @exception  InterruptedException if another thread has interrupted
-	 *             the current thread.  The <i>interrupted status</i> of the
-	 *             current thread is cleared when this exception is thrown.
-	 */
-	public final void join() throws InterruptedException {
-		// FIXME: this join seems to not be invoked
-		Assert.shouldNotReachHere();
-		if (this != currentThread && isAlive()) {
+// 	/**
+// 	 * Waits for this thread to die.
+// 	 *
+// 	 * @exception  InterruptedException if another thread has interrupted
+// 	 *             the current thread.  The <i>interrupted status</i> of the
+// 	 *             current thread is cleared when this exception is thrown.
+// 	 */
+// 	public final void join() throws InterruptedException {
+// 		// FIXME: this join seems to not be invoked
+// 		Assert.shouldNotReachHere();
+// 		if (this != currentThread && isAlive()) {
 
-			// Was the current thread interrupted?
-			currentThread.handlePendingInterrupt();
+// 			// Was the current thread interrupted?
+// 			currentThread.handlePendingInterrupt();
 
-			Assert.that(currentThread.nextThread == null);
-			currentThread.nextThread = this.joiners;
-			this.joiners = currentThread;
-// if (currentThread.isolate != this.isolate) {
-//                VM.println("NOTE: Cross-isolate join: " + currentThread + " is waiting to joing " + this);
-// }
-			Assert.that(currentThread.waitingToJoin == null);
-			currentThread.waitingToJoin = this;
-			currentThread.setInQueue(VMThread.Q_JOIN);
-			reschedule();
+// 			Assert.that(currentThread.nextThread == null);
+// 			currentThread.nextThread = this.joiners;
+// 			this.joiners = currentThread;
+// // if (currentThread.isolate != this.isolate) {
+// //                VM.println("NOTE: Cross-isolate join: " + currentThread + " is waiting to joing " + this);
+// // }
+// 			Assert.that(currentThread.waitingToJoin == null);
+// 			currentThread.waitingToJoin = this;
+// 			currentThread.setInQueue(VMThread.Q_JOIN);
+// 			reschedule();
 
-			// Was the current thread interrupted?
-			currentThread.handlePendingInterrupt();
-		}
-	}
+// 			// Was the current thread interrupted?
+// 			currentThread.handlePendingInterrupt();
+// 		}
+// 	}
 
 /*if[ENABLE_MULTI_ISOLATE]*/
 	/**
@@ -744,8 +750,8 @@ public final class VMThread implements GlobalStaticFields {
 		/*
 		 * Enable all the threads waiting for the isolate to stop.
 		 */
-		VMThread list = isolate.getJoiners();
-		startJoiners(list, VMThread.Q_ISOLATEJOIN);
+		// VMThread list = isolate.getJoiners();
+		// startJoiners(list, VMThread.Q_ISOLATEJOIN);
 /*end[ENABLE_MULTI_ISOLATE]*/
 		/*
 		 * Prune the runnable threads and add them to the isolate.
@@ -941,10 +947,10 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	VMThread nextThread;
 
-	/**
-	 * The thread that this thread (and possibly other threads) are waiting to join.
-	 */
-	private VMThread waitingToJoin;
+	// /**
+	//  * The thread that this thread (and possibly other threads) are waiting to join.
+	//  */
+	// private VMThread waitingToJoin;
 
 	/**
 	 * Flag to show if thread is a daemon.
@@ -956,10 +962,10 @@ public final class VMThread implements GlobalStaticFields {
 	 */
 	VMThread nextTimerThread;
 
-	/**
-	 * Threads waiting for this thread to die.
-	 */
-	private VMThread joiners;
+	// /**
+	//  * Threads waiting for this thread to die.
+	//  */
+	// private VMThread joiners;
 
 	/**
 	 * Time to emerge from the timer queue.
@@ -1501,9 +1507,9 @@ public final class VMThread implements GlobalStaticFields {
 			exitIsolate = isolate.removeThread(this);
 		}
 
-		VMThread list = joiners;
-		joiners = null;
-		startJoiners(list, VMThread.Q_JOIN);
+		// VMThread list = joiners;
+		// joiners = null;
+		// startJoiners(list, VMThread.Q_JOIN);
 
 /*if[!MICROBLAZE_BUILD]*/
 		if (exitIsolate) {
@@ -1511,8 +1517,9 @@ public final class VMThread implements GlobalStaticFields {
 		}
 /*end[MICROBLAZE_BUILD]*/
 
+		// Notify joiners
 		synchronized (this) {
-			this.notifyAll();
+			monitorNotify(this, true);
 			state = DEAD;
 		}
 
@@ -1522,24 +1529,24 @@ public final class VMThread implements GlobalStaticFields {
 		abandonThread();
 	}
 
-	/**
-	 * Starts a list of waiting threads.
-	 *
-	 * @param list the list of waiting threads
-	 * @param queueName the queue name (JOIN, or ISOLATEJOIN)
-	 */
-	private static void startJoiners(VMThread list, byte queueName) {
-		while (list != null) {
-			VMThread next = list.nextThread;
-			list.nextThread = null;
-			list.waitingToJoin = null;
-			list.setNotInQueue(queueName);
-			if (list.isolate.isAlive()) {
-				addToRunnableThreadsQueue(list);
-			}
-			list = next;
-		}
-	}
+	// /**
+	//  * Starts a list of waiting threads.
+	//  *
+	//  * @param list the list of waiting threads
+	//  * @param queueName the queue name (JOIN, or ISOLATEJOIN)
+	//  */
+	// private static void startJoiners(VMThread list, byte queueName) {
+	// 	while (list != null) {
+	// 		VMThread next = list.nextThread;
+	// 		list.nextThread = null;
+	// 		list.waitingToJoin = null;
+	// 		list.setNotInQueue(queueName);
+	// 		if (list.isolate.isAlive()) {
+	// 			addToRunnableThreadsQueue(list);
+	// 		}
+	// 		list = next;
+	// 	}
+	// }
 
 	/**
 	 * Get the thread's stack
@@ -1614,14 +1621,13 @@ public final class VMThread implements GlobalStaticFields {
 	}
 
 
-	private static void threadGC(boolean userThread, boolean fullGC) {
-		// FIXME: We temporarily disable garbage collection
-		// if (userThread) {
-		// 	VM.collectGarbage(fullGC);
-		// } else {
-		// 	GC.collectGarbage(fullGC);
-		// }
-	}
+	// private static void threadGC(boolean userThread, boolean fullGC) {
+	// 	if (userThread) {
+	// 		VM.collectGarbage(fullGC);
+	// 	} else {
+	// 		GC.collectGarbage(fullGC);
+	// 	}
+	// }
 
 	/**
 	 * Allocates a new stack.
@@ -1634,12 +1640,14 @@ public final class VMThread implements GlobalStaticFields {
 	private static Object newStack(int size, VMThread owner, boolean userThread) {
 		Object stack = GC.getExcessiveGC() ? null : GC.newStack(size, owner);
 		if (stack == null) {
-			threadGC(userThread, false);
-			stack = GC.newStack(size, owner);
-			if (stack == null) {
-				threadGC(userThread, true);
-				stack = GC.newStack(size, owner);
-			}
+			// FIXME: We temporarily disable garbage collection
+			// threadGC(userThread, false);
+			// stack = GC.newStack(size, owner);
+			// if (stack == null) {
+			// 	threadGC(userThread, true);
+			// 	stack = GC.newStack(size, owner);
+			// }
+			return null;
 		}
 		stacksAllocatedCount++;
 		if (size > maxStackSize) {
@@ -1818,12 +1826,17 @@ public final class VMThread implements GlobalStaticFields {
 				// There is a new thread for us
 				Assert.that(object != null);
 				javathread = (Thread)object;
+				// VM.print("VMTHREAD in java " + System.currentTimeMillis() + " ms\n");
 				thread = new VMThread(javathread, javathread.getTName());
 				// VM.print("Incoming thread " + javathread.getTName() + "\n");
+				// VM.print("VMTHREAD new thread " + System.currentTimeMillis() + " ms\n");
 				javathread.setVMThread(thread);
-				// Write-back
+				// VM.print("VMTHREAD set thread " + System.currentTimeMillis() + " ms\n");
+				// HACK: Manually Write-back to avoid full synchronization
 				SoftwareCache.writeBack(javathread);
+				// VM.print("VMTHREAD write-back " + System.currentTimeMillis() + " ms\n");
 				thread.localStart();
+				// VM.print("VMTHREAD started " + System.currentTimeMillis() + " ms\n");
 				// VM.print("Incoming Started\n");
 
 				break;
@@ -2104,7 +2117,7 @@ public final class VMThread implements GlobalStaticFields {
 			}
 			break;
 		case Q_JOIN:
-			VM.outPrint(out, " waiting to join " + waitingToJoin);
+			VM.outPrint(out, " waiting to join ");// + waitingToJoin);
 			break;
 		case Q_TIMER:
 			VM.outPrint(out, " waiting for ms (remaining): ");
@@ -2573,43 +2586,13 @@ public final class VMThread implements GlobalStaticFields {
 			// VM.print("Not in ram\n");
 			return null;
 		}
-		// VM.print("In ram\n");
 
 		currentThread.checkInvarients();
 		Monitor monitor = VM.getCurrentIsolate().getMonitor(object);
 		Assert.that(monitor != null);
 
 		// If we own the lock we only need to increase its depth
-		if (monitor.owner == currentThread) {
-			// traceMonitor("monitorEnter:  nested lock", monitor, object);
-
-			if (monitor.depth == MAXDEPTH) {
-/*if[DEBUG_CODE_ENABLED]*/
-				VM.println("monitorEnter:");
-/*end[DEBUG_CODE_ENABLED]*/
-				throw VM.getOutOfMemoryError();
-			}
-			monitor.depth++;
-		} else if (monitor.owner != null) {
-			// If our core owns the monitor for a different thread
-			// there is no reason to request it from the monitor
-			// manager, we just yield to run later and request it
-			// again later
-
-			// traceMonitor("monitorEnter: Must wait for local lock: ", monitor, object);
-			do {
-				monitor = VM.getCurrentIsolate().getMonitor(object);
-				Assert.that(monitor != null);
-				Assert.that(monitor.owner != currentThread);
-				// VM.println("Yield for monitor\n");
-				VMThread.yield();
-			} while (monitor.owner != null);
-			/*
-			 * NOTE: This recursion is not expected to go deeper than
-			 * Monitor.MONITOR_THRESHOLD
-			 */
-			VMThread.monitorEnter(object);
-		} else { // request the monitor
+		if (monitor.owner == null) { // request the monitor
 			// traceMonitor("monitorEnter: Must wait for lock: ", monitor, object);
 			MMGR.monitorEnter(object);
 
@@ -2641,6 +2624,38 @@ public final class VMThread implements GlobalStaticFields {
 			currentThread.checkInvarients();
 			Assert.that(currentThread.isolate.isExited() || monitor.owner == currentThread);
 		}
+		else if (monitor.owner == currentThread) {
+			// traceMonitor("monitorEnter:  nested lock", monitor, object);
+
+			if (monitor.depth == MAXDEPTH) {
+/*if[DEBUG_CODE_ENABLED]*/
+				VM.println("monitorEnter:");
+/*end[DEBUG_CODE_ENABLED]*/
+				throw VM.getOutOfMemoryError();
+			}
+			monitor.depth++;
+		}
+		else {
+			// If our core owns the monitor for a different thread
+			// there is no reason to request it from the monitor
+			// manager, we just yield to run later and request it
+			// again later
+
+			// traceMonitor("monitorEnter: Must wait for local lock: ", monitor, object);
+			do {
+				monitor = VM.getCurrentIsolate().getMonitor(object);
+				Assert.that(monitor != null);
+				Assert.that(monitor.owner != currentThread);
+				// VM.println("Yield for monitor\n");
+				VMThread.yield();
+			} while (monitor.owner != null);
+			/*
+			 * NOTE: This recursion is not expected to go deeper than
+			 * Monitor.MONITOR_THRESHOLD
+			 */
+			VMThread.monitorEnter(object);
+		}
+
 		return monitor;
 	}
 
@@ -2957,27 +2972,27 @@ public final class VMThread implements GlobalStaticFields {
 //VM.print("Thread::interrupt - bcount = ");
 //VM.println(VM.branchCount());
 
-			// Interrupt a join
-			if (waitingToJoin != null) {
+			// // Interrupt a join
+			// if (waitingToJoin != null) {
 
-				// Remove this thread from the list of joiners
-				if (waitingToJoin.joiners == this) {
-					waitingToJoin.joiners = this.nextThread;
-				} else {
-					VMThread prev = waitingToJoin.joiners;
-					while (prev.nextThread != this) {
-						prev = prev.nextThread;
-						Assert.that(prev != null);
-					}
-					prev.nextThread = this.nextThread;
-				}
+			// 	// Remove this thread from the list of joiners
+			// 	if (waitingToJoin.joiners == this) {
+			// 		waitingToJoin.joiners = this.nextThread;
+			// 	} else {
+			// 		VMThread prev = waitingToJoin.joiners;
+			// 		while (prev.nextThread != this) {
+			// 			prev = prev.nextThread;
+			// 			Assert.that(prev != null);
+			// 		}
+			// 		prev.nextThread = this.nextThread;
+			// 	}
 
-				// Move this thread to the runnable thread queue
-				waitingToJoin = null;
-				this.setNotInQueue(Q_JOIN);
-				// VM.print("interrupt 1\n");
-				addToRunnableThreadsQueue(this);
-			}
+			// 	// Move this thread to the runnable thread queue
+			// 	waitingToJoin = null;
+			// 	this.setNotInQueue(Q_JOIN);
+			// 	// VM.print("interrupt 1\n");
+			// 	addToRunnableThreadsQueue(this);
+			// }
 
 			// If the thread is waiting on a monitor then remove it
 			// from the conditional variable wait queue.
