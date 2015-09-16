@@ -5964,10 +5964,14 @@ static int collectGarbage(Address, Address, int);
 /*MAC*/ void do_monitorenter() {
 	Address obj = popAddress();
 
-	nullCheck(obj);
-	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
-	pushAddress(obj);
-	call(com_sun_squawk_VM_monitorenter);
+	if (sc_in_heap(obj)) {
+		/* printf("Found monitor enter for %p (%s)\n",
+		 *        obj, obj ? (obj == 0xFFFFFFFF ? "PRINT" : com_sun_squawk_Klass_name(obj)) : "null"); */
+		nullCheck(obj);
+		assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
+		pushAddress(obj);
+		call(com_sun_squawk_VM_monitorenter);
+	}
 }
 
 /**
@@ -5980,10 +5984,13 @@ static int collectGarbage(Address, Address, int);
 /*MAC*/ void do_monitorexit() {
 	Address obj = popAddress();
 
-	nullCheck(obj);
-	assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
-	pushAddress(obj);
-	call(com_sun_squawk_VM_monitorexit);
+	if (sc_in_heap(obj)) {
+		/* printf("Found monitor exit for %p\n", obj); */
+		nullCheck(obj);
+		assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
+		pushAddress(obj);
+		call(com_sun_squawk_VM_monitorexit);
+	}
 }
 
 /**
