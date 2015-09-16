@@ -388,7 +388,7 @@ public class Connector {
      */
     public static DataInputStream openDataInputStream(String name) throws IOException {
 
-  	    InputConnection con = null;
+        InputConnection con = null;
         try {
             con = (InputConnection)Connector.open(name, Connector.READ);
         } catch (ClassCastException e) {

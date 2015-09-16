@@ -29,6 +29,7 @@
 package java.lang;
 
 import java.io.*;
+import javax.microedition.io.Connector;
 
 import com.sun.squawk.GC;
 import com.sun.squawk.Isolate;
@@ -89,14 +90,20 @@ public final class System {
         if (url == null) {
             url = err ? "debug:err" : "debug:";
         }
-        Isolate isolate = VM.getCurrentIsolate();
-        OutputStream os;
-        if (err) {
-            isolate.addErr(url);
-            os = isolate.stderr;
-        } else {
-            isolate.addOut(url);
-            os = isolate.stdout;
+        // Isolate isolate = VM.getCurrentIsolate();
+        OutputStream os = null;
+        // if (err) {
+        //     isolate.addErr(url);
+        //     os = isolate.stderr;
+        // } else {
+        //     isolate.addOut(url);
+        //     os = isolate.stdout;
+        // }
+        try {
+            os = Connector.openOutputStream(url);
+        } catch (IOException e) {
+            VM.println("IO error opening standard stream to " + url + ": " + e);
+            Assert.shouldNotReachHere();
         }
         return new PrintStream(os);
     }
@@ -279,7 +286,7 @@ public final class System {
            ) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        
+
         if (length > 0) {
             if (!primitive) {
                 if (!dstComponentType.isAssignableFrom(srcComponentType)) {
@@ -404,5 +411,3 @@ public final class System {
     }
 
 }
-
-

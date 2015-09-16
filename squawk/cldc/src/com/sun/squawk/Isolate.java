@@ -33,7 +33,7 @@ import java.io.*;
 import java.util.*;
 import javax.microedition.io.*;
 
-import com.sun.squawk.io.MulticastOutputStream;
+//import com.sun.squawk.io.MulticastOutputStream;
 /*if[NEW_IIC_MESSAGES]*/
 import com.sun.squawk.io.mailboxes.Mailbox;
 import com.sun.squawk.io.mailboxes.MailboxAddress;
@@ -2449,285 +2449,285 @@ public final class Isolate implements Runnable {
      *                            Standard streams                               *
     \*---------------------------------------------------------------------------*/
 
-    /**
-     * A DelayedURLOutputStream is used to write to a connection and ensure that the
-     * connection is only opened in the context of the isolate that will use it.
-     */
-    static class DelayedURLOutputStream extends OutputStream {
+    // /**
+    //  * A DelayedURLOutputStream is used to write to a connection and ensure that the
+    //  * connection is only opened in the context of the isolate that will use it.
+    //  */
+    // static class DelayedURLOutputStream extends OutputStream {
 
-        /**
-         * The delegate output stream.
-         */
-        private OutputStream out;
+    //     /**
+    //      * The delegate output stream.
+    //      */
+    //     private OutputStream out;
 
-        /**
-         * The URL used to create the stream.
-         */
-        private final String url;
+    //     /**
+    //      * The URL used to create the stream.
+    //      */
+    //     private final String url;
 
-        /**
-         * Gets the delegate output stream, creating it if it hasn't already been opened.
-         *
-         * @return the OutputStream
-         * @throws IOException if something went wrong while attempting to open the stream
-         */
-        private synchronized OutputStream out() throws IOException {
-            if (out == null) {
-                try {
-                    out = Connector.openOutputStream(url);
-                } catch (IOException e) {
-                    VM.println("IO error opening standard stream to " + url + ": " + e);
-                    throw e;
-                }
-            }
-            return out;
-        }
+    //     /**
+    //      * Gets the delegate output stream, creating it if it hasn't already been opened.
+    //      *
+    //      * @return the OutputStream
+    //      * @throws IOException if something went wrong while attempting to open the stream
+    //      */
+    //     private synchronized OutputStream out() throws IOException {
+    //         if (out == null) {
+    //             try {
+    //                 out = Connector.openOutputStream(url);
+    //             } catch (IOException e) {
+    //                 VM.println("IO error opening standard stream to " + url + ": " + e);
+    //                 throw e;
+    //             }
+    //         }
+    //         return out;
+    //     }
 
-        /**
-         * Creates a DelayedURLOutputStream.
-         *
-         * @param url  specifies where to open the connection
-         */
-        DelayedURLOutputStream(String url) {
-            this.url = url;
-        }
+    //     /**
+    //      * Creates a DelayedURLOutputStream.
+    //      *
+    //      * @param url  specifies where to open the connection
+    //      */
+    //     DelayedURLOutputStream(String url) {
+    //         this.url = url;
+    //     }
 
-        /**
-         * {@inheritDoc}
-         */
-        public void write(int b) throws IOException {
-            out().write(b);
-        }
+    //     /**
+    //      * {@inheritDoc}
+    //      */
+    //     public void write(int b) throws IOException {
+    //         out().write(b);
+    //     }
 
-        /**
-         * {@inheritDoc}
-         */
-        public void write(byte b[]) throws IOException {
-            out().write(b);
-        }
+    //     /**
+    //      * {@inheritDoc}
+    //      */
+    //     public void write(byte b[]) throws IOException {
+    //         out().write(b);
+    //     }
 
-        /**
-         * {@inheritDoc}
-         */
-        public void write(byte b[], int off, int len) throws IOException {
-            out().write(b, off, len);
-        }
+    //     /**
+    //      * {@inheritDoc}
+    //      */
+    //     public void write(byte b[], int off, int len) throws IOException {
+    //         out().write(b, off, len);
+    //     }
 
-        /**
-         * {@inheritDoc}
-         */
-        public synchronized void flush() throws IOException {
-            if (out != null) {
-                out.flush();
-            }
-        }
+    //     /**
+    //      * {@inheritDoc}
+    //      */
+    //     public synchronized void flush() throws IOException {
+    //         if (out != null) {
+    //             out.flush();
+    //         }
+    //     }
 
-        /**
-         * {@inheritDoc}
-         */
-        public synchronized void close() throws IOException {
-            if (out != null) {
-                out.close();
-                out = null;
-            }
-        }
-    }
+    //     /**
+    //      * {@inheritDoc}
+    //      */
+    //     public synchronized void close() throws IOException {
+    //         if (out != null) {
+    //             out.close();
+    //             out = null;
+    //         }
+    //     }
+    // }
 
-    public final MulticastOutputStream stdout = new MulticastOutputStream();
-    public final MulticastOutputStream stderr = new MulticastOutputStream();
+    // public final MulticastOutputStream stdout = new MulticastOutputStream();
+    // public final MulticastOutputStream stderr = new MulticastOutputStream();
 
-    /**
-     * Adds a new connection to which {@link System#out} will send its output.
-     * <p>
-     * If the {@link Thread#currentThread current thread} is not owned by this isolate,
-     * opening of the connection is delayed until the next time <code>System.out</code>
-     * is written to by one of this isolate's threads. Otherwise the connection is
-     * opened as part of this call.
-     * <p>
-     * Output will be multicast to the new stream as well as any preexisting connection streams.
-     * <p>
-     * The following code snippet is an example of how to pipe the standard output of the
-     * current isolate to a network connection:
-     * <p><blockquote><pre>
-     *     Thread.currentThread().getIsolate().addOut("socket://server.domain.com:9999").
-     * </pre></blockquote>
-     *
-     * @param url     the URL used to open the connection via {@link Connector#openOutputStream}
-     *
-     * @see #listOut
-     * @see #removeOut
-     * @see #clearOut
-     */
-    public void addOut(String url) {
-        addStream(stdout, url);
-    }
+    // /**
+    //  * Adds a new connection to which {@link System#out} will send its output.
+    //  * <p>
+    //  * If the {@link Thread#currentThread current thread} is not owned by this isolate,
+    //  * opening of the connection is delayed until the next time <code>System.out</code>
+    //  * is written to by one of this isolate's threads. Otherwise the connection is
+    //  * opened as part of this call.
+    //  * <p>
+    //  * Output will be multicast to the new stream as well as any preexisting connection streams.
+    //  * <p>
+    //  * The following code snippet is an example of how to pipe the standard output of the
+    //  * current isolate to a network connection:
+    //  * <p><blockquote><pre>
+    //  *     Thread.currentThread().getIsolate().addOut("socket://server.domain.com:9999").
+    //  * </pre></blockquote>
+    //  *
+    //  * @param url     the URL used to open the connection via {@link Connector#openOutputStream}
+    //  *
+    //  * @see #listOut
+    //  * @see #removeOut
+    //  * @see #clearOut
+    //  */
+    // public void addOut(String url) {
+    //     addStream(stdout, url);
+    // }
 
-    /**
-     * Adds a new connection to which {@link System#err} will send its output.
-     * <p>
-     * If the {@link Thread#currentThread current thread} is not owned by this isolate,
-     * opening of the connection is delayed until the next time <code>System.err</code>
-     * is written to by one of this isolate's threads. Otherwise the connection is
-     * opened as part of this call.
-     * <p>
-     *  Output will be multicast to the new stream as well as any preexisting connection streams.
-     *
-     * @param url     the URL used to open the connection via {@link Connector#openOutputStream}
-     *
-     * @see #listErr
-     * @see #removeErr
-     * @see #clearErr
-     */
-    public void addErr(String url) {
-        addStream(stderr, url);
-    }
+    // /**
+    //  * Adds a new connection to which {@link System#err} will send its output.
+    //  * <p>
+    //  * If the {@link Thread#currentThread current thread} is not owned by this isolate,
+    //  * opening of the connection is delayed until the next time <code>System.err</code>
+    //  * is written to by one of this isolate's threads. Otherwise the connection is
+    //  * opened as part of this call.
+    //  * <p>
+    //  *  Output will be multicast to the new stream as well as any preexisting connection streams.
+    //  *
+    //  * @param url     the URL used to open the connection via {@link Connector#openOutputStream}
+    //  *
+    //  * @see #listErr
+    //  * @see #removeErr
+    //  * @see #clearErr
+    //  */
+    // public void addErr(String url) {
+    //     addStream(stderr, url);
+    // }
 
-    /**
-     * Removes the connection identified by <code>url</code> (if any) to which {@link System#out}
-     * is currently sending its output. The removed connection is immediately flushed and closed. Any
-     * IO exceptions are caught and might be printed.
-     *
-     * @param url     the URL identifying the connection to be removed
-     * @throws IllegalArgumentException if <code>url</code> does not name a current out stream
-     *
-     * @see #listOut
-     * @see #addOut
-     * @see #clearOut
-     */
-    public void removeOut(String url) {
-        OutputStream oldstrm = stdout.remove(url);
-        if (oldstrm == null) {
-            throw new IllegalArgumentException(url);
-        }
-        try {
-            oldstrm.flush();
-            oldstrm.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
+    // /**
+    //  * Removes the connection identified by <code>url</code> (if any) to which {@link System#out}
+    //  * is currently sending its output. The removed connection is immediately flushed and closed. Any
+    //  * IO exceptions are caught and might be printed.
+    //  *
+    //  * @param url     the URL identifying the connection to be removed
+    //  * @throws IllegalArgumentException if <code>url</code> does not name a current out stream
+    //  *
+    //  * @see #listOut
+    //  * @see #addOut
+    //  * @see #clearOut
+    //  */
+    // public void removeOut(String url) {
+    //     OutputStream oldstrm = stdout.remove(url);
+    //     if (oldstrm == null) {
+    //         throw new IllegalArgumentException(url);
+    //     }
+    //     try {
+    //         oldstrm.flush();
+    //         oldstrm.close();
+    //     } catch (IOException ex) {
+    //         ex.printStackTrace();
+    //     }
+    // }
 
-    /**
-     * Removes the connection identified by <code>url</code> (if any) to which {@link System#err}
-     * is currently sending its output. The removed connection is immediately flushed and closed. Any
-     * IO exceptions are caught and might be printed.
-     *
-     * @param url     the URL identifying the connection to be removed
-     * @throws IllegalArgumentException if <code>url</code> does not name a current error stream
-     *
-     * @see #listErr
-     * @see #addErr
-     * @see #clearErr
-     */
-    public void removeErr(String url) {
-        OutputStream oldstrm = stderr.remove(url);
-        if (oldstrm == null) {
-            throw new IllegalArgumentException(url);
-        }
-        try {
-            oldstrm.flush();
-            oldstrm.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
+    // /**
+    //  * Removes the connection identified by <code>url</code> (if any) to which {@link System#err}
+    //  * is currently sending its output. The removed connection is immediately flushed and closed. Any
+    //  * IO exceptions are caught and might be printed.
+    //  *
+    //  * @param url     the URL identifying the connection to be removed
+    //  * @throws IllegalArgumentException if <code>url</code> does not name a current error stream
+    //  *
+    //  * @see #listErr
+    //  * @see #addErr
+    //  * @see #clearErr
+    //  */
+    // public void removeErr(String url) {
+    //     OutputStream oldstrm = stderr.remove(url);
+    //     if (oldstrm == null) {
+    //         throw new IllegalArgumentException(url);
+    //     }
+    //     try {
+    //         oldstrm.flush();
+    //         oldstrm.close();
+    //     } catch (IOException ex) {
+    //         ex.printStackTrace();
+    //     }
+    // }
 
-    /**
-     * Removes all the connections to which {@link System#out} is sending its output.
-     * The removed connections are immediately flushed and closed.. Any
-     * IO exceptions are caught and might be printed.
-     *
-     * @see #addOut
-     * @see #removeOut
-     */
-    public void clearOut() {
-        try {
-            stdout.flush();
-            stdout.close();
-         } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        stdout.removeAll();
-    }
+    // /**
+    //  * Removes all the connections to which {@link System#out} is sending its output.
+    //  * The removed connections are immediately flushed and closed.. Any
+    //  * IO exceptions are caught and might be printed.
+    //  *
+    //  * @see #addOut
+    //  * @see #removeOut
+    //  */
+    // public void clearOut() {
+    //     try {
+    //         stdout.flush();
+    //         stdout.close();
+    //      } catch (IOException ex) {
+    //         ex.printStackTrace();
+    //     }
+    //     stdout.removeAll();
+    // }
 
-    /**
-     * Removes all the connections to which {@link System#err} is sending its output.
-     * The removed connections are immediately flushed and closed. Any
-     * IO exceptions are caught and are unlikely to be printed.
-     *
-     * @see #addErr
-     * @see #removeErr
-     */
-    public void clearErr() {
-        try {
-            stderr.flush();
-            stderr.close();
-         } catch (IOException ex) {
-             // we just deleted stderr who is going to see this?
-            ex.printStackTrace();
-        }
-        stderr.removeAll();
-    }
+    // /**
+    //  * Removes all the connections to which {@link System#err} is sending its output.
+    //  * The removed connections are immediately flushed and closed. Any
+    //  * IO exceptions are caught and are unlikely to be printed.
+    //  *
+    //  * @see #addErr
+    //  * @see #removeErr
+    //  */
+    // public void clearErr() {
+    //     try {
+    //         stderr.flush();
+    //         stderr.close();
+    //      } catch (IOException ex) {
+    //          // we just deleted stderr who is going to see this?
+    //         ex.printStackTrace();
+    //     }
+    //     stderr.removeAll();
+    // }
 
-    private void addStream(MulticastOutputStream mos, String url) {
-        if (ENABLE_MULTI_ISOLATE && isCurrentThreadExternal()) {
-            url = new String(url);
-            mos.add(url, new DelayedURLOutputStream(url));
-        } else {
-            try {
-                mos.add(url, Connector.openOutputStream(url));
-            } catch (IOException e) {
-                VM.println("IO error opening standard stream to " + url + ": " + e);
-            }
-        }
-    }
+    // private void addStream(MulticastOutputStream mos, String url) {
+    //     if (ENABLE_MULTI_ISOLATE && isCurrentThreadExternal()) {
+    //         url = new String(url);
+    //         mos.add(url, new DelayedURLOutputStream(url));
+    //     } else {
+    //         try {
+    //             mos.add(url, Connector.openOutputStream(url));
+    //         } catch (IOException e) {
+    //             VM.println("IO error opening standard stream to " + url + ": " + e);
+    //         }
+    //     }
+    // }
 
-    /**
-     * Gets a list of URLs denoting the streams to which {@link System#out} is currently sending its output.
-     * Note that due to multi-threading, the returned list may not reflect the complete
-     * set of streams. If a stream was {@link #addOut added} by another thread, then the returned list
-     * may not include the URL of the added stream. If a stream was {@link #removeOut removed} by another thread,
-     * then the returned list may include the URL of the removed stream.
-     *
-     * @return  the list of streams to which <code>System.out</code> is currently sending its output
-     *
-     * @see #addOut
-     */
-    public String[] listOut() {
-        return listStreams(stdout);
-    }
+    // /**
+    //  * Gets a list of URLs denoting the streams to which {@link System#out} is currently sending its output.
+    //  * Note that due to multi-threading, the returned list may not reflect the complete
+    //  * set of streams. If a stream was {@link #addOut added} by another thread, then the returned list
+    //  * may not include the URL of the added stream. If a stream was {@link #removeOut removed} by another thread,
+    //  * then the returned list may include the URL of the removed stream.
+    //  *
+    //  * @return  the list of streams to which <code>System.out</code> is currently sending its output
+    //  *
+    //  * @see #addOut
+    //  */
+    // public String[] listOut() {
+    //     return listStreams(stdout);
+    // }
 
-    /**
-     * Gets a list of URLs denoting the streams to which {@link System#err} is currently sending its output.
-     * Note that due to multi-threading, the returned list may not reflect the complete
-     * set of streams. If a stream was {@link #addErr added} by another thread, then the returned list
-     * may not include the URL of the added stream. If a stream was {@link #removeErr removed} by another thread,
-     * then the returned list may include the URL of the removed stream.
-     *
-     * @return  the list of streams to which <code>System.err</code> is currently sending its output
-     *
-     * @see #addErr
-     */
-    public String[] listErr() {
-        return listStreams(stderr);
-    }
+    // /**
+    //  * Gets a list of URLs denoting the streams to which {@link System#err} is currently sending its output.
+    //  * Note that due to multi-threading, the returned list may not reflect the complete
+    //  * set of streams. If a stream was {@link #addErr added} by another thread, then the returned list
+    //  * may not include the URL of the added stream. If a stream was {@link #removeErr removed} by another thread,
+    //  * then the returned list may include the URL of the removed stream.
+    //  *
+    //  * @return  the list of streams to which <code>System.err</code> is currently sending its output
+    //  *
+    //  * @see #addErr
+    //  */
+    // public String[] listErr() {
+    //     return listStreams(stderr);
+    // }
 
-    private String[] listStreams(MulticastOutputStream mos) {
-        String[] names = new String[mos.getSize()];
-        Enumeration e = mos.listNames();
-        int i = 0;
-        try {
-            for (; i != names.length; ++i) {
-                names[i] = (String)e.nextElement();
-            }
-        } catch (NoSuchElementException ex) {
-            // Another thread removed a stream - resize the array
-            String[] old = names;
-            names = new String[i];
-            System.arraycopy(old, 0, names, 0, i);
-        }
-        return names;
-    }
+    // private String[] listStreams(MulticastOutputStream mos) {
+    //     String[] names = new String[mos.getSize()];
+    //     Enumeration e = mos.listNames();
+    //     int i = 0;
+    //     try {
+    //         for (; i != names.length; ++i) {
+    //             names[i] = (String)e.nextElement();
+    //         }
+    //     } catch (NoSuchElementException ex) {
+    //         // Another thread removed a stream - resize the array
+    //         String[] old = names;
+    //         names = new String[i];
+    //         System.arraycopy(old, 0, names, 0, i);
+    //     }
+    //     return names;
+    // }
 
 /*if[NEW_IIC_MESSAGES]*/
     /*---------------------------------------------------------------------------*\
