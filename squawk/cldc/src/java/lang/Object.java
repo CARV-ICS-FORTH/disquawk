@@ -47,6 +47,10 @@ public class Object {
                      NativeUnsafe.getCore()) << 16) | VM.getNextHashcode();
     }
 
+    public Object(int hashcode) {
+        hashCode = hashcode;
+    }
+
     /**
      * Wakes up a single thread that is waiting on this object's
      * monitor. If any threads are waiting on this object, one of them

@@ -79,7 +79,7 @@ public interface MethodOffsets {
 
     public final static int virtual$java_lang_Object$toString            = 8;
     public final static int virtual$java_lang_Object$abstractMethodError = 9;
-    public final static int java_lang_Object$missingMethodError          = 1;
+    public final static int java_lang_Object$missingMethodError          = 2;
 
 /*if[FINALIZATION]*/
     public final static int virtual$java_lang_Object$finalize            = 10;
