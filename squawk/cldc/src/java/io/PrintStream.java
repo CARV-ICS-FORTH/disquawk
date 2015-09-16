@@ -1,5 +1,5 @@
 /*
- *   
+ *
  *
  * Copyright     2015, FORTH-ICS / CARV
  *                    (Foundation for Research & Technology -- Hellas,
@@ -7,22 +7,22 @@
  *                     Computer Architecture & VLSI Systems Laboratory)
  * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
  * 2 only, as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
  * included at /legal/license.txt).
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
- * 
+ *
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa
  * Clara, CA 95054 or visit www.sun.com if you need additional
  * information or have any questions.
@@ -55,6 +55,7 @@ public class PrintStream extends OutputStream {
      */
     private OutputStreamWriter charOut;
     private OutputStream       byteOut;
+    private Object             lock;
 
     /**
      * Create a new print stream.  This stream will not flush automatically.
@@ -70,6 +71,7 @@ public class PrintStream extends OutputStream {
 /* #endif */
             );
         }
+        lock = new Object(0xFFFFFFFF);
         byteOut = out;
         this.charOut = new OutputStreamWriter(out);
     }
@@ -94,7 +96,7 @@ public class PrintStream extends OutputStream {
      * @see        java.io.OutputStream#flush()
      */
     public void flush() {
-        synchronized (this) {
+        synchronized (lock) {
             try {
                 ensureOpen();
                 charOut.flush();
@@ -114,7 +116,7 @@ public class PrintStream extends OutputStream {
      * @see        java.io.OutputStream#close()
      */
     public void close() {
-        synchronized (this) {
+        synchronized (lock) {
             if (! closing) {
                 closing = true;
                 try {
@@ -174,7 +176,7 @@ public class PrintStream extends OutputStream {
      */
     public void write(int b) {
         try {
-            synchronized (this) {
+            synchronized (lock) {
                 ensureOpen();
                 byteOut.write(b);
             }
@@ -198,7 +200,7 @@ public class PrintStream extends OutputStream {
      */
     public void write(byte buf[], int off, int len) {
         try {
-            synchronized (this) {
+            synchronized (lock) {
                 ensureOpen();
                 byteOut.write(buf, off, len);
             }
@@ -215,7 +217,7 @@ public class PrintStream extends OutputStream {
 
     private void write(char buf[]) {
         try {
-            synchronized (this) {
+            synchronized (lock) {
                 ensureOpen();
                 charOut.write(buf);
             }
@@ -226,7 +228,7 @@ public class PrintStream extends OutputStream {
 
     private void write(String s) {
         try {
-            synchronized (this) {
+            synchronized (lock) {
                 ensureOpen();
                 charOut.write(s);
             }
@@ -237,7 +239,7 @@ public class PrintStream extends OutputStream {
 
     private void newLine() {
         try {
-            synchronized (this) {
+            synchronized (lock) {
                 ensureOpen();
                 charOut.write('\n');
             }
@@ -304,9 +306,9 @@ public class PrintStream extends OutputStream {
 
 /*if[FLOATS]*/
     /**
-     * Print a floating point number.  The string produced by 
-     * <code>{@link java.lang.String#valueOf(float)}</code> is translated 
-     * into bytes according to the platform's default character encoding, 
+     * Print a floating point number.  The string produced by
+     * <code>{@link java.lang.String#valueOf(float)}</code> is translated
+     * into bytes according to the platform's default character encoding,
      * and these bytes are written in exactly the manner of the
      * <code>{@link #write(int)}</code> method.
      *
@@ -319,9 +321,9 @@ public class PrintStream extends OutputStream {
     }
 
     /**
-     * Print a double-precision floating point number.  The string produced by 
-     * <code>{@link java.lang.String#valueOf(double)}</code> is translated 
-     * into bytes according to the platform's default character encoding, 
+     * Print a double-precision floating point number.  The string produced by
+     * <code>{@link java.lang.String#valueOf(double)}</code> is translated
+     * into bytes according to the platform's default character encoding,
      * and these bytes are written in exactly the manner of the
      * <code>{@link #write(int)}</code> method.
      *
@@ -399,7 +401,7 @@ public class PrintStream extends OutputStream {
      * @param x  The <code>boolean</code> to be printed
      */
     public void println(boolean x) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
@@ -413,7 +415,7 @@ public class PrintStream extends OutputStream {
      * @param x  The <code>char</code> to be printed.
      */
     public void println(char x) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
@@ -427,7 +429,7 @@ public class PrintStream extends OutputStream {
      * @param x  The <code>int</code> to be printed.
      */
     public void println(int x) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
@@ -441,7 +443,7 @@ public class PrintStream extends OutputStream {
      * @param x  The <code>long</code> to be printed.
      */
     public void println(long x) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
@@ -457,7 +459,7 @@ public class PrintStream extends OutputStream {
      * @since CLDC 1.1
      */
     public void println(float x) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
@@ -472,7 +474,7 @@ public class PrintStream extends OutputStream {
      * @since CLDC 1.1
      */
     public void println(double x) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
@@ -487,7 +489,7 @@ public class PrintStream extends OutputStream {
      * @param x  an array of chars to print.
      */
     public void println(char x[]) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
@@ -501,7 +503,7 @@ public class PrintStream extends OutputStream {
      * @param x  The <code>String</code> to be printed.
      */
     public void println(String x) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
@@ -515,7 +517,7 @@ public class PrintStream extends OutputStream {
      * @param x  The <code>Object</code> to be printed.
      */
     public void println(Object x) {
-        synchronized (this) {
+        synchronized (lock) {
             print(x);
             newLine();
         }
