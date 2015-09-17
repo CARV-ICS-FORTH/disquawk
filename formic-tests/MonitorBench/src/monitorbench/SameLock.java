@@ -20,10 +20,19 @@ public class SameLock implements Runnable {
 
 	public void run() {
 		// System.out.print("The lock is :" + GC.getHashCode(lock) + "\n");
+		long      start, end;
+
+		start = System.currentTimeMillis();
 
 		for (int i=0; i<100; ++i) {
 			lock.doWork(artificial_work);
 		}
+
+		end = System.currentTimeMillis();
+
+		System.out.print("W Total time on same lock " + (end-start) +
+		                 " ms BID: " + VM.getIsland() +
+		                 " CID: " + VM.getCore() + "\n");
 
 	}
 

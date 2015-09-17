@@ -11,10 +11,10 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		int artificial_work = 0;
+		int       artificial_work = 0;
 		SameLock  stask = new SameLock(artificial_work);
 		OtherLock otask = new OtherLock(artificial_work);
-		int       tasks = 255;
+		int       tasks = 503;
 		int       res;
 		long      start, end;
 		Thread[]  t;
