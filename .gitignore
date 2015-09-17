@@ -49,4 +49,14 @@
 
 # Formic-apps and Formic-tests
 /formic-apps/*/classes/
+/formic-apps/*/preverified/
+/formic-apps/*/retro/
 /formic-tests/*/classes/
+/formic-tests/*/preverified/
+/formic-tests/*/retro/
+
+*.java_
+*.java__
+
+# Math lib from LLVM
+squawk/vmcore/src/rts/formic/math_intrinsics/lib/
