@@ -47,8 +47,8 @@ public class Debug {
 	 */
 	public static void pinfo (String msg) {
 		if (level > 0 &&
-		    NativeUnsafe.getCore() == 0 &&
-		    NativeUnsafe.getIsland() == 0) {
+		    VM.getCore() == 0 &&
+		    VM.getIsland() == 0) {
 			VM.print("[INFO] ");
 			VM.println(msg);
 		}
@@ -66,11 +66,8 @@ public class Debug {
 	 * On veryverbose level prints messages from all cores.
 	 */
 	public static void pdebug (String msg) {
-		if ((level > 0 &&
-		     NativeUnsafe.getCore() == 0 &&
-		     NativeUnsafe.getIsland() == 0) ||
-		    (level > 1 &&
-		     NativeUnsafe.getCore() == 0) ||
+		if ((level > 0 && VM.getCore() == 0 && VM.getIsland() == 0) ||
+		    (level > 1 && VM.getCore() == 0) ||
 		    (level > 2)) {
 			VM.print("[DBG]  ");
 			VM.println(msg);

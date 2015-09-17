@@ -240,8 +240,8 @@ public class JavaApplicationManager {
 		 * Show execution statistics if requested
 		 */
 		if (displayExecutionStatistics &&
-			NativeUnsafe.getCore() == 0 &&
-		    NativeUnsafe.getIsland() == 0) {
+			VM.getCore() == 0 &&
+		    VM.getIsland() == 0) {
 			long endTime = System.currentTimeMillis();
 			System.out.println();
 			System.out.println("=============================");

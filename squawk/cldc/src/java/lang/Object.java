@@ -43,8 +43,8 @@ import com.sun.squawk.util.Assert;
 public class Object {
 
     public Object() {
-        hashCode = (((NativeUnsafe.getIsland() << 3) |
-                     NativeUnsafe.getCore()) << 16) | VM.getNextHashcode();
+        hashCode = (((VM.getIsland() << 3) | VM.getCore()) << 16)
+            | VM.getNextHashcode();
     }
 
     public Object(int hashcode) {

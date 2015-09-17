@@ -1833,7 +1833,7 @@ public final class Isolate implements Runnable {
         Assert.that(!childThreads.containsKey(thread));
         Debug.pdebug3("Put thread = "+thread+
                       " Isolate "+System.identityHashCode(this)+
-                      " "+NativeUnsafe.getCore());
+                      " "+VM.getCore());
         childThreads.put(thread, thread);
     }
 
@@ -1848,7 +1848,7 @@ public final class Isolate implements Runnable {
     boolean removeThread(VMThread thread) {
         Debug.pdebug3("RM thread = "+thread+
                       " Isolate "+System.identityHashCode(this)+
-                      " "+NativeUnsafe.getCore());
+                      " "+VM.getCore());
         Assert.that(childThreads.containsKey(thread));
         childThreads.remove(thread);
 /*if[MICROBLAZE_BUILD]*/

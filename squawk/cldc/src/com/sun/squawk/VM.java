@@ -267,7 +267,7 @@ public class VM implements GlobalStaticFields {
 	 */
 	static void startup(Suite bootstrapSuite) throws InterpreterInvokedPragma {
 		/* We cannot invoke Debug.pdebug yet, we need an isolate for that */
-		if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
+		if (getCore() == 0 && getIsland() == 0) {
 			VM.println("[INFO] in STARTUP");
 		}
 
@@ -301,7 +301,7 @@ public class VM implements GlobalStaticFields {
 		                             args, bootstrapSuite);
 		currentIsolate.initializeClassKlass();
 		/* We cannot invoke Debug.pdebug yet, we still need threading for that */
-		if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
+		if (getCore() == 0 && getIsland() == 0) {
 			VM.println("[INFO] Isolation initialized");
 		}
 
@@ -329,7 +329,7 @@ public class VM implements GlobalStaticFields {
 			exceptionsEnabled = true;
 			shutdownHooks = new CallbackManager(true);
 /*if[MICROBLAZE_BUILD]*/
-			if (NativeUnsafe.getCore() == 0 && NativeUnsafe.getIsland() == 0) {
+			if (getCore() == 0 && getIsland() == 0) {
 				// For the master we setup the process as usual
 /*end[MICROBLAZE_BUILD]*/
 				currentIsolate.primitiveThreadStart();
@@ -339,10 +339,8 @@ public class VM implements GlobalStaticFields {
 				// we call rescheduleNext directly (to loop till we get a
 				// thread)
 				if (VM.isVerbose()) {
-					VM.println("Starting a zombie on core = " +
-					           NativeUnsafe.getCore() +
-					           " board = " +
-					           NativeUnsafe.getIsland());
+					VM.println("Starting a zombie on core = " + getCore() +
+					           " board = " + getIsland());
 				}
 				currentIsolate.rescheduleNext();
 			}
@@ -1344,14 +1342,14 @@ public class VM implements GlobalStaticFields {
 	 *
 	 * @return the core id
 	 */
-	native static int getCore();
+	public native static int getCore();
 
 	/**
 	 * Returns the island (numa/board) id running this VM instance.
 	 *
 	 * @return the island id
 	 */
-	native static int getIsland();
+	public native static int getIsland();
 
 	/*-----------------------------------------------------------------------*\
 	 *                      Floating point operations                        *

@@ -4460,16 +4460,6 @@ static int collectGarbage(Address, Address, int);
 		sysGlobalMemoryProtection();
 		break;
 	}
-
-	case Native_com_sun_squawk_NativeUnsafe_getCore: {
-		pushInt(sysGetCore());
-		break;
-	}
-
-	case Native_com_sun_squawk_NativeUnsafe_getIsland: {
-		pushInt(sysGetIsland());
-		break;
-	}
 /*end[MICROBLAZE_BUILD]*/
 
 	case Native_com_sun_squawk_VM_getCore: {
