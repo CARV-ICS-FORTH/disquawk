@@ -540,6 +540,7 @@ fetch(Address from, Address to, int size, int cid)
 	int cnt;
 	/* The object's home node board id */
 	int from_bid;
+	int ret;
 
 	/* Make sure we do not cache our own objects */
 	assume(sc_in_heap(from));
@@ -553,16 +554,12 @@ fetch(Address from, Address to, int size, int cid)
 
 	/* Get an available counter to use */
 	cnt = hwcnt_get_free(HWCNT_SC_FETCH);
+	ret = 0;
 
 	/*
 	 * Fetches are directly passed to the remote DRAM but have to be
 	 * pushed to the local DMA engine first.
 	 */
-
-	/* Wait until our DMA engine can support at least one more DMA */
-	while ((ar_ni_status_get(sysGetCore()) & 0xFF) == 0) {
-		;
-	}
 
 	/* Get the object's home node cid and bid */
 	sysHomeOfAddress(from, &from_bid, NULL);
@@ -576,46 +573,57 @@ fetch(Address from, Address to, int size, int cid)
 	 */
 	size = roundUp(size, sysGetCachelineSize());
 	from = (Address)(((UWord)from & 0x3FFFFC0) | MM_MB_HEAP_BASE);
-	/* Init ACK counter to -size */
-	ar_cnt_set(sysGetCore(), cnt, -size);
-	/* Issue the DMA */
-	/* kt_printf("Issued DMA from %p (%d) of size %d\n", from,
-	 *           (cid == -1) ? 0xC : cid, size); */
-	ar_dma_with_ack(sysGetCore(),            /* my core id */
-	                from_bid - 1,            /* source board id */
-	                (cid == -1) ? 0xC : cid, /* source core id */
-	                (int)from,               /* source address */
-	                sysGetIsland(),          /* destination board id */
-	                sysGetCore(),            /* destination core id */
-	                (int)to,                 /* destination address */
-	                sysGetIsland(),          /* ack board id */
-	                sysGetCore(),            /* ack core id */
-	                cnt,                     /* ack counter */
-	                size,                    /* data length */
-	                0,                       /* ignore dirty bit on source */
-	                0,                       /* force clean on dst */
-	                0);                      /* write through */
 
-/*	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, sysGetIsland(), to);
-**/
+	do {
+		/* if (ret) {
+		 * 	kt_printf("DMA from %d:%d Nacked (%d) cnt:%d from:%p\n", from_bid, cid,
+		 * 	          ar_cnt_get_triggered(sysGetCore(), cnt), cnt, from);
+		 * } */
 
-	/*
-	 * FIXME: We are not sure the DMA reached completion (probably
-	 * not), so for the moment let's just spin here. Note that this
-	 * must be fixed in order to make prefetching work efficiently
-	 * FIXME: Add check for Nack and retry if necessary
-	 */
-	while (ar_cnt_get_triggered(sysGetCore(), cnt) == 0) {
-		;
-	}
+		/* Wait until our DMA engine can support at least one more DMA */
+		while ((ar_ni_status_get(sysGetCore()) & 0xFF) == 0) {
+			;
+		}
 
-	if (ar_cnt_get_triggered(sysGetCore(), cnt) == 2) {
-/*		kt_printf("DMA Completed %d\n", ar_cnt_get(sysGetCore(), cnt)); */
-	}
-	else {
-		kt_printf("DMA Nacked\n");
-		ar_abort();
-	}
+		/* Init ACK counter to -size */
+		ar_cnt_set(sysGetCore(), cnt, -size);
+		/* Issue the DMA */
+		/* kt_printf("Issued DMA from %p (%d) of size %d\n", from,
+		 *           (cid == -1) ? 0xC : cid, size); */
+		ar_dma_with_ack(sysGetCore(),            /* my core id */
+		                from_bid - 1,            /* source board id */
+		                (cid == -1) ? 0xC : cid, /* source core id */
+		                (int)from,               /* source address */
+		                sysGetIsland(),          /* destination board id */
+		                sysGetCore(),            /* destination core id */
+		                (int)to,                 /* destination address */
+		                sysGetIsland(),          /* ack board id */
+		                sysGetCore(),            /* ack core id */
+		                cnt,                     /* ack counter */
+		                size,                    /* data length */
+		                0,                       /* ignore dirty bit on source */
+		                0,                       /* force clean on dst */
+		                0);                      /* write through */
+
+		/*	printf("Fetch from: %d-%p to %d-%p\n", from_bid, from, sysGetIsland(), to);
+		**/
+
+		/*
+		 * FIXME: We are not sure the DMA reached completion (probably
+		 * not), so for the moment let's just spin here. Note that this
+		 * must be fixed in order to make prefetching work efficiently
+		 * FIXME: Add check for Nack and retry if necessary
+		 */
+		while ((ret = ar_cnt_get_triggered(sysGetCore(), cnt)) == 0) {
+			;
+		}
+
+	} while (ret == 3);         /* Retry on Nacks */
+
+	assume(ret == 2); /* Ack */
+	assume(ar_cnt_get(sysGetCore(), cnt) == 0);
+	/* Mark the counter as available */
+	hwcnts_g[cnt] = HWCNT_FREE;
 
 	/* kt_printf("Fetched %3d %p from %p size = %d\n", cnt, to, from, size);
 	 * sc_dump(); */
@@ -623,8 +631,6 @@ fetch(Address from, Address to, int size, int cid)
 	 * com_sun_squawk_Klass_name(
 	 *               *(int*)to)); */
 
-	/* Mark the counter as available */
-	hwcnts_g[cnt] = HWCNT_FREE;
 }                  /* fetch */
 
 /**
