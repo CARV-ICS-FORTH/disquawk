@@ -1828,12 +1828,15 @@ public final class Lisp2GenerationalCollector extends GarbageCollector {
 			}
 /*end[DEBUG_CODE_ENABLED]*/
 			Assert.that(!returnFP.isZero(), "activation frame has null returnFP");
-			Address returnMP = NativeUnsafe.getAddress(returnFP, FP.method);
 /*if[ENABLE_DYNAMIC_CLASSLOADING]*/
+			Address returnMP = NativeUnsafe.getAddress(returnFP, FP.method);
 			visitInternalPointer(visitor, fp, FP.returnIP, returnMP);
 /*else[ENABLE_DYNAMIC_CLASSLOADING]*/
-//          Assert.that(!inHeap(returnIP));
-//          Assert.that(!inHeap(returnMP)); // returnMP will never move, and will always be live.
+/*if[ASSERTIONS_ENABLED]*/
+			Address returnMP = NativeUnsafe.getAddress(returnFP, FP.method);
+			Assert.that(!inHeap(returnIP));
+			Assert.that(!inHeap(returnMP)); // returnMP will never move, and will always be live.
+/*end[ASSERTIONS_ENABLED]*/
 /*end[ENABLE_DYNAMIC_CLASSLOADING]*/
 		} else {
 			Assert.that(returnFP.isZero(), "returnFP should be null when returnIP is null");
