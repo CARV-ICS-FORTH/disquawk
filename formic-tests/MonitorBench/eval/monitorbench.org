@@ -1,0 +1,148 @@
+#+TITLE:   MonitorBench Performance Measurements
+#+AUTHOR:  Foivos S. Zakkak
+#+EMAIL:   foivos@zakkak.net
+#+STARTUP: hidestars
+#+STARTUP: showall
+
+* MonitorBench
+
+  Creates N threads where each thread tries to acquire a lock 100
+  times and do something (a simple for loop iterating
+  /artificial_work/ times).
+
+** Content on same lock
+
+*** From a single core 100*N times
+    |--------------+----------------------|
+    | # Iterations | Total time (ms)      |
+    |--------------+----------------------|
+    |            1 | 3496                 |
+    |           15 | 34720                |
+    |          255 | (144876+1wa) 574372  |
+    |          503 | (263975+2wa) 1122967 |
+    |--------------+----------------------|
+
+*** Measurements on monitor manager queuing impact on performance
+    #+tblname: manager-queue
+    |-------+--------+--------------+-----------------|
+    | Tasks | Boards | with queuing | without queuing |
+    |-------+--------+--------------+-----------------|
+    |     1 |      1 |         3496 |            3497 |
+    |    15 |      2 |        21843 |           31631 |
+    |   255 |     32 |       350462 |          616327 |
+    |   503 |     63 |       690797 |         1738468 |
+    |-------+--------+--------------+-----------------|
+    #   |   255 |     32 |              350462 | (186831+1wa) 616327 |
+    #   |   503 |     63 | (261301+1wa) 690797 | (20484+4wa) 1738468 |
+
+    #+begin_src gnuplot :var data=manager-queue :exports results :file mmgr_queue.pdf
+      set title 'Monitor acquisition with and without queuing of requests'
+      set xlabel "Number of boards"
+      set ylabel "Total execution time (ms)\n for 100 monitor enter/exit pairs"
+      set style data histogram
+      set style histogram cluster gap 1
+      unset yrange
+      unset xrange
+      set boxwidth 1
+      plot data using 3:xtic(2), \
+           data using 4:xtic(2)
+    #+end_src
+
+    #+RESULTS:
+    [[file:mmgr_queue.pdf]]
+
+***** artificial_work = 0
+      Measurements from tasks
+      |-----------------+-----------+--------+------+------|
+      | # Tasks         | mean (ms) | median |  min |  max |
+      |-----------------+-----------+--------+------+------|
+      | 1               |      2223 |   2223 | 2223 | 2223 |
+      | 15 (2 boards)   |           |        |      |      |
+      | 255 (32 boards) |           |        |      |      |
+      | 271 (34 boards) |           |        |      |      |
+      | 287 (36 boards) |           |        |      |      |
+      | 319 (40 boards) |           |        |      |      |
+      | 383 (48 boards) |           |        |      |      |
+      | 503 (63 boards) |           |        |      |      |
+      |-----------------+-----------+--------+------+------|
+      #+PLOT: title:"Citas" ind:1 deps:(2 3) type:2d with:histograms set:"yrange [0:]"
+
+      A timer wrap-around (wa) is 4294967296 cc = ~429,496ms = ~7.158278827 min
+
+***** artificial_work = 100
+      |---------------+-----------------+----------------|
+      |       # Tasks | Total time (ms) |                |
+      |---------------+-----------------+----------------|
+      |               | w/ MMGR_QUEUE   | w/o MMGR_QUEUE |
+      |---------------+-----------------+----------------|
+      |             1 | 4266            |                |
+      | 15 (2 boards) |                 |                |
+      |           503 |                 |                |
+      |---------------+-----------------+----------------|
+
+** Content on different locks
+*** artificial_work = 0 (full contention)
+**** Measurements from tasks with 1 monitor managers
+     #+tblname: single-manager
+     |---------+--------+------------+--------+------+------+-------+-------|
+     | # Tasks | Boards |  mean (ms) | median |   q1 |  min |   max |    q3 |
+     |---------+--------+------------+--------+------+------+-------+-------|
+     |       1 |      1 |       2166 |   2166 | 2166 | 2166 |  2166 |  2166 |
+     |     255 |     32 |  2167.1803 |   2167 | 2167 | 2166 |  2169 |  2168 |
+     |     287 |     36 |  2368.4146 |   2368 | 2367 | 2361 |  2373 |  2370 |
+     |     319 |     40 |  2611.6896 |   2612 | 2610 | 2597 |  2618 |  2614 |
+     |     383 |     48 |  4948.2950 |   4968 | 4911 | 4793 |  5037 |  4981 |
+     |     503 |     63 | 10462.1391 |  10300 | 9823 | 8861 | 12108 | 11134 |
+     |---------+--------+------------+--------+------+------+-------+-------|
+     #    | 15  (2 boards)  |  2166.6666 |   2167 | 2166 | 2166 |  2168 |  2167 |  2 |
+     #    | 271 (34 boards) |  2247.3874 |   2247 | 2246 | 2242 |  2252 |  2249 | 34 |
+
+     #+begin_src gnuplot :var data=single-manager :exports results :file single_mmgr.pdf
+       set style data linespoints
+       set title 'Acquisition of different locks with a single manager'y
+       set xlabel "Number of boards"
+       set ylabel "Total execution time (ms per core)\n for 100 monitor enter/exit pairs"
+       set xrange[0:65]
+       set yrange[0:12500]
+       set boxwidth 2 absolute
+       unset key
+       plot data using 2:4, \
+            data using 2:5:6:7:8 with candlesticks whiskerbars, \
+            data using 2:4:4:4:4 with candlesticks lt -1
+     #+end_src
+
+     #+RESULTS:
+     [[file:single_mmgr.pdf]]
+
+**** Measurements from 503 tasks with X monitor managers
+     #+tblname: var-managers
+     |------------+------------+--------+--------+------+-------+--------|
+     | # Managers |  mean (ms) | median |     q1 |  min |   max |     q3 |
+     |------------+------------+--------+--------+------+-------+--------|
+     |          1 | 10462.1391 |  10300 |   9823 | 8861 | 12108 |  11134 |
+     |          2 | 10457.3200 |  10314 | 9848.5 | 8809 | 12129 |  11167 |
+     |          3 |  2172.4811 |   2173 |   2172 | 2164 |  2174 |   2173 |
+     |          4 |  2167.2644 |   2168 |   2162 | 2161 |  2175 | 2172.5 |
+     |          5 |  2172.4174 |   2172 |   2172 | 2164 |  2174 |   2173 |
+     |          6 |  2172.4532 |   2173 |   2172 | 2164 |  2174 |   2173 |
+     |          7 |  2172.3916 |   2172 |   2172 | 2164 |  2174 |   2173 |
+     |          8 |  2162.3001 |   2162 |   2162 | 2161 |  2164 |   2163 |
+     |------------+------------+--------+--------+------+-------+--------|
+
+     #+begin_src gnuplot :var data=var-managers :exports results :file var_mmgr.pdf
+       set style data linespoints
+       set title 'Impact of the number of monitor managers on performance'
+       set xlabel "Number of Managers"
+       set ylabel "Total execution time (ms per core)\n for 100 monitor enter/exit pairs"
+       set xrange[0.5:8.5]
+       set yrange[0:12500]
+       set boxwidth .25 relative
+       unset key
+       plot data using 1:3, \
+            data using 1:4:5:6:7 with candlesticks whiskerbars, \
+            data using 1:3:3:3:3 with candlesticks lt -1 notitle
+     #+end_src
+
+     #+RESULTS:
+     [[file:var_mmgr.pdf]]
+
