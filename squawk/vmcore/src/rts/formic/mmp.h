@@ -111,7 +111,7 @@ mmpSend2(int to_bid, int to_cid, unsigned int msg0, unsigned int msg1)
 		while ((ret = ar_cnt_get_triggered(sysGetCore(), cnt)) == 0) {
 			;
 		}
-	} while (ret == 3);
+	} while (ret == 3);         /* Retry on Nacks */
 
 	assume(ret == 2); /* Ack */
 	assume(ar_cnt_get(sysGetCore(), cnt) == 0);

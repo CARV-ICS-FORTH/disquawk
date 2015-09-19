@@ -1232,6 +1232,9 @@ if (!runningOnServiceThread_g &&                                                
  * Switch to the 'other' thread.
  */
 /*MAC*/ void threadswitchmain() {
+	/* int start;
+	 * start = sysGetTicks(); */
+
 	Address oldThread  = com_sun_squawk_VMThread_currentThread;
 	Address oldStack   = (Address)com_sun_squawk_VMThread_stack(oldThread);
 	UWord   oldMP      = (UWord)getObject(fp_g, FP_method);
@@ -1333,6 +1336,7 @@ if (!runningOnServiceThread_g &&                                                
 
 		SDA_HANDLE_BREAKPOINT_CODE_FRAG
 	}
+	/* printf("threadswitchmain took %d\n", sysGetTicks()-start); */
 }
 
 /**
@@ -2366,6 +2370,9 @@ __attribute__ ((section (".textinram"))) void force_bb_expired() {
 		boundsAssume(state, iparm_g);
 		pushAddress(getObject(state, iparm_g));
 	} else {
+		/* if (sysGetCore() == 0 && sysGetIsland() == 0)
+		 * 	printf("GetStatic_O state = %p klass = %p name = %s \n",
+		 * 	       state, klass, com_sun_squawk_Klass_name(klass)); */
 		pushAddress(klass);
 		pushInt(iparm_g);
 		call(com_sun_squawk_VM_getStaticOop);
@@ -5957,7 +5964,7 @@ static int collectGarbage(Address, Address, int);
 
 	if (sc_in_heap(obj)) {
 		/* printf("Found monitor enter for %p (%s)\n",
-		 *        obj, obj ? (obj == 0xFFFFFFFF ? "PRINT" : com_sun_squawk_Klass_name(obj)) : "null"); */
+		 *        obj, obj ? com_sun_squawk_Klass_name(obj) : "null"); */
 		nullCheck(obj);
 		assumeInterp(((UWord)getObject(obj, HDR_klass) & HDR_headerTagMask) == 0);
 		pushAddress(obj);

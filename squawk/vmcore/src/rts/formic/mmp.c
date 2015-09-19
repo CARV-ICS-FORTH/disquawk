@@ -126,6 +126,8 @@ mmpCheckMailbox(Address type, Address hash)
 	case MMP_OPS_TH_SPAWN:
 		/* kt_printf("I've got a spawn message 0x%02X/%d\n",
 		 *           sysGetIsland(), sysGetCore()); */
+		/* kt_printf("The time is %u\n", ar_free_timer_get_ticks()); */
+		/* ar_uart_flush(); */
 		/* this is a two-words message */
 		object = (Address)ar_mbox_get(sysGetCore());
 		/* kt_printf("Some %d core pushed a thread (%p) for me\n",
@@ -137,7 +139,8 @@ mmpCheckMailbox(Address type, Address hash)
 		 * from the proper cache.
 		 */
 		sc_put(object, cid);
-		/* kt_printf("Our new thread %p is in cache\n", object); */
+		/* kt_printf("Our new thread %p is in cache\n", object);
+		 * kt_printf("The time is %u\n", ar_free_timer_get_ticks()); */
 		result = object;
 		break;
 	/* Handle Monitor Manager replies */
@@ -171,6 +174,8 @@ mmpCheckMailbox(Address type, Address hash)
 			ar_uart_flush();
 #    endif /* ifdef VERY_VERBOSE */
 
+			/* TODO: Add backoff here... to avoid deadlock
+			   (due to underlying hardware limitations) */
 			/* Resend a request */
 			mmgrMonitorEnter(object);
 			set_java_lang_Integer_value(type, MMP_OPS_NOP);
@@ -304,7 +309,7 @@ mmpCheckMailbox(Address type, Address hash)
 	}              /* switch */
 
 	if (hash != NULL)
-		set_java_lang_Integer_value(hash, result);
+		set_java_lang_Integer_value(hash, (int)result);
 
 	return result;
 }                  /* mmpCheckMailbox */
