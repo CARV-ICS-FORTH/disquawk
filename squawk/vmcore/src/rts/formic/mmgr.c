@@ -577,12 +577,13 @@ mmgrGetManager(unsigned int hash, int *bid, int *cid)
 	/* We need only 3 bits since we have 2^3 monitor managers */
 	unsigned int id3;
 
-	/*
+	/* TODO: Out-dated comment
 	 * Objects are cache line aligned so we can ignore the 6 LS bits
 	 * Then skip the next 3 bits so that neighbor objects don't end at the same
 	 * monitor manager
 	 */
-	id3 = (hash >> 9) & 0x7;
+	/* TODO: Use something that distributes objects from the same core as well */
+	id3 = (hash >> 15) & 0x7;
 
 #ifdef MMGR_ON_ARM
 
@@ -809,6 +810,9 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 {
 	monitor_t *monitor;
 
+	/* kt_printf("I got an enter request for %p at %u from %d: %d\n",
+	 *           object, sysGetTicks(), bid, cid); */
+
 	monitor = mmgrGetMonitor(object);
 
 #ifdef MMGR_STATS
@@ -827,14 +831,17 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 #ifdef MMGR_STATS
 		monitor->times_acquired++;
 		// Periodically print stats
-		/* if (monitor->times_acquired & 63 == 0) { */
-			/* printf("Monitor: %p Manager: %d Requested: %u Acquired: %u\n",
-			 *        monitor->object, sysGetCore(),
-			 *        monitor->times_requested, monitor->times_acquired); */
-		/* } */
+		if (monitor->times_acquired & 63 == 0) {
+			printf("Monitor: %p Manager: %d Requested: %u Acquired: %u\n",
+			       monitor->object, sysGetCore(),
+			       monitor->times_requested, monitor->times_acquired);
+		}
 #endif /* ifdef MMGR_STATS */
 	}
 	else {
+		/* kt_printf("NOT Available %p at %u from %d: %d\n",
+		 *           object, sysGetTicks(), bid, cid); */
+
 #ifdef MMGR_QUEUE
 		/* else add the requester to the queue holding the requesters
 		 * waiting for this monitor */
