@@ -4913,6 +4913,18 @@ static int collectGarbage(Address, Address, int);
 
 /*end[LISP2_BITMAP]*/
 
+	case Native_com_sun_squawk_platform_MMP_mmgrResetStats: {
+		int mid = popInt();
+		mmpSend(63, mid, MMP_OPS_MMGR_RESET_STATS);
+		break;
+	}
+
+	case Native_com_sun_squawk_platform_MMP_mmgrPrintStats: {
+		int mid = popInt();
+		mmpSend(63, mid, MMP_OPS_MMGR_PRINT_STATS);
+		break;
+	}
+
 	case Native_com_sun_squawk_platform_MMP_spawnThread: {
 		Address thread = popAddress();
 		mmpSpawnThread(thread);

@@ -34,6 +34,40 @@
 
 /* #define VERY_VERBOSE 1 */
 
+#ifdef MMGR_STATS
+#ifndef MMGR_STATS_PERIOD
+#define MMGR_STATS_PERIOD 1000
+#endif /* ifdef MMGR_STATS_PERIOD */
+unsigned int read_locks;
+unsigned int read_lock_reqs;
+unsigned int write_locks;
+unsigned int write_lock_reqs;
+unsigned int monitor_enters;
+unsigned int monitor_enter_reqs;
+unsigned int start;
+
+void mmgr_reset_stats() {
+	read_locks = 0;
+	read_lock_reqs = 0;
+	write_locks = 0;
+	write_lock_reqs = 0;
+	monitor_enters = 0;
+	monitor_enter_reqs = 0;
+	start = sysGetTicks();
+}
+
+void mmgr_print_stats() {
+	unsigned int time = sysGetTicks()-start;
+	kt_printf("MMGR_STATS | %2d:%1d | %d/%d | %d/%d | %d/%d | %d |\n",
+	          sysGetIsland(), sysGetCore(),
+	          read_locks, read_lock_reqs,
+	          write_locks, write_lock_reqs,
+	          monitor_enters, monitor_enter_reqs,
+	          time);
+	mmgr_reset_stats();
+}
+#endif  /* MMGR_STATS */
+
 /******************************************************************************
  * Custom allocator for the Monitor Manager
  ******************************************************************************/
@@ -562,6 +596,7 @@ mmgrInitialize(mmgrGlobals *globals)
 #endif /* ifdef ARCH_MB */
 
 	kt_memset(mmgrHT_g, 0, sizeof(monitor_t*) * MMGR_HT_SIZE);
+	mmgr_reset_stats();
 }
 
 /**
@@ -816,13 +851,20 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 	monitor = mmgrGetMonitor(object);
 
 #ifdef MMGR_STATS
+	monitor_enter_reqs++;
 	monitor->times_requested++;
+	if (monitor_enter_reqs == MMGR_STATS_PERIOD) {
+		mmgr_print_stats();
+	}
 #endif /* ifdef MMGR_STATS */
 
 	/* If the monitor is available acquire it */
 	if (monitor->owner == -1) {
 		monitor->owner = (bid << 3) | cid;
 
+#ifdef MMGR_STATS
+		monitor_enters++;
+#endif  /* MMGR_STATS */
 		/* Reply back with the owner */
 		mmpSend2(bid, cid,
 		         (unsigned int)((monitor->owner << 16) | MMP_OPS_MNTR_ACK),
@@ -831,11 +873,11 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 #ifdef MMGR_STATS
 		monitor->times_acquired++;
 		// Periodically print stats
-		if (monitor->times_acquired & 63 == 0) {
-			printf("Monitor: %p Manager: %d Requested: %u Acquired: %u\n",
-			       monitor->object, sysGetCore(),
-			       monitor->times_requested, monitor->times_acquired);
-		}
+		/* if ((monitor->times_acquired & 63) == 0) {
+		 * 	printf("Monitor: %p Manager: %d Requested: %u Acquired: %u\n",
+		 * 	       monitor->object, sysGetCore(),
+		 * 	       monitor->times_requested, monitor->times_acquired);
+		 * } */
 #endif /* ifdef MMGR_STATS */
 	}
 	else {
@@ -897,6 +939,9 @@ mmgrMonitorExitHandler(int bid, int cid, Address object, int iswait)
 	 * thread */
 	if ((id = q_dequeue(&monitor->pending)) != -1) {
 		/* kt_printf("There are pending monitors %p\n"); */
+#ifdef MMGR_STATS
+		monitor_enters++;
+#endif /* ifdef MMGR_STATS */
 		monitor->owner = id;
 		bid            = id >> 3;
 		cid            = id & 0x7;
@@ -1145,6 +1190,12 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 
 	monitor = mmgrGetMonitor(object);
 
+#ifdef MMGR_STATS
+	write_lock_reqs++;
+	if (write_lock_reqs == MMGR_STATS_PERIOD) {
+		mmgr_print_stats();
+	}
+#endif  /* ifdef MMGR_STATS */
 #ifdef VERY_VERBOSE
 	kt_printf(
 	    "I got a write%s lock request for %p from %d:%d the owner is %d:%d (%d)\n",
@@ -1173,6 +1224,13 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 		return;
 	}
 
+#ifdef MMGR_STATS
+	write_locks++;
+#endif  /* MMGR_STATS */
+	/* kt_printf("I enqueued a write%s lock request for %p from %d:%d the owner is %d:%d (%d)\n",
+	 *           istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
+	 *           monitor->owner & 7, monitor->owner); */
+
 	/* If it was not a failed try lock we must add it to the queue */
 	q_enqueue(&monitor->writers, (bid << 3) | cid);
 
@@ -1199,6 +1257,13 @@ mmgrReadLockHandler(int bid, int cid, Address object, int istry)
 
 	monitor = mmgrGetMonitor(object);
 
+#ifdef MMGR_STATS
+	read_lock_reqs++;
+	if (read_lock_reqs == MMGR_STATS_PERIOD) {
+		mmgr_print_stats();
+	}
+#endif  /* ifdef MMGR_STATS */
+
 #ifdef VERY_VERBOSE
 	kt_printf(
 	    "I got a read%s lock request for %p from %d:%d the owner is %d:%d\n",
@@ -1209,6 +1274,10 @@ mmgrReadLockHandler(int bid, int cid, Address object, int istry)
 	/* If the monitor is not write locked (or going to be), acquire it */
 	if (monitor->writers.head == NULL) {
 		monitor->owner++;
+
+#ifdef MMGR_STATS
+		read_locks++;
+#endif  /* MMGR_STATS */
 
 		/* Reply back with the owner */
 		mmpSend2(bid, cid,
@@ -1288,6 +1357,9 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 
 		/* If there are pending writer lock requests serve the first one */
 		if ((id = q_peek(&monitor->writers)) != -1) {
+#ifdef MMGR_STATS
+			write_locks++;
+#endif /* ifdef MMGR_STATS */
 			monitor->owner = id;
 			/* And notify the owner */
 			bid            = id >> 3;
@@ -1310,6 +1382,9 @@ mmgrRWunlockHandler(int bid, int cid, Address object, int isread)
 			          object);
 #endif /* ifdef VERY_VERBOSE */
 			while ((id = q_dequeue(&monitor->pending)) != -1) {
+#ifdef MMGR_STATS
+				read_locks++;
+#endif /* ifdef MMGR_STATS */
 				bid = id >> 3;
 				cid = id & 0x7;
 				monitor->owner++;

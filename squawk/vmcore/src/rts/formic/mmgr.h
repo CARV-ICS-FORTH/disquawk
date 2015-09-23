@@ -83,6 +83,14 @@ struct monitor {
 #endif /* ifdef MMGR_STATS */
 };
 
+#ifdef MMGR_STATS
+extern void mmgr_reset_stats();
+extern void mmgr_print_stats();
+#else
+#define mmgr_reset_stats()
+#define mmgr_print_stats()
+#endif  /* MMGR_STATS */
+
 typedef struct mmgrGlobalsStruct {
 	monitor_t *mmgrHT[MMGR_HT_SIZE];
 	monitor_t *mmgrMonitorFreeNodes;

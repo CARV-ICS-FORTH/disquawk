@@ -674,21 +674,9 @@ class NativeVerifierHelper {
             return;
         }
 
-        case Native.com_sun_squawk_NativeUnsafe$getCore: {
-            Assert.that(frame.isStackEmpty());
-            frame.push(INT); // int
-            return;
-        }
-
         case Native.com_sun_squawk_NativeUnsafe$getInt: {
             frame.pop(INT); // int
             frame.pop(OOP); // java.lang.Object
-            Assert.that(frame.isStackEmpty());
-            frame.push(INT); // int
-            return;
-        }
-
-        case Native.com_sun_squawk_NativeUnsafe$getIsland: {
             Assert.that(frame.isStackEmpty());
             frame.push(INT); // int
             return;
@@ -1357,6 +1345,18 @@ class NativeVerifierHelper {
             frame.pop(OOP); // java.lang.Integer
             Assert.that(frame.isStackEmpty());
             frame.push(OOP); // java.lang.Object
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMP$mmgrPrintStats: {
+            frame.pop(INT); // int
+            Assert.that(frame.isStackEmpty());
+            return;
+        }
+
+        case Native.com_sun_squawk_platform_MMP$mmgrResetStats: {
+            frame.pop(INT); // int
+            Assert.that(frame.isStackEmpty());
             return;
         }
 

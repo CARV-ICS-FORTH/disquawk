@@ -301,6 +301,12 @@ mmpCheckMailbox(Address type, Address hash)
 		result = (Address)ar_mbox_get(sysGetCore());
 		assume(result != NULL);
 		break;
+	case MMP_OPS_MMGR_RESET_STATS:
+		mmgr_reset_stats();
+		break;
+	case MMP_OPS_MMGR_PRINT_STATS:
+		mmgr_print_stats();
+		break;
 	default:
 		kt_printf("Error: Unknown message operator\n");
 		kt_printf("Error: OP = %2d\n", (int)msg_type);

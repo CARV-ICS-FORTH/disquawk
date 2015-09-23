@@ -78,4 +78,18 @@ public final class MMP {
 		throw Assert.shouldNotReachHere("unimplemented when hosted");
 	}
 
+	/**
+	 * Reset the monitor manager statistics counters. Use with -DMMGR_STATS
+	 */
+	public static void mmgrResetStats(int id) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
+	/**
+	 * Print the monitor manager statistics counters. Use with -DMMGR_STATS
+	 */
+	public static void mmgrPrintStats(int id) throws NativePragma {
+		throw Assert.shouldNotReachHere("unimplemented when hosted");
+	}
+
 }
