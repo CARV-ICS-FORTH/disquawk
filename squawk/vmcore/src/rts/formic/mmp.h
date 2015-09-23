@@ -34,6 +34,8 @@
 #include "mmp_ops.h"
 #include "hwcnt.h"
 
+//#define PRINT_NACKS
+
 void    mmpSpawnThread(Address thread);
 Address mmpCheckMailbox(Address type, Address hash);
 
@@ -53,6 +55,15 @@ mmpSend(int to_bid, int to_cid, unsigned int msg)
 	cnt = hwcnt_get_free(HWCNT_MMP_SEND1);
 
 	do {
+
+#ifdef PRINT_NACKS
+		/* if(to_bid == 63)
+		 * 	printf("I send one words\n"); */
+		if (ret) {
+			printf("mmpSend Nacked\n");
+		}
+#endif  /* ifdef PRINT_STACKS */
+
 		/* Wait until our DMA engine can support at least one more DMA */
 		while (!(ar_ni_status_get(my_cid) & 0xFF)) {
 			;
@@ -96,6 +107,15 @@ mmpSend2(int to_bid, int to_cid, unsigned int msg0, unsigned int msg1)
 	ret = 0;
 
 	do {
+
+#ifdef PRINT_NACKS
+		/* if(to_bid == 63)
+		 * 	printf("I send two words\n"); */
+		if (ret) {
+			printf("mmpSend2 Nacked\n");
+		}
+#endif  /* ifdef PRINT_STACKS */
+
 		/* Wait until our DMA engine can support at least one more DMA */
 		while (!(ar_ni_status_get(my_cid) & 0xFF)) {
 			;
@@ -141,6 +161,15 @@ mmpSend16(int to_bid, int to_cid, unsigned int msg[16])
 	ret = 0;
 
 	do {
+
+#ifdef PRINT_NACKS
+		/* if(to_bid == 63)
+		 * 	printf("I send 16 words\n"); */
+		if (ret) {
+			printf("mmpSend16 Nacked\n");
+		}
+#endif  /* ifdef PRINT_STACKS */
+
 		/* Wait until our DMA engine can support at least one more DMA */
 		while (!(ar_ni_status_get(my_cid) & 0xFF)) {
 			;

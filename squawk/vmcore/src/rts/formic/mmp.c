@@ -202,6 +202,12 @@ mmpCheckMailbox(Address type, Address hash)
 	case MMP_OPS_MNTR_ENTER:
 		/* this is a two-words message */
 		object = (Address)ar_mbox_get(sysGetCore());
+		/* if (/\* sysGetCore() == 0 && *\/ sysGetIsland() == 63) {
+		 * 	kt_printf("IN MNTR_ENTER object=%p queue_len=%d from=%d:%d\n",
+		 * 	          object, ar_mbox_status_get(sysGetCore()) & 0xFFFF,
+		 * 	          bid, cid);
+		 * 	ar_uart_flush();
+		 * } */
 		/* kt_printf("0x%02X/%d wants to enter monitor (%p)\n",
 		 *           from_bid, from_cid, object); */
 		assume(object != NULL);
@@ -235,6 +241,12 @@ mmpCheckMailbox(Address type, Address hash)
 	case MMP_OPS_MNTR_EXIT:
 		/* this is a two-words message */
 		object = (Address)ar_mbox_get(sysGetCore());
+		/* if (/\* sysGetCore() == 0 && *\/ sysGetIsland() == 63) {
+		 * 	kt_printf("IN MNTR_EXIT object=%p queue_len=%d from=%d:%d\n",
+		 * 	          object, ar_mbox_status_get(sysGetCore()) & 0xFFFF,
+		 * 	          bid, cid);
+		 * 	ar_uart_flush();
+		 * } */
 		/* kt_printf("0x%02X/%d wants to exit monitor (%p)\n",
 		 *           from_bid, from_cid, object); */
 		assume(object != NULL);
