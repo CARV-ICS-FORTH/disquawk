@@ -51,6 +51,11 @@ public class Main {
 		for (int i = 0; i<t.length; i++) {
 			t[i].start();
 		}
+
+		for (int i = 0; i<8; i++) {
+			MMP.mmgrResetStats(i);
+		}
+
 		for (int i = 0; i<t.length; i++) {
 			t[i].join();
 		}

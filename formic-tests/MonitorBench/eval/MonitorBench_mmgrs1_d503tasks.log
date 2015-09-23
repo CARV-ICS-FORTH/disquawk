@@ -1,0 +1,575 @@
+>> ELF file transmitted (1067444 bytes)
+>> Formic cube powered on
+>> Spawning XMD script to boot Formic...
+>> XMD terminated successfully.
+>> Entering working mode, press Ctrl-C to quit
+usb_on
+usb_on
+EnablingEnabling debug U debug USB...
+SB...
+
+
+Cmd> 
+Cmd> 
+
+
+Boot master is 0x00/0	0:0
+	0:0
+Checking Formic cube links:	0:0
+01/64: Checking board 0x3F [X=3, Y=3, Z=3]...02/64: Checking board 0x2F [X=2, Y=3, Z=3]...03/64: Checking board 0x1F [X=1, Y=3, Z=3]...04/64: Checking board 0x0F [X=0, Y=3, Z=3]...05/64: Checking board 0x3B [X=3, Y=2, Z=3]...06/64: Checking board 0x2B [X=2, Y=2, Z=3]...07/64: Checking board 0x1B [X=1, Y=2, Z=3]...08/64: Checking board 0x0B [X=0, Y=2, Z=3]...09/64: Checking board 0x37 [X=3, Y=1, Z=3]...10/64: Checking board 0x27 [X=2, Y=1, Z=3]...11/64: Checking board 0x17 [X=1, Y=1, Z=3]...12/64: Checking board 0x07 [X=0, Y=1, Z=3]...13/64: Checking board 0x33 [X=3, Y=0, Z=3]...14/64: Checking board 0x23 [X=2, Y=0, Z=3]...15/64: Checking board 0x13 [X=1, Y=0, Z=3]...16/64: Checking board 0x03 [X=0, Y=0, Z=3]...17/64: Checking board 0x3E [X=3, Y=3, Z=2]...18/64: Checking board 0x2E [X=2, Y=3, Z=2]...19/64: Checking board 0x1E [X=1, Y=3, Z=2]...20/64: Checking board 0x0E [X=0, Y=3, Z=2]...21/64: Checking board 0x3A [X=3, Y=2, Z=2]...22/64: Checking board 0x2A [X=2, Y=2, Z=2]...23/64: Checking board 0x1A [X=1, Y=2, Z=2]...24/64: Checking board 0x0A [X=0, Y=2, Z=2]...25/64: Checking board 0x36 [X=3, Y=1, Z=2]...26/64: Checking board 0x26 [X=2, Y=1, Z=2]...27/64: Checking board 0x16 [X=1, Y=1, Z=2]...28/64: Checking board 0x06 [X=0, Y=1, Z=2]...29/64: Checking board 0x32 [X=3, Y=0, Z=2]...30/64: Checking board 0x22 [X=2, Y=0, Z=2]...31/64: Checking board 0x12 [X=1, Y=0, Z=2]...32/64: Checking board 0x02 [X=0, Y=0, Z=2]...33/64: Checking board 0x3D [X=3, Y=3, Z=1]...34/64: Checking board 0x2D [X=2, Y=3, Z=1]...35/64: Checking board 0x1D [X=1, Y=3, Z=1]...36/64: Checking board 0x0D [X=0, Y=3, Z=1]...37/64: Checking board 0x39 [X=3, Y=2, Z=1]...38/64: Checking board 0x29 [X=2, Y=2, Z=1]...39/64: Checking board 0x19 [X=1, Y=2, Z=1]...40/64: Checking board 0x09 [X=0, Y=2, Z=1]...41/64: Checking board 0x35 [X=3, Y=1, Z=1]...42/64: Checking board 0x25 [X=2, Y=1, Z=1]...43/64: Checking board 0x15 [X=1, Y=1, Z=1]...44/64: Checking board 0x05 [X=0, Y=1, Z=1]...45/64: Checking board 0x31 [X=3, Y=0, Z=1]...46/64: Checking board 0x21 [X=2, Y=0, Z=1]...47/64: Checking board 0x11 [X=1, Y=0, Z=1]...48/64: Checking board 0x01 [X=0, Y=0, Z=1]...49/64: Checking board 0x3C [X=3, Y=3, Z=0]...50/64: Checking board 0x2C [X=2, Y=3, Z=0]...51/64: Checking board 0x1C [X=1, Y=3, Z=0]...52/64: Checking board 0x0C [X=0, Y=3, Z=0]...53/64: Checking board 0x38 [X=3, Y=2, Z=0]...54/64: Checking board 0x28 [X=2, Y=2, Z=0]...55/64: Checking board 0x18 [X=1, Y=2, Z=0]...56/64: Checking board 0x08 [X=0, Y=2, Z=0]...57/64: Checking board 0x34 [X=3, Y=1, Z=0]...58/64: Checking board 0x24 [X=2, Y=1, Z=0]...59/64: Checking board 0x14 [X=1, Y=1, Z=0]...60/64: Checking board 0x04 [X=0, Y=1, Z=0]...61/64: Checking board 0x30 [X=3, Y=0, Z=0]...62/64: Checking board 0x20 [X=2, Y=0, Z=0]...63/64: Checking board 0x10 [X=1, Y=0, Z=0]...64/64: Checking board 0x00 [X=0, Y=0, Z=0]... checked 288 endpoints [ [1;32mPASS[0m ]	0:0
+	0:0
+Checking Formic cube board versions:	0:0
+01/64: Checking board 0x3F [X=3, Y=3, Z=3]...02/64: Checking board 0x2F [X=2, Y=3, Z=3]...03/64: Checking board 0x1F [X=1, Y=3, Z=3]...04/64: Checking board 0x0F [X=0, Y=3, Z=3]...05/64: Checking board 0x3B [X=3, Y=2, Z=3]...06/64: Checking board 0x2B [X=2, Y=2, Z=3]...07/64: Checking board 0x1B [X=1, Y=2, Z=3]...08/64: Checking board 0x0B [X=0, Y=2, Z=3]...09/64: Checking board 0x37 [X=3, Y=1, Z=3]...10/64: Checking board 0x27 [X=2, Y=1, Z=3]...11/64: Checking board 0x17 [X=1, Y=1, Z=3]...12/64: Checking board 0x07 [X=0, Y=1, Z=3]...13/64: Checking board 0x33 [X=3, Y=0, Z=3]...14/64: Checking board 0x23 [X=2, Y=0, Z=3]...15/64: Checking board 0x13 [X=1, Y=0, Z=3]...16/64: Checking board 0x03 [X=0, Y=0, Z=3]...17/64: Checking board 0x3E [X=3, Y=3, Z=2]...18/64: Checking board 0x2E [X=2, Y=3, Z=2]...19/64: Checking board 0x1E [X=1, Y=3, Z=2]...20/64: Checking board 0x0E [X=0, Y=3, Z=2]...21/64: Checking board 0x3A [X=3, Y=2, Z=2]...22/64: Checking board 0x2A [X=2, Y=2, Z=2]...23/64: Checking board 0x1A [X=1, Y=2, Z=2]...24/64: Checking board 0x0A [X=0, Y=2, Z=2]...25/64: Checking board 0x36 [X=3, Y=1, Z=2]...26/64: Checking board 0x26 [X=2, Y=1, Z=2]...27/64: Checking board 0x16 [X=1, Y=1, Z=2]...28/64: Checking board 0x06 [X=0, Y=1, Z=2]...29/64: Checking board 0x32 [X=3, Y=0, Z=2]...30/64: Checking board 0x22 [X=2, Y=0, Z=2]...31/64: Checking board 0x12 [X=1, Y=0, Z=2]...32/64: Checking board 0x02 [X=0, Y=0, Z=2]...33/64: Checking board 0x3D [X=3, Y=3, Z=1]...34/64: Checking board 0x2D [X=2, Y=3, Z=1]...35/64: Checking board 0x1D [X=1, Y=3, Z=1]...36/64: Checking board 0x0D [X=0, Y=3, Z=1]...37/64: Checking board 0x39 [X=3, Y=2, Z=1]...38/64: Checking board 0x29 [X=2, Y=2, Z=1]...39/64: Checking board 0x19 [X=1, Y=2, Z=1]...40/64: Checking board 0x09 [X=0, Y=2, Z=1]...41/64: Checking board 0x35 [X=3, Y=1, Z=1]...42/64: Checking board 0x25 [X=2, Y=1, Z=1]...43/64: Checking board 0x15 [X=1, Y=1, Z=1]...44/64: Checking board 0x05 [X=0, Y=1, Z=1]...45/64: Checking board 0x31 [X=3, Y=0, Z=1]...46/64: Checking board 0x21 [X=2, Y=0, Z=1]...47/64: Checking board 0x11 [X=1, Y=0, Z=1]...48/64: Checking board 0x01 [X=0, Y=0, Z=1]...49/64: Checking board 0x3C [X=3, Y=3, Z=0]...50/64: Checking board 0x2C [X=2, Y=3, Z=0]...51/64: Checking board 0x1C [X=1, Y=3, Z=0]...52/64: Checking board 0x0C [X=0, Y=3, Z=0]...53/64: Checking board 0x38 [X=3, Y=2, Z=0]...54/64: Checking board 0x28 [X=2, Y=2, Z=0]...55/64: Checking board 0x18 [X=1, Y=2, Z=0]...56/64: Checking board 0x08 [X=0, Y=2, Z=0]...57/64: Checking board 0x34 [X=3, Y=1, Z=0]...58/64: Checking board 0x24 [X=2, Y=1, Z=0]...59/64: Checking board 0x14 [X=1, Y=1, Z=0]...60/64: Checking board 0x04 [X=0, Y=1, Z=0]...61/64: Checking board 0x30 [X=3, Y=0, Z=0]...62/64: Checking board 0x20 [X=2, Y=0, Z=0]...63/64: Checking board 0x10 [X=1, Y=0, Z=0]...64/64: Checking board 0x00 [X=0, Y=0, Z=0]... checked 64 boards [ [1;32mPASS[0m ]	0:0
+	0:0
+Microblaze code from 0x00000000 - 0x000FFB28 [1047360 bytes]	0:0
+Waking up board x0y0z0 (0x00)...Waking up board x0y0z1 (0x01)...Waking up board x0y0z2 (0x02)...Waking up board x0y0z3 (0x03)...Waking up board x0y1z0 (0x04)...Waking up board x0y1z1 (0x05)...Waking up board x0y1z2 (0x06)...Waking up board x0y1z3 (0x07)...Waking up board x0y2z0 (0x08)...Waking up board x0y2z1 (0x09)...Waking up board x0y2z2 (0x0A)...Waking up board x0y2z3 (0x0B)...Waking up board x0y3z0 (0x0C)...Waking up board x0y3z1 (0x0D)...Waking up board x0y3z2 (0x0E)...Waking up board x0y3z3 (0x0F)...Waking up board x1y0z0 (0x10)...Waking up board x1y0z1 (0x11)...Waking up board x1y0z2 (0x12)...Waking up board x1y0z3 (0x13)...Waking up board x1y1z0 (0x14)...Waking up board x1y1z1 (0x15)...Waking up board x1y1z2 (0x16)...Waking up board x1y1z3 (0x17)...Waking up board x1y2z0 (0x18)...Waking up board x1y2z1 (0x19)...Waking up board x1y2z2 (0x1A)...Waking up board x1y2z3 (0x1B)...Waking up board x1y3z0 (0x1C)...Waking up board x1y3z1 (0x1D)...Waking up board x1y3z2 (0x1E)...Waking up board x1y3z3 (0x1F)...Waking up board x2y0z0 (0x20)...Waking up board x2y0z1 (0x21)...Waking up board x2y0z2 (0x22)...Waking up board x2y0z3 (0x23)...Waking up board x2y1z0 (0x24)...Waking up board x2y1z1 (0x25)...Waking up board x2y1z2 (0x26)...Waking up board x2y1z3 (0x27)...Waking up board x2y2z0 (0x28)...Waking up board x2y2z1 (0x29)...Waking up board x2y2z2 (0x2A)...Waking up board x2y2z3 (0x2B)...Waking up board x2y3z0 (0x2C)...Waking up board x2y3z1 (0x2D)...Waking up board x2y3z2 (0x2E)...Waking up board x2y3z3 (0x2F)...Waking up board x3y0z0 (0x30)...Waking up board x3y0z1 (0x31)...Waking up board x3y0z2 (0x32)...Waking up board x3y0z3 (0x33)...Waking up board x3y1z0 (0x34)...Waking up board x3y1z1 (0x35)...Waking up board x3y1z2 (0x36)...Waking up board x3y1z3 (0x37)...Waking up board x3y2z0 (0x38)...Waking up board x3y2z1 (0x39)...Waking up board x3y2z2 (0x3A)...Waking up board x3y2z3 (0x3B)...Waking up board x3y3z0 (0x3C)...Waking up board x3y3z1 (0x3D)...Waking up board x3y3z2 (0x3E)...Waking up board x3y3z3 (0x3F)...Successfully woke up 64 boards     	0:0
+Collected 511 boot answers	0:0
+	0:0
+[INFO] in STARTUP
+[INFO] Isolation initialized
+[DBG]  Threading initialized
+[DBG]  Copied Strings
+[DBG]  Service operation Loop is up and running
+[INFO] in runMain: com.sun.squawk.JavaApplicationManager
+[DIAG] AppThread Instantiated with: monitorbench.Main
+parentSuiteURI=spotsuite:FormicApp
+[DIAG] in load(bool)
+       Minor     : 0
+       Major     : 2
+       Attributes: 2
+       parentHash: 0x6f73dd
+       parentURI : memory:bootstrap
+        padding   : 0
+[DIAG] in loadThis
+
+       Read:2332
+       rootOffset: 4
+       memorySize: 2216
+       hash      : 0x8241
+Loading flash suite to address 0x901f8
+[loaded object memory from 'spotsuite:FormicApp']
+morph done starting AppThread
+[INFO] in runMain: monitorbench.Main
+Running monitorBench with artificial_work set to 0 and 503 tasks
+W Total time on different lock 8861 ms BID: 15 CID: 1
+W Total time on different lock 8997 ms BID: 3 CID: 1
+W Total time on different lock 8938 ms BID: 11 CID: 1
+W Total time on different lock 8979 ms BID: 3 CID: 5
+W Total time on different lock 8938 ms BID: 11 CID: 5
+W Total time on different lock 8994 ms BID: 7 CID: 1
+W Total time on different lock 9034 ms BID: 3 CID: 0
+W Total time on different lock 9065 ms BID: 3 CID: 3
+W Total time on different lock 9070 ms BID: 3 CID: 7
+W Total time on different lock 9001 ms BID: 15 CID: 5
+W Total time on different lock 9114 ms BID: 7 CID: 6
+W Total time on different lock 9161 ms BID: 3 CID: 6
+W Total time on different lock 9108 ms BID: 11 CID: 3
+W Total time on different lock 9177 ms BID: 3 CID: 4
+W Total time on different lock 9164 ms BID: 7 CID: 0
+W Total time on different lock 9092 ms BID: 7 CID: 4
+W Total time on different lock 9180 ms BID: 7 CID: 3
+W Total time on different lock 9134 ms BID: 11 CID: 0
+W Total time on different lock 9124 ms BID: 15 CID: 3
+W Total time on different lock 9179 ms BID: 14 CID: 0
+W Total time on different lock 9226 ms BID: 10 CID: 3
+W Total time on different lock 9198 ms BID: 15 CID: 6
+W Total time on different lock 9260 ms BID: 7 CID: 7
+W Total time on different lock 9212 ms BID: 15 CID: 0
+W Total time on different lock 9378 ms BID: 3 CID: 2
+W Total time on different lock 9166 ms BID: 27 CID: 4
+W Total time on different lock 9314 ms BID: 11 CID: 6
+W Total time on different lock 9322 ms BID: 11 CID: 4
+W Total time on different lock 9198 ms BID: 19 CID: 6
+W Total time on different lock 9409 ms BID: 2 CID: 4
+W Total time on different lock 9388 ms BID: 6 CID: 0
+W Total time on different lock 9222 ms BID: 27 CID: 0
+W Total time on different lock 9416 ms BID: 7 CID: 5
+W Total time on different lock 9342 ms BID: 14 CID: 4
+W Total time on different lock 9436 ms BID: 6 CID: 3
+W Total time on different lock 9370 ms BID: 15 CID: 2
+W Total time on different lock 9336 ms BID: 19 CID: 7
+W Total time on different lock 9441 ms BID: 7 CID: 2
+W Total time on different lock 9411 ms BID: 11 CID: 7
+W Total time on different lock 9422 ms BID: 10 CID: 5
+W Total time on different lock 9428 ms BID: 10 CID: 4
+W Total time on different lock 9470 ms BID: 6 CID: 4
+W Total time on different lock 9306 ms BID: 27 CID: 7
+W Total time on different lock 9429 ms BID: 14 CID: 1
+W Total time on different lock 9427 ms BID: 13 CID: 2
+W Total time on different lock 9459 ms BID: 11 CID: 2
+W Total time on different lock 9424 ms BID: 19 CID: 2
+W Total time on different lock 9584 ms BID: 2 CID: 2
+W Total time on different lock 9531 ms BID: 10 CID: 1
+W Total time on different lock 9458 ms BID: 18 CID: 2
+W Total time on different lock 9386 ms BID: 27 CID: 5
+W Total time on different lock 9430 ms BID: 23 CID: 7
+W Total time on different lock 9469 ms BID: 19 CID: 3
+W Total time on different lock 9396 ms BID: 27 CID: 6
+W Total time on different lock 9512 ms BID: 15 CID: 4
+W Total time on different lock 9379 ms BID: 31 CID: 3
+W Total time on different lock 9449 ms BID: 23 CID: 1
+W Total time on different lock 9518 ms BID: 14 CID: 2
+W Total time on different lock 9474 ms BID: 15 CID: 7
+W Total time on different lock 9355 ms BID: 31 CID: 1
+W Total time on different lock 9648 ms BID: 2 CID: 0
+W Total time on different lock 9522 ms BID: 14 CID: 5
+W Total time on different lock 9549 ms BID: 14 CID: 3
+W Total time on different lock 9513 ms BID: 18 CID: 0
+W Total time on different lock 9649 ms BID: 2 CID: 5
+W Total time on different lock 9617 ms BID: 2 CID: 1
+W Total time on different lock 9611 ms BID: 6 CID: 6
+W Total time on different lock 9445 ms BID: 31 CID: 0
+W Total time on different lock 9679 ms BID: 2 CID: 3
+W Total time on different lock 9674 ms BID: 2 CID: 6
+W Total time on different lock 9451 ms BID: 31 CID: 2
+W Total time on different lock 9520 ms BID: 23 CID: 5
+W Total time on different lock 9538 ms BID: 23 CID: 0
+W Total time on different lock 9632 ms BID: 10 CID: 2
+W Total time on different lock 9569 ms BID: 19 CID: 5
+W Total time on different lock 9476 ms BID: 31 CID: 5
+W Total time on different lock 9606 ms BID: 18 CID: 1
+W Total time on different lock 9658 ms BID: 10 CID: 7
+W Total time on different lock 9545 ms BID: 27 CID: 3
+W Total time on different lock 9741 ms BID: 6 CID: 1
+W Total time on different lock 9603 ms BID: 23 CID: 6
+W Total time on different lock 9538 ms BID: 30 CID: 4
+W Total time on different lock 9646 ms BID: 19 CID: 0
+W Total time on different lock 9748 ms BID: 6 CID: 5
+W Total time on different lock 9660 ms BID: 14 CID: 6
+W Total time on different lock 9724 ms BID: 10 CID: 6
+W Total time on different lock 9565 ms BID: 31 CID: 4
+W Total time on different lock 9806 ms BID: 2 CID: 7
+W Total time on different lock 9687 ms BID: 19 CID: 4
+W Total time on different lock 9582 ms BID: 31 CID: 6
+W Total time on different lock 9686 ms BID: 23 CID: 4
+W Total time on different lock 9621 ms BID: 30 CID: 2
+W Total time on different lock 9651 ms BID: 27 CID: 2
+W Total time on different lock 9734 ms BID: 19 CID: 1
+W Total time on different lock 9689 ms BID: 23 CID: 2
+W Total time on different lock 9702 ms BID: 22 CID: 5
+W Total time on different lock 9775 ms BID: 13 CID: 5
+W Total time on different lock 9517 ms BID: 47 CID: 2
+W Total time on different lock 9864 ms BID: 6 CID: 2
+W Total time on different lock 9664 ms BID: 30 CID: 5
+W Total time on different lock 9774 ms BID: 14 CID: 7
+W Total time on different lock 9635 ms BID: 31 CID: 7
+W Total time on different lock 9866 ms BID: 6 CID: 7
+W Total time on different lock 9702 ms BID: 27 CID: 1
+W Total time on different lock 9834 ms BID: 13 CID: 3
+W Total time on different lock 9874 ms BID: 10 CID: 0
+W Total time on different lock 9761 ms BID: 23 CID: 3
+W Total time on different lock 9684 ms BID: 30 CID: 6
+W Total time on different lock 9651 ms BID: 39 CID: 0
+W Total time on different lock 9888 ms BID: 13 CID: 4
+W Total time on different lock 9827 ms BID: 22 CID: 0
+W Total time on different lock 9866 ms BID: 18 CID: 6
+W Total time on different lock 9916 ms BID: 13 CID: 6
+W Total time on different lock 9826 ms BID: 26 CID: 0
+W Total time on different lock 9645 ms BID: 47 CID: 5
+W Total time on different lock 9824 ms BID: 26 CID: 2
+W Total time on different lock 9817 ms BID: 26 CID: 5
+W Total time on different lock 9786 ms BID: 30 CID: 3
+W Total time on different lock 9771 ms BID: 35 CID: 4
+W Total time on different lock 9881 ms BID: 22 CID: 6
+W Total time on different lock 9744 ms BID: 35 CID: 5
+W Total time on different lock 9751 ms BID: 39 CID: 2
+W Total time on different lock 9871 ms BID: 26 CID: 1
+W Total time on different lock 9735 ms BID: 43 CID: 4
+W Total time on different lock 9771 ms BID: 39 CID: 4
+W Total time on different lock 9745 ms BID: 43 CID: 6
+W Total time on different lock 10011 ms BID: 13 CID: 1
+W Total time on different lock 9872 ms BID: 30 CID: 0
+W Total time on different lock 9629 ms BID: 59 CID: 1
+W Total time on different lock 9973 ms BID: 18 CID: 3
+W Total time on different lock 9942 ms BID: 22 CID: 3
+W Total time on different lock 9734 ms BID: 47 CID: 6
+W Total time on different lock 10027 ms BID: 13 CID: 7
+W Total time on different lock 9824 ms BID: 39 CID: 3
+W Total time on different lock 9770 ms BID: 46 CID: 2
+W Total time on different lock 9982 ms BID: 22 CID: 1
+W Total time on different lock 9908 ms BID: 30 CID: 7
+W Total time on different lock 10009 ms BID: 18 CID: 7
+W Total time on different lock 9794 ms BID: 47 CID: 0
+W Total time on different lock 10091 ms BID: 13 CID: 0
+W Total time on different lock 9974 ms BID: 26 CID: 7
+W Total time on different lock 10021 ms BID: 22 CID: 2
+W Total time on different lock 9814 ms BID: 47 CID: 1
+W Total time on different lock 9805 ms BID: 47 CID: 4
+W Total time on different lock 9822 ms BID: 46 CID: 5
+W Total time on different lock 9847 ms BID: 43 CID: 7
+W Total time on different lock 10016 ms BID: 22 CID: 4
+W Total time on different lock 9999 ms BID: 26 CID: 3
+W Total time on different lock 9761 ms BID: 55 CID: 1
+W Total time on different lock 9890 ms BID: 39 CID: 6
+W Total time on different lock 9862 ms BID: 43 CID: 1
+W Total time on different lock 10077 ms BID: 18 CID: 4
+W Total time on different lock 9887 ms BID: 42 CID: 1
+W Total time on different lock 9737 ms BID: 59 CID: 7
+W Total time on different lock 9944 ms BID: 35 CID: 3
+W Total time on different lock 9995 ms BID: 30 CID: 1
+W Total time on different lock 10030 ms BID: 26 CID: 4
+W Total time on different lock 9787 ms BID: 55 CID: 6
+W Total time on different lock 9902 ms BID: 43 CID: 5
+W Total time on different lock 9973 ms BID: 35 CID: 1
+W Total time on different lock 9982 ms BID: 34 CID: 6
+W Total time on different lock 9886 ms BID: 46 CID: 4
+W Total time on different lock 9883 ms BID: 46 CID: 7
+W Total time on different lock 10128 ms BID: 18 CID: 5
+W Total time on different lock 9923 ms BID: 43 CID: 2
+W Total time on different lock 9890 ms BID: 47 CID: 7
+W Total time on different lock 10001 ms BID: 35 CID: 2
+W Total time on different lock 9939 ms BID: 43 CID: 3
+W Total time on different lock 10015 ms BID: 34 CID: 2
+W Total time on different lock 9805 ms BID: 59 CID: 4
+W Total time on different lock 9816 ms BID: 59 CID: 6
+W Total time on different lock 9934 ms BID: 46 CID: 0
+W Total time on different lock 10128 ms BID: 22 CID: 7
+W Total time on different lock 9969 ms BID: 42 CID: 5
+W Total time on different lock 9997 ms BID: 39 CID: 5
+W Total time on different lock 9901 ms BID: 51 CID: 7
+W Total time on different lock 9977 ms BID: 43 CID: 0
+W Total time on different lock 9945 ms BID: 47 CID: 3
+W Total time on different lock 10062 ms BID: 35 CID: 6
+W Total time on different lock 10147 ms BID: 26 CID: 6
+W Total time on different lock 10102 ms BID: 34 CID: 5
+W Total time on different lock 9965 ms BID: 51 CID: 4
+W Total time on different lock 9948 ms BID: 55 CID: 4
+W Total time on different lock 10136 ms BID: 34 CID: 1
+W Total time on different lock 9927 ms BID: 59 CID: 3
+W Total time on different lock 10135 ms BID: 35 CID: 0
+W Total time on different lock 9969 ms BID: 55 CID: 2
+W Total time on different lock 9951 ms BID: 59 CID: 0
+W Total time on different lock 10084 ms BID: 42 CID: 7
+W Total time on different lock 10160 ms BID: 34 CID: 7
+W Total time on different lock 9995 ms BID: 55 CID: 5
+W Total time on different lock 10215 ms BID: 29 CID: 7
+W Total time on different lock 9945 ms BID: 62 CID: 1
+W Total time on different lock 10145 ms BID: 38 CID: 3
+W Total time on different lock 10116 ms BID: 42 CID: 0
+W Total time on different lock 10039 ms BID: 51 CID: 2
+W Total time on different lock 10141 ms BID: 39 CID: 1
+W Total time on different lock 10082 ms BID: 46 CID: 3
+W Total time on different lock 10002 ms BID: 55 CID: 7
+W Total time on different lock 10233 ms BID: 29 CID: 4
+W Total time on different lock 9981 ms BID: 59 CID: 5
+W Total time on different lock 10056 ms BID: 51 CID: 0
+W Total time on different lock 9953 ms BID: 62 CID: 6
+W Total time on different lock 10388 ms BID: 12 CID: 7
+W Total time on different lock 9997 ms BID: 59 CID: 2
+W Total time on different lock 10177 ms BID: 38 CID: 1
+W Total time on different lock 10249 ms BID: 29 CID: 6
+W Total time on different lock 10070 ms BID: 51 CID: 3
+W Total time on different lock 10069 ms BID: 51 CID: 6
+W Total time on different lock 10078 ms BID: 51 CID: 5
+W Total time on different lock 10180 ms BID: 39 CID: 7
+W Total time on different lock 10446 ms BID: 9 CID: 4
+W Total time on different lock 9994 ms BID: 62 CID: 2
+W Total time on different lock 10292 ms BID: 29 CID: 1
+W Total time on different lock 10468 ms BID: 9 CID: 0
+W Total time on different lock 10214 ms BID: 38 CID: 6
+W Total time on different lock 10111 ms BID: 51 CID: 1
+W Total time on different lock 10125 ms BID: 50 CID: 0
+W Total time on different lock 10087 ms BID: 54 CID: 6
+W Total time on different lock 10012 ms BID: 62 CID: 7
+W Total time on different lock 10258 ms BID: 34 CID: 4
+W Total time on different lock 10083 ms BID: 55 CID: 3
+W Total time on different lock 10095 ms BID: 55 CID: 0
+W Total time on different lock 10258 ms BID: 35 CID: 7
+W Total time on different lock 10320 ms BID: 29 CID: 0
+W Total time on different lock 10485 ms BID: 9 CID: 5
+W Total time on different lock 10204 ms BID: 42 CID: 6
+W Total time on different lock 10180 ms BID: 46 CID: 1
+W Total time on different lock 10036 ms BID: 62 CID: 3
+W Total time on different lock 10079 ms BID: 58 CID: 5
+W Total time on different lock 10264 ms BID: 38 CID: 2
+W Total time on different lock 10133 ms BID: 54 CID: 1
+W Total time on different lock 10268 ms BID: 38 CID: 4
+W Total time on different lock 10074 ms BID: 62 CID: 0
+W Total time on different lock 10148 ms BID: 54 CID: 0
+W Total time on different lock 10140 ms BID: 54 CID: 7
+W Total time on different lock 10501 ms BID: 12 CID: 3
+W Total time on different lock 10249 ms BID: 42 CID: 4
+W Total time on different lock 10538 ms BID: 9 CID: 3
+W Total time on different lock 10288 ms BID: 38 CID: 5
+W Total time on different lock 10300 ms BID: 38 CID: 0
+W Total time on different lock 10233 ms BID: 46 CID: 6
+W Total time on different lock 10134 ms BID: 58 CID: 6
+W Total time on different lock 10210 ms BID: 50 CID: 1
+W Total time on different lock 10535 ms BID: 12 CID: 0
+W Total time on different lock 10250 ms BID: 45 CID: 7
+W Total time on different lock 10101 ms BID: 62 CID: 5
+W Total time on different lock 10147 ms BID: 58 CID: 1
+W Total time on different lock 10399 ms BID: 29 CID: 2
+W Total time on different lock 10569 ms BID: 9 CID: 1
+W Total time on different lock 10574 ms BID: 9 CID: 2
+W Total time on different lock 10163 ms BID: 58 CID: 3
+W Total time on different lock 10122 ms BID: 62 CID: 4
+W Total time on different lock 10412 ms BID: 29 CID: 3
+W Total time on different lock 10378 ms BID: 34 CID: 3
+W Total time on different lock 10421 ms BID: 29 CID: 5
+W Total time on different lock 10315 ms BID: 42 CID: 2
+W Total time on different lock 10181 ms BID: 58 CID: 4
+W Total time on different lock 10179 ms BID: 58 CID: 7
+W Total time on different lock 10293 ms BID: 45 CID: 6
+W Total time on different lock 10223 ms BID: 54 CID: 4
+W Total time on different lock 10331 ms BID: 42 CID: 3
+W Total time on different lock 10205 ms BID: 58 CID: 0
+W Total time on different lock 10270 ms BID: 50 CID: 3
+W Total time on different lock 10596 ms BID: 12 CID: 6
+W Total time on different lock 10215 ms BID: 58 CID: 2
+W Total time on different lock 10603 ms BID: 12 CID: 4
+W Total time on different lock 10629 ms BID: 9 CID: 6
+W Total time on different lock 10424 ms BID: 34 CID: 0
+W Total time on different lock 10267 ms BID: 54 CID: 2
+W Total time on different lock 10306 ms BID: 50 CID: 7
+W Total time on different lock 10411 ms BID: 38 CID: 7
+W Total time on different lock 10239 ms BID: 61 CID: 5
+W Total time on different lock 10679 ms BID: 9 CID: 7
+W Total time on different lock 10662 ms BID: 12 CID: 5
+W Total time on different lock 10318 ms BID: 54 CID: 5
+W Total time on different lock 10358 ms BID: 50 CID: 4
+W Total time on different lock 10276 ms BID: 61 CID: 1
+W Total time on different lock 10691 ms BID: 12 CID: 1
+W Total time on different lock 10339 ms BID: 54 CID: 3
+W Total time on different lock 10590 ms BID: 25 CID: 7
+W Total time on different lock 10444 ms BID: 45 CID: 0
+W Total time on different lock 10403 ms BID: 50 CID: 2
+W Total time on different lock 10827 ms BID: 1 CID: 5
+W Total time on different lock 10633 ms BID: 25 CID: 0
+W Total time on different lock 10333 ms BID: 61 CID: 4
+W Total time on different lock 10752 ms BID: 12 CID: 2
+W Total time on different lock 10429 ms BID: 50 CID: 6
+W Total time on different lock 10435 ms BID: 50 CID: 5
+W Total time on different lock 10497 ms BID: 45 CID: 1
+W Total time on different lock 10355 ms BID: 61 CID: 7
+W Total time on different lock 10363 ms BID: 61 CID: 6
+W Total time on different lock 10679 ms BID: 25 CID: 2
+W Total time on different lock 10377 ms BID: 61 CID: 2
+W Total time on different lock 10676 ms BID: 28 CID: 3
+W Total time on different lock 10918 ms BID: 1 CID: 2
+W Total time on different lock 10543 ms BID: 45 CID: 2
+W Total time on different lock 10548 ms BID: 45 CID: 3
+W Total time on different lock 10700 ms BID: 28 CID: 0
+W Total time on different lock 10933 ms BID: 1 CID: 0
+W Total time on different lock 10891 ms BID: 5 CID: 6
+W Total time on different lock 10740 ms BID: 25 CID: 6
+W Total time on different lock 10913 ms BID: 5 CID: 4
+W Total time on different lock 10450 ms BID: 61 CID: 0
+W Total time on different lock 10767 ms BID: 25 CID: 1
+W Total time on different lock 10599 ms BID: 45 CID: 5
+W Total time on different lock 10606 ms BID: 45 CID: 4
+W Total time on different lock 10761 ms BID: 28 CID: 1
+W Total time on different lock 10866 ms BID: 17 CID: 6
+W Total time on different lock 11030 ms BID: 1 CID: 6
+W Total time on different lock 10802 ms BID: 28 CID: 6
+W Total time on different lock 10527 ms BID: 61 CID: 3
+W Total time on different lock 10843 ms BID: 25 CID: 3
+W Total time on different lock 10723 ms BID: 41 CID: 5
+W Total time on different lock 11042 ms BID: 5 CID: 2
+W Total time on different lock 10906 ms BID: 21 CID: 2
+W Total time on different lock 10856 ms BID: 28 CID: 2
+W Total time on different lock 10880 ms BID: 25 CID: 4
+W Total time on different lock 10921 ms BID: 21 CID: 0
+W Total time on different lock 11056 ms BID: 5 CID: 7
+W Total time on different lock 11062 ms BID: 5 CID: 5
+W Total time on different lock 10896 ms BID: 25 CID: 5
+W Total time on different lock 11100 ms BID: 1 CID: 7
+W Total time on different lock 11106 ms BID: 1 CID: 4
+W Total time on different lock 11083 ms BID: 5 CID: 1
+W Total time on different lock 11094 ms BID: 5 CID: 0
+W Total time on different lock 10898 ms BID: 28 CID: 5
+W Total time on different lock 11132 ms BID: 1 CID: 3
+W Total time on different lock 10793 ms BID: 41 CID: 3
+W Total time on different lock 11002 ms BID: 17 CID: 2
+W Total time on different lock 10642 ms BID: 60 CID: 1
+W Total time on different lock 10809 ms BID: 41 CID: 0
+W Total time on different lock 11116 ms BID: 5 CID: 3
+W Total time on different lock 10815 ms BID: 41 CID: 2
+W Total time on different lock 10685 ms BID: 57 CID: 1
+W Total time on different lock 10803 ms BID: 44 CID: 4
+W Total time on different lock 11123 ms BID: 8 CID: 0
+W Total time on different lock 11184 ms BID: 1 CID: 1
+W Total time on different lock 10860 ms BID: 41 CID: 1
+W Total time on different lock 11136 ms BID: 8 CID: 7
+W Total time on different lock 10967 ms BID: 28 CID: 7
+W Total time on different lock 11143 ms BID: 8 CID: 2
+W Total time on different lock 10728 ms BID: 57 CID: 5
+W Total time on different lock 10706 ms BID: 60 CID: 4
+W Total time on different lock 11042 ms BID: 21 CID: 3
+W Total time on different lock 10737 ms BID: 57 CID: 4
+W Total time on different lock 11151 ms BID: 8 CID: 5
+W Total time on different lock 10720 ms BID: 60 CID: 7
+W Total time on different lock 11098 ms BID: 17 CID: 0
+W Total time on different lock 10727 ms BID: 60 CID: 6
+W Total time on different lock 10893 ms BID: 41 CID: 6
+W Total time on different lock 11012 ms BID: 28 CID: 4
+W Total time on different lock 11187 ms BID: 8 CID: 1
+W Total time on different lock 11191 ms BID: 8 CID: 3
+W Total time on different lock 10905 ms BID: 41 CID: 7
+W Total time on different lock 11115 ms BID: 17 CID: 3
+W Total time on different lock 10758 ms BID: 60 CID: 0
+W Total time on different lock 10785 ms BID: 57 CID: 2
+W Total time on different lock 10921 ms BID: 41 CID: 4
+W Total time on different lock 10806 ms BID: 57 CID: 0
+W Total time on different lock 10800 ms BID: 60 CID: 2
+W Total time on different lock 11167 ms BID: 17 CID: 1
+W Total time on different lock 10939 ms BID: 44 CID: 0
+W Total time on different lock 10936 ms BID: 44 CID: 3
+W Total time on different lock 10826 ms BID: 57 CID: 6
+W Total time on different lock 11249 ms BID: 8 CID: 6
+W Total time on different lock 11175 ms BID: 17 CID: 7
+W Total time on different lock 11156 ms BID: 21 CID: 6
+W Total time on different lock 11271 ms BID: 8 CID: 4
+W Total time on different lock 10968 ms BID: 44 CID: 6
+W Total time on different lock 11219 ms BID: 17 CID: 5
+W Total time on different lock 11060 ms BID: 37 CID: 0
+W Total time on different lock 11012 ms BID: 44 CID: 1
+W Total time on different lock 11204 ms BID: 21 CID: 5
+W Total time on different lock 10902 ms BID: 57 CID: 3
+W Total time on different lock 11010 ms BID: 44 CID: 7
+W Total time on different lock 10886 ms BID: 60 CID: 5
+W Total time on different lock 11218 ms BID: 21 CID: 4
+W Total time on different lock 10889 ms BID: 60 CID: 3
+W Total time on different lock 11226 ms BID: 21 CID: 1
+W Total time on different lock 10919 ms BID: 57 CID: 7
+W Total time on different lock 11268 ms BID: 17 CID: 4
+W Total time on different lock 11104 ms BID: 37 CID: 3
+W Total time on different lock 11222 ms BID: 24 CID: 1
+W Total time on different lock 11048 ms BID: 44 CID: 5
+W Total time on different lock 11243 ms BID: 24 CID: 4
+W Total time on different lock 11176 ms BID: 33 CID: 0
+W Total time on different lock 11093 ms BID: 44 CID: 2
+W Total time on different lock 11151 ms BID: 37 CID: 2
+W Total time on different lock 11181 ms BID: 33 CID: 6
+W Total time on different lock 11270 ms BID: 24 CID: 0
+W Total time on different lock 11154 ms BID: 37 CID: 4
+W Total time on different lock 11195 ms BID: 33 CID: 2
+W Total time on different lock 11306 ms BID: 21 CID: 7
+W Total time on different lock 11286 ms BID: 24 CID: 3
+W Total time on different lock 11283 ms BID: 24 CID: 7
+W Total time on different lock 11185 ms BID: 37 CID: 1
+W Total time on different lock 11049 ms BID: 53 CID: 3
+W Total time on different lock 11061 ms BID: 53 CID: 0
+W Total time on different lock 11230 ms BID: 33 CID: 3
+W Total time on different lock 11071 ms BID: 53 CID: 5
+W Total time on different lock 11075 ms BID: 53 CID: 1
+W Total time on different lock 11243 ms BID: 33 CID: 4
+W Total time on different lock 11207 ms BID: 37 CID: 6
+W Total time on different lock 11214 ms BID: 37 CID: 5
+W Total time on different lock 11079 ms BID: 53 CID: 6
+W Total time on different lock 11330 ms BID: 24 CID: 6
+W Total time on different lock 11341 ms BID: 24 CID: 2
+W Total time on different lock 11280 ms BID: 33 CID: 1
+W Total time on different lock 11113 ms BID: 53 CID: 2
+W Total time on different lock 11144 ms BID: 49 CID: 6
+W Total time on different lock 11151 ms BID: 49 CID: 4
+W Total time on different lock 11117 ms BID: 53 CID: 7
+W Total time on different lock 11289 ms BID: 33 CID: 5
+W Total time on different lock 11160 ms BID: 49 CID: 2
+W Total time on different lock 11246 ms BID: 40 CID: 0
+W Total time on different lock 11246 ms BID: 40 CID: 7
+W Total time on different lock 11308 ms BID: 33 CID: 7
+W Total time on different lock 11253 ms BID: 40 CID: 6
+W Total time on different lock 11147 ms BID: 53 CID: 4
+W Total time on different lock 11282 ms BID: 37 CID: 7
+W Total time on different lock 11130 ms BID: 56 CID: 2
+W Total time on different lock 11140 ms BID: 56 CID: 0
+W Total time on different lock 11275 ms BID: 40 CID: 2
+W Total time on different lock 11201 ms BID: 49 CID: 1
+W Total time on different lock 11282 ms BID: 40 CID: 4
+W Total time on different lock 11145 ms BID: 56 CID: 5
+W Total time on different lock 11209 ms BID: 49 CID: 7
+W Total time on different lock 11221 ms BID: 49 CID: 0
+W Total time on different lock 11432 ms BID: 24 CID: 5
+W Total time on different lock 11165 ms BID: 56 CID: 1
+W Total time on different lock 11323 ms BID: 40 CID: 3
+W Total time on different lock 11328 ms BID: 40 CID: 5
+W Total time on different lock 11254 ms BID: 49 CID: 5
+W Total time on different lock 11335 ms BID: 40 CID: 1
+W Total time on different lock 11258 ms BID: 49 CID: 3
+W Total time on different lock 11207 ms BID: 56 CID: 3
+W Total time on different lock 11206 ms BID: 56 CID: 7
+W Total time on different lock 11222 ms BID: 56 CID: 6
+W Total time on different lock 11271 ms BID: 56 CID: 4
+W Total time on different lock 11731 ms BID: 4 CID: 4
+W Total time on different lock 11780 ms BID: 4 CID: 2
+W Total time on different lock 11812 ms BID: 4 CID: 5
+W Total time on different lock 11438 ms BID: 52 CID: 4
+W Total time on different lock 11884 ms BID: 4 CID: 0
+W Total time on different lock 11894 ms BID: 4 CID: 1
+W Total time on different lock 11891 ms BID: 4 CID: 7
+W Total time on different lock 11765 ms BID: 20 CID: 4
+W Total time on different lock 11495 ms BID: 52 CID: 7
+W Total time on different lock 11916 ms BID: 4 CID: 3
+W Total time on different lock 11780 ms BID: 20 CID: 6
+W Total time on different lock 11785 ms BID: 20 CID: 1
+W Total time on different lock 11967 ms BID: 0 CID: 3
+W Total time on different lock 11532 ms BID: 52 CID: 3
+W Total time on different lock 11534 ms BID: 52 CID: 2
+W Total time on different lock 11808 ms BID: 20 CID: 3
+W Total time on different lock 11545 ms BID: 52 CID: 0
+W Total time on different lock 11985 ms BID: 0 CID: 7
+W Total time on different lock 11548 ms BID: 52 CID: 5
+W Total time on different lock 12002 ms BID: 0 CID: 1
+W Total time on different lock 11960 ms BID: 4 CID: 6
+W Total time on different lock 12005 ms BID: 0 CID: 2
+W Total time on different lock 11568 ms BID: 52 CID: 1
+W Total time on different lock 12012 ms BID: 0 CID: 5
+W Total time on different lock 11841 ms BID: 20 CID: 5
+W Total time on different lock 11863 ms BID: 20 CID: 0
+W Total time on different lock 11587 ms BID: 52 CID: 6
+W Total time on different lock 11867 ms BID: 20 CID: 7
+W Total time on different lock 12076 ms BID: 0 CID: 4
+W Total time on different lock 11908 ms BID: 20 CID: 2
+W Total time on different lock 11769 ms BID: 36 CID: 5
+W Total time on different lock 11774 ms BID: 36 CID: 3
+W Total time on different lock 12108 ms BID: 0 CID: 6
+W Total time on different lock 11829 ms BID: 36 CID: 0
+W Total time on different lock 12016 ms BID: 16 CID: 1
+W Total time on different lock 12019 ms BID: 16 CID: 0
+W Total time on different lock 11843 ms BID: 36 CID: 6
+W Total time on different lock 12022 ms BID: 16 CID: 3
+W Total time on different lock 12023 ms BID: 16 CID: 4
+W Total time on different lock 11860 ms BID: 36 CID: 4
+W Total time on different lock 12052 ms BID: 16 CID: 6
+W Total time on different lock 12055 ms BID: 16 CID: 7
+W Total time on different lock 11894 ms BID: 36 CID: 2
+W Total time on different lock 12071 ms BID: 16 CID: 2
+W Total time on different lock 11818 ms BID: 48 CID: 1
+W Total time on different lock 12087 ms BID: 16 CID: 5
+W Total time on different lock 11958 ms BID: 32 CID: 1
+W Total time on different lock 11821 ms BID: 48 CID: 6
+W Total time on different lock 11968 ms BID: 32 CID: 3
+W Total time on different lock 11848 ms BID: 48 CID: 3
+W Total time on different lock 11946 ms BID: 36 CID: 7
+W Total time on different lock 11992 ms BID: 32 CID: 2
+W Total time on different lock 11868 ms BID: 48 CID: 0
+W Total time on different lock 11967 ms BID: 36 CID: 1
+W Total time on different lock 12006 ms BID: 32 CID: 4
+W Total time on different lock 12004 ms BID: 32 CID: 6
+W Total time on different lock 11898 ms BID: 48 CID: 5
+W Total time on different lock 12044 ms BID: 32 CID: 7
+W Total time on different lock 11917 ms BID: 48 CID: 4
+W Total time on different lock 12057 ms BID: 32 CID: 5
+W Total time on different lock 12073 ms BID: 32 CID: 0
+W Total time on different lock 12007 ms BID: 48 CID: 7
+W Total time on different lock 12037 ms BID: 48 CID: 2
+Total time on different locks 94794 ms
+I am done
+Done AppThread
+
+=============================
+Squawk VM exiting with code 0
+Execution time 115343 ms
+=============================
+
+Running top-level shutdown hooks:
+Done running top-level shutdown hooks.
+	0:0
+	0:0
+** VM on 0:0 stopped: exit code = 0 ** 	0:0
+End: 157527 ms	0:0
+Board=0 Core=0 : Exited with 0	0:0
+>> Connected to formicarium
+>> Received kill command from software
+

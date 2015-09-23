@@ -1,0 +1,795 @@
+>> ELF file transmitted (1067700 bytes)
+>> Formic cube powered on
+>> Spawning XMD script to boot Formic...
+>> XMD terminated successfully.
+>> Entering working mode, press Ctrl-C to quit
+usb_on
+usb_on
+EnablingEnabling debug U debug USB...
+SB...
+
+
+Cmd> 
+Cmd> 
+
+
+Boot master is 0x00/0	0:0
+	0:0
+Checking Formic cube links:	0:0
+01/64: Checking board 0x3F [X=3, Y=3, Z=3]...02/64: Checking board 0x2F [X=2, Y=3, Z=3]...03/64: Checking board 0x1F [X=1, Y=3, Z=3]...04/64: Checking board 0x0F [X=0, Y=3, Z=3]...05/64: Checking board 0x3B [X=3, Y=2, Z=3]...06/64: Checking board 0x2B [X=2, Y=2, Z=3]...07/64: Checking board 0x1B [X=1, Y=2, Z=3]...08/64: Checking board 0x0B [X=0, Y=2, Z=3]...09/64: Checking board 0x37 [X=3, Y=1, Z=3]...10/64: Checking board 0x27 [X=2, Y=1, Z=3]...11/64: Checking board 0x17 [X=1, Y=1, Z=3]...12/64: Checking board 0x07 [X=0, Y=1, Z=3]...13/64: Checking board 0x33 [X=3, Y=0, Z=3]...14/64: Checking board 0x23 [X=2, Y=0, Z=3]...15/64: Checking board 0x13 [X=1, Y=0, Z=3]...16/64: Checking board 0x03 [X=0, Y=0, Z=3]...17/64: Checking board 0x3E [X=3, Y=3, Z=2]...18/64: Checking board 0x2E [X=2, Y=3, Z=2]...19/64: Checking board 0x1E [X=1, Y=3, Z=2]...20/64: Checking board 0x0E [X=0, Y=3, Z=2]...21/64: Checking board 0x3A [X=3, Y=2, Z=2]...22/64: Checking board 0x2A [X=2, Y=2, Z=2]...23/64: Checking board 0x1A [X=1, Y=2, Z=2]...24/64: Checking board 0x0A [X=0, Y=2, Z=2]...25/64: Checking board 0x36 [X=3, Y=1, Z=2]...26/64: Checking board 0x26 [X=2, Y=1, Z=2]...27/64: Checking board 0x16 [X=1, Y=1, Z=2]...28/64: Checking board 0x06 [X=0, Y=1, Z=2]...29/64: Checking board 0x32 [X=3, Y=0, Z=2]...30/64: Checking board 0x22 [X=2, Y=0, Z=2]...31/64: Checking board 0x12 [X=1, Y=0, Z=2]...32/64: Checking board 0x02 [X=0, Y=0, Z=2]...33/64: Checking board 0x3D [X=3, Y=3, Z=1]...34/64: Checking board 0x2D [X=2, Y=3, Z=1]...35/64: Checking board 0x1D [X=1, Y=3, Z=1]...36/64: Checking board 0x0D [X=0, Y=3, Z=1]...37/64: Checking board 0x39 [X=3, Y=2, Z=1]...38/64: Checking board 0x29 [X=2, Y=2, Z=1]...39/64: Checking board 0x19 [X=1, Y=2, Z=1]...40/64: Checking board 0x09 [X=0, Y=2, Z=1]...41/64: Checking board 0x35 [X=3, Y=1, Z=1]...42/64: Checking board 0x25 [X=2, Y=1, Z=1]...43/64: Checking board 0x15 [X=1, Y=1, Z=1]...44/64: Checking board 0x05 [X=0, Y=1, Z=1]...45/64: Checking board 0x31 [X=3, Y=0, Z=1]...46/64: Checking board 0x21 [X=2, Y=0, Z=1]...47/64: Checking board 0x11 [X=1, Y=0, Z=1]...48/64: Checking board 0x01 [X=0, Y=0, Z=1]...49/64: Checking board 0x3C [X=3, Y=3, Z=0]...50/64: Checking board 0x2C [X=2, Y=3, Z=0]...51/64: Checking board 0x1C [X=1, Y=3, Z=0]...52/64: Checking board 0x0C [X=0, Y=3, Z=0]...53/64: Checking board 0x38 [X=3, Y=2, Z=0]...54/64: Checking board 0x28 [X=2, Y=2, Z=0]...55/64: Checking board 0x18 [X=1, Y=2, Z=0]...56/64: Checking board 0x08 [X=0, Y=2, Z=0]...57/64: Checking board 0x34 [X=3, Y=1, Z=0]...58/64: Checking board 0x24 [X=2, Y=1, Z=0]...59/64: Checking board 0x14 [X=1, Y=1, Z=0]...60/64: Checking board 0x04 [X=0, Y=1, Z=0]...61/64: Checking board 0x30 [X=3, Y=0, Z=0]...62/64: Checking board 0x20 [X=2, Y=0, Z=0]...63/64: Checking board 0x10 [X=1, Y=0, Z=0]...64/64: Checking board 0x00 [X=0, Y=0, Z=0]... checked 288 endpoints [ [1;32mPASS[0m ]	0:0
+	0:0
+Checking Formic cube board versions:	0:0
+01/64: Checking board 0x3F [X=3, Y=3, Z=3]...02/64: Checking board 0x2F [X=2, Y=3, Z=3]...03/64: Checking board 0x1F [X=1, Y=3, Z=3]...04/64: Checking board 0x0F [X=0, Y=3, Z=3]...05/64: Checking board 0x3B [X=3, Y=2, Z=3]...06/64: Checking board 0x2B [X=2, Y=2, Z=3]...07/64: Checking board 0x1B [X=1, Y=2, Z=3]...08/64: Checking board 0x0B [X=0, Y=2, Z=3]...09/64: Checking board 0x37 [X=3, Y=1, Z=3]...10/64: Checking board 0x27 [X=2, Y=1, Z=3]...11/64: Checking board 0x17 [X=1, Y=1, Z=3]...12/64: Checking board 0x07 [X=0, Y=1, Z=3]...13/64: Checking board 0x33 [X=3, Y=0, Z=3]...14/64: Checking board 0x23 [X=2, Y=0, Z=3]...15/64: Checking board 0x13 [X=1, Y=0, Z=3]...16/64: Checking board 0x03 [X=0, Y=0, Z=3]...17/64: Checking board 0x3E [X=3, Y=3, Z=2]...18/64: Checking board 0x2E [X=2, Y=3, Z=2]...19/64: Checking board 0x1E [X=1, Y=3, Z=2]...20/64: Checking board 0x0E [X=0, Y=3, Z=2]...21/64: Checking board 0x3A [X=3, Y=2, Z=2]...22/64: Checking board 0x2A [X=2, Y=2, Z=2]...23/64: Checking board 0x1A [X=1, Y=2, Z=2]...24/64: Checking board 0x0A [X=0, Y=2, Z=2]...25/64: Checking board 0x36 [X=3, Y=1, Z=2]...26/64: Checking board 0x26 [X=2, Y=1, Z=2]...27/64: Checking board 0x16 [X=1, Y=1, Z=2]...28/64: Checking board 0x06 [X=0, Y=1, Z=2]...29/64: Checking board 0x32 [X=3, Y=0, Z=2]...30/64: Checking board 0x22 [X=2, Y=0, Z=2]...31/64: Checking board 0x12 [X=1, Y=0, Z=2]...32/64: Checking board 0x02 [X=0, Y=0, Z=2]...33/64: Checking board 0x3D [X=3, Y=3, Z=1]...34/64: Checking board 0x2D [X=2, Y=3, Z=1]...35/64: Checking board 0x1D [X=1, Y=3, Z=1]...36/64: Checking board 0x0D [X=0, Y=3, Z=1]...37/64: Checking board 0x39 [X=3, Y=2, Z=1]...38/64: Checking board 0x29 [X=2, Y=2, Z=1]...39/64: Checking board 0x19 [X=1, Y=2, Z=1]...40/64: Checking board 0x09 [X=0, Y=2, Z=1]...41/64: Checking board 0x35 [X=3, Y=1, Z=1]...42/64: Checking board 0x25 [X=2, Y=1, Z=1]...43/64: Checking board 0x15 [X=1, Y=1, Z=1]...44/64: Checking board 0x05 [X=0, Y=1, Z=1]...45/64: Checking board 0x31 [X=3, Y=0, Z=1]...46/64: Checking board 0x21 [X=2, Y=0, Z=1]...47/64: Checking board 0x11 [X=1, Y=0, Z=1]...48/64: Checking board 0x01 [X=0, Y=0, Z=1]...49/64: Checking board 0x3C [X=3, Y=3, Z=0]...50/64: Checking board 0x2C [X=2, Y=3, Z=0]...51/64: Checking board 0x1C [X=1, Y=3, Z=0]...52/64: Checking board 0x0C [X=0, Y=3, Z=0]...53/64: Checking board 0x38 [X=3, Y=2, Z=0]...54/64: Checking board 0x28 [X=2, Y=2, Z=0]...55/64: Checking board 0x18 [X=1, Y=2, Z=0]...56/64: Checking board 0x08 [X=0, Y=2, Z=0]...57/64: Checking board 0x34 [X=3, Y=1, Z=0]...58/64: Checking board 0x24 [X=2, Y=1, Z=0]...59/64: Checking board 0x14 [X=1, Y=1, Z=0]...60/64: Checking board 0x04 [X=0, Y=1, Z=0]...61/64: Checking board 0x30 [X=3, Y=0, Z=0]...62/64: Checking board 0x20 [X=2, Y=0, Z=0]...63/64: Checking board 0x10 [X=1, Y=0, Z=0]...64/64: Checking board 0x00 [X=0, Y=0, Z=0]... checked 64 boards [ [1;32mPASS[0m ]	0:0
+	0:0
+Microblaze code from 0x00000000 - 0x000FFC28 [1047616 bytes]	0:0
+Waking up board x0y0z0 (0x00)...Waking up board x0y0z1 (0x01)...Waking up board x0y0z2 (0x02)...Waking up board x0y0z3 (0x03)...Waking up board x0y1z0 (0x04)...Waking up board x0y1z1 (0x05)...Waking up board x0y1z2 (0x06)...Waking up board x0y1z3 (0x07)...Waking up board x0y2z0 (0x08)...Waking up board x0y2z1 (0x09)...Waking up board x0y2z2 (0x0A)...Waking up board x0y2z3 (0x0B)...Waking up board x0y3z0 (0x0C)...Waking up board x0y3z1 (0x0D)...Waking up board x0y3z2 (0x0E)...Waking up board x0y3z3 (0x0F)...Waking up board x1y0z0 (0x10)...Waking up board x1y0z1 (0x11)...Waking up board x1y0z2 (0x12)...Waking up board x1y0z3 (0x13)...Waking up board x1y1z0 (0x14)...Waking up board x1y1z1 (0x15)...Waking up board x1y1z2 (0x16)...Waking up board x1y1z3 (0x17)...Waking up board x1y2z0 (0x18)...Waking up board x1y2z1 (0x19)...Waking up board x1y2z2 (0x1A)...Waking up board x1y2z3 (0x1B)...Waking up board x1y3z0 (0x1C)...Waking up board x1y3z1 (0x1D)...Waking up board x1y3z2 (0x1E)...Waking up board x1y3z3 (0x1F)...Waking up board x2y0z0 (0x20)...Waking up board x2y0z1 (0x21)...Waking up board x2y0z2 (0x22)...Waking up board x2y0z3 (0x23)...Waking up board x2y1z0 (0x24)...Waking up board x2y1z1 (0x25)...Waking up board x2y1z2 (0x26)...Waking up board x2y1z3 (0x27)...Waking up board x2y2z0 (0x28)...Waking up board x2y2z1 (0x29)...Waking up board x2y2z2 (0x2A)...Waking up board x2y2z3 (0x2B)...Waking up board x2y3z0 (0x2C)...Waking up board x2y3z1 (0x2D)...Waking up board x2y3z2 (0x2E)...Waking up board x2y3z3 (0x2F)...Waking up board x3y0z0 (0x30)...Waking up board x3y0z1 (0x31)...Waking up board x3y0z2 (0x32)...Waking up board x3y0z3 (0x33)...Waking up board x3y1z0 (0x34)...Waking up board x3y1z1 (0x35)...Waking up board x3y1z2 (0x36)...Waking up board x3y1z3 (0x37)...Waking up board x3y2z0 (0x38)...Waking up board x3y2z1 (0x39)...Waking up board x3y2z2 (0x3A)...Waking up board x3y2z3 (0x3B)...Waking up board x3y3z0 (0x3C)...Waking up board x3y3z1 (0x3D)...Waking up board x3y3z2 (0x3E)...Waking up board x3y3z3 (0x3F)...Successfully woke up 64 boards     	0:0
+Collected 511 boot answers	0:0
+	0:0
+[INFO] in STARTUP
+[INFO] Isolation initialized
+[DBG]  Threading initialized
+[DBG]  Copied Strings
+[DBG]  Service operation Loop is up and running
+[INFO] in runMain: com.sun.squawk.JavaApplicationManager
+[DIAG] AppThread Instantiated with: monitorbench.Main
+parentSuiteURI=spotsuite:FormicApp
+[DIAG] in load(bool)
+       Minor     : 0
+       Major     : 2
+       Attributes: 2
+       parentHash: 0x6f73dd
+       parentURI : memory:bootstrap
+        padding   : 0
+[DIAG] in loadThis
+
+       Read:2332
+       rootOffset: 4
+       memorySize: 2216
+       hash      : 0x8241
+Loading flash suite to address 0x901f8
+[loaded object memory from 'spotsuite:FormicApp']
+morph done starting AppThread
+[INFO] in runMain: monitorbench.Main
+Running monitorBench with artificial_work set to 0 and 503 tasks
+I've got a spawn message 0x00/1	0:1
+I've got a spawn message 0x00/2	0:2
+I've got a spawn message 0x00/3	0:3
+I've got a spawn message 0x00/4	0:4
+I've got a spawn message 0x00/5	0:5
+I've got a spawn message 0x00/6	0:6
+I've got a spawn message 0x00/7	0:7
+I've got a spawn message 0x01/0	1:0
+I've got a spawn message 0x01/1	1:1
+I've got a spawn message 0x01/2	1:2
+I've got a spawn message 0x01/3	1:3
+I've got a spawn message 0x01/4	1:4
+I've got a spawn message 0x01/5	1:5
+I've got a spawn message 0x01/6	1:6
+I've got a spawn message 0x01/7	1:7
+I've got a spawn message 0x02/0	2:0
+I've got a spawn message 0x02/1	2:1
+I've got a spawn message 0x02/4	2:4
+I've got a spawn message 0x02/2	2:2
+I've got a spawn message 0x02/5	2:5
+I've got a spawn message 0x02/3	2:3
+I've got a spawn message 0x04/7	4:7
+I've got a spawn message 0x04/6	4:6
+I've got a spawn message 0x05/7	5:7
+I've got a spawn message 0x05/4	5:4
+I've got a spawn message 0x04/2	4:2
+I've got a spawn message 0x02/7	2:7
+I've got a spawn message 0x02/6	2:6
+I've got a spawn message 0x04/1	4:1
+I've got a spawn message 0x06/7	6:7
+I've got a spawn message 0x06/3	6:3
+I've got a spawn message 0x05/1	5:1
+I've got a spawn message 0x04/3	4:3
+I've got a spawn message 0x06/6	6:6
+I've got a spawn message 0x04/5	4:5
+I've got I've got a spawn message 0x0C/0	12:0
+I've got a spawn message 0x08/2	8:2
+I've got a spawn message 0x0C/1	12:1
+I've got a spawn message 0x0C/5	12:5
+I've got a spawn message 0x08/0	8:0
+I've got a spawn message 0x0C/4	12:4
+I've got a spawn message 0x0C/7	12:7
+I've got a spawn message 0x0D/7	13:7
+I've got a spawn message 0x0C/3	12:3
+I've got a spawn message 0x0C/6	12:6
+I've got a spawn message 0x08/3	8:3
+I've got a spawn message 0x0C/2	12:2
+I've got a spawn message 0x10/2	16:2
+I've got a spawn message 0x0D/5	13:II've got a spawn message 0x1C/1	28:1
+I've got a spawn message 0x1C/2	28:2
+I've got a spawn message 0x1C/4	28:4
+I've got a spawn message 0x1C/5	28:5
+I've got a spawn message 0x1C/7	28:7
+I've got a spawn message 0x1C/0	28:0
+I've got a spawn message 0x1C/3	28:3
+I've got a spawn message 0x1C/6	28:6
+I've got a spawn message 0x18/5	24:5
+I've got a spawn message 0x1D/7	29:7
+I've got a spawn message 0x18/6	24:6
+I've got a spawn message 0x18/7	24:7
+I've got a spawn message 0x1D/0	29:0
+I've got a spawn message 0x1D/1	IIII'vIIIIII've got a spawn mesI've got a spawn message 0x2C/0	44:0
+I've got a spawn message 0x2C/2	44:2
+I've got a spawn message 0x2C/1	44:1
+I've got a spawn message 0x2C/5	44:5
+I've got a spawn message 0x2C/6	44:6
+I've got a spawn message 0x2C/4	44:4
+I've got a spawn message 0x2C/7	44:7
+I've got a spawn message 0x2C/3	44:3
+I've got a spawn message 0x28/2	40:2
+I've got a spawn message 0x2D/4	45:4
+I've got a spawn message 0x2D/7	45:7
+I've got a spawn message 0x28/5	40:5
+I've got a spawn message 0x28/3	40:3
+I've got a spawn message 0x2D/2	IIIII've got I've got a spawn meI've got a spawn message 0x3C/1	60:1
+I've got a spawn message 0x3C/2	60:2
+I've got a spawn message 0x3C/5	60:5
+I've got a spawn message 0x3C/0	60:0
+I've got a spawn message 0x3C/4	60:4
+I've got a spawn message 0x3C/3	60:3
+I've got a spawn message 0x3C/7	60:7
+I've got a spawn message 0x3C/6	60:6
+I've got a spawn message 0x38/6	56:6
+I've got a spawn message 0x38/5	56:5
+I've got a spawn message 0x3D/4	61:4
+I've got a spawn message 0x38/2	56:2
+I've got a spawn message 0x3D/2	61:2
+I've got a spawn message 0x38/3	IIII'I've got a spawn message 0x3A/I've got a spawn message 0x38/7	56:7
+I've got a spawn message 0x3D/5	61:5
+I've got a spawn message 0x3D/3	61:3
+I've got a spawn message 0x29/2	41:2
+I've got a spawn message 0x2E/6	46:6
+I've got a spawn message 0x34/7	52:7
+I've got a spawn message 0x3E/4	62:4
+I've got a spawn message 0x39/6	57:6
+I've got a spawn message 0x39/7	57:7
+I've got a spawn message 0x3E/5	62:5
+I've got a spawn message 0x2F/5	47:5
+I've got a spawn message 0x30/4	48:4
+I've got a spawn message 0x39/2	57:2
+I've got a spawn message 0x2E/3	46:3
+I've got a spawn message 0x34/3	52:3
+I've got a spawn message 0x39/4	57:4
+I've got a spawn message 0x34/1	52:1
+I've got a spawn message 0x29/3	41:3
+I've got a spawn message 0x34/5	52:5
+I've got a spawn message 0x2E/0	46:0
+I've got a spawn message 0x3E/0	62:0
+I've got a spawn message 0x39/1	57:1
+I've got a spawn message 0x2E/5	46:5
+I've got a spawn message 0x34/0	52:0
+I've got a spawn message 0x3E/1	62:1
+I've got a spawn message 0x2E/2	46:2
+IIII've gI'I'vI've II've goI've gI've got a spawn message 0x2F/6	47:6
+I've got a spawn message 0x30/5	48:5
+I've got a spawn message 0x2F/3	47:3
+I've got a spawn message 0x2F/0	47:0
+I've got a spawn message 0x30/2	48:2
+I've got a spawn message 0x2F/7	47:7
+I've got a spawn message 0x2A/5	42:5
+I've got a spawn message 0x30/0	48:0
+I've got a spawn message 0x2F/1	47:1
+I've got a spawn message 0x30/7	48:7
+I've got a spawn message 0x1B/4	27:4
+I've got a spawn message 0x2A/0	42:0
+I've got a spawn message 0x30/3	48:3
+I've got a spawn message 0x25/0	37:0
+I've got a spawn messageI'vIIII'I've gotI'I've got a spawn message 0x21/7	33:7
+I've got a spawn message 0x31/5	49:5
+I've got a spawn message 0x26/0	38:I've got a spawn mI've got a spawn message 0x3B/5	59:5
+I've got a spawn message 0x2A/3	42:3
+I've got a spawn message 0x1B/0	27:0
+I've got a spawn message 0x25/6	37:6
+I've got a spawn message 0x2A/1	42:1
+I've got a spawn message 0x35/5	53:5
+I've got a spawn message 0x2A/6	42:6
+I've got a spawn message 0x35/2	53:2
+I've got a spawn message 0x3A/0	58:0
+I've got a spawn message 0x3A/4	58:4
+I've got a spawn message 0x35/6	53:6
+I've got a spawn message 0x3A/5	58:5
+I've got a spawn message 0x35/0	53:0
+I've got a spawn message 0x21/1	33:1
+I've got a spawn message 0x21/4	33:4
+I've got a spawn message 0x31/3	49:3
+I've got a spawn message 0x31/4	49:4
+I've got a spawn message 0x2B/7	43:7
+I've got a spawn message 0x2B/1	43:1
+I've got a spawn message 0x36/2	54:2
+I've got a spawn message 0x3B/4	59:4
+I've got a spawn message 0x21/6	33:6
+I've got a spawn message 0x21/5	33:5
+I've got a spawn message 0x17/2	23:2
+I've got a spawn message 0x2B/3	43:3
+I've got a spawn message 0x21/3	33:3
+I've got a spawn message 0x26/5	38:5
+I've got a spawn message 0x31/6	49:6
+I've got a spawn message 0x17/4	23:4
+I've got a spawn message 0x2B/5	43:5
+I've got a spawn message 0x26/6	38:6
+I've got a spawn message 0x31/7	49:7
+I've got a spawn message 0x17/6	23:6
+I've got a spawn message 0x2B/6	43:6
+I've got a spawn message 0x26/2	38:2
+I've got a spawn message 0x17/7	23:7
+I've got a spawn message 0x31/0	49:0
+I've got a spawn message 0x26/3	38:3
+I've got a spawn message 0x31/1	49:1
+I've got a spawn message 0x2B/2	43:2
+I've got a spawn message 0x3B/3	59:3
+I've got a spawn messageI've got a I've I've goI've got I'I'vI've got a spawn messageII've got a spawn message 0x36/5	54:5
+I've got a I've got a spawn messagI've got a spawn mesI'vI've got a spawn mesI've got a spawn message 0x22/6	34:6
+I've got a spawn message 0x22/7	34:7
+I've got a spawn message 0x27/3	39:3
+I've got a spawn message 0x32/4	50:4
+I've got a spawn message 0x27/4	39:4
+I've got a spawn message 0x36/0	54:0
+I've got a spawn message 0x3B/1	59:1
+I've got a spawn message 0x36/1	54:1
+I've got a spawn message 0x3B/2	59:2
+I've got a spawn message 0x22/1	34:1
+I've got a spawn message 0x22/2	34:2
+I've got a spawn message 0x22/3	34:3
+I've got a spawn message 0x22/4	34:4
+I've got a spawn message 0x22/5	34:5
+I've got a spawn message 0x27/5	39:5
+I've got a spawn message 0x22/0	34:0
+I've got a spawn message 0x32/5	50:5
+I've got a spawn message 0x32/6	50:6
+I've got a spawn message 0x27/0	39:0
+I've got a spawn message 0x32/7	50:7
+I've got a spawn message 0x27/1	39:1
+I've got a spawn message 0x32/0	50:0
+I've got a spawn message 0x32/1	50:1
+I've got a spawn message 0x27/7	39:7
+I've got a spawn message 0x37/4	55:4
+I've got a spawn message 0x37/5	55:5
+I've got a spawn message 0x37/6	55:6
+I've got a spawn message 0x23/4	35:4
+I've got a spawn message 0x33/4	51:4
+I've got a spawn message 0x33/5	51:5
+I've got a spawn message 0x32/2	50:2
+I've got a spawn message 0x27/2	39:2
+I've got a spawn message 0x37/7	55:7
+I've got a spawn message 0x32/3	50:3
+I've got a spawn message 0x37/0	55:0
+I've got a spawn message 0x37/1	55:1
+I've got a spawn message 0x37/2	55:2
+I've got a spawn message I've got a spawn message 0x33/1	51:1
+I've got a spawn message 0x23/0	35:0
+I've got a spawn message 0x23/1	35:1
+I've got a spawn message 0x23/2	35:2
+I've got a spawn message 0x33/2	51:2
+I've got a spawn message 0x23/3	35:3
+I've got a spawn message 0x37/3	55:3
+I've got a spawn message 0x33/3	51:3
+I've got a spawn message 0x33/6	51:6
+I've got a spawn message 0x33/7	51:7
+I've got a spawn message 0x23/7	35:7
+I've got a spawn message 0x33/0	51:0
+W Total time on different lock 2161 ms BID: 0 CID: 1
+W Total time on different lock 2161 ms BID: 0 CID: 2
+W Total time on different lock 2161 ms BID: 1 CID: 0
+W Total time on different lock 2161 ms BID: 0 CID: 5
+W Total time on different lock 2161 ms BID: 2 CID: 1
+W Total time on different lock 2162 ms BID: 0 CID: 3
+W Total time on different lock 2161 ms BID: 0 CID: 7
+W Total time on different lock 2162 ms BID: 1 CID: 4
+W Total time on different lock 2162 ms BID: 0 CID: 6
+W Total time on different lock 2162 ms BID: 1 CID: 1
+W Total time on different lock 2162 ms BID: 0 CID: 4
+W Total time on different lock 2161 ms BID: 1 CID: 2
+W Total time on different lock 2161 ms BID: 1 CID: 3
+W Total time on different lock 2161 ms BID: 1 CID: 5
+W Total time on different lock 2162 ms BID: 1 CID: 6
+W Total time on different lock 2161 ms BID: 2 CID: 6
+W Total time on different lock 2162 ms BID: 1 CID: 7
+W Total time on different lock 2161 ms BID: 9 CID: 0
+W Total time on different lock 2162 ms BID: 5 CID: 0
+W Total time on different lock 2162 ms BID: 8 CID: 0
+W Total time on different lock 2162 ms BID: 5 CID: 1
+W Total time on different lock 2162 ms BID: 6 CID: 0
+W Total time on different lock 2161 ms BID: 5 CID: 6
+W Total time on different lock 2162 ms BID: 9 CID: 5
+W Total time on different lock 2163 ms BID: 4 CID: 0
+W Total time on different lock 2162 ms BID: 4 CID: 5
+W Total time on different lock 2162 ms BID: 4 CID: 3
+W Total time on different lock 2162 ms BID: 9 CID: 2
+W Total time on different lock 2162 ms BID: 8 CID: 2
+W Total time on different lock 2162 ms BID: 5 CID: 2
+W Total time on different lock 2162 ms BID: 4 CID: 1
+W Total time on different lock 2162 ms BID: 9 CID: 6
+W Total time on different lock 2162 ms BID: 7 CID: 6
+W Total time on different lock 2162 ms BID: 8 CID: 3
+W Total time on different lock 2162 ms BID: 9 CID: 4
+W Total time on different lock 2161 ms BID: 9 CID: 3
+W Total time on different lock 2161 ms BID: 9 CID: 7
+W Total time on different lock 2162 ms BID: 5 CID: 7
+W Total time on different lock 2161 ms BID: 9 CID: 1
+W Total time on different lock 2162 ms BID: 5 CID: 4
+W Total time on different lock 2162 ms BID: 4 CID: 7
+W Total time on different lock 2162 ms BID: 7 CID: 3
+W Total time on different lock 2162 ms BID: 4 CID: 4
+W Total time on different lock 2162 ms BID: 13 CID: 0
+W Total time on different lock 2162 ms BID: 5 CID: 3
+W Total time on different lock 2162 ms BID: 5 CID: 5
+W Total time on different lock 2162 ms BID: 11 CID: 0
+W Total time on different lock 2162 ms BID: 20 CID: 0
+W Total time on different lock 2162 ms BID: 6 CID: 2
+W Total time on different lock 2162 ms BID: 4 CID: 2
+W Total time on different lock 2163 ms BID: 8 CID: 1
+W Total time on different lock 2162 ms BID: 14 CID: 0
+W Total time on different lock 2162 ms BID: 4 CID: 6
+W Total time on different lock 2162 ms BID: 8 CID: 4
+W Total time on different lock 2162 ms BID: 12 CID: 0
+W Total time on different lock 2162 ms BID: 16 CID: 0
+W Total time on different lock 2162 ms BID: 10 CID: 0
+W Total time on different lock 2162 ms BID: 6 CID: 5
+W Total time on different lock 2162 ms BID: 6 CID: 1
+W Total time on different lock 2162 ms BID: 6 CID: 3
+W Total time on different lock 2162 ms BID: 29 CID: 0
+W Total time on different lock 2162 ms BID: 8 CID: 6
+W Total time on different lock 2162 ms BID: 8 CID: 7
+W Total time on different lock 2162 ms BID: 12 CID: 5
+W Total time on different lock 2162 ms BID: 8 CID: 5
+W Total time on different lock 2162 ms BID: 12 CID: 4
+W Total time on different lock 2162 ms BID: 26 CID: 0
+W Total time on different lock 2162 ms BID: 15 CID: 0
+W Total time on different lock 2162 ms BID: 6 CID: 6
+W Total time on different lock 2162 ms BID: 24 CID: 0
+W Total time on different lock 2162 ms BID: 17 CID: 2
+W Total time on different lock 2162 ms BID: 21 CID: 0
+W Total time on different lock 2162 ms BID: 17 CID: 0
+W Total time on different lock 2162 ms BID: 18 CID: 5
+W Total time on different lock 2162 ms BID: 25 CID: 0
+W Total time on different lock 2162 ms BID: 12 CID: 1
+W Total time on different lock 2162 ms BID: 10 CID: 2
+W Total time on different lock 2162 ms BID: 12 CID: 2
+W Total time on different lock 2162 ms BID: 11 CID: 5
+W Total time on different lock 2162 ms BID: 11 CID: 2
+W Total time on different lock 2162 ms BID: 14 CID: 2
+W Total time on different lock 2163 ms BID: 15 CID: 6
+W Total time on different lock 2162 ms BID: 16 CID: 6
+W Total time on different lock 2162 ms BID: 12 CID: 3
+W Total time on different lock 2162 ms BID: 18 CID: 6
+W Total time on different lock 2162 ms BID: 17 CID: 7
+W Total time on different lock 2162 ms BID: 11 CID: 1
+W Total time on different lock 2162 ms BID: 10 CID: 7
+W Total time on different lock 2162 ms BID: 15 CID: 1
+W Total time on different lock 2162 ms BID: 10 CID: 5
+W Total time on different lock 2163 ms BID: 22 CID: 0
+W Total time on different lock 2162 ms BID: 26 CID: 2
+W Total time on different lock 2162 ms BID: 15 CID: 7
+W Total time on different lock 2162 ms BID: 16 CID: 1
+W Total time on different lock 2162 ms BID: 16 CID: 5
+W Total time on different lock 2162 ms BID: 17 CID: 1
+W Total time on different lock 2162 ms BID: 13 CID: 7
+W Total time on different lock 2162 ms BID: 13 CID: 1
+W Total time on different lock 2162 ms BID: 16 CID: 4
+W Total time on different lock 2162 ms BID: 14 CID: 1
+W Total time on different lock 2162 ms BID: 15 CID: 2
+W Total time on different lock 2162 ms BID: 15 CID: 3
+W Total time on different lock 2162 ms BID: 16 CID: 2
+W Total time on different lock 2162 ms BID: 26 CID: 1
+W Total time on different lock 2162 ms BID: 16 CID: 3
+W Total time on different lock 2162 ms BID: 14 CID: 4
+W Total time on different lock 2163 ms BID: 23 CID: 0
+W Total time on different lock 2162 ms BID: 13 CID: 2
+W Total time on different lock 2162 ms BID: 11 CID: 6
+W Total time on different lock 2163 ms BID: 13 CID: 5
+W Total time on different lock 2162 ms BID: 16 CID: 7
+W Total time on different lock 2162 ms BID: 19 CID: 1
+W Total time on different lock 2162 ms BID: 10 CID: 1
+W Total time on different lock 2162 ms BID: 27 CID: 0
+W Total time on different lock 2163 ms BID: 28 CID: 0
+W Total time on different lock 2163 ms BID: 12 CID: 7
+W Total time on different lock 2162 ms BID: 12 CID: 6
+W Total time on different lock 2162 ms BID: 20 CID: 2
+W Total time on different lock 2162 ms BID: 14 CID: 6
+W Total time on different lock 2162 ms BID: 24 CID: 7
+W Total time on different lock 2162 ms BID: 10 CID: 3
+W Total time on different lock 2162 ms BID: 21 CID: 2
+W Total time on different lock 2162 ms BID: 21 CID: 3
+W Total time on different lock 2162 ms BID: 15 CID: 4
+W Total time on different lock 2162 ms BID: 29 CID: 1
+W Total time on different lock 2162 ms BID: 26 CID: 7
+W Total time on different lock 2163 ms BID: 14 CID: 3
+W Total time on different lock 2163 ms BID: 13 CID: 6
+W Total time on different lock 2163 ms BID: 17 CID: 4
+W Total time on different lock 2163 ms BID: 13 CID: 4
+W Total time on different lock 2162 ms BID: 25 CID: 4
+W Total time on different lock 2162 ms BID: 20 CID: 5
+W Total time on different lock 2163 ms BID: 17 CID: 6
+W Total time on different lock 2162 ms BID: 26 CID: 5
+W Total time on different lock 2162 ms BID: 24 CID: 2
+W Total time on different lock 2162 ms BID: 14 CID: 5
+W Total time on different lock 2162 ms BID: 26 CID: 4
+W Total time on different lock 2162 ms BID: 10 CID: 4
+W Total time on different lock 2162 ms BID: 26 CID: 6
+W Total time on different lock 2162 ms BID: 20 CID: 7
+W Total time on different lock 2162 ms BID: 26 CID: 3
+W Total time on different lock 2163 ms BID: 13 CID: 3
+W Total time on different lock 2163 ms BID: 14 CID: 7
+W Total time on different lock 2162 ms BID: 15 CID: 5
+W Total time on different lock 2162 ms BID: 25 CID: 6
+W Total time on different lock 2162 ms BID: 24 CID: 1
+W Total time on different lock 2162 ms BID: 21 CID: 1
+W Total time on different lock 2163 ms BID: 11 CID: 4
+W Total time on different lock 2163 ms BID: 11 CID: 3
+W Total time on different lock 2163 ms BID: 17 CID: 5
+W Total time on different lock 2163 ms BID: 22 CID: 4
+W Total time on different lock 2162 ms BID: 24 CID: 4
+W Total time on different lock 2162 ms BID: 24 CID: 3
+W Total time on different lock 2162 ms BID: 11 CID: 7
+W Total time on different lock 2162 ms BID: 23 CID: 3
+W Total time on different lock 2162 ms BID: 25 CID: 3
+W Total time on different lock 2162 ms BID: 21 CID: 7
+W Total time on different lock 2163 ms BID: 29 CID: 4
+W Total time on different lock 2162 ms BID: 21 CID: 4
+W Total time on different lock 2162 ms BID: 10 CID: 6
+W Total time on different lock 2162 ms BID: 20 CID: 3
+W Total time on different lock 2162 ms BID: 17 CID: 3
+W Total time on different lock 2162 ms BID: 28 CID: 1
+W Total time on different lock 2162 ms BID: 24 CID: 6
+W Total time on different lock 2162 ms BID: 21 CID: 5
+W Total time on different lock 2161 ms BID: 20 CID: 6
+W Total time on different lock 2162 ms BID: 28 CID: 2
+W Total time on different lock 2163 ms BID: 27 CID: 2
+W Total time on different lock 2161 ms BID: 20 CID: 1
+W Total time on different lock 2163 ms BID: 29 CID: 3
+W Total time on different lock 2163 ms BID: 28 CID: 4
+W Total time on different lock 2162 ms BID: 27 CID: 1
+W Total time on different lock 2163 ms BID: 27 CID: 3
+W Total time on different lock 2162 ms BID: 27 CID: 4
+W Total time on different lock 2162 ms BID: 25 CID: 2
+W Total time on different lock 2163 ms BID: 20 CID: 4
+W Total time on different lock 2162 ms BID: 22 CID: 2
+W Total time on different lock 2162 ms BID: 21 CID: 6
+W Total time on different lock 2162 ms BID: 22 CID: 3
+W Total time on different lock 2162 ms BID: 24 CID: 5
+W Total time on different lock 2163 ms BID: 29 CID: 2
+W Total time on different lock 2163 ms BID: 28 CID: 7
+W Total time on different lock 2162 ms BID: 22 CID: 5
+W Total time on different lock 2162 ms BID: 27 CID: 5
+W Total time on different lock 2162 ms BID: 25 CID: 1
+W Total time on different lock 2163 ms BID: 23 CID: 6
+W Total time on different lock 2162 ms BID: 25 CID: 5
+W Total time on different lock 2162 ms BID: 28 CID: 3
+W Total time on different lock 2162 ms BID: 22 CID: 1
+W Total time on different lock 2163 ms BID: 28 CID: 5
+W Total time on different lock 2162 ms BID: 27 CID: 6
+W Total time on different lock 2163 ms BID: 23 CID: 7
+W Total time on different lock 2162 ms BID: 25 CID: 7
+W Total time on different lock 2163 ms BID: 22 CID: 6
+W Total time on different lock 2162 ms BID: 29 CID: 5
+W Total time on different lock 2162 ms BID: 27 CID: 7
+W Total time on different lock 2162 ms BID: 29 CID: 6
+W Total time on different lock 2163 ms BID: 28 CID: 6
+W Total time on different lock 2163 ms BID: 22 CID: 7
+W Total time on different lock 2161 ms BID: 33 CID: 0
+W Total time on different lock 2162 ms BID: 40 CID: 0
+W Total time on different lock 2163 ms BID: 52 CID: 0
+W Total time on different lock 2162 ms BID: 44 CID: 0
+W Total time on different lock 2162 ms BID: 42 CID: 0
+W Total time on different lock 2162 ms BID: 32 CID: 0
+W Total time on different lock 2162 ms BID: 48 CID: 0
+W Total time on different lock 2162 ms BID: 36 CID: 0
+W Total time on different lock 2162 ms BID: 49 CID: 0
+W Total time on different lock 2162 ms BID: 37 CID: 0
+W Total time on different lock 2163 ms BID: 46 CID: 0
+W Total time on different lock 2163 ms BID: 45 CID: 0
+W Total time on different lock 2162 ms BID: 33 CID: 2
+W Total time on different lock 2162 ms BID: 33 CID: 1
+W Total time on different lock 2162 ms BID: 40 CID: 4
+W Total time on different lock 2162 ms BID: 31 CID: 0
+W Total time on different lock 2162 ms BID: 41 CID: 0
+W Total time on different lock 2163 ms BID: 53 CID: 0
+W Total time on different lock 2163 ms BID: 60 CID: 0
+W Total time on different lock 2163 ms BID: 57 CID: 0
+W Total time on different lock 2162 ms BID: 40 CID: 5
+W Total time on different lock 2162 ms BID: 38 CID: 6
+W Total time on different lock 2163 ms BID: 58 CID: 0
+W Total time on different lock 2162 ms BID: 33 CID: 5
+W Total time on different lock 2163 ms BID: 30 CID: 0
+W Total time on different lock 2162 ms BID: 52 CID: 2
+W Total time on different lock 2162 ms BID: 32 CID: 2
+W Total time on different lock 2163 ms BID: 40 CID: 7
+W Total time on different lock 2163 ms BID: 52 CID: 4
+W Total time on different lock 2163 ms BID: 62 CID: 0
+W Total time on different lock 2162 ms BID: 33 CID: 7
+W Total time on different lock 2163 ms BID: 48 CID: 1
+W Total time on different lock 2163 ms BID: 41 CID: 1
+W Total time on different lock 2162 ms BID: 37 CID: 2
+W Total time on different lock 2163 ms BID: 56 CID: 0
+W Total time on different lock 2163 ms BID: 40 CID: 3
+W Total time on different lock 2163 ms BID: 38 CID: 2
+W Total time on different lock 2162 ms BID: 33 CID: 4
+W Total time on different lock 2163 ms BID: 52 CID: 6
+W Total time on different lock 2163 ms BID: 41 CID: 3
+W Total time on different lock 2162 ms BID: 33 CID: 6
+W Total time on different lock 2162 ms BID: 40 CID: 1
+W Total time on different lock 2162 ms BID: 44 CID: 1
+W Total time on different lock 2163 ms BID: 61 CID: 0
+W Total time on different lock 2163 ms BID: 47 CID: 0
+W Total time on different lock 2162 ms BID: 37 CID: 6
+W Total time on different lock 2162 ms BID: 37 CID: 3
+W Total time on different lock 2163 ms BID: 41 CID: 7
+W Total time on different lock 2162 ms BID: 42 CID: 6
+W Total time on different lock 2162 ms BID: 40 CID: 2
+W Total time on different lock 2163 ms BID: 52 CID: 5
+W Total time on different lock 2163 ms BID: 46 CID: 1
+W Total time on different lock 2163 ms BID: 43 CID: 0
+W Total time on different lock 2162 ms BID: 53 CID: 3
+W Total time on different lock 2163 ms BID: 56 CID: 5
+W Total time on different lock 2162 ms BID: 48 CID: 3
+W Total time on different lock 2163 ms BID: 42 CID: 5
+W Total time on different lock 2162 ms BID: 52 CID: 1
+W Total time on different lock 2162 ms BID: 48 CID: 6
+W Total time on different lock 2162 ms BID: 44 CID: 2
+W Total time on different lock 2163 ms BID: 29 CID: 7
+W Total time on different lock 2162 ms BID: 37 CID: 1
+W Total time on different lock 2163 ms BID: 60 CID: 5
+W Total time on different lock 2163 ms BID: 42 CID: 4
+W Total time on different lock 2162 ms BID: 38 CID: 3
+W Total time on different lock 2162 ms BID: 49 CID: 7
+W Total time on different lock 2162 ms BID: 49 CID: 1
+W Total time on different lock 2163 ms BID: 38 CID: 7
+W Total time on different lock 2162 ms BID: 53 CID: 2
+W Total time on different lock 2162 ms BID: 33 CID: 3
+W Total time on different lock 2162 ms BID: 53 CID: 7
+W Total time on different lock 2162 ms BID: 48 CID: 2
+W Total time on different lock 2162 ms BID: 49 CID: 6
+W Total time on different lock 2163 ms BID: 31 CID: 7
+W Total time on different lock 2162 ms BID: 41 CID: 2
+W Total time on different lock 2162 ms BID: 52 CID: 3
+W Total time on different lock 2162 ms BID: 48 CID: 7
+W Total time on different lock 2162 ms BID: 40 CID: 6
+W Total time on different lock 2163 ms BID: 57 CID: 5
+W Total time on different lock 2162 ms BID: 36 CID: 1
+W Total time on different lock 2162 ms BID: 48 CID: 5
+W Total time on different lock 2162 ms BID: 36 CID: 4
+W Total time on different lock 2162 ms BID: 48 CID: 4
+W Total time on different lock 2163 ms BID: 44 CID: 6
+W Total time on different lock 2163 ms BID: 60 CID: 4
+W Total time on different lock 2162 ms BID: 49 CID: 5
+W Total time on different lock 2163 ms BID: 59 CID: 0
+W Total time on different lock 2163 ms BID: 30 CID: 2
+W Total time on different lock 2163 ms BID: 60 CID: 1
+W Total time on different lock 2162 ms BID: 32 CID: 6
+W Total time on different lock 2162 ms BID: 32 CID: 3
+W Total time on different lock 2163 ms BID: 49 CID: 4
+W Total time on different lock 2163 ms BID: 45 CID: 4
+W Total time on different lock 2163 ms BID: 54 CID: 5
+W Total time on different lock 2163 ms BID: 60 CID: 2
+W Total time on different lock 2163 ms BID: 45 CID: 2
+W Total time on different lock 2163 ms BID: 53 CID: 5
+W Total time on different lock 2163 ms BID: 31 CID: 6
+W Total time on different lock 2163 ms BID: 42 CID: 1
+W Total time on different lock 2162 ms BID: 42 CID: 7
+W Total time on different lock 2163 ms BID: 44 CID: 5
+W Total time on different lock 2163 ms BID: 60 CID: 7
+W Total time on different lock 2163 ms BID: 30 CID: 7
+W Total time on different lock 2162 ms BID: 56 CID: 1
+W Total time on different lock 2163 ms BID: 45 CID: 3
+W Total time on different lock 2162 ms BID: 41 CID: 4
+W Total time on different lock 2162 ms BID: 41 CID: 5
+W Total time on different lock 2163 ms BID: 46 CID: 2
+W Total time on different lock 2163 ms BID: 45 CID: 1
+W Total time on different lock 2162 ms BID: 30 CID: 4
+W Total time on different lock 2163 ms BID: 57 CID: 1
+W Total time on different lock 2162 ms BID: 30 CID: 3
+W Total time on different lock 2162 ms BID: 37 CID: 5
+W Total time on different lock 2162 ms BID: 52 CID: 7
+W Total time on different lock 2162 ms BID: 32 CID: 7
+W Total time on different lock 2162 ms BID: 36 CID: 2
+W Total time on different lock 2162 ms BID: 32 CID: 4
+W Total time on different lock 2162 ms BID: 37 CID: 7
+W Total time on different lock 2162 ms BID: 56 CID: 3
+W Total time on different lock 2162 ms BID: 32 CID: 5
+W Total time on different lock 2162 ms BID: 36 CID: 7
+W Total time on different lock 2162 ms BID: 53 CID: 1
+W Total time on different lock 2163 ms BID: 60 CID: 6
+W Total time on different lock 2163 ms BID: 42 CID: 3
+W Total time on different lock 2163 ms BID: 60 CID: 3
+W Total time on different lock 2162 ms BID: 56 CID: 4
+W Total time on different lock 2163 ms BID: 43 CID: 7
+W Total time on different lock 2162 ms BID: 56 CID: 2
+W Total time on different lock 2163 ms BID: 49 CID: 3
+W Total time on different lock 2163 ms BID: 49 CID: 2
+W Total time on different lock 2163 ms BID: 44 CID: 3
+W Total time on different lock 2163 ms BID: 45 CID: 5
+W Total time on different lock 2162 ms BID: 36 CID: 6
+W Total time on different lock 2163 ms BID: 53 CID: 4
+W Total time on different lock 2163 ms BID: 43 CID: 2
+W Total time on different lock 2163 ms BID: 31 CID: 4
+W Total time on different lock 2163 ms BID: 45 CID: 6
+W Total time on different lock 2162 ms BID: 31 CID: 2
+W Total time on different lock 2162 ms BID: 42 CID: 2
+W Total time on different lock 2162 ms BID: 32 CID: 1
+W Total time on different lock 2163 ms BID: 44 CID: 4
+W Total time on different lock 2162 ms BID: 62 CID: 4
+W Total time on different lock 2162 ms BID: 30 CID: 1
+W Total time on different lock 2162 ms BID: 30 CID: 5
+W Total time on different lock 2163 ms BID: 46 CID: 7
+W Total time on different lock 2163 ms BID: 53 CID: 6
+W Total time on different lock 2163 ms BID: 57 CID: 2
+W Total time on different lock 2163 ms BID: 58 CID: 2
+W Total time on different lock 2163 ms BID: 57 CID: 6
+W Total time on different lock 2163 ms BID: 44 CID: 7
+W Total time on different lock 2163 ms BID: 37 CID: 4
+W Total time on different lock 2162 ms BID: 56 CID: 7
+W Total time on different lock 2162 ms BID: 41 CID: 6
+W Total time on different lock 2163 ms BID: 58 CID: 4
+W Total time on different lock 2163 ms BID: 46 CID: 4
+W Total time on different lock 2163 ms BID: 36 CID: 3
+W Total time on different lock 2162 ms BID: 31 CID: 5
+W Total time on different lock 2162 ms BID: 56 CID: 6
+W Total time on different lock 2164 ms BID: 61 CID: 2
+W Total time on different lock 2163 ms BID: 31 CID: 1
+W Total time on different lock 2163 ms BID: 58 CID: 6
+W Total time on different lock 2163 ms BID: 45 CID: 7
+W Total time on different lock 2163 ms BID: 57 CID: 4
+W Total time on different lock 2163 ms BID: 43 CID: 6
+W Total time on different lock 2163 ms BID: 61 CID: 1
+W Total time on different lock 2162 ms BID: 43 CID: 4
+W Total time on different lock 2163 ms BID: 57 CID: 7
+W Total time on different lock 2163 ms BID: 58 CID: 1
+W Total time on different lock 2163 ms BID: 59 CID: 6
+W Total time on different lock 2163 ms BID: 62 CID: 5
+W Total time on different lock 2163 ms BID: 62 CID: 1
+W Total time on different lock 2163 ms BID: 58 CID: 3
+W Total time on different lock 2163 ms BID: 59 CID: 7
+W Total time on different lock 2163 ms BID: 62 CID: 7
+W Total time on different lock 2163 ms BID: 62 CID: 3
+W Total time on different lock 2163 ms BID: 36 CID: 5
+W Total time on different lock 2162 ms BID: 46 CID: 6
+W Total time on different lock 2163 ms BID: 46 CID: 3
+W Total time on different lock 2163 ms BID: 57 CID: 3
+W Total time on different lock 2163 ms BID: 31 CID: 3
+W Total time on different lock 2163 ms BID: 62 CID: 2
+W Total time on different lock 2163 ms BID: 30 CID: 6
+W Total time on different lock 2163 ms BID: 58 CID: 5
+W Total time on different lock 2163 ms BID: 47 CID: 2
+W Total time on different lock 2163 ms BID: 58 CID: 7
+W Total time on different lock 2163 ms BID: 47 CID: 3
+W Total time on different lock 2163 ms BID: 47 CID: 4
+W Total time on different lock 2163 ms BID: 46 CID: 5
+W Total time on different lock 2163 ms BID: 61 CID: 5
+W Total time on different lock 2163 ms BID: 62 CID: 6
+W Total time on different lock 2163 ms BID: 47 CID: 7
+W Total time on different lock 2163 ms BID: 47 CID: 5
+W Total time on different lock 2163 ms BID: 61 CID: 4
+W Total time on different lock 2163 ms BID: 47 CID: 1
+W Total time on different lock 2163 ms BID: 61 CID: 7
+W Total time on different lock 2163 ms BID: 47 CID: 6
+W Total time on different lock 2163 ms BID: 61 CID: 3
+W Total time on different lock 2163 ms BID: 61 CID: 6
+W Total time on different lock 2162 ms BID: 2 CID: 0
+W Total time on different lock 2161 ms BID: 2 CID: 5
+W Total time on different lock 2161 ms BID: 2 CID: 2
+W Total time on different lock 2162 ms BID: 2 CID: 7
+W Total time on different lock 2162 ms BID: 2 CID: 4
+W Total time on different lock 2162 ms BID: 2 CID: 3
+W Total time on different lock 2161 ms BID: 3 CID: 0
+W Total time on different lock 2161 ms BID: 7 CID: 0
+W Total time on different lock 2162 ms BID: 3 CID: 2
+W Total time on different lock 2161 ms BID: 7 CID: 5
+W Total time on different lock 2162 ms BID: 3 CID: 3
+W Total time on different lock 2162 ms BID: 3 CID: 7
+W Total time on different lock 2162 ms BID: 3 CID: 6
+W Total time on different lock 2161 ms BID: 3 CID: 4
+W Total time on different lock 2162 ms BID: 3 CID: 1
+W Total time on different lock 2162 ms BID: 7 CID: 4
+W Total time on different lock 2162 ms BID: 3 CID: 5
+W Total time on different lock 2162 ms BID: 7 CID: 7
+W Total time on different lock 2161 ms BID: 7 CID: 1
+W Total time on different lock 2162 ms BID: 6 CID: 7
+W Total time on different lock 2162 ms BID: 7 CID: 2
+W Total time on different lock 2161 ms BID: 19 CID: 0
+W Total time on different lock 2162 ms BID: 18 CID: 0
+W Total time on different lock 2162 ms BID: 6 CID: 4
+W Total time on different lock 2162 ms BID: 18 CID: 7
+W Total time on different lock 2161 ms BID: 18 CID: 4
+W Total time on different lock 2161 ms BID: 19 CID: 3
+W Total time on different lock 2162 ms BID: 18 CID: 2
+W Total time on different lock 2162 ms BID: 18 CID: 1
+W Total time on different lock 2161 ms BID: 19 CID: 2
+W Total time on different lock 2161 ms BID: 19 CID: 4
+W Total time on different lock 2162 ms BID: 18 CID: 3
+W Total time on different lock 2162 ms BID: 19 CID: 5
+W Total time on different lock 2162 ms BID: 19 CID: 7
+W Total time on different lock 2162 ms BID: 23 CID: 2
+W Total time on different lock 2162 ms BID: 19 CID: 6
+W Total time on different lock 2162 ms BID: 23 CID: 4
+W Total time on different lock 2162 ms BID: 23 CID: 5
+W Total time on different lock 2162 ms BID: 23 CID: 1
+W Total time on different lock 2162 ms BID: 35 CID: 0
+W Total time on different lock 2162 ms BID: 38 CID: 0
+W Total time on different lock 2162 ms BID: 51 CID: 0
+W Total time on different lock 2163 ms BID: 34 CID: 0
+W Total time on different lock 2162 ms BID: 35 CID: 1
+W Total time on different lock 2162 ms BID: 55 CID: 0
+W Total time on different lock 2163 ms BID: 54 CID: 0
+W Total time on different lock 2163 ms BID: 50 CID: 0
+W Total time on different lock 2162 ms BID: 38 CID: 5
+W Total time on different lock 2163 ms BID: 39 CID: 0
+W Total time on different lock 2162 ms BID: 50 CID: 1
+W Total time on different lock 2162 ms BID: 39 CID: 7
+W Total time on different lock 2162 ms BID: 38 CID: 4
+W Total time on different lock 2163 ms BID: 51 CID: 1
+W Total time on different lock 2162 ms BID: 54 CID: 2
+W Total time on different lock 2162 ms BID: 35 CID: 7
+W Total time on different lock 2162 ms BID: 35 CID: 5
+W Total time on different lock 2162 ms BID: 38 CID: 1
+W Total time on different lock 2162 ms BID: 34 CID: 4
+W Total time on different lock 2162 ms BID: 35 CID: 6
+W Total time on different lock 2162 ms BID: 35 CID: 3
+W Total time on different lock 2162 ms BID: 39 CID: 2
+W Total time on different lock 2162 ms BID: 35 CID: 2
+W Total time on different lock 2162 ms BID: 50 CID: 7
+W Total time on different lock 2162 ms BID: 34 CID: 1
+W Total time on different lock 2163 ms BID: 55 CID: 2
+W Total time on different lock 2162 ms BID: 54 CID: 3
+W Total time on different lock 2162 ms BID: 50 CID: 2
+W Total time on different lock 2162 ms BID: 34 CID: 2
+W Total time on different lock 2163 ms BID: 59 CID: 3
+W Total time on different lock 2163 ms BID: 34 CID: 3
+W Total time on different lock 2162 ms BID: 39 CID: 5
+W Total time on different lock 2163 ms BID: 54 CID: 7
+W Total time on different lock 2162 ms BID: 39 CID: 4
+W Total time on different lock 2163 ms BID: 55 CID: 1
+W Total time on different lock 2163 ms BID: 34 CID: 5
+W Total time on different lock 2163 ms BID: 34 CID: 7
+W Total time on different lock 2163 ms BID: 51 CID: 3
+W Total time on different lock 2162 ms BID: 43 CID: 3
+W Total time on different lock 2162 ms BID: 50 CID: 4
+W Total time on different lock 2163 ms BID: 51 CID: 5
+W Total time on different lock 2163 ms BID: 54 CID: 1
+W Total time on different lock 2163 ms BID: 34 CID: 6
+W Total time on different lock 2162 ms BID: 43 CID: 1
+W Total time on different lock 2162 ms BID: 43 CID: 5
+W Total time on different lock 2163 ms BID: 54 CID: 4
+W Total time on different lock 2163 ms BID: 51 CID: 6
+W Total time on different lock 2163 ms BID: 35 CID: 4
+W Total time on different lock 2163 ms BID: 55 CID: 3
+W Total time on different lock 2163 ms BID: 50 CID: 6
+W Total time on different lock 2163 ms BID: 54 CID: 6
+W Total time on different lock 2163 ms BID: 39 CID: 1
+W Total time on different lock 2163 ms BID: 50 CID: 5
+W Total time on different lock 2163 ms BID: 39 CID: 6
+W Total time on different lock 2163 ms BID: 55 CID: 4
+W Total time on different lock 2162 ms BID: 51 CID: 2
+W Total time on different lock 2163 ms BID: 50 CID: 3
+W Total time on different lock 2163 ms BID: 55 CID: 5
+W Total time on different lock 2162 ms BID: 51 CID: 7
+W Total time on different lock 2162 ms BID: 59 CID: 1
+W Total time on different lock 2162 ms BID: 59 CID: 2
+W Total time on different lock 2162 ms BID: 51 CID: 4
+W Total time on different lock 2163 ms BID: 39 CID: 3
+W Total time on different lock 2163 ms BID: 55 CID: 6
+W Total time on different lock 2163 ms BID: 59 CID: 4
+W Total time on different lock 2163 ms BID: 55 CID: 7
+W Total time on different lock 2164 ms BID: 59 CID: 5
+Total time on different locks 79973 ms
+I am done
+Done AppThread
+
+=============================
+Squawk VM exiting with code 0
+Execution time 100521 ms
+=============================
+
+Running top-level shutdown hooks:
+Done running top-level shutdown hooks.
+	0:0
+	0:0
+** VM on 0:0 stopped: exit code = 0 ** 	0:0
+End: 142764 ms	0:0
+Board=0 Core=0 : Exited with 0	0:0
+>> Connected to formicarium
+>> Received kill command from software
+

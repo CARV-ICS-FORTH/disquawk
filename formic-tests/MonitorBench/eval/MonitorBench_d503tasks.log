@@ -1,0 +1,575 @@
+>> ELF file transmitted (1068148 bytes)
+>> Formic cube powered on
+>> Spawning XMD script to boot Formic...
+>> XMD terminated successfully.
+>> Entering working mode, press Ctrl-C to quit
+usb_on
+usb_on
+EnablingEnabling debug U debug USB...
+SB...
+
+
+Cmd> 
+Cmd> 
+
+
+Boot master is 0x00/0	0:0
+	0:0
+Checking Formic cube links:	0:0
+01/64: Checking board 0x3F [X=3, Y=3, Z=3]...02/64: Checking board 0x2F [X=2, Y=3, Z=3]...03/64: Checking board 0x1F [X=1, Y=3, Z=3]...04/64: Checking board 0x0F [X=0, Y=3, Z=3]...05/64: Checking board 0x3B [X=3, Y=2, Z=3]...06/64: Checking board 0x2B [X=2, Y=2, Z=3]...07/64: Checking board 0x1B [X=1, Y=2, Z=3]...08/64: Checking board 0x0B [X=0, Y=2, Z=3]...09/64: Checking board 0x37 [X=3, Y=1, Z=3]...10/64: Checking board 0x27 [X=2, Y=1, Z=3]...11/64: Checking board 0x17 [X=1, Y=1, Z=3]...12/64: Checking board 0x07 [X=0, Y=1, Z=3]...13/64: Checking board 0x33 [X=3, Y=0, Z=3]...14/64: Checking board 0x23 [X=2, Y=0, Z=3]...15/64: Checking board 0x13 [X=1, Y=0, Z=3]...16/64: Checking board 0x03 [X=0, Y=0, Z=3]...17/64: Checking board 0x3E [X=3, Y=3, Z=2]...18/64: Checking board 0x2E [X=2, Y=3, Z=2]...19/64: Checking board 0x1E [X=1, Y=3, Z=2]...20/64: Checking board 0x0E [X=0, Y=3, Z=2]...21/64: Checking board 0x3A [X=3, Y=2, Z=2]...22/64: Checking board 0x2A [X=2, Y=2, Z=2]...23/64: Checking board 0x1A [X=1, Y=2, Z=2]...24/64: Checking board 0x0A [X=0, Y=2, Z=2]...25/64: Checking board 0x36 [X=3, Y=1, Z=2]...26/64: Checking board 0x26 [X=2, Y=1, Z=2]...27/64: Checking board 0x16 [X=1, Y=1, Z=2]...28/64: Checking board 0x06 [X=0, Y=1, Z=2]...29/64: Checking board 0x32 [X=3, Y=0, Z=2]...30/64: Checking board 0x22 [X=2, Y=0, Z=2]...31/64: Checking board 0x12 [X=1, Y=0, Z=2]...32/64: Checking board 0x02 [X=0, Y=0, Z=2]...33/64: Checking board 0x3D [X=3, Y=3, Z=1]...34/64: Checking board 0x2D [X=2, Y=3, Z=1]...35/64: Checking board 0x1D [X=1, Y=3, Z=1]...36/64: Checking board 0x0D [X=0, Y=3, Z=1]...37/64: Checking board 0x39 [X=3, Y=2, Z=1]...38/64: Checking board 0x29 [X=2, Y=2, Z=1]...39/64: Checking board 0x19 [X=1, Y=2, Z=1]...40/64: Checking board 0x09 [X=0, Y=2, Z=1]...41/64: Checking board 0x35 [X=3, Y=1, Z=1]...42/64: Checking board 0x25 [X=2, Y=1, Z=1]...43/64: Checking board 0x15 [X=1, Y=1, Z=1]...44/64: Checking board 0x05 [X=0, Y=1, Z=1]...45/64: Checking board 0x31 [X=3, Y=0, Z=1]...46/64: Checking board 0x21 [X=2, Y=0, Z=1]...47/64: Checking board 0x11 [X=1, Y=0, Z=1]...48/64: Checking board 0x01 [X=0, Y=0, Z=1]...49/64: Checking board 0x3C [X=3, Y=3, Z=0]...50/64: Checking board 0x2C [X=2, Y=3, Z=0]...51/64: Checking board 0x1C [X=1, Y=3, Z=0]...52/64: Checking board 0x0C [X=0, Y=3, Z=0]...53/64: Checking board 0x38 [X=3, Y=2, Z=0]...54/64: Checking board 0x28 [X=2, Y=2, Z=0]...55/64: Checking board 0x18 [X=1, Y=2, Z=0]...56/64: Checking board 0x08 [X=0, Y=2, Z=0]...57/64: Checking board 0x34 [X=3, Y=1, Z=0]...58/64: Checking board 0x24 [X=2, Y=1, Z=0]...59/64: Checking board 0x14 [X=1, Y=1, Z=0]...60/64: Checking board 0x04 [X=0, Y=1, Z=0]...61/64: Checking board 0x30 [X=3, Y=0, Z=0]...62/64: Checking board 0x20 [X=2, Y=0, Z=0]...63/64: Checking board 0x10 [X=1, Y=0, Z=0]...64/64: Checking board 0x00 [X=0, Y=0, Z=0]... checked 288 endpoints [ [1;32mPASS[0m ]	0:0
+	0:0
+Checking Formic cube board versions:	0:0
+01/64: Checking board 0x3F [X=3, Y=3, Z=3]...02/64: Checking board 0x2F [X=2, Y=3, Z=3]...03/64: Checking board 0x1F [X=1, Y=3, Z=3]...04/64: Checking board 0x0F [X=0, Y=3, Z=3]...05/64: Checking board 0x3B [X=3, Y=2, Z=3]...06/64: Checking board 0x2B [X=2, Y=2, Z=3]...07/64: Checking board 0x1B [X=1, Y=2, Z=3]...08/64: Checking board 0x0B [X=0, Y=2, Z=3]...09/64: Checking board 0x37 [X=3, Y=1, Z=3]...10/64: Checking board 0x27 [X=2, Y=1, Z=3]...11/64: Checking board 0x17 [X=1, Y=1, Z=3]...12/64: Checking board 0x07 [X=0, Y=1, Z=3]...13/64: Checking board 0x33 [X=3, Y=0, Z=3]...14/64: Checking board 0x23 [X=2, Y=0, Z=3]...15/64: Checking board 0x13 [X=1, Y=0, Z=3]...16/64: Checking board 0x03 [X=0, Y=0, Z=3]...17/64: Checking board 0x3E [X=3, Y=3, Z=2]...18/64: Checking board 0x2E [X=2, Y=3, Z=2]...19/64: Checking board 0x1E [X=1, Y=3, Z=2]...20/64: Checking board 0x0E [X=0, Y=3, Z=2]...21/64: Checking board 0x3A [X=3, Y=2, Z=2]...22/64: Checking board 0x2A [X=2, Y=2, Z=2]...23/64: Checking board 0x1A [X=1, Y=2, Z=2]...24/64: Checking board 0x0A [X=0, Y=2, Z=2]...25/64: Checking board 0x36 [X=3, Y=1, Z=2]...26/64: Checking board 0x26 [X=2, Y=1, Z=2]...27/64: Checking board 0x16 [X=1, Y=1, Z=2]...28/64: Checking board 0x06 [X=0, Y=1, Z=2]...29/64: Checking board 0x32 [X=3, Y=0, Z=2]...30/64: Checking board 0x22 [X=2, Y=0, Z=2]...31/64: Checking board 0x12 [X=1, Y=0, Z=2]...32/64: Checking board 0x02 [X=0, Y=0, Z=2]...33/64: Checking board 0x3D [X=3, Y=3, Z=1]...34/64: Checking board 0x2D [X=2, Y=3, Z=1]...35/64: Checking board 0x1D [X=1, Y=3, Z=1]...36/64: Checking board 0x0D [X=0, Y=3, Z=1]...37/64: Checking board 0x39 [X=3, Y=2, Z=1]...38/64: Checking board 0x29 [X=2, Y=2, Z=1]...39/64: Checking board 0x19 [X=1, Y=2, Z=1]...40/64: Checking board 0x09 [X=0, Y=2, Z=1]...41/64: Checking board 0x35 [X=3, Y=1, Z=1]...42/64: Checking board 0x25 [X=2, Y=1, Z=1]...43/64: Checking board 0x15 [X=1, Y=1, Z=1]...44/64: Checking board 0x05 [X=0, Y=1, Z=1]...45/64: Checking board 0x31 [X=3, Y=0, Z=1]...46/64: Checking board 0x21 [X=2, Y=0, Z=1]...47/64: Checking board 0x11 [X=1, Y=0, Z=1]...48/64: Checking board 0x01 [X=0, Y=0, Z=1]...49/64: Checking board 0x3C [X=3, Y=3, Z=0]...50/64: Checking board 0x2C [X=2, Y=3, Z=0]...51/64: Checking board 0x1C [X=1, Y=3, Z=0]...52/64: Checking board 0x0C [X=0, Y=3, Z=0]...53/64: Checking board 0x38 [X=3, Y=2, Z=0]...54/64: Checking board 0x28 [X=2, Y=2, Z=0]...55/64: Checking board 0x18 [X=1, Y=2, Z=0]...56/64: Checking board 0x08 [X=0, Y=2, Z=0]...57/64: Checking board 0x34 [X=3, Y=1, Z=0]...58/64: Checking board 0x24 [X=2, Y=1, Z=0]...59/64: Checking board 0x14 [X=1, Y=1, Z=0]...60/64: Checking board 0x04 [X=0, Y=1, Z=0]...61/64: Checking board 0x30 [X=3, Y=0, Z=0]...62/64: Checking board 0x20 [X=2, Y=0, Z=0]...63/64: Checking board 0x10 [X=1, Y=0, Z=0]...64/64: Checking board 0x00 [X=0, Y=0, Z=0]... checked 64 boards [ [1;32mPASS[0m ]	0:0
+	0:0
+Microblaze code from 0x00000000 - 0x000FFDE8 [1048064 bytes]	0:0
+Waking up board x0y0z0 (0x00)...Waking up board x0y0z1 (0x01)...Waking up board x0y0z2 (0x02)...Waking up board x0y0z3 (0x03)...Waking up board x0y1z0 (0x04)...Waking up board x0y1z1 (0x05)...Waking up board x0y1z2 (0x06)...Waking up board x0y1z3 (0x07)...Waking up board x0y2z0 (0x08)...Waking up board x0y2z1 (0x09)...Waking up board x0y2z2 (0x0A)...Waking up board x0y2z3 (0x0B)...Waking up board x0y3z0 (0x0C)...Waking up board x0y3z1 (0x0D)...Waking up board x0y3z2 (0x0E)...Waking up board x0y3z3 (0x0F)...Waking up board x1y0z0 (0x10)...Waking up board x1y0z1 (0x11)...Waking up board x1y0z2 (0x12)...Waking up board x1y0z3 (0x13)...Waking up board x1y1z0 (0x14)...Waking up board x1y1z1 (0x15)...Waking up board x1y1z2 (0x16)...Waking up board x1y1z3 (0x17)...Waking up board x1y2z0 (0x18)...Waking up board x1y2z1 (0x19)...Waking up board x1y2z2 (0x1A)...Waking up board x1y2z3 (0x1B)...Waking up board x1y3z0 (0x1C)...Waking up board x1y3z1 (0x1D)...Waking up board x1y3z2 (0x1E)...Waking up board x1y3z3 (0x1F)...Waking up board x2y0z0 (0x20)...Waking up board x2y0z1 (0x21)...Waking up board x2y0z2 (0x22)...Waking up board x2y0z3 (0x23)...Waking up board x2y1z0 (0x24)...Waking up board x2y1z1 (0x25)...Waking up board x2y1z2 (0x26)...Waking up board x2y1z3 (0x27)...Waking up board x2y2z0 (0x28)...Waking up board x2y2z1 (0x29)...Waking up board x2y2z2 (0x2A)...Waking up board x2y2z3 (0x2B)...Waking up board x2y3z0 (0x2C)...Waking up board x2y3z1 (0x2D)...Waking up board x2y3z2 (0x2E)...Waking up board x2y3z3 (0x2F)...Waking up board x3y0z0 (0x30)...Waking up board x3y0z1 (0x31)...Waking up board x3y0z2 (0x32)...Waking up board x3y0z3 (0x33)...Waking up board x3y1z0 (0x34)...Waking up board x3y1z1 (0x35)...Waking up board x3y1z2 (0x36)...Waking up board x3y1z3 (0x37)...Waking up board x3y2z0 (0x38)...Waking up board x3y2z1 (0x39)...Waking up board x3y2z2 (0x3A)...Waking up board x3y2z3 (0x3B)...Waking up board x3y3z0 (0x3C)...Waking up board x3y3z1 (0x3D)...Waking up board x3y3z2 (0x3E)...Waking up board x3y3z3 (0x3F)...Successfully woke up 64 boards     	0:0
+Collected 511 boot answers	0:0
+	0:0
+[INFO] in STARTUP
+[INFO] Isolation initialized
+[DBG]  Threading initialized
+[DBG]  Copied Strings
+[DBG]  Service operation Loop is up and running
+[INFO] in runMain: com.sun.squawk.JavaApplicationManager
+[DIAG] AppThread Instantiated with: monitorbench.Main
+parentSuiteURI=spotsuite:FormicApp
+[DIAG] in load(bool)
+       Minor     : 0
+       Major     : 2
+       Attributes: 2
+       parentHash: 0x6fd7ee
+       parentURI : memory:bootstrap
+        padding   : 3
+[DIAG] in loadThis
+
+       Read:2248
+       rootOffset: 4
+       memorySize: 2132
+       hash      : 0x8088
+Loading flash suite to address 0x901e4
+[loaded object memory from 'spotsuite:FormicApp']
+morph done starting AppThread
+[INFO] in runMain: monitorbench.Main
+Running monitorBench with artificial_work set to 0 and 503 tasks
+W Total time on different lock 8664 ms
+W Total time on different lock 8779 ms
+W Total time on different lock 8799 ms
+W Total time on different lock 8814 ms
+W Total time on different lock 8926 ms
+W Total time on different lock 8897 ms
+W Total time on different lock 8915 ms
+W Total time on different lock 8871 ms
+W Total time on different lock 8921 ms
+W Total time on different lock 9060 ms
+W Total time on different lock 9077 ms
+W Total time on different lock 8997 ms
+W Total time on different lock 9068 ms
+W Total time on different lock 9012 ms
+W Total time on different lock 9024 ms
+W Total time on different lock 9070 ms
+W Total time on different lock 9138 ms
+W Total time on different lock 9116 ms
+W Total time on different lock 9184 ms
+W Total time on different lock 9182 ms
+W Total time on different lock 9085 ms
+W Total time on different lock 9054 ms
+W Total time on different lock 9124 ms
+W Total time on different lock 9097 ms
+W Total time on different lock 9178 ms
+W Total time on different lock 9210 ms
+W Total time on different lock 9168 ms
+W Total time on different lock 9219 ms
+W Total time on different lock 9222 ms
+W Total time on different lock 9247 ms
+W Total time on different lock 9294 ms
+W Total time on different lock 9206 ms
+W Total time on different lock 9304 ms
+W Total time on different lock 9197 ms
+W Total time on different lock 9319 ms
+W Total time on different lock 9330 ms
+W Total time on different lock 9303 ms
+W Total time on different lock 9329 ms
+W Total time on different lock 9359 ms
+W Total time on different lock 9329 ms
+W Total time on different lock 9368 ms
+W Total time on different lock 9292 ms
+W Total time on different lock 9373 ms
+W Total time on different lock 9410 ms
+W Total time on different lock 9382 ms
+W Total time on different lock 9455 ms
+W Total time on different lock 9482 ms
+W Total time on different lock 9311 ms
+W Total time on different lock 9454 ms
+W Total time on different lock 9482 ms
+W Total time on different lock 9552 ms
+W Total time on different lock 9488 ms
+W Total time on different lock 9480 ms
+W Total time on different lock 9472 ms
+W Total time on different lock 9547 ms
+W Total time on different lock 9444 ms
+W Total time on different lock 9570 ms
+W Total time on different lock 9504 ms
+W Total time on different lock 9615 ms
+W Total time on different lock 9370 ms
+W Total time on different lock 9482 ms
+W Total time on different lock 9385 ms
+W Total time on different lock 9495 ms
+W Total time on different lock 9423 ms
+W Total time on different lock 9482 ms
+W Total time on different lock 9482 ms
+W Total time on different lock 9675 ms
+W Total time on different lock 9608 ms
+W Total time on different lock 9535 ms
+W Total time on different lock 9547 ms
+W Total time on different lock 9689 ms
+W Total time on different lock 9470 ms
+W Total time on different lock 9510 ms
+W Total time on different lock 9546 ms
+W Total time on different lock 9487 ms
+W Total time on different lock 9512 ms
+W Total time on different lock 9626 ms
+W Total time on different lock 9541 ms
+W Total time on different lock 9726 ms
+W Total time on different lock 9521 ms
+W Total time on different lock 9645 ms
+W Total time on different lock 9510 ms
+W Total time on different lock 9539 ms
+W Total time on different lock 9686 ms
+W Total time on different lock 9792 ms
+W Total time on different lock 9731 ms
+W Total time on different lock 9707 ms
+W Total time on different lock 9675 ms
+W Total time on different lock 9719 ms
+W Total time on different lock 9651 ms
+W Total time on different lock 9790 ms
+W Total time on different lock 9660 ms
+W Total time on different lock 9557 ms
+W Total time on different lock 9608 ms
+W Total time on different lock 9691 ms
+W Total time on different lock 9689 ms
+W Total time on different lock 9622 ms
+W Total time on different lock 9764 ms
+W Total time on different lock 9587 ms
+W Total time on different lock 9664 ms
+W Total time on different lock 9736 ms
+W Total time on different lock 9538 ms
+W Total time on different lock 9758 ms
+W Total time on different lock 9711 ms
+W Total time on different lock 9867 ms
+W Total time on different lock 9865 ms
+W Total time on different lock 9706 ms
+W Total time on different lock 9719 ms
+W Total time on different lock 9731 ms
+W Total time on different lock 9767 ms
+W Total time on different lock 9846 ms
+W Total time on different lock 9765 ms
+W Total time on different lock 9833 ms
+W Total time on different lock 9767 ms
+W Total time on different lock 9821 ms
+W Total time on different lock 9680 ms
+W Total time on different lock 9750 ms
+W Total time on different lock 9686 ms
+W Total time on different lock 9684 ms
+W Total time on different lock 9861 ms
+W Total time on different lock 9831 ms
+W Total time on different lock 9922 ms
+W Total time on different lock 9859 ms
+W Total time on different lock 9955 ms
+W Total time on different lock 9640 ms
+W Total time on different lock 9744 ms
+W Total time on different lock 9785 ms
+W Total time on different lock 9894 ms
+W Total time on different lock 9864 ms
+W Total time on different lock 9629 ms
+W Total time on different lock 9741 ms
+W Total time on different lock 9782 ms
+W Total time on different lock 9741 ms
+W Total time on different lock 9894 ms
+W Total time on different lock 10055 ms
+W Total time on different lock 9989 ms
+W Total time on different lock 9918 ms
+W Total time on different lock 9776 ms
+W Total time on different lock 9953 ms
+W Total time on different lock 9687 ms
+W Total time on different lock 9791 ms
+W Total time on different lock 9893 ms
+W Total time on different lock 9841 ms
+W Total time on different lock 10015 ms
+W Total time on different lock 9875 ms
+W Total time on different lock 10065 ms
+W Total time on different lock 9884 ms
+W Total time on different lock 9891 ms
+W Total time on different lock 9861 ms
+W Total time on different lock 10072 ms
+W Total time on different lock 9862 ms
+W Total time on different lock 9902 ms
+W Total time on different lock 10054 ms
+W Total time on different lock 9846 ms
+W Total time on different lock 9885 ms
+W Total time on different lock 9943 ms
+W Total time on different lock 10139 ms
+W Total time on different lock 9868 ms
+W Total time on different lock 9866 ms
+W Total time on different lock 9769 ms
+W Total time on different lock 9936 ms
+W Total time on different lock 10029 ms
+W Total time on different lock 9782 ms
+W Total time on different lock 9959 ms
+W Total time on different lock 9890 ms
+W Total time on different lock 9930 ms
+W Total time on different lock 9787 ms
+W Total time on different lock 9832 ms
+W Total time on different lock 10002 ms
+W Total time on different lock 9870 ms
+W Total time on different lock 10097 ms
+W Total time on different lock 9856 ms
+W Total time on different lock 10036 ms
+W Total time on different lock 10002 ms
+W Total time on different lock 10219 ms
+W Total time on different lock 9906 ms
+W Total time on different lock 9945 ms
+W Total time on different lock 10023 ms
+W Total time on different lock 10101 ms
+W Total time on different lock 10103 ms
+W Total time on different lock 9956 ms
+W Total time on different lock 10164 ms
+W Total time on different lock 10064 ms
+W Total time on different lock 9969 ms
+W Total time on different lock 10059 ms
+W Total time on different lock 9868 ms
+W Total time on different lock 10007 ms
+W Total time on different lock 9935 ms
+W Total time on different lock 10157 ms
+W Total time on different lock 10270 ms
+W Total time on different lock 10060 ms
+W Total time on different lock 9951 ms
+W Total time on different lock 9998 ms
+W Total time on different lock 10023 ms
+W Total time on different lock 9961 ms
+W Total time on different lock 9873 ms
+W Total time on different lock 10069 ms
+W Total time on different lock 10014 ms
+W Total time on different lock 9915 ms
+W Total time on different lock 10161 ms
+W Total time on different lock 9934 ms
+W Total time on different lock 10034 ms
+W Total time on different lock 10080 ms
+W Total time on different lock 9987 ms
+W Total time on different lock 10011 ms
+W Total time on different lock 9958 ms
+W Total time on different lock 9952 ms
+W Total time on different lock 10162 ms
+W Total time on different lock 10306 ms
+W Total time on different lock 9995 ms
+W Total time on different lock 9997 ms
+W Total time on different lock 9934 ms
+W Total time on different lock 10165 ms
+W Total time on different lock 9965 ms
+W Total time on different lock 10107 ms
+W Total time on different lock 10083 ms
+W Total time on different lock 10394 ms
+W Total time on different lock 10187 ms
+W Total time on different lock 9940 ms
+W Total time on different lock 10041 ms
+W Total time on different lock 10368 ms
+W Total time on different lock 10246 ms
+W Total time on different lock 10216 ms
+W Total time on different lock 10287 ms
+W Total time on different lock 10047 ms
+W Total time on different lock 10193 ms
+W Total time on different lock 10448 ms
+W Total time on different lock 10283 ms
+W Total time on different lock 10061 ms
+W Total time on different lock 10186 ms
+W Total time on different lock 10103 ms
+W Total time on different lock 10073 ms
+W Total time on different lock 10141 ms
+W Total time on different lock 10113 ms
+W Total time on different lock 10047 ms
+W Total time on different lock 10346 ms
+W Total time on different lock 10272 ms
+W Total time on different lock 10136 ms
+W Total time on different lock 10299 ms
+W Total time on different lock 10132 ms
+W Total time on different lock 10338 ms
+W Total time on different lock 10147 ms
+W Total time on different lock 10220 ms
+W Total time on different lock 10220 ms
+W Total time on different lock 10403 ms
+W Total time on different lock 10121 ms
+W Total time on different lock 10168 ms
+W Total time on different lock 10230 ms
+W Total time on different lock 10271 ms
+W Total time on different lock 10130 ms
+W Total time on different lock 10176 ms
+W Total time on different lock 10289 ms
+W Total time on different lock 10572 ms
+W Total time on different lock 10578 ms
+W Total time on different lock 10324 ms
+W Total time on different lock 10260 ms
+W Total time on different lock 10223 ms
+W Total time on different lock 10222 ms
+W Total time on different lock 10607 ms
+W Total time on different lock 10260 ms
+W Total time on different lock 10583 ms
+W Total time on different lock 10585 ms
+W Total time on different lock 10614 ms
+W Total time on different lock 10182 ms
+W Total time on different lock 10609 ms
+W Total time on different lock 10604 ms
+W Total time on different lock 10505 ms
+W Total time on different lock 10181 ms
+W Total time on different lock 10297 ms
+W Total time on different lock 10308 ms
+W Total time on different lock 10663 ms
+W Total time on different lock 10283 ms
+W Total time on different lock 10451 ms
+W Total time on different lock 10435 ms
+W Total time on different lock 10480 ms
+W Total time on different lock 10703 ms
+W Total time on different lock 10272 ms
+W Total time on different lock 10716 ms
+W Total time on different lock 10543 ms
+W Total time on different lock 10719 ms
+W Total time on different lock 10757 ms
+W Total time on different lock 10702 ms
+W Total time on different lock 10429 ms
+W Total time on different lock 10371 ms
+W Total time on different lock 10625 ms
+W Total time on different lock 10430 ms
+W Total time on different lock 10817 ms
+W Total time on different lock 10488 ms
+W Total time on different lock 10870 ms
+W Total time on different lock 10373 ms
+W Total time on different lock 10504 ms
+W Total time on different lock 10386 ms
+W Total time on different lock 10699 ms
+W Total time on different lock 10524 ms
+W Total time on different lock 10467 ms
+W Total time on different lock 10713 ms
+W Total time on different lock 10412 ms
+W Total time on different lock 10420 ms
+W Total time on different lock 10721 ms
+W Total time on different lock 10418 ms
+W Total time on different lock 10708 ms
+W Total time on different lock 10741 ms
+W Total time on different lock 10952 ms
+W Total time on different lock 10740 ms
+W Total time on different lock 10577 ms
+W Total time on different lock 10748 ms
+W Total time on different lock 10455 ms
+W Total time on different lock 10493 ms
+W Total time on different lock 10743 ms
+W Total time on different lock 10754 ms
+W Total time on different lock 10978 ms
+W Total time on different lock 10799 ms
+W Total time on different lock 10970 ms
+W Total time on different lock 10805 ms
+W Total time on different lock 10708 ms
+W Total time on different lock 10675 ms
+W Total time on different lock 11053 ms
+W Total time on different lock 11023 ms
+W Total time on different lock 10840 ms
+W Total time on different lock 11053 ms
+W Total time on different lock 10731 ms
+W Total time on different lock 10585 ms
+W Total time on different lock 11035 ms
+W Total time on different lock 10869 ms
+W Total time on different lock 11072 ms
+W Total time on different lock 10778 ms
+W Total time on different lock 11123 ms
+W Total time on different lock 10652 ms
+W Total time on different lock 10898 ms
+W Total time on different lock 10800 ms
+W Total time on different lock 10774 ms
+W Total time on different lock 10800 ms
+W Total time on different lock 10781 ms
+W Total time on different lock 11118 ms
+W Total time on different lock 11021 ms
+W Total time on different lock 11117 ms
+W Total time on different lock 10684 ms
+W Total time on different lock 11156 ms
+W Total time on different lock 11030 ms
+W Total time on different lock 11203 ms
+W Total time on different lock 11147 ms
+W Total time on different lock 10848 ms
+W Total time on different lock 11151 ms
+W Total time on different lock 11214 ms
+W Total time on different lock 10877 ms
+W Total time on different lock 10888 ms
+W Total time on different lock 11230 ms
+W Total time on different lock 11171 ms
+W Total time on different lock 11073 ms
+W Total time on different lock 10877 ms
+W Total time on different lock 11078 ms
+W Total time on different lock 11124 ms
+W Total time on different lock 10902 ms
+W Total time on different lock 11101 ms
+W Total time on different lock 10776 ms
+W Total time on different lock 10800 ms
+W Total time on different lock 11107 ms
+W Total time on different lock 10803 ms
+W Total time on different lock 10938 ms
+W Total time on different lock 11285 ms
+W Total time on different lock 10781 ms
+W Total time on different lock 10945 ms
+W Total time on different lock 11118 ms
+W Total time on different lock 10812 ms
+W Total time on different lock 11097 ms
+W Total time on different lock 10938 ms
+W Total time on different lock 10810 ms
+W Total time on different lock 10824 ms
+W Total time on different lock 11197 ms
+W Total time on different lock 10971 ms
+W Total time on different lock 10845 ms
+W Total time on different lock 10869 ms
+W Total time on different lock 10845 ms
+W Total time on different lock 11174 ms
+W Total time on different lock 11186 ms
+W Total time on different lock 10860 ms
+W Total time on different lock 11300 ms
+W Total time on different lock 11088 ms
+W Total time on different lock 11230 ms
+W Total time on different lock 11241 ms
+W Total time on different lock 10917 ms
+W Total time on different lock 10916 ms
+W Total time on different lock 11347 ms
+W Total time on different lock 11146 ms
+W Total time on different lock 11110 ms
+W Total time on different lock 11227 ms
+W Total time on different lock 11297 ms
+W Total time on different lock 11232 ms
+W Total time on different lock 11129 ms
+W Total time on different lock 11238 ms
+W Total time on different lock 11135 ms
+W Total time on different lock 11168 ms
+W Total time on different lock 11175 ms
+W Total time on different lock 11315 ms
+W Total time on different lock 11320 ms
+W Total time on different lock 11016 ms
+W Total time on different lock 11165 ms
+W Total time on different lock 11198 ms
+W Total time on different lock 11172 ms
+W Total time on different lock 11293 ms
+W Total time on different lock 11155 ms
+W Total time on different lock 11190 ms
+W Total time on different lock 11308 ms
+W Total time on different lock 11208 ms
+W Total time on different lock 11239 ms
+W Total time on different lock 11075 ms
+W Total time on different lock 11328 ms
+W Total time on different lock 11185 ms
+W Total time on different lock 11086 ms
+W Total time on different lock 11085 ms
+W Total time on different lock 11070 ms
+W Total time on different lock 11099 ms
+W Total time on different lock 11232 ms
+W Total time on different lock 11346 ms
+W Total time on different lock 11108 ms
+W Total time on different lock 11086 ms
+W Total time on different lock 11147 ms
+W Total time on different lock 11120 ms
+W Total time on different lock 11288 ms
+W Total time on different lock 11121 ms
+W Total time on different lock 11240 ms
+W Total time on different lock 11167 ms
+W Total time on different lock 11184 ms
+W Total time on different lock 11258 ms
+W Total time on different lock 11138 ms
+W Total time on different lock 11346 ms
+W Total time on different lock 11213 ms
+W Total time on different lock 11297 ms
+W Total time on different lock 11290 ms
+W Total time on different lock 11162 ms
+W Total time on different lock 11226 ms
+W Total time on different lock 11234 ms
+W Total time on different lock 11317 ms
+W Total time on different lock 11252 ms
+W Total time on different lock 11330 ms
+W Total time on different lock 11198 ms
+W Total time on different lock 11260 ms
+W Total time on different lock 11211 ms
+W Total time on different lock 11228 ms
+W Total time on different lock 11250 ms
+W Total time on different lock 11688 ms
+W Total time on different lock 11704 ms
+W Total time on different lock 11776 ms
+W Total time on different lock 11795 ms
+W Total time on different lock 11824 ms
+W Total time on different lock 11836 ms
+W Total time on different lock 11884 ms
+W Total time on different lock 11922 ms
+W Total time on different lock 11753 ms
+W Total time on different lock 11777 ms
+W Total time on different lock 11520 ms
+W Total time on different lock 11526 ms
+W Total time on different lock 11794 ms
+W Total time on different lock 11931 ms
+W Total time on different lock 11535 ms
+W Total time on different lock 11818 ms
+W Total time on different lock 11552 ms
+W Total time on different lock 11993 ms
+W Total time on different lock 12007 ms
+W Total time on different lock 11840 ms
+W Total time on different lock 11586 ms
+W Total time on different lock 11865 ms
+W Total time on different lock 11861 ms
+W Total time on different lock 11597 ms
+W Total time on different lock 11735 ms
+W Total time on different lock 11596 ms
+W Total time on different lock 11906 ms
+W Total time on different lock 11738 ms
+W Total time on different lock 12051 ms
+W Total time on different lock 11614 ms
+W Total time on different lock 11909 ms
+W Total time on different lock 11784 ms
+W Total time on different lock 12090 ms
+W Total time on different lock 11790 ms
+W Total time on different lock 11963 ms
+W Total time on different lock 12118 ms
+W Total time on different lock 12122 ms
+W Total time on different lock 12002 ms
+W Total time on different lock 11996 ms
+W Total time on different lock 11838 ms
+W Total time on different lock 12010 ms
+W Total time on different lock 12015 ms
+W Total time on different lock 11844 ms
+W Total time on different lock 11859 ms
+W Total time on different lock 11905 ms
+W Total time on different lock 12055 ms
+W Total time on different lock 11894 ms
+W Total time on different lock 11954 ms
+W Total time on different lock 12100 ms
+W Total time on different lock 11845 ms
+W Total time on different lock 11860 ms
+W Total time on different lock 12004 ms
+W Total time on different lock 12004 ms
+W Total time on different lock 12017 ms
+W Total time on different lock 12023 ms
+W Total time on different lock 12042 ms
+W Total time on different lock 11903 ms
+W Total time on different lock 11916 ms
+W Total time on different lock 11924 ms
+W Total time on different lock 12063 ms
+W Total time on different lock 11938 ms
+W Total time on different lock 11956 ms
+W Total time on different lock 12005 ms
+Total time on different locks 85903 ms
+I am done
+Done AppThread
+
+=============================
+Squawk VM exiting with code 0
+Execution time 106284 ms
+=============================
+
+Running top-level shutdown hooks:
+Done running top-level shutdown hooks.
+	0:0
+	0:0
+** VM on 0:0 stopped: exit code = 0 ** 	0:0
+End: 148530 ms	0:0
+Board=0 Core=0 : Exited with 0	0:0
+>> Connected to formicarium
+>> Received kill command from software
+
