@@ -22,68 +22,118 @@
     |          255 | (144876+1wa) 574372  |
     |          503 | (263975+2wa) 1122967 |
     |--------------+----------------------|
-
-*** Measurements on monitor manager queuing impact on performance
-    #+tblname: manager-queue
-    |-------+--------+--------------+-----------------|
-    | Tasks | Boards | with queuing | without queuing |
-    |-------+--------+--------------+-----------------|
-    |     1 |      1 |         3496 |            3497 |
-    |    15 |      2 |        21843 |           31631 |
-    |   255 |     32 |       350462 |          616327 |
-    |   503 |     63 |       690797 |         1738468 |
-    |-------+--------+--------------+-----------------|
     #   |   255 |     32 |              350462 | (186831+1wa) 616327 |
     #   |   503 |     63 | (261301+1wa) 690797 | (20484+4wa) 1738468 |
+    [fn:1]
+  
+*** Measurements on monitor manager queuing impact on performance
 
-    #+begin_src gnuplot :var data=manager-queue :exports results :file mmgr_queue.pdf
-      set title 'Monitor acquisition with and without queuing of requests'
-      set xlabel "Number of boards"
-      set ylabel "Total execution time (ms)\n for 100 monitor enter/exit pairs"
-      set style data histogram
-      set style histogram cluster gap 1
-      unset yrange
-      unset xrange
-      set boxwidth 1
-      plot data using 3:xtic(2), \
-           data using 4:xtic(2)
-    #+end_src
+    In the following tables and plots Throughput is expressed as
+    Monitor Enter per second.
 
-    #+RESULTS:
-    [[file:mmgr_queue.pdf]]
+**** With MMGR queuing 
+***** 100 locks per task 0 artificial work (includes join)
+      #+CAPTION: Measurements with queueing on the MMGR
+      #+tblname: manager-queue-total
+      |-------+--------+-----------------+------------|
+      | Tasks | Boards | Total time (ms) | Throughput |
+      |-------+--------+-----------------+------------|
+      |     1 |      1 |            3496 |      28.60 |
+      |    15 |      2 |           21843 |      68.67 |
+      |   255 |     32 |          350462 |      72.76 |
+      |   503 |     63 |          690797 |      72.81 |
+      |-------+--------+-----------------+------------|
+      #+TBLFM: $4=($1*100)/($3/1000);%.2f
+      #   |   503 |     63 | (261301+1wa) 690797 |
 
-***** artificial_work = 0
-      Measurements from tasks
-      |-----------------+-----------+--------+------+------|
-      | # Tasks         | mean (ms) | median |  min |  max |
-      |-----------------+-----------+--------+------+------|
-      | 1               |      2223 |   2223 | 2223 | 2223 |
-      | 15 (2 boards)   |           |        |      |      |
-      | 255 (32 boards) |           |        |      |      |
-      | 271 (34 boards) |           |        |      |      |
-      | 287 (36 boards) |           |        |      |      |
-      | 319 (40 boards) |           |        |      |      |
-      | 383 (48 boards) |           |        |      |      |
-      | 503 (63 boards) |           |        |      |      |
-      |-----------------+-----------+--------+------+------|
-      #+PLOT: title:"Citas" ind:1 deps:(2 3) type:2d with:histograms set:"yrange [0:]"
+***** Polling every 1000th lock request 0 artificial work
+      #+LATEX: \begin{landscape}
+      #+ATTR_LaTeX: :environment longtable
+      #+CAPTION: Measurements with queueing on the MMGR
+      #+tblname: manager-queue
+      |-------+--------+--------------+-------------+--------------+-----------+-----------+--------------+------------|
+      | Tasks | Boards | mean (ticks) |      median |           q1 |       min |       max |           q3 | Throughput |
+      |-------+--------+--------------+-------------+--------------+-----------+-----------+--------------+------------|
+      |     1 |      1 | 221948800.25 |   221949169 |    221948236 | 221946077 | 221950188 | 221949832.75 |      45.06 |
+      |    15 |      2 | 125692804.69 |   125341972 |    125090490 | 124518646 | 127070425 |    126493187 |      79.56 |
+      |    63 |      8 | 125821675.25 | 125876486.5 |  125666035.5 | 125479629 | 126054099 | 126032126.25 |      79.48 |
+      |   127 |     16 |  127020676.6 |   127124226 | 126496339.25 | 126101832 | 128066090 | 127315388.75 |      78.73 |
+      |   255 |     32 | 126779867.29 |   126657053 | 126498700.25 | 126282656 | 127350633 | 127152188.75 |      78.88 |
+      |   503 |     63 | 126524523.66 |   126693024 |  126397175.5 |  85615584 | 168552086 |  126820601.5 |      79.04 |
+      |-------+--------+--------------+-------------+--------------+-----------+-----------+--------------+------------|
+      #+TBLFM: $9=1000/($3/10000/1000);%.2f
+      #+LATEX: \end{landscape}
 
-      A timer wrap-around (wa) is 4294967296 cc = ~429,496ms = ~7.158278827 min
+**** Without MMGR queuing 
 
-***** artificial_work = 100
-      |---------------+-----------------+----------------|
-      |       # Tasks | Total time (ms) |                |
-      |---------------+-----------------+----------------|
-      |               | w/ MMGR_QUEUE   | w/o MMGR_QUEUE |
-      |---------------+-----------------+----------------|
-      |             1 | 4266            |                |
-      | 15 (2 boards) |                 |                |
-      |           503 |                 |                |
-      |---------------+-----------------+----------------|
+***** 100 locks per task 0 artificial work (includes join)
+      #+CAPTION: Measurements without queueing on the MMGR
+      #+tblname: manager-noqueue-total
+      |-------+--------+-----------------+------------|
+      | Tasks | Boards | Total time (ms) | Throughput |
+      |-------+--------+-----------------+------------|
+      |     1 |      1 |            3497 |      28.60 |
+      |    15 |      2 |           31631 |      47.42 |
+      |   255 |     32 |          616327 |      41.37 |
+      |   503 |     63 |         1738468 |      28.93 |
+      |-------+--------+-----------------+------------|
+      #+TBLFM: $4=($1*100)/($3/1000);%.2f
+      #   |   255 |     32 | (186831+1wa) 616327 |
+      #   |   503 |     63 | (20484+4wa) 1738468 |
+      [fn:1]
+
+      #+begin_src gnuplot :var noqueuet=manager-noqueue-total :var queuet=manager-queue-total :exports results :file mmgr_noqueue_total.pdf
+        set term pdf size 3,3
+        set xlabel "Number of Java threads"
+        set ylabel "Total execution time (sec)\n for 100 monitor enter/exit pairs"
+        set style data histogram
+        set style histogram cluster gap 1
+        set boxwidth .85
+        plot queuet using ($3/1000):xtic(1), \
+             noqueuet using ($3/1000):xtic(1)
+      #+end_src
+
+      #+CAPTION: Impact of queuing on performance
+      #+RESULTS:
+      [[file:mmgr_noqueue_total.pdf]]
+
+***** Polling every 1000th lock request 0 artificial work
+      #+LATEX: \begin{landscape}
+      #+ATTR_LaTeX: :environment longtable
+      #+CAPTION: Measurements without queueing on the MMGR
+      #+tblname: manager-noqueue
+      |-------+--------+--------------+-------------+--------------+-----------+-----------+--------------+------------|
+      | Tasks | Boards | mean (ticks) |      median |           q1 |       min |       max |           q3 | Throughput |
+      |-------+--------+--------------+-------------+--------------+-----------+-----------+--------------+------------|
+      |     1 |      1 | 222461846.62 | 222461223.5 | 222460686.75 | 222456404 | 222466702 | 222463839.75 |      44.95 |
+      |    15 |      2 | 145210459.69 |   145730822 |    145725675 | 140771214 | 145876594 |    145731715 |      68.87 |
+      |    63 |      8 |    142142525 |   142931995 |    141827982 | 139438002 | 143268108 |    143246538 |      70.35 |
+      |   127 |     16 |  177922741.6 |   179111431 |  178914511.5 | 171436039 | 179612058 |    179280005 |      56.20 |
+      |   255 |     32 |    228242294 |   243897349 |  223083533.5 | 154294314 | 245809965 |    243904867 |      43.81 |
+      |   503 |     63 | 338780819.34 |   366808894 |    325460594 | 201488968 | 369774804 |  366824696.5 |      29.52 |
+      |-------+--------+--------------+-------------+--------------+-----------+-----------+--------------+------------|
+      #+TBLFM: $2=($1+8)/8;%d::$9=1000/($3/10000/1000);%.2f
+      #+LATEX: \end{landscape}
+
+      #+begin_src gnuplot :var queue=manager-queue :var noqueue=manager-noqueue :exports results :file mmgr_queue.pdf
+        set xlabel "Number of Java threads"
+        set ylabel "Throughput (Monitor Enters/sec)"
+        set key inside bottom left vertical
+        set xrange[0:512]
+        #set logscale x 2
+        plot queue using 1:9 title "With queuing" with linespoints, \
+             noqueue using 1:9 title "Without queuing" with linespoints
+        unset xrange
+        unset logscale x
+      #+end_src
+
+      #+CAPTION: Impact of queuing on Throughput
+      #+RESULTS:
+      [[file:mmgr_queue.pdf]]
 
 ** Content on different locks
 *** artificial_work = 0 (full contention)
-**** Measurements from tasks with 1 monitor managers
+**** Measurements from tasks with 1 monitor managers TODO re-take numbers
      #+tblname: single-manager
      |---------+--------+------------+--------+------+------+-------+-------|
      | # Tasks | Boards |  mean (ms) | median |   q1 |  min |   max |    q3 |
@@ -100,18 +150,20 @@
 
      #+begin_src gnuplot :var data=single-manager :exports results :file single_mmgr.pdf
        set style data linespoints
-       set title 'Acquisition of different locks with a single manager'y
        set xlabel "Number of boards"
        set ylabel "Total execution time (ms per core)\n for 100 monitor enter/exit pairs"
-       set xrange[0:65]
+       set xrange[0:512]
        set yrange[0:12500]
-       set boxwidth 2 absolute
+       set boxwidth .25 relativey
        unset key
-       plot data using 2:4, \
-            data using 2:5:6:7:8 with candlesticks whiskerbars, \
-            data using 2:4:4:4:4 with candlesticks lt -1
+       plot data using 1:4, \
+            data using 1:5:6:7:8 with candlesticks whiskerbars, \
+            data using 1:4:4:4:4 with candlesticks lt -1
+       unset xrange
+       unset yrange
      #+end_src
 
+     #+CAPTION: Acquisition of different locks\n with a single manager
      #+RESULTS:
      [[file:single_mmgr.pdf]]
 
@@ -191,7 +243,6 @@
      #+begin_src gnuplot :var data=throughput :exports results :file throughput.pdf
        set style data linespoints
        set label 1 at 243,11321.46 "11321.46" center front point pt 6 ps .5 offset 0,.6
-       set title 'Impact of the number of threads on monitor manager throughput'
        set xlabel "Number of Java threads"
        set ylabel "Throughput (Requests/sec)"
        set xrange[0:512]
@@ -199,8 +250,11 @@
        unset key
        plot 11321.46 lc rgbcolor 'gray' dt 3, data using 1:10 ls 1 ps .5 notitle
        unset label 1
+       unset xrange
+       unset yrange
      #+end_src
 
+     #+CAPTION: Impact of the number of threads\n on monitor manager throughput
      #+RESULTS:
      [[file:throughput.pdf]]
 
@@ -280,14 +334,19 @@
 
      #+begin_src gnuplot :var data=throughput-scale :exports results :file throughput_scale.pdf
        set style data linespoints
-       set title 'Impact of the number of monitor managers on throughput'
        set xlabel "Number of Managers"
        set ylabel "Throughput (Requests/sec)"
        set xrange[0.5:8.5]
        set yrange[0:24000]
        unset key
        plot data using 1:2 notitle
+       unset xrange
+       unset yrange
      #+end_src
+
+     #+CAPTION: Impact of the number of monitor managers on throughput 
+     #+RESULTS:
+     [[file:throughput_scale.pdf]]
 
 **** Measurements from 503 tasks with X monitor managers
 
@@ -310,7 +369,6 @@
 
      #+begin_src gnuplot :var data=var-managers :exports results :file var_mmgr.pdf
        set style data linespoints
-       set title 'Impact of the number of monitor managers on performance'
        set xlabel "Number of Managers"
        set ylabel "Total execution time (ms per core)\n for 100 monitor enter/exit pairs"
        set xrange[0.5:8.5]
@@ -320,8 +378,16 @@
        plot data using 1:3, \
             data using 1:4:5:6:7 with candlesticks whiskerbars, \
             data using 1:3:3:3:3 with candlesticks lt -1 notitle
+       unset xrange
+       unset yrange
      #+end_src
 
+     #+CAPTION: Impact of the number of monitor managers on performance
      #+RESULTS:
      [[file:var_mmgr.pdf]]
 
+     A timer wrap-around (wa) is 4294967296 cc = ~429,496ms = ~7.158278827 min
+
+* Footnotes
+
+[fn:1] A timer wrap-around (wa) is 4294967296 cc = ~429,496ms = ~7.158278827 min
