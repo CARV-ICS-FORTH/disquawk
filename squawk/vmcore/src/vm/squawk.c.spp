@@ -511,12 +511,12 @@ void *newBuffer(UWord size, const char *desc, boolean fatalIfFail) {
 		}
 	}
 
-#if !defined(__MICROBLAZE__) || defined(ASSUME)
+#if defined(MEM_ZERO_AT_INIT) || defined(ASSUME)
 	/*
 	 * Zero the bytes in the buffer.
 	 */
 	memset(buffer, 0, (int)size);
-#endif
+#endif /* if defined(MEM_ZERO_AT_INIT) || defined(ASSUME) */
 
 	Buffers_g[BufferCount_g++] = buffer;
 

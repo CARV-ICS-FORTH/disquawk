@@ -1782,7 +1782,9 @@ Address allocate(int size, Address klass, int arrayLength) {
 	com_sun_squawk_GC_allocTop = Address_add(block, size);
 	/* It should not really matter if it is a write for sc_translate since
 	   it should not be cacheable */
+#ifndef MEM_ZERO_AT_INIT
 	zeroWords(sc_translate(oop, 1), sc_translate(com_sun_squawk_GC_allocTop, 1));
+#endif /* ifndef MEM_ZERO_AT_INIT */
 	com_sun_squawk_GC_newCount++;
 	/*traceAllocation(oop, size);*/
 
