@@ -879,7 +879,7 @@ mmgrMonitorEnterHandler(int bid, int cid, Address object)
 #ifdef MMGR_STATS
 	monitor_enter_reqs++;
 	monitor->times_requested++;
-	if (monitor_enter_reqs == MMGR_STATS_PERIOD) {
+	if (monitor_enters == MMGR_STATS_PERIOD) {
 		mmgr_print_stats();
 	}
 #endif /* ifdef MMGR_STATS */
@@ -1218,7 +1218,7 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 
 #ifdef MMGR_STATS
 	write_lock_reqs++;
-	if (write_lock_reqs == MMGR_STATS_PERIOD) {
+	if (write_locks == MMGR_STATS_PERIOD) {
 		mmgr_print_stats();
 	}
 #endif  /* ifdef MMGR_STATS */
@@ -1240,6 +1240,9 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 		mmpSend2(bid, cid,
 		         (unsigned int)((monitor->owner << 16) | MMP_OPS_RW_WRITE_ACK),
 		         (unsigned int)object);
+#ifdef MMGR_STATS
+		write_locks++;
+#endif  /* MMGR_STATS */
 	}
 	/* Else if is a try lock send a NACK */
 	else if (istry) {
@@ -1250,9 +1253,6 @@ mmgrWriteLockHandler(int bid, int cid, Address object, int istry)
 		return;
 	}
 
-#ifdef MMGR_STATS
-	write_locks++;
-#endif  /* MMGR_STATS */
 	/* kt_printf("I enqueued a write%s lock request for %p from %d:%d the owner is %d:%d (%d)\n",
 	 *           istry ? " try" : "", object, bid, cid, monitor->owner >> 3,
 	 *           monitor->owner & 7, monitor->owner); */
@@ -1285,7 +1285,7 @@ mmgrReadLockHandler(int bid, int cid, Address object, int istry)
 
 #ifdef MMGR_STATS
 	read_lock_reqs++;
-	if (read_lock_reqs == MMGR_STATS_PERIOD) {
+	if (read_locks == MMGR_STATS_PERIOD) {
 		mmgr_print_stats();
 	}
 #endif  /* ifdef MMGR_STATS */
