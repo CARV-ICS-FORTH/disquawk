@@ -146,8 +146,8 @@ mmpCheckMailbox(Address type, Address hash)
 	/* Handle Monitor Manager replies */
 	case MMP_OPS_MNTR_ACK:
 		/*
-		 * The second word holds the object for which we requested
-		 * the monitor
+		 * The second word holds the hash of the object for which we
+		 * requested the monitor
 		 */
 		object = (Address)ar_mbox_get(sysGetCore());
 		/* kt_printf("IN mmpCheckMailbox object=%p\n", object);
@@ -176,8 +176,9 @@ mmpCheckMailbox(Address type, Address hash)
 
 			/* TODO: Add backoff here... to avoid deadlock
 			   (due to underlying hardware limitations) */
-			/* Resend a request */
-			mmgrMonitorEnter(object);
+			/* Resend the enter request.  We do not use the mmgrMonitorEnter
+			 * here to speed up things */
+			mmgrRequestHash(MMP_OPS_MNTR_ENTER, (unsigned int)object);
 			set_java_lang_Integer_value(type, MMP_OPS_NOP);
 		}
 		else {

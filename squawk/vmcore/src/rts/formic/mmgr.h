@@ -30,6 +30,7 @@
 
 #include <arch.h>
 #include <address.h>
+#include "mmp_ops.h"
 
 #define MMGR_HT_SIZE           128
 #define mmgrHT_g               mmgr_g->mmgrHT
@@ -106,6 +107,7 @@ __attribute__((aligned(MM_CACHELINE_SIZE)))
 void mmgrInitialize(mmgrGlobals *globals);
 
 #ifdef ARCH_MB
+void mmgrRequestHash(mmpMsgOp_t msg_op, unsigned int hash);
 void mmgrMonitorEnter(Address object);
 void mmgrMonitorExit(Address object);
 void mmgrWaitMonitorExit(Address object);

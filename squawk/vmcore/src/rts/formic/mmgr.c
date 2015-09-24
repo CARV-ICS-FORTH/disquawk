@@ -665,6 +665,32 @@ mmgrRequest(mmpMsgOp_t msg_op, Address object)
 }
 
 /**
+ * Send a msg_op request regarding the object associated with the
+ * given hash.  The responsible manager is automatically calculated
+ * and the request is sent using a 2-word mailbox message.
+ *
+ * @param msg_op The desired operation
+ * @param hash   The hash of the object to operate on
+ */
+void
+mmgrRequestHash(mmpMsgOp_t msg_op, unsigned int hash)
+{
+	unsigned int msg0;
+	int          target_cid;
+	int          target_bid;
+
+	/*
+	 * Pass your bid and cid with the opcode so that the other end
+	 * can check the owner.
+	 */
+	msg0 = (sysGetIsland() << 19) | (sysGetCore() << 16) | msg_op;
+
+	mmgrGetManager(hash, &target_bid, &target_cid);
+
+	mmpSend2(target_bid, target_cid, msg0, hash);
+}
+
+/**
  * Request to enter the given object's monitor.
  *
  * @param object The object to enter its monitor
