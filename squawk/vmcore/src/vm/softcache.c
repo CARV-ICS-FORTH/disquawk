@@ -825,7 +825,9 @@ sc_put(Address obj, int cid)
 	/* end   = sysGetTicks();
 	 * printf("dir_insert takes %10u cc\n", end - start); */
 
+#ifdef SC_STATS
 	cacheObjects_g++;
+#endif /* ifdef SC_STATS */
 
 	/* printf("Put %p\n", ret); */
 	/* sc_dump(); */
