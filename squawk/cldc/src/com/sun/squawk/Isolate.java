@@ -1614,6 +1614,12 @@ public final class Isolate implements Runnable {
         if (parentSuiteSourceURI != null) {
             Suite parent = Suite.getSuite(parentSuiteSourceURI);
             Assert.that(parent != null);
+/*if[TRACING_ENABLED]*/
+            if (!VM.isHosted()) {
+                // HACK: substract the size of a Klass object 96
+                VM.print("FormicApp canonical start = " + (VM.hashcode(parent) - 96) + "\n");
+            }
+/*end[TRACING_ENABLED]*/
             leafSuite = parent;
         } else {
             leafSuite = bootstrapSuite;

@@ -27,6 +27,9 @@
  * information or have any questions.
  */
 
+// HACK: If the size of Klass changes make sure to update
+// updateLeafsuite in Isolate.java (-96)
+
 package com.sun.squawk;
 
 import com.sun.squawk.pragma.*;

@@ -10,17 +10,30 @@
 # end
 
 # trace=ARGV[0].to_s
-romstart=0;
+romstart=0
+alignment=0
 
 # if (trace.equals?("pipe"))
+f = open('FormicApp.suite.map')
+cstart = f.grep(/canonical start/)[0]
+cstart = cstart.split('=')[1].to_i
+#puts "\n\nCSTART #{cstart}"
+#cstart = 64 - (cstart%64)
+f.close
 
 # File.open(trace).each do |line|
 ARGF.each do |line|
+  if line.start_with?("FormicApp canonical start")
+    alignment = line.split('=')[1].to_i
+    #puts "\n\nALIGNMENT1 #{alignment}"
+    alignment = alignment - cstart
+    #puts "\n\nALIGNMENT2 #{alignment}"
+    puts line
   # if line.start_with?("*TRACE*:*ROM*:")
   #   romstart = line.split(':')[2].to_i
   #   puts line
   # els
-  if line.start_with?("*STACKTRACE*:") and not line.include?("\"")
+  elsif line.start_with?("*STACKTRACE*:") and not line.include?("\"")
     offset = line.split(':')[1].to_i-romstart
     flag = 0
     begin
@@ -48,7 +61,9 @@ ARGF.each do |line|
         puts line.gsub(/\n/, '')+"\t"+tokens[1].split[1]
         flag = 3
       else
-#        offset -= 760
+        #puts "\n\nOFFSET #{offset}"
+        #puts "\n\nALIGNMENT #{alignment}"
+        offset -= alignment
         flag += 1
       end
     end until flag > 1
